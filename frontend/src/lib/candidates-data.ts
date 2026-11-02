@@ -1,0 +1,88 @@
+import { Candidate } from './types';
+
+export const INITIAL_CANDIDATES: Candidate[] = [
+  // MALE CANDIDATES (BOYS)
+  {
+    id: 'boy-1',
+    candidateNumber: 'M-01',
+    name: 'Kavindu Senaratne',
+    category: 'boy',
+    age: 22,
+    bio: 'Runway specialist, blending street avant-garde with high tailoring.',
+    imageUrl: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=800&q=80',
+    votes: 0,
+  },
+  {
+    id: 'boy-2',
+    candidateNumber: 'M-02',
+    name: 'Tariq Al-Mansoor',
+    category: 'boy',
+    age: 23,
+    bio: 'Editorial print model with poise and contemporary minimalism.',
+    imageUrl: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=800&q=80',
+    votes: 0,
+  },
+  {
+    id: 'boy-3',
+    candidateNumber: 'M-03',
+    name: 'Liam Chen',
+    category: 'boy',
+    age: 21,
+    bio: 'Athletic silhouette, passionate about sustainable resort wear.',
+    imageUrl: 'https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?auto=format&fit=crop&w=800&q=80',
+    votes: 0,
+  },
+  {
+    id: 'boy-4',
+    candidateNumber: 'M-04',
+    name: 'Dilshan Perera',
+    category: 'boy',
+    age: 24,
+    bio: 'Classic formal posture with sharp cinematic presence.',
+    imageUrl: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=800&q=80',
+    votes: 0,
+  },
+
+  // FEMALE CANDIDATES (GIRLS)
+  {
+    id: 'girl-1',
+    candidateNumber: 'F-01',
+    name: 'Aanya Fernando',
+    category: 'girl',
+    age: 21,
+    bio: 'Haute couture runway walker, championing ethical Sri Lankan fabrics.',
+    imageUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=800&q=80',
+    votes: 0,
+  },
+  {
+    id: 'girl-2',
+    candidateNumber: 'F-02',
+    name: 'Elena Rostova',
+    category: 'girl',
+    age: 22,
+    bio: 'High-concept couture muse with expressive editorial poses.',
+    imageUrl: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=800&q=80',
+    votes: 0,
+  },
+  {
+    id: 'girl-3',
+    candidateNumber: 'F-03',
+    name: 'Senuri Jayawardena',
+    category: 'girl',
+    age: 20,
+    bio: 'Glamour and fluidity, combining traditional grace with modern runway.',
+    imageUrl: 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=800&q=80',
+    votes: 0,
+  },
+  {
+    id: 'girl-4',
+    candidateNumber: 'F-04',
+    name: 'Maya De Silva',
+    category: 'girl',
+    age: 23,
+    bio: 'Bold and confident statement walk, fashion styling enthusiast.',
+    imageUrl: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=800&q=80',
+    votes: 0,
+  },
+];
+

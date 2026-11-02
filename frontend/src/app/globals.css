@@ -1,0 +1,44 @@
+@import url('https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,600;0,6..96,700;1,6..96,400&family=Jost:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --ink: #0b0b0b;
+  --paper: #f2efe6;
+  --paper-dim: #e8e3d6;
+  --silver: #a9a9a4;
+  --charcoal: #423e35;
+  --foil: #b3924f;
+  --foil-gold: #cba75f;
+}
+
+body {
+  background-color: var(--paper);
+  color: var(--ink);
+  font-family: 'Jost', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+}
+
+.font-serif {
+  font-family: 'Bodoni Moda', Georgia, serif;
+}
+
+/* Gold foil text shimmer */
+.gold-gradient-text {
+  background: linear-gradient(135deg, #b3924f 0%, #ecd599 50%, #8a6d34 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Glass & editorial card border */
+.editorial-border {
+  border: 1px solid rgba(11, 11, 11, 0.12);
+}
+
+.gold-border {
+  border: 1px solid rgba(179, 146, 79, 0.4);
+}
+
