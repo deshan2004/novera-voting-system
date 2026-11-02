@@ -3,12 +3,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
 import {
-  QrCode,
-  Copy,
-  Check,
   Maximize2,
   Minimize2,
-  ExternalLink,
   Sparkles,
   Smartphone,
   Vote,
@@ -18,7 +14,6 @@ import {
 
 export default function QrDisplayPage() {
   const [votingUrl, setVotingUrl] = useState<string>('');
-  const [copied, setCopied] = useState<boolean>(false);
   const [isFullscreen, setIsFullscreen] = useState<boolean>(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -28,13 +23,6 @@ export default function QrDisplayPage() {
       setVotingUrl(`${origin}/vote`);
     }
   }, []);
-
-  const handleCopy = () => {
-    if (!votingUrl) return;
-    navigator.clipboard.writeText(votingUrl);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2500);
-  };
 
   const toggleFullscreen = () => {
     if (!document.fullscreenElement) {
@@ -102,35 +90,6 @@ export default function QrDisplayPage() {
           <div className="mt-4 flex items-center gap-2 text-xs font-bold tracking-widest uppercase text-novera-ink">
             <Smartphone className="w-4 h-4 text-novera-foil" />
             <span>Open Camera &bull; Scan Instantly</span>
-          </div>
-        </div>
-
-        {/* URL Box & Controls */}
-        <div className="w-full max-w-md space-y-3">
-          <div className="flex items-center gap-2 p-2 rounded-xl bg-white border border-novera-ink/15 shadow-sm">
-            <input
-              type="text"
-              readOnly
-              value={votingUrl}
-              className="flex-grow px-3 py-1.5 text-xs text-novera-ink font-mono bg-transparent outline-none truncate"
-            />
-            <button
-              onClick={handleCopy}
-              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-novera-ink text-novera-paper hover:bg-novera-foil text-xs font-medium transition-colors"
-              title="Copy URL to clipboard"
-            >
-              {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
-              <span>{copied ? 'Copied!' : 'Copy'}</span>
-            </button>
-            <a
-              href={votingUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="p-1.5 rounded-lg text-novera-charcoal hover:text-novera-foil hover:bg-novera-paper-dim transition-colors"
-              title="Test open voting ballot in new tab"
-            >
-              <ExternalLink className="w-4 h-4" />
-            </a>
           </div>
         </div>
 
