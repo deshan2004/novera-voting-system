@@ -22,6 +22,9 @@ import {
   Camera,
   Heart,
   Crown,
+  Shield,
+  Eye,
+  CheckCheck,
 } from 'lucide-react';
 
 const OFFICIAL_JUDGES = [
@@ -42,6 +45,9 @@ export default function JudgePortalPage() {
   const [candidates, setCandidates] = useState<Candidate[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<GenderCategory>('boy');
   const [judgeScores, setJudgeScores] = useState<JudgeScore[]>([]);
+
+  // Live Telemetry Clock & Latency
+  const [telemetryPing, setTelemetryPing] = useState<number>(14);
 
   // Active scoring candidate
   const [scoringCandidate, setScoringCandidate] = useState<Candidate | null>(null);
@@ -94,7 +100,15 @@ export default function JudgePortalPage() {
       setJudgeScores(scores);
     });
 
-    return () => unsubscribe();
+    // Realistic telemetry fluctuation every 3s
+    const pingInterval = setInterval(() => {
+      setTelemetryPing(Math.floor(Math.random() * 8) + 11);
+    }, 3000);
+
+    return () => {
+      unsubscribe();
+      clearInterval(pingInterval);
+    };
   }, []);
 
   const handleLogin = (e: React.FormEvent) => {
@@ -235,10 +249,10 @@ export default function JudgePortalPage() {
     setTimeout(() => {
       setAnimationState((prev) => (prev ? { ...prev, step: 3 } : null));
       confetti({
-        particleCount: 100,
-        spread: 80,
+        particleCount: 120,
+        spread: 90,
         origin: { y: 0.5 },
-        colors: ['#b3924f', '#ecd599', '#ff3b30', '#ffffff'],
+        colors: ['#b3924f', '#ecd599', '#ff3b30', '#ffffff', '#10b981'],
       });
       saveJudgeScore(scoreData);
     }, 1800);
@@ -253,12 +267,16 @@ export default function JudgePortalPage() {
     return judgeScores.find((s) => s.judgeId === selectedJudgeId && s.candidateId === candidateId);
   };
   const scoredCount = currentCategoryCandidates.filter((c) => !!getScoreForCandidate(c.id)).length;
+  const progressPercent = currentCategoryCandidates.length > 0 ? Math.round((scoredCount / currentCategoryCandidates.length) * 100) : 0;
 
   if (!isAuthenticated) {
     return (
       <div className="min-h-[85vh] flex items-center justify-center p-4">
-        <div className="max-w-md w-full bg-white rounded-3xl p-6 sm:p-8 border border-novera-ink/10 shadow-editorial text-center space-y-6">
-          <div className="w-16 h-16 rounded-2xl bg-novera-ink text-novera-gold mx-auto flex items-center justify-center shadow-lg border border-novera-foil/30">
+        <div className="max-w-md w-full bg-white rounded-3xl p-6 sm:p-8 border border-novera-ink/10 shadow-editorial text-center space-y-6 relative overflow-hidden">
+          {/* Subtle top scanner sweep */}
+          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-novera-foil to-transparent animate-scan-sweep" />
+
+          <div className="w-16 h-16 rounded-2xl bg-novera-ink text-novera-gold mx-auto flex items-center justify-center shadow-lg border border-novera-foil/30 animate-float">
             <Lock className="w-8 h-8 text-novera-gold" />
           </div>
 
@@ -285,7 +303,7 @@ export default function JudgePortalPage() {
                 placeholder="Enter passcode"
                 value={passcode}
                 onChange={(e) => setPasscode(e.target.value)}
-                className="w-full px-4 py-3 rounded-xl border border-novera-ink/20 text-xs sm:text-sm bg-novera-paper-dim text-novera-ink outline-none focus:border-novera-foil font-mono text-center tracking-widest text-base"
+                className="w-full px-4 py-3 rounded-xl border border-novera-ink/20 text-xs sm:text-sm bg-novera-paper-dim text-novera-ink outline-none focus:border-novera-foil font-mono text-center tracking-widest text-base shadow-inner"
                 required
                 autoFocus
               />
@@ -300,8 +318,9 @@ export default function JudgePortalPage() {
 
             <button
               type="submit"
-              className="w-full py-3.5 rounded-xl bg-novera-ink text-novera-paper hover:bg-novera-foil transition-all text-xs font-bold uppercase tracking-wider shadow-md flex items-center justify-center gap-2"
+              className="w-full py-3.5 rounded-xl bg-novera-ink text-novera-paper hover:bg-novera-foil transition-all text-xs font-bold uppercase tracking-wider shadow-md flex items-center justify-center gap-2 group relative overflow-hidden"
             >
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 pointer-events-none" />
               <Lock className="w-4 h-4 text-novera-gold" />
               <span>Unlock Jury Scorecard</span>
             </button>
@@ -316,68 +335,96 @@ export default function JudgePortalPage() {
   }
 
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10">
-      {/* 🔴 LIVE ADMIN SURVEILLANCE & AUDIT BANNER */}
-      <div className="mb-6 p-4 rounded-2xl bg-gradient-to-r from-red-950 via-novera-ink to-red-950 text-white border-2 border-red-500/40 shadow-xl relative overflow-hidden">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 relative z-10">
-          <div className="flex items-center gap-3">
-            <div className="relative flex items-center justify-center w-8 h-8 rounded-full bg-red-500/20 border border-red-500/60 shrink-0">
-              <span className="w-2.5 h-2.5 rounded-full bg-red-500 animate-ping absolute" />
-              <Radio className="w-4 h-4 text-red-400 relative z-10" />
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10 space-y-6">
+      {/* 🔴 LIVE ADMIN SURVEILLANCE & AUDIT BANNER WITH DYNAMIC TELEMETRY ANIMATIONS */}
+      <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-red-950 via-[#180505] to-red-950 text-white border-2 border-red-500/50 shadow-2xl relative overflow-hidden animate-surveillance-glow">
+        {/* Animated Laser Scanner Sweep */}
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-red-500/25 to-transparent w-1/3 animate-scan-sweep pointer-events-none" />
+
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 relative z-10">
+          <div className="flex items-center gap-3.5">
+            <div className="relative flex items-center justify-center w-10 h-10 rounded-full bg-red-500/20 border border-red-500/70 shrink-0 shadow-[0_0_15px_rgba(239,68,68,0.4)]">
+              <span className="w-3 h-3 rounded-full bg-red-500 animate-ping absolute" />
+              <Radio className="w-5 h-5 text-red-400 relative z-10" />
             </div>
             <div>
-              <div className="flex items-center gap-2">
-                <span className="text-[10px] font-mono uppercase tracking-[0.2em] font-bold text-red-400">
-                  LIVE ADMIN SURVEILLANCE ACTIVE
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="text-[10px] sm:text-[11px] font-mono uppercase tracking-[0.25em] font-bold text-red-400 flex items-center gap-1.5">
+                  <Eye className="w-3.5 h-3.5 animate-pulse" />
+                  <span>LIVE ADMIN SURVEILLANCE ACTIVE</span>
                 </span>
-                <span className="hidden sm:inline-block w-1.5 h-1.5 rounded-full bg-red-400" />
-                <span className="text-[10px] text-zinc-300 font-mono hidden sm:inline">
+                <span className="w-1.5 h-1.5 rounded-full bg-red-400 hidden sm:inline-block" />
+                <span className="text-[10px] text-zinc-300 font-mono bg-black/40 px-2 py-0.5 rounded border border-white/10">
                   AUDIT ID: #{activeJudge.code.toUpperCase()}-STREAM
                 </span>
               </div>
-              <p className="text-xs text-zinc-200 mt-0.5 font-medium">
+              <p className="text-xs text-zinc-200 mt-1 font-medium">
                 The Central Organizing Committee &amp; Master Admin are actively monitoring your scorecard in real-time.
               </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-2 text-[10px] font-mono text-zinc-300 bg-black/40 px-3 py-1.5 rounded-xl border border-white/10 shrink-0">
-            <Activity className="w-3.5 h-3.5 text-emerald-400 animate-pulse" />
-            <span>SOCKET: SECURE 256-BIT</span>
+          <div className="flex items-center gap-2.5 shrink-0 w-full sm:w-auto justify-between sm:justify-end">
+            {/* Live Audio/Signal Telemetry Waveform */}
+            <div className="flex items-center gap-1 h-5 px-2.5 py-1 rounded-xl bg-black/60 border border-emerald-500/30">
+              <span className="w-1 bg-emerald-400 rounded-full animate-eq-1" />
+              <span className="w-1 bg-emerald-400 rounded-full animate-eq-2" />
+              <span className="w-1 bg-emerald-400 rounded-full animate-eq-3" />
+              <span className="w-1 bg-emerald-400 rounded-full animate-eq-4" />
+              <span className="text-[9px] text-emerald-400 font-mono font-bold tracking-wider ml-1">
+                {telemetryPing}ms
+              </span>
+            </div>
+
+            <div className="flex items-center gap-1.5 text-[10px] font-mono text-zinc-300 bg-black/60 px-3 py-1.5 rounded-xl border border-white/10">
+              <Activity className="w-3.5 h-3.5 text-emerald-400 animate-pulse" />
+              <span>SOCKET: 256-BIT</span>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Top Header Card */}
-      <div className="p-6 rounded-3xl bg-white border border-novera-ink/10 shadow-editorial mb-8 flex flex-col sm:flex-row items-center justify-between gap-4">
-        <div className="flex items-center gap-4 text-center sm:text-left">
-          <div className="w-12 h-12 rounded-2xl bg-novera-foil/15 flex items-center justify-center shrink-0 border border-novera-foil/30">
-            <Award className="w-6 h-6 text-novera-foil" />
+      {/* Top Header Card with Floating Avatar & Progress Meter */}
+      <div className="p-6 sm:p-8 rounded-3xl bg-white border border-novera-ink/10 shadow-editorial flex flex-col md:flex-row items-center justify-between gap-6 relative overflow-hidden transition-all duration-300 hover:shadow-xl">
+        <div className="flex items-center gap-4 text-center sm:text-left w-full sm:w-auto">
+          <div className="relative w-14 h-14 rounded-2xl bg-gradient-to-tr from-novera-ink via-novera-charcoal to-novera-ink flex items-center justify-center shrink-0 border border-novera-foil/40 shadow-md">
+            <Award className="w-7 h-7 text-novera-gold animate-float" />
+            <div className="absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full bg-emerald-500 border-2 border-white animate-pulse" />
           </div>
           <div>
             <div className="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-widest text-novera-foil">
-              <Sparkles className="w-3.5 h-3.5" />
+              <Sparkles className="w-3.5 h-3.5 text-novera-gold animate-spin" style={{ animationDuration: '6s' }} />
               <span>Official Runway Jury &bull; Seat Verified</span>
             </div>
             <h1 className="font-serif text-2xl sm:text-3xl font-bold text-novera-ink">
               {activeJudge.name}
             </h1>
-            <p className="text-xs text-novera-charcoal">
+            <p className="text-xs text-novera-charcoal mt-0.5">
               {activeJudge.title} &bull; Model Performance &amp; Student Design Marking
             </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
-          <div className="px-4 py-2 rounded-2xl bg-novera-paper-dim border border-novera-ink/10 text-xs">
-            <span className="text-novera-charcoal font-medium">Evaluation: </span>
-            <span className="font-bold text-novera-foil">
-              {scoredCount} / {currentCategoryCandidates.length}
-            </span>
+        {/* Right Status Controls with Progress Bar */}
+        <div className="flex flex-wrap items-center gap-4 w-full md:w-auto justify-between md:justify-end">
+          <div className="px-4 py-2.5 rounded-2xl bg-novera-paper-dim border border-novera-ink/10 text-xs space-y-1">
+            <div className="flex items-center justify-between gap-3 text-xs">
+              <span className="text-novera-charcoal font-medium">Evaluation:</span>
+              <span className="font-mono font-bold text-novera-foil">
+                {scoredCount} / {currentCategoryCandidates.length} ({progressPercent}%)
+              </span>
+            </div>
+            <div className="w-28 sm:w-36 h-1.5 rounded-full bg-novera-ink/10 overflow-hidden">
+              <div
+                className="h-full bg-gradient-to-r from-novera-gold-dark via-novera-foil to-amber-300 rounded-full transition-all duration-700"
+                style={{ width: `${progressPercent}%` }}
+              />
+            </div>
           </div>
+
           <button
             onClick={handleLogout}
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-medium text-rose-700 bg-rose-50 border border-rose-200 hover:bg-rose-100 transition-colors"
+            className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-2xl text-xs font-semibold text-rose-700 bg-rose-50 border border-rose-200 hover:bg-rose-100 transition-all shadow-sm"
           >
             <LogOut className="w-3.5 h-3.5" />
             <span>Sign Out</span>
@@ -385,81 +432,97 @@ export default function JudgePortalPage() {
         </div>
       </div>
 
-      {/* Category Toggle Tabs */}
-      <div className="flex justify-center mb-8 px-2">
-        <div className="inline-flex w-full max-w-md p-1.5 rounded-full bg-novera-paper-dim border border-novera-ink/10 shadow-inner">
+      {/* Category Toggle Tabs with Smooth Sliding Style */}
+      <div className="flex justify-center px-2">
+        <div className="inline-flex w-full max-w-lg p-1.5 rounded-full bg-novera-paper-dim border border-novera-ink/10 shadow-inner">
           <button
             onClick={() => setSelectedCategory('boy')}
-            className={`flex-1 flex items-center justify-center gap-1.5 px-3 sm:px-6 py-2.5 rounded-full text-xs sm:text-sm font-semibold tracking-wider uppercase transition-all ${
+            className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-full text-xs sm:text-sm font-bold tracking-wider uppercase transition-all duration-300 ${
               selectedCategory === 'boy'
-                ? 'bg-novera-ink text-novera-paper shadow-md'
+                ? 'bg-novera-ink text-novera-paper shadow-md scale-[1.02]'
                 : 'text-novera-charcoal hover:text-novera-ink'
             }`}
           >
-            <span className="hidden sm:inline">Best Male Contenders (Boys)</span>
-            <span className="sm:hidden">Male (Boys)</span>
+            <Crown className={`w-3.5 h-3.5 ${selectedCategory === 'boy' ? 'text-novera-gold' : 'text-novera-silver'}`} />
+            <span>Male Contenders (Boys)</span>
           </button>
 
           <button
             onClick={() => setSelectedCategory('girl')}
-            className={`flex-1 flex items-center justify-center gap-1.5 px-3 sm:px-6 py-2.5 rounded-full text-xs sm:text-sm font-semibold tracking-wider uppercase transition-all ${
+            className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-full text-xs sm:text-sm font-bold tracking-wider uppercase transition-all duration-300 ${
               selectedCategory === 'girl'
-                ? 'bg-novera-ink text-novera-paper shadow-md'
+                ? 'bg-novera-ink text-novera-paper shadow-md scale-[1.02]'
                 : 'text-novera-charcoal hover:text-novera-ink'
             }`}
           >
-            <span className="hidden sm:inline">Best Female Contenders (Girls)</span>
-            <span className="sm:hidden">Female (Girls)</span>
+            <Crown className={`w-3.5 h-3.5 ${selectedCategory === 'girl' ? 'text-novera-gold' : 'text-novera-silver'}`} />
+            <span>Female Contenders (Girls)</span>
           </button>
         </div>
       </div>
 
-      {/* Candidate Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        {currentCategoryCandidates.map((candidate) => {
+      {/* Candidate Grid with Smooth Staggered Entrance & Hover Card Zoom */}
+      <div key={selectedCategory} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
+        {currentCategoryCandidates.map((candidate, idx) => {
           const score = getScoreForCandidate(candidate.id);
           const isScored = !!score;
 
           return (
             <div
               key={candidate.id}
-              className={`rounded-2xl bg-white border p-5 flex flex-col justify-between transition-all duration-300 shadow-sm ${
-                isScored ? 'border-emerald-400 ring-2 ring-emerald-200' : 'border-novera-ink/10 hover:border-novera-foil'
+              className={`group rounded-3xl bg-white border p-5 flex flex-col justify-between transition-all duration-300 hover:-translate-y-1 ${
+                isScored
+                  ? 'border-emerald-400 ring-2 ring-emerald-300/60 shadow-[0_10px_25px_rgba(16,185,129,0.12)]'
+                  : 'border-novera-ink/10 hover:border-novera-foil hover:shadow-xl'
               }`}
             >
               <div>
-                {/* Image & Badges */}
-                <div className="relative aspect-[3/4] w-full rounded-xl overflow-hidden mb-4 bg-novera-paper-dim">
+                {/* Image Card with Glass Badges and Hover Zoom */}
+                <div className="relative aspect-[3/4] w-full rounded-2xl overflow-hidden mb-4 bg-novera-paper-dim shadow-inner">
                   <Image
                     src={candidate.imageUrl}
                     alt={candidate.name}
                     fill
-                    className="object-cover"
+                    className="object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
                     sizes="(max-width: 768px) 100vw, 25vw"
                   />
-                  <div className="absolute top-2 left-2 px-2.5 py-1 rounded-md bg-novera-ink/80 text-novera-paper text-[10px] font-mono uppercase tracking-wider backdrop-blur-sm">
+
+                  {/* Dark Vignette Overlay on Bottom */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20 pointer-events-none" />
+
+                  {/* Candidate No Badge */}
+                  <div className="absolute top-3 left-3 px-3 py-1 rounded-lg bg-black/70 backdrop-blur-md text-white font-mono text-xs font-bold border border-white/20 tracking-wider shadow-md">
                     {candidate.candidateNumber}
                   </div>
+
+                  {/* Scored Status Badge */}
                   {isScored && (
-                    <div className="absolute top-2 right-2 px-2.5 py-1 rounded-md bg-emerald-600 text-white text-[10px] font-bold flex items-center gap-1 shadow-md">
-                      <CheckCircle2 className="w-3.5 h-3.5" />
+                    <div className="absolute top-3 right-3 px-2.5 py-1 rounded-lg bg-emerald-600 text-white text-[10px] font-bold flex items-center gap-1 shadow-lg backdrop-blur-sm animate-in zoom-in-75 duration-200">
+                      <CheckCheck className="w-3.5 h-3.5" />
                       <span>{score.totalModel}/100</span>
                     </div>
                   )}
+
+                  {/* Name Overlay on Photo */}
+                  <div className="absolute bottom-3 left-3 right-3">
+                    <h3 className="font-serif text-lg font-bold text-white drop-shadow truncate">
+                      {candidate.name}
+                    </h3>
+                  </div>
                 </div>
 
-                <h3 className="font-serif text-lg font-bold text-novera-ink mb-1 truncate">
-                  {candidate.name}
-                </h3>
                 <p className="text-xs text-novera-charcoal line-clamp-2 mb-4">
-                  {candidate.bio || 'Runway contender representing elegance and personality.'}
+                  {candidate.bio || 'Official Runway Contender representing elegance, poise, and personality.'}
                 </p>
 
                 {/* Score Summary if given */}
                 {isScored && (
-                  <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-[11px] space-y-1.5 mb-4">
+                  <div className="p-3.5 rounded-2xl bg-emerald-50/80 border border-emerald-200 text-[11px] space-y-1.5 mb-4 shadow-sm">
                     <div className="flex justify-between text-emerald-950 font-bold">
-                      <span>Top Model:</span>
+                      <span className="flex items-center gap-1">
+                        <Crown className="w-3 h-3 text-emerald-700" />
+                        <span>Top Model:</span>
+                      </span>
                       <span className="font-mono">{score.totalModel}/100</span>
                     </div>
                     <div className="flex justify-between text-emerald-800">
@@ -474,9 +537,12 @@ export default function JudgePortalPage() {
                       <span>Most Photogenic:</span>
                       <span className="font-mono">{score.photogenicScore}/40</span>
                     </div>
-                    <div className="flex justify-between text-emerald-900 pt-1 border-t border-emerald-200 font-semibold">
-                      <span>Student Design:</span>
-                      <span className="font-mono">{score.totalDesign}/100</span>
+                    <div className="flex justify-between text-emerald-900 pt-1.5 border-t border-emerald-200 font-semibold">
+                      <span className="flex items-center gap-1">
+                        <Palette className="w-3 h-3 text-emerald-700" />
+                        <span>Student Design:</span>
+                      </span>
+                      <span className="font-mono font-bold">{score.totalDesign}/100</span>
                     </div>
                   </div>
                 )}
@@ -484,13 +550,14 @@ export default function JudgePortalPage() {
 
               <button
                 onClick={() => openScoringModal(candidate)}
-                className={`w-full py-2.5 rounded-xl text-xs font-semibold uppercase tracking-wider flex items-center justify-center gap-1.5 transition-colors ${
+                className={`w-full py-3 rounded-2xl text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-all relative overflow-hidden group/btn shadow-sm ${
                   isScored
                     ? 'bg-novera-paper-dim text-novera-ink border border-novera-ink/15 hover:bg-novera-foil hover:text-novera-paper'
                     : 'bg-novera-ink text-novera-paper hover:bg-novera-foil'
                 }`}
               >
-                <Sliders className="w-3.5 h-3.5" />
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover/btn:translate-x-full transition-transform duration-700 pointer-events-none" />
+                <Sliders className="w-3.5 h-3.5 group-hover/btn:rotate-45 transition-transform" />
                 <span>{isScored ? 'Update Marks' : 'Evaluate & Score'}</span>
               </button>
             </div>
@@ -500,12 +567,12 @@ export default function JudgePortalPage() {
 
       {/* Modal Drawer for Scoring with Official Marking Sheet Alignment */}
       {scoringCandidate && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4">
-          <div className="max-w-lg w-full bg-white rounded-t-3xl sm:rounded-3xl p-5 sm:p-8 border border-novera-foil/30 shadow-2xl relative animate-in fade-in zoom-in-95 duration-200 max-h-[92vh] overflow-y-auto">
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-md flex items-end sm:items-center justify-center p-0 sm:p-4 animate-in fade-in duration-200">
+          <div className="max-w-lg w-full bg-white rounded-t-3xl sm:rounded-3xl p-5 sm:p-8 border border-novera-foil/30 shadow-2xl relative animate-in zoom-in-95 duration-200 max-h-[92vh] overflow-y-auto">
             {/* Header */}
             <div className="flex items-center justify-between pb-4 border-b border-novera-ink/10 mb-4">
               <div className="flex items-center gap-3">
-                <div className="relative w-12 h-12 rounded-xl overflow-hidden shrink-0">
+                <div className="relative w-12 h-12 rounded-xl overflow-hidden shrink-0 shadow-inner">
                   <Image
                     src={scoringCandidate.imageUrl}
                     alt={scoringCandidate.name}
@@ -524,20 +591,20 @@ export default function JudgePortalPage() {
               </div>
               <button
                 onClick={() => setScoringCandidate(null)}
-                className="w-8 h-8 rounded-full bg-novera-paper-dim hover:bg-novera-ink hover:text-novera-paper text-novera-charcoal flex items-center justify-center transition-colors text-sm font-bold"
+                className="w-8 h-8 rounded-full bg-novera-paper-dim hover:bg-novera-ink hover:text-novera-paper text-novera-charcoal flex items-center justify-center transition-colors text-base font-bold"
               >
                 &times;
               </button>
             </div>
 
             {/* Sheet Tabs: Model vs Design */}
-            <div className="flex p-1 rounded-xl bg-novera-paper-dim border border-novera-ink/10 mb-5">
+            <div className="flex p-1 rounded-2xl bg-novera-paper-dim border border-novera-ink/10 mb-5">
               <button
                 type="button"
                 onClick={() => setSheetTab('model')}
-                className={`flex-1 py-2 text-xs font-bold uppercase tracking-wider rounded-lg transition-all flex items-center justify-center gap-1.5 ${
+                className={`flex-1 py-2.5 text-xs font-bold uppercase tracking-wider rounded-xl transition-all flex items-center justify-center gap-1.5 ${
                   sheetTab === 'model'
-                    ? 'bg-novera-ink text-novera-paper shadow-sm'
+                    ? 'bg-novera-ink text-novera-paper shadow-md'
                     : 'text-novera-charcoal hover:text-novera-ink'
                 }`}
               >
@@ -547,9 +614,9 @@ export default function JudgePortalPage() {
               <button
                 type="button"
                 onClick={() => setSheetTab('design')}
-                className={`flex-1 py-2 text-xs font-bold uppercase tracking-wider rounded-lg transition-all flex items-center justify-center gap-1.5 ${
+                className={`flex-1 py-2.5 text-xs font-bold uppercase tracking-wider rounded-xl transition-all flex items-center justify-center gap-1.5 ${
                   sheetTab === 'design'
-                    ? 'bg-novera-foil text-novera-paper shadow-sm'
+                    ? 'bg-novera-foil text-novera-paper shadow-md'
                     : 'text-novera-charcoal hover:text-novera-ink'
                 }`}
               >
@@ -563,21 +630,21 @@ export default function JudgePortalPage() {
               <div className="space-y-4">
                 {/* Live Awards Alignment Badge Bar */}
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 p-3 rounded-2xl bg-novera-paper-dim border border-novera-ink/10 text-center">
-                  <div>
+                  <div className="p-1 rounded-xl bg-white/70">
                     <span className="text-[9px] uppercase tracking-wider text-novera-charcoal font-bold block">Top Model</span>
-                    <strong className="text-sm font-mono text-novera-foil">{totalModel}/100</strong>
+                    <strong className="text-base font-mono text-novera-foil">{totalModel}/100</strong>
                   </div>
-                  <div>
+                  <div className="p-1 rounded-xl bg-white/70">
                     <span className="text-[9px] uppercase tracking-wider text-novera-charcoal font-bold block">Personality</span>
-                    <strong className="text-sm font-mono text-novera-ink">{personalityScore}/50</strong>
+                    <strong className="text-base font-mono text-novera-ink">{personalityScore}/50</strong>
                   </div>
-                  <div>
+                  <div className="p-1 rounded-xl bg-white/70">
                     <span className="text-[9px] uppercase tracking-wider text-novera-charcoal font-bold block">Stage Pres.</span>
-                    <strong className="text-sm font-mono text-novera-ink">{stagePresenceScore}/30</strong>
+                    <strong className="text-base font-mono text-novera-ink">{stagePresenceScore}/30</strong>
                   </div>
-                  <div>
+                  <div className="p-1 rounded-xl bg-white/70">
                     <span className="text-[9px] uppercase tracking-wider text-novera-charcoal font-bold block">Photogenic</span>
-                    <strong className="text-sm font-mono text-novera-ink">{photogenicScore}/40</strong>
+                    <strong className="text-base font-mono text-novera-ink">{photogenicScore}/40</strong>
                   </div>
                 </div>
 
@@ -679,7 +746,7 @@ export default function JudgePortalPage() {
             {/* TAB 2: STUDENT DESIGN OFFICIAL CRITERIA */}
             {sheetTab === 'design' && (
               <div className="space-y-4">
-                <div className="p-3 rounded-2xl bg-novera-ink text-novera-paper flex items-center justify-between">
+                <div className="p-4 rounded-2xl bg-novera-ink text-novera-paper flex items-center justify-between shadow-md">
                   <div>
                     <span className="text-[10px] uppercase tracking-wider text-novera-gold font-bold">
                       Student Outfit Design Score
@@ -707,7 +774,7 @@ export default function JudgePortalPage() {
 
                   <div>
                     <div className="flex justify-between items-center text-xs mb-1">
-                      <span className="font-semibold text-novera-ink">Craftsmanship &amp; Finish (Stitching &amp; details)</span>
+                      <span className="font-semibold text-novera-ink">Craftsmanship &amp; Finish (Stitching &amp; detail)</span>
                       <span className="font-mono font-bold text-novera-foil">{designCraftsmanship} / 25</span>
                     </div>
                     <input
@@ -722,7 +789,7 @@ export default function JudgePortalPage() {
 
                   <div>
                     <div className="flex justify-between items-center text-xs mb-1">
-                      <span className="font-semibold text-novera-ink">Theme Relevance (Fits event theme)</span>
+                      <span className="font-semibold text-novera-ink">Theme Relevance (Fitting event theme)</span>
                       <span className="font-mono font-bold text-novera-foil">{designTheme} / 20</span>
                     </div>
                     <input
@@ -787,7 +854,7 @@ export default function JudgePortalPage() {
               <button
                 type="button"
                 onClick={() => setScoringCandidate(null)}
-                className="w-1/3 py-3 rounded-xl border border-novera-ink/15 text-xs font-semibold text-novera-charcoal hover:bg-novera-paper-dim transition-colors"
+                className="w-1/3 py-3 rounded-2xl border border-novera-ink/15 text-xs font-semibold text-novera-charcoal hover:bg-novera-paper-dim transition-colors"
               >
                 Cancel
               </button>
@@ -795,8 +862,9 @@ export default function JudgePortalPage() {
                 type="button"
                 onClick={handleScoreSubmit}
                 disabled={isSaving}
-                className="w-2/3 py-3 rounded-xl bg-novera-ink text-novera-paper hover:bg-novera-foil text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-md disabled:opacity-50"
+                className="w-2/3 py-3 rounded-2xl bg-novera-ink text-novera-paper hover:bg-novera-foil text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-md disabled:opacity-50 group relative overflow-hidden"
               >
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 pointer-events-none" />
                 <Save className="w-4 h-4 text-novera-gold" />
                 <span>Submit Score to Admin</span>
               </button>
@@ -809,7 +877,7 @@ export default function JudgePortalPage() {
       {animationState && animationState.isOpen && (
         <div className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-300">
           <div className="max-w-md w-full text-center space-y-6 relative">
-            <div className="absolute inset-0 bg-novera-foil/15 blur-3xl -z-10 rounded-full" />
+            <div className="absolute inset-0 bg-novera-foil/20 blur-3xl -z-10 rounded-full" />
 
             {animationState.step < 3 ? (
               <div className="space-y-6 animate-pulse">

@@ -51,4 +51,78 @@ body {
   scrollbar-width: none;
 }
 
+/* ================= CUSTOM ANIMATIONS ================= */
 
+@keyframes sweepScan {
+  0% {
+    transform: translateX(-100%);
+  }
+  50%, 100% {
+    transform: translateX(200%);
+  }
+}
+
+.animate-scan-sweep {
+  animation: sweepScan 3.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+@keyframes equalizerBar {
+  0%, 100% {
+    height: 4px;
+  }
+  50% {
+    height: 16px;
+  }
+}
+
+.animate-eq-1 {
+  animation: equalizerBar 1.2s ease-in-out infinite;
+}
+.animate-eq-2 {
+  animation: equalizerBar 0.9s ease-in-out infinite 0.2s;
+}
+.animate-eq-3 {
+  animation: equalizerBar 1.5s ease-in-out infinite 0.4s;
+}
+.animate-eq-4 {
+  animation: equalizerBar 1.1s ease-in-out infinite 0.1s;
+}
+
+@keyframes pulseGlowRed {
+  0%, 100% {
+    box-shadow: 0 0 15px rgba(239, 68, 68, 0.25), inset 0 0 15px rgba(239, 68, 68, 0.1);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(239, 68, 68, 0.5), inset 0 0 25px rgba(239, 68, 68, 0.25);
+  }
+}
+
+.animate-surveillance-glow {
+  animation: pulseGlowRed 3s ease-in-out infinite;
+}
+
+@keyframes buttonShine {
+  0% {
+    left: -100%;
+  }
+  20%, 100% {
+    left: 200%;
+  }
+}
+
+.animate-btn-shine {
+  animation: buttonShine 4s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+@keyframes floatGentle {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+.animate-float {
+  animation: floatGentle 3s ease-in-out infinite;
+}
