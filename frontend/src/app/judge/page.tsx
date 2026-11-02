@@ -87,24 +87,26 @@ export default function JudgePortalPage() {
     e.preventDefault();
     const inputClean = passcode.trim().toLowerCase();
 
-    // Find judge by selected ID or direct code match
-    const selectedJudge = OFFICIAL_JUDGES.find((j) => j.id === selectedJudgeId);
-    const directJudgeMatch = OFFICIAL_JUDGES.find((j) => j.code.toLowerCase() === inputClean);
+    // Directly match judge by passcode / name
+    const matchedJudge = OFFICIAL_JUDGES.find(
+      (j) => j.code.toLowerCase() === inputClean || j.name.toLowerCase().includes(inputClean)
+    );
 
-    if (
-      (selectedJudge && inputClean === selectedJudge.code.toLowerCase()) ||
-      directJudgeMatch ||
-      inputClean === 'judge2026' ||
-      inputClean === 'novera'
-    ) {
-      const activeJudge = directJudgeMatch || selectedJudge || OFFICIAL_JUDGES[0];
-      setSelectedJudgeId(activeJudge.id);
+    if (matchedJudge) {
+      setSelectedJudgeId(matchedJudge.id);
       setIsAuthenticated(true);
       sessionStorage.setItem('novera_judge_auth', 'true');
-      localStorage.setItem('novera_active_judge', JSON.stringify(activeJudge));
+      localStorage.setItem('novera_active_judge', JSON.stringify(matchedJudge));
+      setPasscodeError('');
+    } else if (inputClean === 'judge2026' || inputClean === 'novera') {
+      const defaultJudge = OFFICIAL_JUDGES[0];
+      setSelectedJudgeId(defaultJudge.id);
+      setIsAuthenticated(true);
+      sessionStorage.setItem('novera_judge_auth', 'true');
+      localStorage.setItem('novera_active_judge', JSON.stringify(defaultJudge));
       setPasscodeError('');
     } else {
-      setPasscodeError('Invalid Passcode. Enter your designated name (e.g. piyumi, kalwani, devdunu, erusha, sachith, dulmi).');
+      setPasscodeError('Invalid Judge Passcode. Please enter your authorized passcode.');
     }
   };
 
@@ -220,32 +222,16 @@ export default function JudgePortalPage() {
           <form onSubmit={handleLogin} className="space-y-4 text-left">
             <div>
               <label className="block text-xs font-semibold uppercase tracking-wider text-novera-charcoal mb-1.5">
-                Select Your Name (Official Judges)
-              </label>
-              <select
-                value={selectedJudgeId}
-                onChange={(e) => setSelectedJudgeId(e.target.value)}
-                className="w-full px-3.5 py-3 rounded-xl border border-novera-ink/20 text-xs sm:text-sm bg-novera-paper-dim text-novera-ink outline-none focus:border-novera-foil font-semibold"
-              >
-                {OFFICIAL_JUDGES.map((j) => (
-                  <option key={j.id} value={j.id}>
-                    {j.name} — {j.title}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-novera-charcoal mb-1.5">
-                Judge Passcode (Your Name)
+                Judge Passcode
               </label>
               <input
                 type="password"
-                placeholder="e.g. piyumi, kalwani, devdunu, etc."
+                placeholder="Enter passcode"
                 value={passcode}
                 onChange={(e) => setPasscode(e.target.value)}
-                className="w-full px-3.5 py-3 rounded-xl border border-novera-ink/20 text-xs sm:text-sm bg-novera-paper-dim text-novera-ink outline-none focus:border-novera-foil font-mono"
+                className="w-full px-4 py-3 rounded-xl border border-novera-ink/20 text-xs sm:text-sm bg-novera-paper-dim text-novera-ink outline-none focus:border-novera-foil font-mono text-center tracking-widest text-base"
                 required
+                autoFocus
               />
             </div>
 
@@ -265,26 +251,9 @@ export default function JudgePortalPage() {
             </button>
           </form>
 
-          {/* Quick list of judges for ease */}
-          <div className="pt-2 border-t border-novera-ink/10">
-            <span className="text-[10px] uppercase font-bold text-novera-silver tracking-widest block mb-2">
-              6 Official Event Judges:
-            </span>
-            <div className="flex flex-wrap justify-center gap-1.5">
-              {OFFICIAL_JUDGES.map((j) => (
-                <span
-                  key={j.id}
-                  onClick={() => {
-                    setSelectedJudgeId(j.id);
-                    setPasscode(j.code);
-                  }}
-                  className="cursor-pointer text-[10px] px-2 py-0.5 rounded-md bg-novera-paper-dim text-novera-charcoal hover:bg-novera-foil hover:text-white transition-colors"
-                >
-                  {j.name.replace('Judge ', '')}
-                </span>
-              ))}
-            </div>
-          </div>
+          <p className="text-[11px] text-novera-silver">
+            Authorized by NOVERA ’26 Organizing Committee &bull; AIESEC in CINEC
+          </p>
         </div>
       </div>
     );
