@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { QrCode, Vote, BarChart3, Users, CheckCircle2, Award, ArrowRight } from 'lucide-react';
+import { Vote, Users, CheckCircle2, Award, ArrowRight, ShieldCheck, Sparkles } from 'lucide-react';
 
 export default function HomePage() {
   return (
@@ -9,7 +9,7 @@ export default function HomePage() {
         <div className="text-center max-w-3xl mx-auto space-y-6">
           <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-novera-paper-dim border border-novera-foil/30 text-xs tracking-[0.2em] uppercase text-novera-charcoal">
             <span className="w-2 h-2 rounded-full bg-novera-foil animate-ping" />
-            <span>Live Runway Voting Portal</span>
+            <span>Official Runway Voting Portal</span>
           </div>
 
           <h1 className="font-serif text-4xl sm:text-6xl lg:text-7xl font-bold tracking-tight text-novera-ink leading-[1.1]">
@@ -17,104 +17,86 @@ export default function HomePage() {
           </h1>
 
           <p className="text-base sm:text-lg text-novera-charcoal leading-relaxed max-w-2xl mx-auto">
-            A new era of runway poise, styling, and presence. Scan the live event QR code to cast your votes.
+            A new era of runway poise, styling, and presence. Cast your vote for the King &amp; Queen of the Runway.
             Each attendee is granted <strong className="text-novera-ink underline decoration-novera-foil underline-offset-4">one vote for Best Male Model (Boy)</strong> and <strong className="text-novera-ink underline decoration-novera-foil underline-offset-4">one vote for Best Female Model (Girl)</strong>.
           </p>
 
-          {/* Quick Action Buttons */}
-          <div className="pt-4 flex flex-wrap justify-center gap-4">
+          {/* Quick Action Button */}
+          <div className="pt-4 flex justify-center">
             <Link
               href="/vote"
-              className="inline-flex items-center gap-2 px-8 py-3.5 rounded-full bg-novera-ink text-novera-paper text-sm font-semibold tracking-wider hover:bg-novera-foil hover:text-novera-paper transition-all duration-300 shadow-editorial group"
+              className="inline-flex items-center gap-2 px-10 py-4 rounded-full bg-novera-ink text-novera-paper text-sm sm:text-base font-semibold tracking-wider uppercase hover:bg-novera-foil hover:text-novera-paper transition-all duration-300 shadow-editorial group"
             >
-              <span>Go to Voting Ballot</span>
-              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-            </Link>
-
-            <Link
-              href="/qr"
-              className="inline-flex items-center gap-2 px-6 py-3.5 rounded-full bg-white border border-novera-ink/15 text-novera-ink text-sm font-semibold tracking-wider hover:border-novera-foil hover:text-novera-foil transition-all shadow-sm"
-            >
-              <QrCode className="w-4 h-4 text-novera-foil" />
-              <span>Display Stage QR</span>
-            </Link>
-
-            <Link
-              href="/admin"
-              className="inline-flex items-center gap-2 px-6 py-3.5 rounded-full bg-novera-paper-dim text-novera-charcoal hover:text-novera-ink text-sm font-semibold tracking-wider border border-transparent hover:border-novera-charcoal/20 transition-all"
-            >
-              <BarChart3 className="w-4 h-4" />
-              <span>Admin Leaderboard</span>
+              <Vote className="w-5 h-5 text-novera-gold group-hover:scale-110 transition-transform" />
+              <span>Enter Voting Ballot</span>
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-1.5 transition-transform" />
             </Link>
           </div>
         </div>
 
         {/* Feature Cards Grid */}
         <div className="mt-20 grid grid-cols-1 md:grid-cols-3 gap-8">
-          {/* Card 1: QR Display */}
-          <div className="p-8 rounded-2xl bg-white border border-novera-ink/10 shadow-editorial hover:shadow-luxury hover:border-novera-foil/50 transition-all duration-300 flex flex-col justify-between">
-            <div>
-              <div className="w-12 h-12 rounded-xl bg-novera-paper-dim flex items-center justify-center mb-6">
-                <QrCode className="w-6 h-6 text-novera-foil" />
-              </div>
-              <span className="text-xs uppercase tracking-widest text-novera-silver font-semibold">Step 01 &bull; Stage Projection</span>
-              <h3 className="font-serif text-2xl font-bold text-novera-ink mt-2 mb-3">Live QR Code Display</h3>
-              <p className="text-sm text-novera-charcoal leading-relaxed">
-                Project the branded QR code on workshop screens or venue displays. Audience members simply point their phone camera to instantly load the ballot.
-              </p>
-            </div>
-            <Link
-              href="/qr"
-              className="mt-6 inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-novera-foil hover:text-novera-ink transition-colors"
-            >
-              <span>Launch QR Screen</span>
-              <ArrowRight className="w-3.5 h-3.5" />
-            </Link>
-          </div>
-
-          {/* Card 2: 1 Boy + 1 Girl Ballot */}
+          {/* Card 1: Strict Rule */}
           <div className="p-8 rounded-2xl bg-white border-2 border-novera-foil/40 shadow-luxury flex flex-col justify-between relative overflow-hidden">
             <div className="absolute top-0 right-0 bg-novera-foil text-novera-paper text-[10px] uppercase font-bold tracking-widest px-3 py-1 rounded-bl-lg">
               Rule Enforced
             </div>
             <div>
               <div className="w-12 h-12 rounded-xl bg-novera-paper-dim flex items-center justify-center mb-6">
-                <Users className="w-6 h-6 text-novera-foil" />
+                <ShieldCheck className="w-6 h-6 text-novera-foil" />
               </div>
-              <span className="text-xs uppercase tracking-widest text-novera-silver font-semibold">Step 02 &bull; Ballot Engine</span>
-              <h3 className="font-serif text-2xl font-bold text-novera-ink mt-2 mb-3">Separate Boy &amp; Girl Votes</h3>
+              <span className="text-xs uppercase tracking-widest text-novera-silver font-semibold">Ballot Rule</span>
+              <h3 className="font-serif text-2xl font-bold text-novera-ink mt-2 mb-3">1 Boy + 1 Girl Only</h3>
               <p className="text-sm text-novera-charcoal leading-relaxed">
-                Vote separately for Best Male Model and Best Female Model. The system strictly restricts each attendee to 1 boy vote and 1 girl vote with real-time voter fingerprinting.
+                You can cast exactly one vote for Best Male Model and one vote for Best Female Model. Once submitted, your vote is permanently locked to your device.
               </p>
             </div>
             <Link
               href="/vote"
               className="mt-6 inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-novera-foil hover:text-novera-ink transition-colors"
             >
-              <span>Vote Now</span>
+              <span>Go to Ballot</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </div>
 
-          {/* Card 3: Admin Leaderboard & Bar Chart */}
+          {/* Card 2: Runway Contenders */}
           <div className="p-8 rounded-2xl bg-white border border-novera-ink/10 shadow-editorial hover:shadow-luxury hover:border-novera-foil/50 transition-all duration-300 flex flex-col justify-between">
             <div>
               <div className="w-12 h-12 rounded-xl bg-novera-paper-dim flex items-center justify-center mb-6">
-                <BarChart3 className="w-6 h-6 text-novera-foil" />
+                <Users className="w-6 h-6 text-novera-foil" />
               </div>
-              <span className="text-xs uppercase tracking-widest text-novera-silver font-semibold">Step 03 &bull; Real-Time Analytics</span>
-              <h3 className="font-serif text-2xl font-bold text-novera-ink mt-2 mb-3">Leaderboard &amp; Bar Charts</h3>
+              <span className="text-xs uppercase tracking-widest text-novera-silver font-semibold">Contenders</span>
+              <h3 className="font-serif text-2xl font-bold text-novera-ink mt-2 mb-3">Official Runway Models</h3>
               <p className="text-sm text-novera-charcoal leading-relaxed">
-                Watch votes update in real time with synchronized bar charts, category winner highlights, candidate rankings, and administrative controls.
+                Explore the lineup of talented models showcasing elegance, poise, confidence, and styling on the NOVERA ’26 runway.
               </p>
             </div>
             <Link
-              href="/admin"
+              href="/vote"
               className="mt-6 inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-novera-foil hover:text-novera-ink transition-colors"
             >
-              <span>View Leaderboard</span>
+              <span>Meet Contenders</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </Link>
+          </div>
+
+          {/* Card 3: Grand Finale Announcement */}
+          <div className="p-8 rounded-2xl bg-white border border-novera-ink/10 shadow-editorial hover:shadow-luxury hover:border-novera-foil/50 transition-all duration-300 flex flex-col justify-between">
+            <div>
+              <div className="w-12 h-12 rounded-xl bg-novera-paper-dim flex items-center justify-center mb-6">
+                <Sparkles className="w-6 h-6 text-novera-foil" />
+              </div>
+              <span className="text-xs uppercase tracking-widest text-novera-silver font-semibold">Awards</span>
+              <h3 className="font-serif text-2xl font-bold text-novera-ink mt-2 mb-3">Grand Finale Crowns</h3>
+              <p className="text-sm text-novera-charcoal leading-relaxed">
+                Combined with expert judging evaluations, audience favorites will be crowned King and Queen of the Runway at the workshop finale.
+              </p>
+            </div>
+            <div className="mt-6 text-xs font-semibold text-novera-charcoal uppercase tracking-wider flex items-center gap-1.5">
+              <Award className="w-4 h-4 text-novera-gold" />
+              <span>Announced Live On Stage</span>
+            </div>
           </div>
         </div>
 

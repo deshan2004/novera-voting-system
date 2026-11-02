@@ -1,4 +1,4 @@
-import { Candidate, VoterStatus, VoteSubmission } from './types';
+import { Candidate, VoterStatus, VoteSubmission, JudgeScore } from './types';
 import { INITIAL_CANDIDATES } from './candidates-data';
 import { db, isFirebaseConfigured } from './firebase';
 import {
@@ -11,11 +11,13 @@ import {
   increment,
   onSnapshot,
   writeBatch,
+  deleteDoc,
 } from 'firebase/firestore';
 
 const STORAGE_KEY_VOTER_ID = 'novera_voter_uuid';
 const STORAGE_KEY_CANDIDATES = 'novera_candidates_cache';
 const STORAGE_KEY_VOTER_STATUS = 'novera_voter_status';
+const STORAGE_KEY_JUDGE_SCORES = 'novera_judge_scores';
 
 const SPRING_BOOT_API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api';
 
@@ -304,5 +306,119 @@ export async function resetAllVotes(): Promise<void> {
   saveLocalCandidates(candidates);
   if (typeof window !== 'undefined') {
     window.dispatchEvent(new Event('novera_vote_updated'));
+  }
+}
+
+/**
+ * Judge Scoring Storage & Sync
+ */
+export function getLocalJudgeScores(): JudgeScore[] {
+  if (typeof window === 'undefined') return [];
+  const raw = localStorage.getItem(STORAGE_KEY_JUDGE_SCORES);
+  if (raw) {
+    try {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) return parsed;
+    } catch (e) {}
+  }
+  return [];
+}
+
+export function saveLocalJudgeScores(scores: JudgeScore[]): void {
+  if (typeof window === 'undefined') return;
+  localStorage.setItem(STORAGE_KEY_JUDGE_SCORES, JSON.stringify(scores));
+}
+
+export async function saveJudgeScore(score: JudgeScore): Promise<{ success: boolean; message: string }> {
+  // 1. Firebase Firestore sync if available
+  if (isFirebaseConfigured() && db) {
+    try {
+      const scoreDoc = doc(db, 'judge_scores', score.id);
+      await setDoc(scoreDoc, score, { merge: true });
+    } catch (err) {
+      console.warn('Firebase judge score save warning:', err);
+    }
+  }
+
+  // 2. Local state update
+  const current = getLocalJudgeScores();
+  const existingIndex = current.findIndex((s) => s.id === score.id);
+  if (existingIndex >= 0) {
+    current[existingIndex] = score;
+  } else {
+    current.push(score);
+  }
+  saveLocalJudgeScores(current);
+
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new Event('novera_judge_scores_updated'));
+  }
+
+  return { success: true, message: 'Marks submitted successfully!' };
+}
+
+export async function fetchJudgeScores(): Promise<JudgeScore[]> {
+  if (isFirebaseConfigured() && db) {
+    try {
+      const snapshot = await getDocs(collection(db, 'judge_scores'));
+      if (!snapshot.empty) {
+        const list: JudgeScore[] = [];
+        snapshot.forEach((doc) => list.push(doc.data() as JudgeScore));
+        saveLocalJudgeScores(list);
+        return list;
+      }
+    } catch (err) {
+      console.warn('Firebase judge score fetch warning:', err);
+    }
+  }
+  return getLocalJudgeScores();
+}
+
+export function subscribeToJudgeScores(callback: (scores: JudgeScore[]) => void): () => void {
+  if (!isFirebaseConfigured() || !db) {
+    callback(getLocalJudgeScores());
+    const handler = () => callback(getLocalJudgeScores());
+    if (typeof window !== 'undefined') {
+      window.addEventListener('novera_judge_scores_updated', handler);
+      return () => window.removeEventListener('novera_judge_scores_updated', handler);
+    }
+    return () => {};
+  }
+
+  try {
+    const scoresCol = collection(db, 'judge_scores');
+    const unsubscribe = onSnapshot(
+      scoresCol,
+      (snapshot) => {
+        const list: JudgeScore[] = [];
+        snapshot.forEach((doc) => list.push(doc.data() as JudgeScore));
+        saveLocalJudgeScores(list);
+        callback(list);
+      },
+      (error) => {
+        console.warn('Firestore judge scores onSnapshot error:', error);
+        callback(getLocalJudgeScores());
+      }
+    );
+    return unsubscribe;
+  } catch (e) {
+    callback(getLocalJudgeScores());
+    return () => {};
+  }
+}
+
+export async function resetAllJudgeScores(): Promise<void> {
+  if (isFirebaseConfigured() && db) {
+    try {
+      const snapshot = await getDocs(collection(db, 'judge_scores'));
+      const batch = writeBatch(db);
+      snapshot.forEach((d) => batch.delete(d.ref));
+      await batch.commit();
+    } catch (e) {}
+  }
+
+  saveLocalJudgeScores([]);
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new Event('novera_judge_scores_updated'));
   }
 }

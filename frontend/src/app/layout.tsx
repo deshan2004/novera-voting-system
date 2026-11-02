@@ -1,7 +1,7 @@
 import './globals.css';
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { QrCode, Vote, BarChart3, ShieldCheck, Sparkles } from 'lucide-react';
+import { Vote, ShieldCheck, Sparkles, Lock } from 'lucide-react';
 
 export const metadata: Metadata = {
   title: "NOVERA '26 — Official Voting System | AIESEC in CINEC",
@@ -29,7 +29,7 @@ export default function RootLayout({
           </div>
         </div>
 
-        {/* Main Navigation */}
+        {/* Main Navigation - Audience Focused */}
         <header className="sticky top-0 z-50 bg-novera-paper/95 backdrop-blur-md border-b border-novera-ink/10">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
             <Link href="/" className="group flex flex-col">
@@ -41,29 +41,13 @@ export default function RootLayout({
               </span>
             </Link>
 
-            <nav className="flex items-center gap-2 sm:gap-4">
-              <Link
-                href="/qr"
-                className="flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs sm:text-sm font-medium tracking-wide text-novera-charcoal hover:text-novera-ink hover:bg-novera-paper-dim transition-all"
-              >
-                <QrCode className="w-4 h-4 text-novera-foil" />
-                <span>QR Display</span>
-              </Link>
-
+            <nav className="flex items-center gap-3">
               <Link
                 href="/vote"
-                className="flex items-center gap-1.5 px-4 py-2 rounded-full text-xs sm:text-sm font-medium tracking-wide bg-novera-foil text-novera-paper hover:bg-novera-ink transition-all shadow-sm"
+                className="flex items-center gap-1.5 px-5 py-2.5 rounded-full text-xs sm:text-sm font-semibold tracking-wider uppercase bg-novera-foil text-novera-paper hover:bg-novera-ink transition-all shadow-sm"
               >
                 <Vote className="w-4 h-4" />
-                <span>Vote Now</span>
-              </Link>
-
-              <Link
-                href="/admin"
-                className="flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs sm:text-sm font-medium tracking-wide border border-novera-ink/20 text-novera-ink hover:border-novera-foil hover:text-novera-foil transition-all"
-              >
-                <BarChart3 className="w-4 h-4" />
-                <span>Leaderboard</span>
+                <span>Cast Vote</span>
               </Link>
             </nav>
           </div>
@@ -75,13 +59,22 @@ export default function RootLayout({
         {/* Footer */}
         <footer className="bg-novera-ink text-novera-paper-dim border-t border-novera-foil/30 py-8 px-4 text-center text-xs tracking-wider">
           <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 text-novera-silver">
               <ShieldCheck className="w-4 h-4 text-novera-foil" />
-              <span>Verified Single-Vote Integrity System &bull; Powered by Next.js &amp; Spring Boot</span>
+              <span>Verified Single-Vote Integrity System &bull; NOVERA &rsquo;26</span>
             </div>
-            <p className="text-novera-silver">
-              &copy; 2026 NOVERA &middot; AIESEC in CINEC. All rights reserved.
-            </p>
+            <div className="flex items-center gap-4 text-novera-charcoal text-[11px]">
+              <p>&copy; 2026 AIESEC in CINEC. All rights reserved.</p>
+              <span className="text-novera-charcoal/40">&bull;</span>
+              <Link
+                href="/admin"
+                className="text-novera-charcoal/60 hover:text-novera-foil flex items-center gap-1 transition-colors"
+                title="Organizer Portal"
+              >
+                <Lock className="w-3 h-3" />
+                <span>Portal</span>
+              </Link>
+            </div>
           </div>
         </footer>
       </body>

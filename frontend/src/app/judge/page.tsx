@@ -1,0 +1,543 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import { Candidate, GenderCategory, JudgeScore } from '@/lib/types';
+import { fetchCandidates, saveJudgeScore, getLocalJudgeScores, subscribeToJudgeScores } from '@/lib/api';
+import Image from 'next/image';
+import {
+  Award,
+  CheckCircle2,
+  Lock,
+  Sparkles,
+  UserCheck,
+  LogOut,
+  ChevronRight,
+  Sliders,
+  AlertCircle,
+  HelpCircle,
+  Save,
+} from 'lucide-react';
+
+const JUDGE_PASSCODE = 'JUDGE2026';
+
+const DEFAULT_JUDGES = [
+  { id: 'judge_1', name: 'Judge 01 — Runway & Poise' },
+  { id: 'judge_2', name: 'Judge 02 — Styling & Presentation' },
+  { id: 'judge_3', name: 'Judge 03 — Personality & Confidence' },
+];
+
+export default function JudgePortalPage() {
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  const [passcode, setPasscode] = useState<string>('');
+  const [passcodeError, setPasscodeError] = useState<string>('');
+
+  const [selectedJudgeId, setSelectedJudgeId] = useState<string>('judge_1');
+  const [customJudgeName, setCustomJudgeName] = useState<string>('');
+
+  const [candidates, setCandidates] = useState<Candidate[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState<GenderCategory>('boy');
+  const [judgeScores, setJudgeScores] = useState<JudgeScore[]>([]);
+
+  // Active scoring candidate
+  const [scoringCandidate, setScoringCandidate] = useState<Candidate | null>(null);
+  const [runwayWalk, setRunwayWalk] = useState<number>(25);
+  const [styling, setStyling] = useState<number>(25);
+  const [personality, setPersonality] = useState<number>(30);
+  const [notes, setNotes] = useState<string>('');
+  const [isSaving, setIsSaving] = useState<boolean>(false);
+  const [saveSuccess, setSaveSuccess] = useState<string>('');
+
+  useEffect(() => {
+    // Check saved session
+    const savedSession = sessionStorage.getItem('novera_judge_auth');
+    const savedJudge = localStorage.getItem('novera_active_judge');
+    if (savedSession === 'true') {
+      setIsAuthenticated(true);
+    }
+    if (savedJudge) {
+      try {
+        const parsed = JSON.parse(savedJudge);
+        setSelectedJudgeId(parsed.id);
+        setCustomJudgeName(parsed.name);
+      } catch (e) {}
+    }
+
+    // Load candidates
+    fetchCandidates().then(setCandidates);
+
+    // Load initial judge scores
+    setJudgeScores(getLocalJudgeScores());
+
+    // Subscribe to score updates
+    const unsubscribe = subscribeToJudgeScores((scores) => {
+      setJudgeScores(scores);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  const handleLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (passcode.trim().toUpperCase() === JUDGE_PASSCODE) {
+      setIsAuthenticated(true);
+      sessionStorage.setItem('novera_judge_auth', 'true');
+      setPasscodeError('');
+
+      const judgeObj = DEFAULT_JUDGES.find((j) => j.id === selectedJudgeId) || {
+        id: selectedJudgeId,
+        name: customJudgeName || 'Judge Official',
+      };
+      localStorage.setItem('novera_active_judge', JSON.stringify(judgeObj));
+    } else {
+      setPasscodeError('Invalid Judge Passcode. Please check with the event organizing committee.');
+    }
+  };
+
+  const handleLogout = () => {
+    setIsAuthenticated(false);
+    sessionStorage.removeItem('novera_judge_auth');
+  };
+
+  const activeJudgeName =
+    DEFAULT_JUDGES.find((j) => j.id === selectedJudgeId)?.name || customJudgeName || 'Judge Official';
+
+  const openScoringModal = (candidate: Candidate) => {
+    setScoringCandidate(candidate);
+    setSaveSuccess('');
+    // Look up existing score if any
+    const existing = judgeScores.find(
+      (s) => s.judgeId === selectedJudgeId && s.candidateId === candidate.id
+    );
+
+    if (existing) {
+      setRunwayWalk(existing.runwayWalk);
+      setStyling(existing.styling);
+      setPersonality(existing.personality);
+      setNotes(existing.notes || '');
+    } else {
+      setRunwayWalk(25);
+      setStyling(25);
+      setPersonality(30);
+      setNotes('');
+    }
+  };
+
+  const handleScoreSubmit = async () => {
+    if (!scoringCandidate) return;
+    setIsSaving(true);
+    setSaveSuccess('');
+
+    const total = Number(runwayWalk) + Number(styling) + Number(personality);
+    const scoreData: JudgeScore = {
+      id: `${selectedJudgeId}_${scoringCandidate.id}`,
+      judgeId: selectedJudgeId,
+      judgeName: activeJudgeName,
+      candidateId: scoringCandidate.id,
+      candidateCategory: scoringCandidate.category,
+      runwayWalk: Number(runwayWalk),
+      styling: Number(styling),
+      personality: Number(personality),
+      total,
+      notes,
+      updatedAt: Date.now(),
+    };
+
+    await saveJudgeScore(scoreData);
+    setIsSaving(false);
+    setSaveSuccess(`Marks for ${scoringCandidate.name} recorded (${total}/100)`);
+    setTimeout(() => {
+      setScoringCandidate(null);
+      setSaveSuccess('');
+    }, 1200);
+  };
+
+  const currentCategoryCandidates = candidates.filter((c) => c.category === selectedCategory);
+
+  const getScoreForCandidate = (candidateId: string) => {
+    return judgeScores.find((s) => s.judgeId === selectedJudgeId && s.candidateId === candidateId);
+  };
+
+  const scoredCount = currentCategoryCandidates.filter((c) => !!getScoreForCandidate(c.id)).length;
+
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-[75vh] flex items-center justify-center p-4">
+        <div className="max-w-md w-full bg-white rounded-3xl p-8 border border-novera-ink/10 shadow-editorial text-center space-y-6">
+          <div className="w-16 h-16 rounded-2xl bg-novera-foil/15 border border-novera-foil/30 mx-auto flex items-center justify-center">
+            <Lock className="w-8 h-8 text-novera-foil" />
+          </div>
+
+          <div className="space-y-1">
+            <span className="text-[11px] font-semibold tracking-[0.25em] uppercase text-novera-foil">
+              Official Jury Only
+            </span>
+            <h1 className="font-serif text-2xl sm:text-3xl font-bold text-novera-ink">
+              Judges Scoring Portal
+            </h1>
+            <p className="text-xs text-novera-charcoal">
+              Enter your judge authentication code to evaluate runway performance and talent.
+            </p>
+          </div>
+
+          <form onSubmit={handleLogin} className="space-y-4 text-left">
+            <div>
+              <label className="block text-xs font-semibold uppercase tracking-wider text-novera-charcoal mb-1.5">
+                Select Your Judge Seat
+              </label>
+              <select
+                value={selectedJudgeId}
+                onChange={(e) => setSelectedJudgeId(e.target.value)}
+                className="w-full px-3.5 py-2.5 rounded-xl border border-novera-ink/20 text-xs sm:text-sm bg-novera-paper-dim text-novera-ink outline-none focus:border-novera-foil"
+              >
+                {DEFAULT_JUDGES.map((j) => (
+                  <option key={j.id} value={j.id}>
+                    {j.name}
+                  </option>
+                ))}
+                <option value="custom">Other / Guest Judge</option>
+              </select>
+            </div>
+
+            {selectedJudgeId === 'custom' && (
+              <div>
+                <label className="block text-xs font-semibold uppercase tracking-wider text-novera-charcoal mb-1.5">
+                  Your Full Name
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g. Ms. Samantha Fernando"
+                  value={customJudgeName}
+                  onChange={(e) => setCustomJudgeName(e.target.value)}
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-novera-ink/20 text-xs sm:text-sm bg-novera-paper-dim text-novera-ink outline-none focus:border-novera-foil"
+                  required
+                />
+              </div>
+            )}
+
+            <div>
+              <label className="block text-xs font-semibold uppercase tracking-wider text-novera-charcoal mb-1.5">
+                Judge Passcode
+              </label>
+              <input
+                type="password"
+                placeholder="Enter access code"
+                value={passcode}
+                onChange={(e) => setPasscode(e.target.value)}
+                className="w-full px-3.5 py-2.5 rounded-xl border border-novera-ink/20 text-xs sm:text-sm bg-novera-paper-dim text-novera-ink outline-none focus:border-novera-foil"
+                required
+              />
+            </div>
+
+            {passcodeError && (
+              <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 shrink-0" />
+                <span>{passcodeError}</span>
+              </div>
+            )}
+
+            <button
+              type="submit"
+              className="w-full py-3.5 rounded-xl bg-novera-ink text-novera-paper hover:bg-novera-foil transition-all text-xs font-bold uppercase tracking-wider shadow-sm"
+            >
+              Sign In to Judge Portal
+            </button>
+          </form>
+
+          <p className="text-[11px] text-novera-silver">
+            Authorized by NOVERA ’26 Organizing Committee &bull; AIESEC in CINEC
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+      {/* Top Header Card */}
+      <div className="p-6 rounded-3xl bg-white border border-novera-ink/10 shadow-editorial mb-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="flex items-center gap-4 text-center sm:text-left">
+          <div className="w-12 h-12 rounded-2xl bg-novera-foil/15 flex items-center justify-center shrink-0">
+            <Award className="w-6 h-6 text-novera-foil" />
+          </div>
+          <div>
+            <div className="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-widest text-novera-foil">
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>Official Jury Scoring Sheet</span>
+            </div>
+            <h1 className="font-serif text-2xl sm:text-3xl font-bold text-novera-ink">
+              {activeJudgeName}
+            </h1>
+            <p className="text-xs text-novera-charcoal">
+              Scoring criteria: Runway Walk (30), Styling (30), Personality (40) &bull; Total out of 100
+            </p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-3">
+          <div className="px-4 py-2 rounded-2xl bg-novera-paper-dim border border-novera-ink/10 text-xs">
+            <span className="text-novera-charcoal font-medium">Progress: </span>
+            <span className="font-bold text-novera-foil">
+              {scoredCount} / {currentCategoryCandidates.length}
+            </span>
+          </div>
+          <button
+            onClick={handleLogout}
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-medium text-rose-700 bg-rose-50 border border-rose-200 hover:bg-rose-100 transition-colors"
+          >
+            <LogOut className="w-3.5 h-3.5" />
+            <span>Sign Out</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Category Toggle Tabs */}
+      <div className="flex justify-center mb-8">
+        <div className="inline-flex p-1.5 rounded-full bg-novera-paper-dim border border-novera-ink/10 shadow-inner">
+          <button
+            onClick={() => setSelectedCategory('boy')}
+            className={`flex items-center gap-2 px-6 py-2.5 rounded-full text-xs sm:text-sm font-semibold tracking-wider uppercase transition-all ${
+              selectedCategory === 'boy'
+                ? 'bg-novera-ink text-novera-paper shadow-md'
+                : 'text-novera-charcoal hover:text-novera-ink'
+            }`}
+          >
+            <span>Best Male Contenders (Boys)</span>
+          </button>
+
+          <button
+            onClick={() => setSelectedCategory('girl')}
+            className={`flex items-center gap-2 px-6 py-2.5 rounded-full text-xs sm:text-sm font-semibold tracking-wider uppercase transition-all ${
+              selectedCategory === 'girl'
+                ? 'bg-novera-ink text-novera-paper shadow-md'
+                : 'text-novera-charcoal hover:text-novera-ink'
+            }`}
+          >
+            <span>Best Female Contenders (Girls)</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Candidate Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        {currentCategoryCandidates.map((candidate) => {
+          const score = getScoreForCandidate(candidate.id);
+          const isScored = !!score;
+
+          return (
+            <div
+              key={candidate.id}
+              className={`rounded-2xl bg-white border p-5 flex flex-col justify-between transition-all duration-300 shadow-sm ${
+                isScored ? 'border-emerald-300 ring-1 ring-emerald-200' : 'border-novera-ink/10 hover:border-novera-foil'
+              }`}
+            >
+              <div>
+                {/* Image & Badges */}
+                <div className="relative aspect-[3/4] w-full rounded-xl overflow-hidden mb-4 bg-novera-paper-dim">
+                  <Image
+                    src={candidate.imageUrl}
+                    alt={candidate.name}
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 768px) 100vw, 25vw"
+                  />
+                  <div className="absolute top-2 left-2 px-2.5 py-1 rounded-md bg-novera-ink/80 text-novera-paper text-[10px] font-mono uppercase tracking-wider backdrop-blur-sm">
+                    {candidate.candidateNumber}
+                  </div>
+                  {isScored && (
+                    <div className="absolute top-2 right-2 px-2 py-1 rounded-md bg-emerald-600 text-white text-[10px] font-bold flex items-center gap-1 shadow-md">
+                      <CheckCircle2 className="w-3 h-3" />
+                      <span>{score.total}/100</span>
+                    </div>
+                  )}
+                </div>
+
+                <h3 className="font-serif text-lg font-bold text-novera-ink mb-1 truncate">
+                  {candidate.name}
+                </h3>
+                <p className="text-xs text-novera-charcoal line-clamp-2 mb-4">
+                  {candidate.bio || 'Runway contender representing elegance and personality.'}
+                </p>
+
+                {/* Score Summary if given */}
+                {isScored && (
+                  <div className="p-2.5 rounded-xl bg-emerald-50 border border-emerald-100 text-[11px] space-y-1 mb-4">
+                    <div className="flex justify-between text-emerald-800">
+                      <span>Walk &amp; Poise:</span>
+                      <strong className="font-mono">{score.runwayWalk}/30</strong>
+                    </div>
+                    <div className="flex justify-between text-emerald-800">
+                      <span>Styling &amp; Outfit:</span>
+                      <strong className="font-mono">{score.styling}/30</strong>
+                    </div>
+                    <div className="flex justify-between text-emerald-800">
+                      <span>Personality:</span>
+                      <strong className="font-mono">{score.personality}/40</strong>
+                    </div>
+                    {score.notes && (
+                      <div className="pt-1 border-t border-emerald-200 text-emerald-900 italic line-clamp-2">
+                        &ldquo;{score.notes}&rdquo;
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              <button
+                onClick={() => openScoringModal(candidate)}
+                className={`w-full py-2.5 rounded-xl text-xs font-semibold uppercase tracking-wider flex items-center justify-center gap-1.5 transition-colors ${
+                  isScored
+                    ? 'bg-novera-paper-dim text-novera-ink border border-novera-ink/15 hover:bg-novera-foil hover:text-novera-paper'
+                    : 'bg-novera-ink text-novera-paper hover:bg-novera-foil'
+                }`}
+              >
+                <Sliders className="w-3.5 h-3.5" />
+                <span>{isScored ? 'Edit Marks' : 'Give Marks'}</span>
+              </button>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Modal Drawer for Scoring */}
+      {scoringCandidate && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="max-w-lg w-full bg-white rounded-3xl p-6 sm:p-8 border border-novera-foil/30 shadow-2xl relative animate-in fade-in zoom-in-95 duration-200">
+            {/* Header */}
+            <div className="flex items-center justify-between pb-4 border-b border-novera-ink/10 mb-6">
+              <div className="flex items-center gap-3">
+                <div className="relative w-12 h-12 rounded-xl overflow-hidden shrink-0">
+                  <Image
+                    src={scoringCandidate.imageUrl}
+                    alt={scoringCandidate.name}
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+                <div>
+                  <div className="text-[10px] font-mono uppercase tracking-widest text-novera-foil font-bold">
+                    {scoringCandidate.candidateNumber} &bull; {scoringCandidate.category === 'boy' ? 'Male Model' : 'Female Model'}
+                  </div>
+                  <h3 className="font-serif text-xl font-bold text-novera-ink">
+                    {scoringCandidate.name}
+                  </h3>
+                </div>
+              </div>
+              <button
+                onClick={() => setScoringCandidate(null)}
+                className="w-8 h-8 rounded-full bg-novera-paper-dim hover:bg-novera-ink hover:text-novera-paper text-novera-charcoal flex items-center justify-center transition-colors text-sm font-bold"
+              >
+                &times;
+              </button>
+            </div>
+
+            {/* Total Indicator */}
+            <div className="p-4 rounded-2xl bg-novera-ink text-novera-paper flex items-center justify-between mb-6">
+              <div>
+                <span className="text-[11px] uppercase tracking-wider text-novera-gold font-medium">
+                  Total Calculated Score
+                </span>
+                <div className="text-xs text-novera-silver">Maximum 100 Marks</div>
+              </div>
+              <div className="font-serif text-3xl font-bold text-novera-gold">
+                {Number(runwayWalk) + Number(styling) + Number(personality)}
+                <span className="text-sm text-novera-silver">/100</span>
+              </div>
+            </div>
+
+            {/* Criteria Sliders */}
+            <div className="space-y-5">
+              {/* Criteria 1 */}
+              <div>
+                <div className="flex justify-between items-center text-xs mb-1.5">
+                  <span className="font-semibold text-novera-ink">1. Runway Walk, Posture &amp; Poise</span>
+                  <span className="font-mono font-bold text-novera-foil">{runwayWalk} / 30</span>
+                </div>
+                <input
+                  type="range"
+                  min="0"
+                  max="30"
+                  value={runwayWalk}
+                  onChange={(e) => setRunwayWalk(Number(e.target.value))}
+                  className="w-full accent-novera-foil cursor-pointer"
+                />
+              </div>
+
+              {/* Criteria 2 */}
+              <div>
+                <div className="flex justify-between items-center text-xs mb-1.5">
+                  <span className="font-semibold text-novera-ink">2. Styling, Grooming &amp; Outfit</span>
+                  <span className="font-mono font-bold text-novera-foil">{styling} / 30</span>
+                </div>
+                <input
+                  type="range"
+                  min="0"
+                  max="30"
+                  value={styling}
+                  onChange={(e) => setStyling(Number(e.target.value))}
+                  className="w-full accent-novera-foil cursor-pointer"
+                />
+              </div>
+
+              {/* Criteria 3 */}
+              <div>
+                <div className="flex justify-between items-center text-xs mb-1.5">
+                  <span className="font-semibold text-novera-ink">3. Confidence, Stage Presence &amp; Personality</span>
+                  <span className="font-mono font-bold text-novera-foil">{personality} / 40</span>
+                </div>
+                <input
+                  type="range"
+                  min="0"
+                  max="40"
+                  value={personality}
+                  onChange={(e) => setPersonality(Number(e.target.value))}
+                  className="w-full accent-novera-foil cursor-pointer"
+                />
+              </div>
+
+              {/* Judge Notes */}
+              <div>
+                <label className="block text-xs font-semibold text-novera-charcoal mb-1">
+                  Judge Notes / Feedback (Optional)
+                </label>
+                <textarea
+                  value={notes}
+                  onChange={(e) => setNotes(e.target.value)}
+                  placeholder="e.g. Exceptional confidence and walk cadence on the ramp..."
+                  rows={2}
+                  className="w-full px-3 py-2 text-xs rounded-xl border border-novera-ink/15 bg-novera-paper-dim text-novera-ink outline-none focus:border-novera-foil resize-none"
+                />
+              </div>
+            </div>
+
+            {saveSuccess && (
+              <div className="mt-4 p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                <span>{saveSuccess}</span>
+              </div>
+            )}
+
+            {/* Actions */}
+            <div className="mt-6 flex gap-3">
+              <button
+                type="button"
+                onClick={() => setScoringCandidate(null)}
+                className="w-1/3 py-3 rounded-xl border border-novera-ink/15 text-xs font-semibold text-novera-charcoal hover:bg-novera-paper-dim transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleScoreSubmit}
+                disabled={isSaving}
+                className="w-2/3 py-3 rounded-xl bg-novera-ink text-novera-paper hover:bg-novera-foil text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-md disabled:opacity-50"
+              >
+                <Save className="w-4 h-4 text-novera-gold" />
+                <span>{isSaving ? 'Saving...' : 'Save & Submit Marks'}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

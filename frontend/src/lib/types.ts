@@ -36,3 +36,26 @@ export interface LeaderboardStats {
   votingStatus: 'ACTIVE' | 'PAUSED' | 'CONCLUDED';
 }
 
+export interface JudgeScore {
+  id: string; // `${judgeId}_${candidateId}`
+  judgeId: string;
+  judgeName: string;
+  candidateId: string;
+  candidateCategory: GenderCategory;
+  runwayWalk: number; // 0 - 30 (Walk, Posture & Poise)
+  styling: number; // 0 - 30 (Styling, Outfit & Visual Appeal)
+  personality: number; // 0 - 40 (Confidence & Runway Presence)
+  total: number; // 0 - 100
+  notes?: string;
+  updatedAt: number;
+}
+
+export interface CandidateJudgeStats {
+  candidate: Candidate;
+  scores: JudgeScore[];
+  averageScore: number;
+  totalScore: number;
+  judgeCount: number;
+}
+
+
