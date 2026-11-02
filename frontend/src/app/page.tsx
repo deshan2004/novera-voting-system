@@ -12,20 +12,20 @@ export default function HomePage() {
             <span>Official Runway Voting Portal</span>
           </div>
 
-          <h1 className="font-serif text-4xl sm:text-6xl lg:text-7xl font-bold tracking-tight text-novera-ink leading-[1.1]">
+          <h1 className="font-serif text-3xl sm:text-5xl lg:text-7xl font-bold tracking-tight text-novera-ink leading-[1.1]">
             Vote for the Faces of <span className="gold-gradient-text">NOVERA ’26</span>
           </h1>
 
-          <p className="text-base sm:text-lg text-novera-charcoal leading-relaxed max-w-2xl mx-auto">
+          <p className="text-sm sm:text-lg text-novera-charcoal leading-relaxed max-w-2xl mx-auto px-2">
             A new era of runway poise, styling, and presence. Cast your vote for the King &amp; Queen of the Runway.
             Each attendee is granted <strong className="text-novera-ink underline decoration-novera-foil underline-offset-4">one vote for Best Male Model (Boy)</strong> and <strong className="text-novera-ink underline decoration-novera-foil underline-offset-4">one vote for Best Female Model (Girl)</strong>.
           </p>
 
           {/* Quick Action Button */}
-          <div className="pt-4 flex justify-center">
+          <div className="pt-4 flex justify-center px-4">
             <Link
               href="/vote"
-              className="inline-flex items-center gap-2 px-10 py-4 rounded-full bg-novera-ink text-novera-paper text-sm sm:text-base font-semibold tracking-wider uppercase hover:bg-novera-foil hover:text-novera-paper transition-all duration-300 shadow-editorial group"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 sm:px-10 py-3.5 sm:py-4 rounded-full bg-novera-ink text-novera-paper text-sm sm:text-base font-semibold tracking-wider uppercase hover:bg-novera-foil hover:text-novera-paper transition-all duration-300 shadow-editorial group"
             >
               <Vote className="w-5 h-5 text-novera-gold group-hover:scale-110 transition-transform" />
               <span>Enter Voting Ballot</span>

@@ -314,42 +314,45 @@ export default function AdminLeaderboardPage() {
       </div>
 
       {/* Main Tab Navigation */}
-      <div className="flex justify-center mb-8">
-        <div className="inline-flex p-1.5 rounded-2xl bg-white border border-novera-ink/10 shadow-sm">
+      <div className="flex justify-center mb-8 px-2">
+        <div className="flex overflow-x-auto max-w-full p-1.5 rounded-2xl bg-white border border-novera-ink/10 shadow-sm gap-1 scrollbar-none">
           <button
             onClick={() => setActiveTab('audience')}
-            className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-xs sm:text-sm font-bold tracking-wider uppercase transition-all ${
+            className={`whitespace-nowrap flex items-center gap-1.5 px-3.5 sm:px-6 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold tracking-wider uppercase transition-all ${
               activeTab === 'audience'
                 ? 'bg-novera-ink text-novera-paper shadow-md'
                 : 'text-novera-charcoal hover:text-novera-ink'
             }`}
           >
-            <Users className="w-4 h-4 text-novera-gold" />
-            <span>1. Audience Votes ({totalOverallVotes})</span>
+            <Users className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-novera-gold shrink-0" />
+            <span className="hidden sm:inline">1. Audience Votes ({totalOverallVotes})</span>
+            <span className="sm:hidden">Audience ({totalOverallVotes})</span>
           </button>
 
           <button
             onClick={() => setActiveTab('judges')}
-            className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-xs sm:text-sm font-bold tracking-wider uppercase transition-all ${
+            className={`whitespace-nowrap flex items-center gap-1.5 px-3.5 sm:px-6 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold tracking-wider uppercase transition-all ${
               activeTab === 'judges'
                 ? 'bg-novera-ink text-novera-paper shadow-md'
                 : 'text-novera-charcoal hover:text-novera-ink'
             }`}
           >
-            <Award className="w-4 h-4 text-novera-gold" />
-            <span>2. Judges&rsquo; Scores ({judgeScores.length} Evaluated)</span>
+            <Award className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-novera-gold shrink-0" />
+            <span className="hidden sm:inline">2. Judges&rsquo; Scores ({judgeScores.length})</span>
+            <span className="sm:hidden">Judges ({judgeScores.length})</span>
           </button>
 
           <button
             onClick={() => setActiveTab('summary')}
-            className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-xs sm:text-sm font-bold tracking-wider uppercase transition-all ${
+            className={`whitespace-nowrap flex items-center gap-1.5 px-3.5 sm:px-6 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold tracking-wider uppercase transition-all ${
               activeTab === 'summary'
                 ? 'bg-novera-foil text-novera-paper shadow-md'
                 : 'text-novera-charcoal hover:text-novera-ink'
             }`}
           >
-            <Crown className="w-4 h-4 text-novera-paper" />
-            <span>3. Final Winners Summary</span>
+            <Crown className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-novera-paper shrink-0" />
+            <span className="hidden sm:inline">3. Final Winners</span>
+            <span className="sm:hidden">Winners</span>
           </button>
         </div>
       </div>

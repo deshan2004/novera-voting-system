@@ -42,3 +42,13 @@ body {
   border: 1px solid rgba(179, 146, 79, 0.4);
 }
 
+/* Hide scrollbars for clean horizontal mobile tabs */
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+

@@ -291,28 +291,30 @@ export default function JudgePortalPage() {
       </div>
 
       {/* Category Toggle Tabs */}
-      <div className="flex justify-center mb-8">
-        <div className="inline-flex p-1.5 rounded-full bg-novera-paper-dim border border-novera-ink/10 shadow-inner">
+      <div className="flex justify-center mb-8 px-2">
+        <div className="inline-flex w-full max-w-md p-1.5 rounded-full bg-novera-paper-dim border border-novera-ink/10 shadow-inner">
           <button
             onClick={() => setSelectedCategory('boy')}
-            className={`flex items-center gap-2 px-6 py-2.5 rounded-full text-xs sm:text-sm font-semibold tracking-wider uppercase transition-all ${
+            className={`flex-1 flex items-center justify-center gap-1.5 px-3 sm:px-6 py-2.5 rounded-full text-xs sm:text-sm font-semibold tracking-wider uppercase transition-all ${
               selectedCategory === 'boy'
                 ? 'bg-novera-ink text-novera-paper shadow-md'
                 : 'text-novera-charcoal hover:text-novera-ink'
             }`}
           >
-            <span>Best Male Contenders (Boys)</span>
+            <span className="hidden sm:inline">Best Male Contenders (Boys)</span>
+            <span className="sm:hidden">Male (Boys)</span>
           </button>
 
           <button
             onClick={() => setSelectedCategory('girl')}
-            className={`flex items-center gap-2 px-6 py-2.5 rounded-full text-xs sm:text-sm font-semibold tracking-wider uppercase transition-all ${
+            className={`flex-1 flex items-center justify-center gap-1.5 px-3 sm:px-6 py-2.5 rounded-full text-xs sm:text-sm font-semibold tracking-wider uppercase transition-all ${
               selectedCategory === 'girl'
                 ? 'bg-novera-ink text-novera-paper shadow-md'
                 : 'text-novera-charcoal hover:text-novera-ink'
             }`}
           >
-            <span>Best Female Contenders (Girls)</span>
+            <span className="hidden sm:inline">Best Female Contenders (Girls)</span>
+            <span className="sm:hidden">Female (Girls)</span>
           </button>
         </div>
       </div>
@@ -400,8 +402,8 @@ export default function JudgePortalPage() {
 
       {/* Modal Drawer for Scoring */}
       {scoringCandidate && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="max-w-lg w-full bg-white rounded-3xl p-6 sm:p-8 border border-novera-foil/30 shadow-2xl relative animate-in fade-in zoom-in-95 duration-200">
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4">
+          <div className="max-w-lg w-full bg-white rounded-t-3xl sm:rounded-3xl p-5 sm:p-8 border border-novera-foil/30 shadow-2xl relative animate-in fade-in zoom-in-95 duration-200 max-h-[92vh] overflow-y-auto">
             {/* Header */}
             <div className="flex items-center justify-between pb-4 border-b border-novera-ink/10 mb-6">
               <div className="flex items-center gap-3">
@@ -541,3 +543,4 @@ export default function JudgePortalPage() {
     </div>
   );
 }
+

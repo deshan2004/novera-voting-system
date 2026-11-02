@@ -61,7 +61,7 @@ export default function QrDisplayPage() {
         </div>
 
         {/* QR Code Presentation Frame */}
-        <div className="relative group p-6 sm:p-8 rounded-3xl bg-white shadow-2xl border-4 border-novera-foil/30 hover:border-novera-foil transition-all duration-300 flex flex-col items-center">
+        <div className="relative group p-4 sm:p-8 rounded-3xl bg-white shadow-2xl border-4 border-novera-foil/30 hover:border-novera-foil transition-all duration-300 flex flex-col items-center max-w-[90vw]">
           {/* Decorative Corner Accents */}
           <div className="absolute top-3 left-3 w-4 h-4 border-t-2 border-l-2 border-novera-foil" />
           <div className="absolute top-3 right-3 w-4 h-4 border-t-2 border-r-2 border-novera-foil" />
@@ -69,18 +69,18 @@ export default function QrDisplayPage() {
           <div className="absolute bottom-3 right-3 w-4 h-4 border-b-2 border-r-2 border-novera-foil" />
 
           {/* QR Code */}
-          <div className="p-4 bg-white rounded-2xl shadow-inner border border-novera-ink/10">
+          <div className="p-3 sm:p-4 bg-white rounded-2xl shadow-inner border border-novera-ink/10 flex items-center justify-center">
             {votingUrl ? (
               <QRCodeSVG
                 value={votingUrl}
-                size={isFullscreen ? 320 : 250}
+                size={isFullscreen ? 320 : 230}
                 level="H"
                 includeMargin={true}
                 fgColor="#0b0b0b"
                 bgColor="#ffffff"
               />
             ) : (
-              <div className="w-[250px] h-[250px] flex items-center justify-center">
+              <div className="w-[230px] h-[230px] flex items-center justify-center">
                 <RefreshCw className="w-8 h-8 animate-spin text-novera-foil" />
               </div>
             )}

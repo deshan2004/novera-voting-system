@@ -135,23 +135,23 @@ export default function VotePage() {
       {/* Voter Status Tracker Card */}
       <div className="mb-8 p-4 sm:p-6 rounded-2xl bg-white border border-novera-ink/10 shadow-editorial">
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-novera-paper-dim flex items-center justify-center">
+          <div className="flex items-center gap-3 text-center sm:text-left">
+            <div className="w-10 h-10 rounded-full bg-novera-paper-dim flex items-center justify-center shrink-0">
               <ShieldCheck className="w-5 h-5 text-novera-foil" />
             </div>
             <div>
               <div className="text-xs uppercase tracking-wider text-novera-silver font-semibold">Your Ballot Status</div>
-              <div className="text-xs font-mono text-novera-charcoal">
+              <div className="text-xs font-mono text-novera-charcoal truncate max-w-[220px] sm:max-w-none">
                 ID: {voterStatus?.voterId ? voterStatus.voterId.substring(0, 16) + '...' : 'Generating...'}
               </div>
             </div>
           </div>
 
           {/* Status Badges */}
-          <div className="flex items-center gap-3 w-full sm:w-auto justify-center">
+          <div className="flex flex-wrap items-center gap-2.5 w-full sm:w-auto justify-center">
             {/* Boy Status */}
             <div
-              className={`flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-medium border ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border ${
                 voterStatus?.hasVotedBoy
                   ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
                   : 'bg-amber-50 text-amber-800 border-amber-200'
@@ -159,12 +159,12 @@ export default function VotePage() {
             >
               {voterStatus?.hasVotedBoy ? (
                 <>
-                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                  <span>Boy: Voted ({getCandidateById(voterStatus.boyVotedFor)?.name || 'Cast'})</span>
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                  <span>Boy: {getCandidateById(voterStatus.boyVotedFor)?.name.split(' ')[0] || 'Voted'}</span>
                 </>
               ) : (
                 <>
-                  <Vote className="w-3.5 h-3.5 text-amber-600" />
+                  <Vote className="w-3.5 h-3.5 text-amber-600 shrink-0" />
                   <span>Boy: Pending</span>
                 </>
               )}
@@ -172,7 +172,7 @@ export default function VotePage() {
 
             {/* Girl Status */}
             <div
-              className={`flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-medium border ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border ${
                 voterStatus?.hasVotedGirl
                   ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
                   : 'bg-amber-50 text-amber-800 border-amber-200'
@@ -180,12 +180,12 @@ export default function VotePage() {
             >
               {voterStatus?.hasVotedGirl ? (
                 <>
-                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                  <span>Girl: Voted ({getCandidateById(voterStatus.girlVotedFor)?.name || 'Cast'})</span>
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                  <span>Girl: {getCandidateById(voterStatus.girlVotedFor)?.name.split(' ')[0] || 'Voted'}</span>
                 </>
               ) : (
                 <>
-                  <Vote className="w-3.5 h-3.5 text-amber-600" />
+                  <Vote className="w-3.5 h-3.5 text-amber-600 shrink-0" />
                   <span>Girl: Pending</span>
                 </>
               )}
@@ -213,20 +213,21 @@ export default function VotePage() {
       )}
 
       {/* Category Toggle Tabs (Boy / Girl) */}
-      <div className="flex justify-center mb-10">
-        <div className="inline-flex p-1.5 rounded-full bg-novera-paper-dim border border-novera-ink/10 shadow-inner">
+      <div className="flex justify-center mb-8 px-2">
+        <div className="inline-flex w-full max-w-md p-1.5 rounded-full bg-novera-paper-dim border border-novera-ink/10 shadow-inner">
           <button
             onClick={() => {
               setSelectedCategory('boy');
               setSelectedCandidate(null);
             }}
-            className={`flex items-center gap-2 px-6 py-2.5 rounded-full text-xs sm:text-sm font-semibold tracking-wider uppercase transition-all ${
+            className={`flex-1 flex items-center justify-center gap-1.5 px-3 sm:px-6 py-2.5 rounded-full text-xs sm:text-sm font-semibold tracking-wider uppercase transition-all ${
               selectedCategory === 'boy'
                 ? 'bg-novera-ink text-novera-paper shadow-md'
                 : 'text-novera-charcoal hover:text-novera-ink'
             }`}
           >
-            <span>Best Male Model (Boy)</span>
+            <span className="hidden sm:inline">Best Male Model (Boy)</span>
+            <span className="sm:hidden">Male (Boy)</span>
             {voterStatus?.hasVotedBoy && (
               <span className="w-2 h-2 rounded-full bg-emerald-400" />
             )}
@@ -237,13 +238,14 @@ export default function VotePage() {
               setSelectedCategory('girl');
               setSelectedCandidate(null);
             }}
-            className={`flex items-center gap-2 px-6 py-2.5 rounded-full text-xs sm:text-sm font-semibold tracking-wider uppercase transition-all ${
+            className={`flex-1 flex items-center justify-center gap-1.5 px-3 sm:px-6 py-2.5 rounded-full text-xs sm:text-sm font-semibold tracking-wider uppercase transition-all ${
               selectedCategory === 'girl'
                 ? 'bg-novera-ink text-novera-paper shadow-md'
                 : 'text-novera-charcoal hover:text-novera-ink'
             }`}
           >
-            <span>Best Female Model (Girl)</span>
+            <span className="hidden sm:inline">Best Female Model (Girl)</span>
+            <span className="sm:hidden">Female (Girl)</span>
             {voterStatus?.hasVotedGirl && (
               <span className="w-2 h-2 rounded-full bg-emerald-400" />
             )}
@@ -443,7 +445,7 @@ export default function VotePage() {
 
       {/* Completion Banner when both categories are voted */}
       {voterStatus?.hasVotedBoy && voterStatus?.hasVotedGirl && (
-        <div className="mt-12 p-8 rounded-3xl bg-novera-ink text-novera-paper text-center space-y-4 border border-novera-foil/40 shadow-luxury">
+        <div className="mt-12 p-6 sm:p-8 rounded-3xl bg-novera-ink text-novera-paper text-center space-y-4 border border-novera-foil/40 shadow-luxury">
           <div className="w-14 h-14 rounded-full bg-novera-foil/20 border border-novera-foil flex items-center justify-center mx-auto">
             <Award className="w-8 h-8 text-novera-gold" />
           </div>
@@ -451,16 +453,11 @@ export default function VotePage() {
             Thank You &bull; Your Full Ballot is Cast!
           </h3>
           <p className="text-xs sm:text-sm text-novera-paper-dim max-w-lg mx-auto">
-            Both your Best Male Model and Best Female Model choices have been securely preserved. You can watch the real-time leaderboard unfold in the Admin page.
+            Both your Best Male Model and Best Female Model choices have been securely preserved. Official winners will be announced live on stage!
           </p>
-          <div className="pt-2">
-            <a
-              href="/admin"
-              className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-novera-foil text-novera-paper text-xs font-bold uppercase tracking-wider hover:bg-white hover:text-novera-ink transition-all"
-            >
-              <span>View Live Bar Chart Leaderboard</span>
-              <ChevronRight className="w-4 h-4" />
-            </a>
+          <div className="pt-2 inline-flex items-center gap-2 px-5 py-2 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-xs font-semibold uppercase tracking-wider">
+            <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+            <span>Ballot Verified &bull; Official Attendee</span>
           </div>
         </div>
       )}
