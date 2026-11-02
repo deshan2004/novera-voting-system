@@ -42,20 +42,42 @@ export interface JudgeScore {
   judgeName: string;
   candidateId: string;
   candidateCategory: GenderCategory;
-  runwayWalk: number; // 0 - 30 (Walk, Posture & Poise)
-  styling: number; // 0 - 30 (Styling, Outfit & Visual Appeal)
-  personality: number; // 0 - 40 (Confidence & Runway Presence)
-  total: number; // 0 - 100
+
+  // 1. Model Runway Criteria (Max 100 -> Top Model title)
+  walking: number; // Max 20
+  confidence: number; // Max 20
+  stage: number; // Max 20
+  posture: number; // Max 15
+  poses: number; // Max 15
+  face: number; // Max 10
+  totalModel: number; // Max 100
+
+  // Computed Sub-Award Scores
+  personalityScore: number; // Max 50 (Confidence 20 + Stage 20 + Face 10)
+  stagePresenceScore: number; // Max 30 (Confidence 10 + Stage 20)
+  photogenicScore: number; // Max 40 (Posture 15 + Poses 15 + Face 10)
+
+  // 2. Student Design Criteria (Max 100 -> Best Design Students)
+  designCreativity: number; // Max 30
+  designCraftsmanship: number; // Max 25
+  designTheme: number; // Max 20
+  designFit: number; // Max 15
+  designImpact: number; // Max 10
+  totalDesign: number; // Max 100
+
   notes?: string;
   updatedAt: number;
 }
 
-export interface CandidateJudgeStats {
+export interface CandidateAwardRankings {
   candidate: Candidate;
-  scores: JudgeScore[];
-  averageScore: number;
-  totalScore: number;
   judgeCount: number;
+  topModelAvg: number; // /100
+  personalityAvg: number; // /50
+  stagePresenceAvg: number; // /30
+  photogenicAvg: number; // /40
+  designAvg: number; // /100
+  scores: JudgeScore[];
 }
 
 

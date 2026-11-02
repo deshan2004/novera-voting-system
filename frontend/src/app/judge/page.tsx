@@ -10,18 +10,18 @@ import {
   CheckCircle2,
   Lock,
   Sparkles,
-  UserCheck,
   LogOut,
-  ChevronRight,
   Sliders,
   AlertCircle,
   Save,
   Radio,
-  Eye,
-  ShieldAlert,
-  Zap,
   Activity,
   Check,
+  Zap,
+  Palette,
+  Camera,
+  Heart,
+  Crown,
 } from 'lucide-react';
 
 const OFFICIAL_JUDGES = [
@@ -45,9 +45,23 @@ export default function JudgePortalPage() {
 
   // Active scoring candidate
   const [scoringCandidate, setScoringCandidate] = useState<Candidate | null>(null);
-  const [runwayWalk, setRunwayWalk] = useState<number>(25);
-  const [styling, setStyling] = useState<number>(25);
-  const [personality, setPersonality] = useState<number>(30);
+  const [sheetTab, setSheetTab] = useState<'model' | 'design'>('model');
+
+  // 1. Model Official Runway Criteria (Max 100)
+  const [walking, setWalking] = useState<number>(16); // max 20
+  const [confidence, setConfidence] = useState<number>(16); // max 20
+  const [stage, setStage] = useState<number>(16); // max 20
+  const [posture, setPosture] = useState<number>(12); // max 15
+  const [poses, setPoses] = useState<number>(12); // max 15
+  const [face, setFace] = useState<number>(8); // max 10
+
+  // 2. Student Design Official Criteria (Max 100)
+  const [designCreativity, setDesignCreativity] = useState<number>(24); // max 30
+  const [designCraftsmanship, setDesignCraftsmanship] = useState<number>(20); // max 25
+  const [designTheme, setDesignTheme] = useState<number>(16); // max 20
+  const [designFit, setDesignFit] = useState<number>(12); // max 15
+  const [designImpact, setDesignImpact] = useState<number>(8); // max 10
+
   const [notes, setNotes] = useState<string>('');
   const [isSaving, setIsSaving] = useState<boolean>(false);
 
@@ -106,7 +120,7 @@ export default function JudgePortalPage() {
       localStorage.setItem('novera_active_judge', JSON.stringify(defaultJudge));
       setPasscodeError('');
     } else {
-      setPasscodeError('Invalid Judge Passcode. Please enter your authorized passcode.');
+      setPasscodeError('Invalid Judge Passcode. Please enter your authorized name.');
     }
   };
 
@@ -119,43 +133,89 @@ export default function JudgePortalPage() {
 
   const openScoringModal = (candidate: Candidate) => {
     setScoringCandidate(candidate);
+    setSheetTab('model');
+
     const existing = judgeScores.find(
       (s) => s.judgeId === selectedJudgeId && s.candidateId === candidate.id
     );
 
     if (existing) {
-      setRunwayWalk(existing.runwayWalk);
-      setStyling(existing.styling);
-      setPersonality(existing.personality);
+      setWalking(existing.walking ?? 16);
+      setConfidence(existing.confidence ?? 16);
+      setStage(existing.stage ?? 16);
+      setPosture(existing.posture ?? 12);
+      setPoses(existing.poses ?? 12);
+      setFace(existing.face ?? 8);
+
+      setDesignCreativity(existing.designCreativity ?? 24);
+      setDesignCraftsmanship(existing.designCraftsmanship ?? 20);
+      setDesignTheme(existing.designTheme ?? 16);
+      setDesignFit(existing.designFit ?? 12);
+      setDesignImpact(existing.designImpact ?? 8);
+
       setNotes(existing.notes || '');
     } else {
-      setRunwayWalk(25);
-      setStyling(25);
-      setPersonality(30);
+      setWalking(16);
+      setConfidence(16);
+      setStage(16);
+      setPosture(12);
+      setPoses(12);
+      setFace(8);
+
+      setDesignCreativity(24);
+      setDesignCraftsmanship(20);
+      setDesignTheme(16);
+      setDesignFit(12);
+      setDesignImpact(8);
+
       setNotes('');
     }
   };
+
+  // Calculations for titles
+  const totalModel = Number(walking) + Number(confidence) + Number(stage) + Number(posture) + Number(poses) + Number(face);
+  const personalityScore = Number(confidence) + Number(stage) + Number(face); // max 50
+  const stagePresenceScore = Math.min(10, Math.round(Number(confidence) / 2)) + Number(stage); // max 30 (10 conf + 20 stage)
+  const photogenicScore = Number(posture) + Number(poses) + Number(face); // max 40
+  const totalDesign = Number(designCreativity) + Number(designCraftsmanship) + Number(designTheme) + Number(designFit) + Number(designImpact); // max 100
 
   const handleScoreSubmit = async () => {
     if (!scoringCandidate) return;
     setIsSaving(true);
 
-    const total = Number(runwayWalk) + Number(styling) + Number(personality);
     const scoreData: JudgeScore = {
       id: `${selectedJudgeId}_${scoringCandidate.id}`,
       judgeId: selectedJudgeId,
       judgeName: activeJudge.name,
       candidateId: scoringCandidate.id,
       candidateCategory: scoringCandidate.category,
-      runwayWalk: Number(runwayWalk),
-      styling: Number(styling),
-      personality: Number(personality),
-      total,
+
+      // Model Criteria
+      walking: Number(walking),
+      confidence: Number(confidence),
+      stage: Number(stage),
+      posture: Number(posture),
+      poses: Number(poses),
+      face: Number(face),
+      totalModel,
+
+      // Sub-awards
+      personalityScore,
+      stagePresenceScore,
+      photogenicScore,
+
+      // Student Design Sheet
+      designCreativity: Number(designCreativity),
+      designCraftsmanship: Number(designCraftsmanship),
+      designTheme: Number(designTheme),
+      designFit: Number(designFit),
+      designImpact: Number(designImpact),
+      totalDesign,
+
       notes,
       updatedAt: Date.now(),
     };
 
-    // Close scoring drawer immediately to start dramatic animation
     setScoringCandidate(null);
     setIsSaving(false);
 
@@ -163,17 +223,15 @@ export default function JudgePortalPage() {
     setAnimationState({
       isOpen: true,
       step: 1,
-      score: total,
+      score: totalModel,
       candidateName: scoringCandidate.name,
       judgeName: activeJudge.name,
     });
 
-    // Step 2: Transmitting telemetry to Admin Desk
     setTimeout(() => {
       setAnimationState((prev) => (prev ? { ...prev, step: 2 } : null));
     }, 900);
 
-    // Step 3: Verified & Sealed with Confetti
     setTimeout(() => {
       setAnimationState((prev) => (prev ? { ...prev, step: 3 } : null));
       confetti({
@@ -182,11 +240,9 @@ export default function JudgePortalPage() {
         origin: { y: 0.5 },
         colors: ['#b3924f', '#ecd599', '#ff3b30', '#ffffff'],
       });
-      // Save data
       saveJudgeScore(scoreData);
     }, 1800);
 
-    // Auto dismiss after dramatic view
     setTimeout(() => {
       setAnimationState(null);
     }, 3800);
@@ -203,7 +259,7 @@ export default function JudgePortalPage() {
       <div className="min-h-[85vh] flex items-center justify-center p-4">
         <div className="max-w-md w-full bg-white rounded-3xl p-6 sm:p-8 border border-novera-ink/10 shadow-editorial text-center space-y-6">
           <div className="w-16 h-16 rounded-2xl bg-novera-ink text-novera-gold mx-auto flex items-center justify-center shadow-lg border border-novera-foil/30">
-            <ShieldAlert className="w-8 h-8 text-novera-gold animate-pulse" />
+            <Lock className="w-8 h-8 text-novera-gold" />
           </div>
 
           <div className="space-y-1">
@@ -215,7 +271,7 @@ export default function JudgePortalPage() {
               Judges Scoring Portal
             </h1>
             <p className="text-xs text-novera-charcoal">
-              NOVERA ’26 Official Runway Jury &bull; 6 Authorized Evaluators
+              Enter your confidential judge passcode to evaluate contestants
             </p>
           </div>
 
@@ -261,10 +317,8 @@ export default function JudgePortalPage() {
 
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10">
-      {/* 🔴 LIVE ADMIN SURVEILLANCE & AUDIT BANNER (HIGH STAKES PSYCHOLOGICAL LOOK) */}
+      {/* 🔴 LIVE ADMIN SURVEILLANCE & AUDIT BANNER */}
       <div className="mb-6 p-4 rounded-2xl bg-gradient-to-r from-red-950 via-novera-ink to-red-950 text-white border-2 border-red-500/40 shadow-xl relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-32 h-32 bg-red-500/10 rounded-full blur-2xl pointer-events-none" />
-        
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 relative z-10">
           <div className="flex items-center gap-3">
             <div className="relative flex items-center justify-center w-8 h-8 rounded-full bg-red-500/20 border border-red-500/60 shrink-0">
@@ -309,7 +363,7 @@ export default function JudgePortalPage() {
               {activeJudge.name}
             </h1>
             <p className="text-xs text-novera-charcoal">
-              {activeJudge.title} &bull; Scoring criteria: Walk (30), Styling (30), Personality (40)
+              {activeJudge.title} &bull; Model Performance &amp; Student Design Marking
             </p>
           </div>
         </div>
@@ -326,7 +380,7 @@ export default function JudgePortalPage() {
             className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-medium text-rose-700 bg-rose-50 border border-rose-200 hover:bg-rose-100 transition-colors"
           >
             <LogOut className="w-3.5 h-3.5" />
-            <span>Switch Judge</span>
+            <span>Sign Out</span>
           </button>
         </div>
       </div>
@@ -389,7 +443,7 @@ export default function JudgePortalPage() {
                   {isScored && (
                     <div className="absolute top-2 right-2 px-2.5 py-1 rounded-md bg-emerald-600 text-white text-[10px] font-bold flex items-center gap-1 shadow-md">
                       <CheckCircle2 className="w-3.5 h-3.5" />
-                      <span>{score.total}/100</span>
+                      <span>{score.totalModel}/100</span>
                     </div>
                   )}
                 </div>
@@ -403,24 +457,27 @@ export default function JudgePortalPage() {
 
                 {/* Score Summary if given */}
                 {isScored && (
-                  <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-[11px] space-y-1 mb-4">
-                    <div className="flex justify-between text-emerald-900 font-medium">
-                      <span>Walk &amp; Poise:</span>
-                      <strong className="font-mono">{score.runwayWalk}/30</strong>
+                  <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-[11px] space-y-1.5 mb-4">
+                    <div className="flex justify-between text-emerald-950 font-bold">
+                      <span>Top Model:</span>
+                      <span className="font-mono">{score.totalModel}/100</span>
                     </div>
-                    <div className="flex justify-between text-emerald-900 font-medium">
-                      <span>Styling &amp; Outfit:</span>
-                      <strong className="font-mono">{score.styling}/30</strong>
+                    <div className="flex justify-between text-emerald-800">
+                      <span>Best Personality:</span>
+                      <span className="font-mono">{score.personalityScore}/50</span>
                     </div>
-                    <div className="flex justify-between text-emerald-900 font-medium">
-                      <span>Personality:</span>
-                      <strong className="font-mono">{score.personality}/40</strong>
+                    <div className="flex justify-between text-emerald-800">
+                      <span>Stage Presence:</span>
+                      <span className="font-mono">{score.stagePresenceScore}/30</span>
                     </div>
-                    {score.notes && (
-                      <div className="pt-1.5 border-t border-emerald-200 text-emerald-950 italic line-clamp-2">
-                        &ldquo;{score.notes}&rdquo;
-                      </div>
-                    )}
+                    <div className="flex justify-between text-emerald-800">
+                      <span>Most Photogenic:</span>
+                      <span className="font-mono">{score.photogenicScore}/40</span>
+                    </div>
+                    <div className="flex justify-between text-emerald-900 pt-1 border-t border-emerald-200 font-semibold">
+                      <span>Student Design:</span>
+                      <span className="font-mono">{score.totalDesign}/100</span>
+                    </div>
                   </div>
                 )}
               </div>
@@ -441,12 +498,12 @@ export default function JudgePortalPage() {
         })}
       </div>
 
-      {/* Modal Drawer for Scoring */}
+      {/* Modal Drawer for Scoring with Official Marking Sheet Alignment */}
       {scoringCandidate && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4">
           <div className="max-w-lg w-full bg-white rounded-t-3xl sm:rounded-3xl p-5 sm:p-8 border border-novera-foil/30 shadow-2xl relative animate-in fade-in zoom-in-95 duration-200 max-h-[92vh] overflow-y-auto">
             {/* Header */}
-            <div className="flex items-center justify-between pb-4 border-b border-novera-ink/10 mb-6">
+            <div className="flex items-center justify-between pb-4 border-b border-novera-ink/10 mb-4">
               <div className="flex items-center gap-3">
                 <div className="relative w-12 h-12 rounded-xl overflow-hidden shrink-0">
                   <Image
@@ -473,88 +530,260 @@ export default function JudgePortalPage() {
               </button>
             </div>
 
-            {/* Total Indicator */}
-            <div className="p-4 rounded-2xl bg-gradient-to-r from-novera-ink via-zinc-900 to-novera-ink text-novera-paper flex items-center justify-between mb-6 border border-novera-foil/30 shadow-md">
-              <div>
-                <span className="text-[11px] uppercase tracking-wider text-novera-gold font-bold flex items-center gap-1.5">
-                  <Zap className="w-3.5 h-3.5" />
-                  <span>Total Calculated Score</span>
-                </span>
-                <div className="text-xs text-novera-silver">Transmitted live to Admin Desk</div>
-              </div>
-              <div className="font-serif text-3xl font-bold text-novera-gold font-mono">
-                {Number(runwayWalk) + Number(styling) + Number(personality)}
-                <span className="text-sm text-novera-silver font-sans">/100</span>
-              </div>
+            {/* Sheet Tabs: Model vs Design */}
+            <div className="flex p-1 rounded-xl bg-novera-paper-dim border border-novera-ink/10 mb-5">
+              <button
+                type="button"
+                onClick={() => setSheetTab('model')}
+                className={`flex-1 py-2 text-xs font-bold uppercase tracking-wider rounded-lg transition-all flex items-center justify-center gap-1.5 ${
+                  sheetTab === 'model'
+                    ? 'bg-novera-ink text-novera-paper shadow-sm'
+                    : 'text-novera-charcoal hover:text-novera-ink'
+                }`}
+              >
+                <Crown className="w-3.5 h-3.5 text-novera-gold" />
+                <span>1. Model Performance (100)</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setSheetTab('design')}
+                className={`flex-1 py-2 text-xs font-bold uppercase tracking-wider rounded-lg transition-all flex items-center justify-center gap-1.5 ${
+                  sheetTab === 'design'
+                    ? 'bg-novera-foil text-novera-paper shadow-sm'
+                    : 'text-novera-charcoal hover:text-novera-ink'
+                }`}
+              >
+                <Palette className="w-3.5 h-3.5 text-novera-paper" />
+                <span>2. Student Design (100)</span>
+              </button>
             </div>
 
-            {/* Criteria Sliders */}
-            <div className="space-y-5">
-              {/* Criteria 1 */}
-              <div>
-                <div className="flex justify-between items-center text-xs mb-1.5">
-                  <span className="font-semibold text-novera-ink">1. Runway Walk, Posture &amp; Poise</span>
-                  <span className="font-mono font-bold text-novera-foil">{runwayWalk} / 30</span>
+            {/* TAB 1: MODEL PERFORMANCE OFFICIAL CRITERIA */}
+            {sheetTab === 'model' && (
+              <div className="space-y-4">
+                {/* Live Awards Alignment Badge Bar */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 p-3 rounded-2xl bg-novera-paper-dim border border-novera-ink/10 text-center">
+                  <div>
+                    <span className="text-[9px] uppercase tracking-wider text-novera-charcoal font-bold block">Top Model</span>
+                    <strong className="text-sm font-mono text-novera-foil">{totalModel}/100</strong>
+                  </div>
+                  <div>
+                    <span className="text-[9px] uppercase tracking-wider text-novera-charcoal font-bold block">Personality</span>
+                    <strong className="text-sm font-mono text-novera-ink">{personalityScore}/50</strong>
+                  </div>
+                  <div>
+                    <span className="text-[9px] uppercase tracking-wider text-novera-charcoal font-bold block">Stage Pres.</span>
+                    <strong className="text-sm font-mono text-novera-ink">{stagePresenceScore}/30</strong>
+                  </div>
+                  <div>
+                    <span className="text-[9px] uppercase tracking-wider text-novera-charcoal font-bold block">Photogenic</span>
+                    <strong className="text-sm font-mono text-novera-ink">{photogenicScore}/40</strong>
+                  </div>
                 </div>
-                <input
-                  type="range"
-                  min="0"
-                  max="30"
-                  value={runwayWalk}
-                  onChange={(e) => setRunwayWalk(Number(e.target.value))}
-                  className="w-full accent-novera-foil cursor-pointer"
-                />
-              </div>
 
-              {/* Criteria 2 */}
-              <div>
-                <div className="flex justify-between items-center text-xs mb-1.5">
-                  <span className="font-semibold text-novera-ink">2. Styling, Grooming &amp; Outfit</span>
-                  <span className="font-mono font-bold text-novera-foil">{styling} / 30</span>
+                {/* 6 Official Model Criteria Sliders */}
+                <div className="space-y-4 pt-1">
+                  <div>
+                    <div className="flex justify-between items-center text-xs mb-1">
+                      <span className="font-semibold text-novera-ink">Walking (Ramp walk cadence &amp; gait)</span>
+                      <span className="font-mono font-bold text-novera-foil">{walking} / 20</span>
+                    </div>
+                    <input
+                      type="range"
+                      min="0"
+                      max="20"
+                      value={walking}
+                      onChange={(e) => setWalking(Number(e.target.value))}
+                      className="w-full accent-novera-foil cursor-pointer"
+                    />
+                  </div>
+
+                  <div>
+                    <div className="flex justify-between items-center text-xs mb-1">
+                      <span className="font-semibold text-novera-ink">Confidence (Attitude &amp; character)</span>
+                      <span className="font-mono font-bold text-novera-foil">{confidence} / 20</span>
+                    </div>
+                    <input
+                      type="range"
+                      min="0"
+                      max="20"
+                      value={confidence}
+                      onChange={(e) => setConfidence(Number(e.target.value))}
+                      className="w-full accent-novera-foil cursor-pointer"
+                    />
+                  </div>
+
+                  <div>
+                    <div className="flex justify-between items-center text-xs mb-1">
+                      <span className="font-semibold text-novera-ink">Stage Presence (Audience impact)</span>
+                      <span className="font-mono font-bold text-novera-foil">{stage} / 20</span>
+                    </div>
+                    <input
+                      type="range"
+                      min="0"
+                      max="20"
+                      value={stage}
+                      onChange={(e) => setStage(Number(e.target.value))}
+                      className="w-full accent-novera-foil cursor-pointer"
+                    />
+                  </div>
+
+                  <div>
+                    <div className="flex justify-between items-center text-xs mb-1">
+                      <span className="font-semibold text-novera-ink">Posture (Spine alignment &amp; poise)</span>
+                      <span className="font-mono font-bold text-novera-foil">{posture} / 15</span>
+                    </div>
+                    <input
+                      type="range"
+                      min="0"
+                      max="15"
+                      value={posture}
+                      onChange={(e) => setPosture(Number(e.target.value))}
+                      className="w-full accent-novera-foil cursor-pointer"
+                    />
+                  </div>
+
+                  <div>
+                    <div className="flex justify-between items-center text-xs mb-1">
+                      <span className="font-semibold text-novera-ink">Poses (Runway turns &amp; pauses)</span>
+                      <span className="font-mono font-bold text-novera-foil">{poses} / 15</span>
+                    </div>
+                    <input
+                      type="range"
+                      min="0"
+                      max="15"
+                      value={poses}
+                      onChange={(e) => setPoses(Number(e.target.value))}
+                      className="w-full accent-novera-foil cursor-pointer"
+                    />
+                  </div>
+
+                  <div>
+                    <div className="flex justify-between items-center text-xs mb-1">
+                      <span className="font-semibold text-novera-ink">Face (Facial expression &amp; camera-ready)</span>
+                      <span className="font-mono font-bold text-novera-foil">{face} / 10</span>
+                    </div>
+                    <input
+                      type="range"
+                      min="0"
+                      max="10"
+                      value={face}
+                      onChange={(e) => setFace(Number(e.target.value))}
+                      className="w-full accent-novera-foil cursor-pointer"
+                    />
+                  </div>
                 </div>
-                <input
-                  type="range"
-                  min="0"
-                  max="30"
-                  value={styling}
-                  onChange={(e) => setStyling(Number(e.target.value))}
-                  className="w-full accent-novera-foil cursor-pointer"
-                />
               </div>
+            )}
 
-              {/* Criteria 3 */}
-              <div>
-                <div className="flex justify-between items-center text-xs mb-1.5">
-                  <span className="font-semibold text-novera-ink">3. Confidence, Stage Presence &amp; Personality</span>
-                  <span className="font-mono font-bold text-novera-foil">{personality} / 40</span>
+            {/* TAB 2: STUDENT DESIGN OFFICIAL CRITERIA */}
+            {sheetTab === 'design' && (
+              <div className="space-y-4">
+                <div className="p-3 rounded-2xl bg-novera-ink text-novera-paper flex items-center justify-between">
+                  <div>
+                    <span className="text-[10px] uppercase tracking-wider text-novera-gold font-bold">
+                      Student Outfit Design Score
+                    </span>
+                    <div className="text-[11px] text-novera-silver">Judged strictly on design craft</div>
+                  </div>
+                  <strong className="text-2xl font-serif text-novera-gold font-mono">{totalDesign}/100</strong>
                 </div>
-                <input
-                  type="range"
-                  min="0"
-                  max="40"
-                  value={personality}
-                  onChange={(e) => setPersonality(Number(e.target.value))}
-                  className="w-full accent-novera-foil cursor-pointer"
-                />
-              </div>
 
-              {/* Judge Notes */}
-              <div>
-                <label className="block text-xs font-semibold text-novera-charcoal mb-1">
-                  Confidential Judge Notes (Visible to Admin)
-                </label>
-                <textarea
-                  value={notes}
-                  onChange={(e) => setNotes(e.target.value)}
-                  placeholder="e.g. Excellent posture and striking outfit presentation..."
-                  rows={2}
-                  className="w-full px-3 py-2 text-xs rounded-xl border border-novera-ink/15 bg-novera-paper-dim text-novera-ink outline-none focus:border-novera-foil resize-none"
-                />
+                <div className="space-y-4 pt-1">
+                  <div>
+                    <div className="flex justify-between items-center text-xs mb-1">
+                      <span className="font-semibold text-novera-ink">Creativity &amp; Originality (Fresh concept)</span>
+                      <span className="font-mono font-bold text-novera-foil">{designCreativity} / 30</span>
+                    </div>
+                    <input
+                      type="range"
+                      min="0"
+                      max="30"
+                      value={designCreativity}
+                      onChange={(e) => setDesignCreativity(Number(e.target.value))}
+                      className="w-full accent-novera-foil cursor-pointer"
+                    />
+                  </div>
+
+                  <div>
+                    <div className="flex justify-between items-center text-xs mb-1">
+                      <span className="font-semibold text-novera-ink">Craftsmanship &amp; Finish (Stitching &amp; details)</span>
+                      <span className="font-mono font-bold text-novera-foil">{designCraftsmanship} / 25</span>
+                    </div>
+                    <input
+                      type="range"
+                      min="0"
+                      max="25"
+                      value={designCraftsmanship}
+                      onChange={(e) => setDesignCraftsmanship(Number(e.target.value))}
+                      className="w-full accent-novera-foil cursor-pointer"
+                    />
+                  </div>
+
+                  <div>
+                    <div className="flex justify-between items-center text-xs mb-1">
+                      <span className="font-semibold text-novera-ink">Theme Relevance (Fits event theme)</span>
+                      <span className="font-mono font-bold text-novera-foil">{designTheme} / 20</span>
+                    </div>
+                    <input
+                      type="range"
+                      min="0"
+                      max="20"
+                      value={designTheme}
+                      onChange={(e) => setDesignTheme(Number(e.target.value))}
+                      className="w-full accent-novera-foil cursor-pointer"
+                    />
+                  </div>
+
+                  <div>
+                    <div className="flex justify-between items-center text-xs mb-1">
+                      <span className="font-semibold text-novera-ink">Fit &amp; Styling (Sitting on model in motion)</span>
+                      <span className="font-mono font-bold text-novera-foil">{designFit} / 15</span>
+                    </div>
+                    <input
+                      type="range"
+                      min="0"
+                      max="15"
+                      value={designFit}
+                      onChange={(e) => setDesignFit(Number(e.target.value))}
+                      className="w-full accent-novera-foil cursor-pointer"
+                    />
+                  </div>
+
+                  <div>
+                    <div className="flex justify-between items-center text-xs mb-1">
+                      <span className="font-semibold text-novera-ink">Overall Impact (Stage visual effect)</span>
+                      <span className="font-mono font-bold text-novera-foil">{designImpact} / 10</span>
+                    </div>
+                    <input
+                      type="range"
+                      min="0"
+                      max="10"
+                      value={designImpact}
+                      onChange={(e) => setDesignImpact(Number(e.target.value))}
+                      className="w-full accent-novera-foil cursor-pointer"
+                    />
+                  </div>
+                </div>
               </div>
+            )}
+
+            {/* Judge Notes */}
+            <div className="pt-3">
+              <label className="block text-xs font-semibold text-novera-charcoal mb-1">
+                Confidential Judge Notes (Visible to Admin)
+              </label>
+              <textarea
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                placeholder="e.g. Excellent posture and striking outfit presentation..."
+                rows={2}
+                className="w-full px-3 py-2 text-xs rounded-xl border border-novera-ink/15 bg-novera-paper-dim text-novera-ink outline-none focus:border-novera-foil resize-none"
+              />
             </div>
 
             {/* Actions */}
-            <div className="mt-6 flex gap-3">
+            <div className="mt-5 flex gap-3">
               <button
                 type="button"
                 onClick={() => setScoringCandidate(null)}
@@ -580,10 +809,8 @@ export default function JudgePortalPage() {
       {animationState && animationState.isOpen && (
         <div className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-300">
           <div className="max-w-md w-full text-center space-y-6 relative">
-            {/* Glowing Background Glow */}
             <div className="absolute inset-0 bg-novera-foil/15 blur-3xl -z-10 rounded-full" />
 
-            {/* Step 1 & 2: Scanning & Transmitting Telemetry */}
             {animationState.step < 3 ? (
               <div className="space-y-6 animate-pulse">
                 <div className="relative w-28 h-28 mx-auto flex items-center justify-center">
@@ -605,7 +832,6 @@ export default function JudgePortalPage() {
                   </div>
                 </div>
 
-                {/* Progress bar */}
                 <div className="w-full bg-zinc-800 rounded-full h-2 overflow-hidden border border-zinc-700">
                   <div
                     className={`h-full bg-gradient-to-r from-red-600 to-amber-500 transition-all duration-700 ${
@@ -615,7 +841,6 @@ export default function JudgePortalPage() {
                 </div>
               </div>
             ) : (
-              /* Step 3: Sealed & Verified Grand Badge */
               <div className="space-y-6 animate-in zoom-in-75 duration-300">
                 <div className="relative w-32 h-32 mx-auto flex items-center justify-center">
                   <div className="absolute inset-0 rounded-full bg-novera-foil/30 animate-ping" />

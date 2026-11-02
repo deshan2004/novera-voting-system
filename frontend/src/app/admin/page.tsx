@@ -1,12 +1,11 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Candidate, JudgeScore } from '@/lib/types';
 import {
   fetchCandidates,
   resetAllVotes,
   saveLocalCandidates,
-  getLocalCandidates,
   subscribeToCandidates,
   subscribeToJudgeScores,
   resetAllJudgeScores,
@@ -22,30 +21,110 @@ import {
   CartesianGrid,
 } from 'recharts';
 import {
-  BarChart3,
-  Trophy,
   Users,
   RotateCcw,
-  Sparkles,
-  QrCode,
   ShieldCheck,
   Crown,
-  Play,
-  Pause,
-  Shuffle,
-  Vote,
   Lock,
   LogOut,
   Award,
   Star,
-  CheckCircle2,
-  AlertCircle,
-  ExternalLink,
+  Shuffle,
+  Vote,
+  Camera,
+  Palette,
+  Zap,
+  Heart,
+  Printer,
+  Trophy,
 } from 'lucide-react';
-import Link from 'next/link';
 import Image from 'next/image';
 
 const ADMIN_PASSCODE = 'novera2026';
+
+const OFFICIAL_JUDGE_ROSTER = [
+  { id: 'judge_piyumi', name: 'Piyumi', title: 'Fashion & Runway Jury' },
+  { id: 'judge_kalwani', name: 'Kalwani', title: 'Styling & Visual Jury' },
+  { id: 'judge_devdunu', name: 'Devdunu', title: 'Poise & Presence Jury' },
+  { id: 'judge_erusha', name: 'Erusha', title: 'Runway Technique Jury' },
+  { id: 'judge_sachith', name: 'Sachith', title: 'Personality & Charisma Jury' },
+  { id: 'judge_dulmi', name: 'Dulmi', title: 'Elegance & Wardrobe Jury' },
+];
+
+export type AwardKey =
+  | 'topModel'
+  | 'personality'
+  | 'stagePresence'
+  | 'photogenic'
+  | 'design'
+  | 'peoplesChoice';
+
+interface AwardDefinition {
+  key: AwardKey;
+  title: string;
+  subtitle: string;
+  icon: typeof Trophy;
+  maxScore: number;
+  source: 'jury' | 'audience';
+  criteriaText: string;
+}
+
+const AWARD_DEFINITIONS: AwardDefinition[] = [
+  {
+    key: 'topModel',
+    title: 'Top Model',
+    subtitle: 'Overall Winner (Max 100)',
+    icon: Crown,
+    maxScore: 100,
+    source: 'jury',
+    criteriaText: 'Walking (20) + Confid (20) + Stage (20) + Posture (15) + Poses (15) + Face (10)',
+  },
+  {
+    key: 'personality',
+    title: 'Best Personality',
+    subtitle: 'Character & Attitude (Max 50)',
+    icon: Star,
+    maxScore: 50,
+    source: 'jury',
+    criteriaText: 'Confidence (20) + Stage Presence (20) + Face & Expression (10)',
+  },
+  {
+    key: 'stagePresence',
+    title: 'Best Stage Presence',
+    subtitle: 'Audience Impact (Max 30)',
+    icon: Zap,
+    maxScore: 30,
+    source: 'jury',
+    criteriaText: 'Confidence (10 max) + Stage Impact (20 max)',
+  },
+  {
+    key: 'photogenic',
+    title: 'Most Photogenic Model',
+    subtitle: 'Camera-Ready Look (Max 40)',
+    icon: Camera,
+    maxScore: 40,
+    source: 'jury',
+    criteriaText: 'Posture & Poise (15) + Poses (15) + Facial Expression (10)',
+  },
+  {
+    key: 'design',
+    title: 'Best Design (Students)',
+    subtitle: 'Design Marking Sheet (Max 100)',
+    icon: Palette,
+    maxScore: 100,
+    source: 'jury',
+    criteriaText: 'Creativity (30) + Craftsmanship (25) + Theme (20) + Fit (15) + Impact (10)',
+  },
+  {
+    key: 'peoplesChoice',
+    title: "People's Choice",
+    subtitle: 'Audience Web Voting',
+    icon: Heart,
+    maxScore: 0,
+    source: 'audience',
+    criteriaText: 'Live Public Ballot votes submitted by the audience on /vote',
+  },
+];
 
 export default function AdminLeaderboardPage() {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
@@ -53,9 +132,10 @@ export default function AdminLeaderboardPage() {
   const [passcodeError, setPasscodeError] = useState<string>('');
 
   const [activeTab, setActiveTab] = useState<'audience' | 'judges' | 'summary'>('audience');
+  const [selectedJuryAward, setSelectedJuryAward] = useState<AwardKey>('topModel');
+
   const [candidates, setCandidates] = useState<Candidate[]>([]);
   const [judgeScores, setJudgeScores] = useState<JudgeScore[]>([]);
-  const [votingActive, setVotingActive] = useState<boolean>(true);
   const [isResetting, setIsResetting] = useState<boolean>(false);
   const [chartCategory, setChartCategory] = useState<'both' | 'boy' | 'girl'>('both');
 
@@ -73,12 +153,10 @@ export default function AdminLeaderboardPage() {
 
     loadData();
 
-    // Real-time Firebase candidates
     const unsubscribeCandidates = subscribeToCandidates((updatedList) => {
       setCandidates(updatedList);
     });
 
-    // Real-time Firebase judge scores
     const unsubscribeJudgeScores = subscribeToJudgeScores((scores) => {
       setJudgeScores(scores);
     });
@@ -112,13 +190,15 @@ export default function AdminLeaderboardPage() {
   };
 
   // Audience Calculations
-  const boys = candidates
-    .filter((c) => c.category === 'boy')
-    .sort((a, b) => (b.votes || 0) - (a.votes || 0));
+  const boys = useMemo(
+    () => candidates.filter((c) => c.category === 'boy').sort((a, b) => (b.votes || 0) - (a.votes || 0)),
+    [candidates]
+  );
 
-  const girls = candidates
-    .filter((c) => c.category === 'girl')
-    .sort((a, b) => (b.votes || 0) - (a.votes || 0));
+  const girls = useMemo(
+    () => candidates.filter((c) => c.category === 'girl').sort((a, b) => (b.votes || 0) - (a.votes || 0)),
+    [candidates]
+  );
 
   const totalBoyVotes = boys.reduce((sum, c) => sum + (c.votes || 0), 0);
   const totalGirlVotes = girls.reduce((sum, c) => sum + (c.votes || 0), 0);
@@ -127,33 +207,166 @@ export default function AdminLeaderboardPage() {
   const topBoyAudience = boys[0];
   const topGirlAudience = girls[0];
 
-  // Judges Calculations
-  const computeJudgeStats = (candidate: Candidate) => {
-    const scores = judgeScores.filter((s) => s.candidateId === candidate.id);
-    const judgeCount = scores.length;
-    const totalScore = scores.reduce((sum, s) => sum + Number(s.total || 0), 0);
-    const averageScore = judgeCount > 0 ? Math.round((totalScore / judgeCount) * 10) / 10 : 0;
-    return {
-      candidate,
-      scores,
-      judgeCount,
-      totalScore,
-      averageScore,
-    };
+  // Detailed Candidate Scores Calculation for All 5 Jury Awards
+  const candidateStats = useMemo(() => {
+    return candidates.map((candidate) => {
+      const scores = judgeScores.filter((s) => s.candidateId === candidate.id);
+      const judgeCount = scores.length;
+
+      // 1. Top Model (Max 100)
+      const topModelAvg =
+        judgeCount > 0
+          ? Math.round(
+              (scores.reduce(
+                (sum, s) =>
+                  sum +
+                  Number(
+                    s.totalModel ??
+                      (Number(s.walking || 0) +
+                        Number(s.confidence || 0) +
+                        Number(s.stage || 0) +
+                        Number(s.posture || 0) +
+                        Number(s.poses || 0) +
+                        Number(s.face || 0))
+                  ),
+                0
+              ) /
+                judgeCount) *
+                10
+            ) / 10
+          : 0;
+
+      // 2. Best Personality (Max 50: Confid 20 + Stage 20 + Face 10)
+      const personalityAvg =
+        judgeCount > 0
+          ? Math.round(
+              (scores.reduce(
+                (sum, s) =>
+                  sum +
+                  Number(
+                    s.personalityScore ??
+                      Number(s.confidence || 0) + Number(s.stage || 0) + Number(s.face || 0)
+                  ),
+                0
+              ) /
+                judgeCount) *
+                10
+            ) / 10
+          : 0;
+
+      // 3. Best Stage Presence (Max 30: Confid 10 + Stage 20)
+      const stagePresenceAvg =
+        judgeCount > 0
+          ? Math.round(
+              (scores.reduce(
+                (sum, s) =>
+                  sum +
+                  Number(
+                    s.stagePresenceScore ??
+                      Math.min(10, Math.round(Number(s.confidence || 0) / 2)) +
+                        Number(s.stage || 0)
+                  ),
+                0
+              ) /
+                judgeCount) *
+                10
+            ) / 10
+          : 0;
+
+      // 4. Most Photogenic Model (Max 40: Posture 15 + Poses 15 + Face 10)
+      const photogenicAvg =
+        judgeCount > 0
+          ? Math.round(
+              (scores.reduce(
+                (sum, s) =>
+                  sum +
+                  Number(
+                    s.photogenicScore ??
+                      Number(s.posture || 0) + Number(s.poses || 0) + Number(s.face || 0)
+                  ),
+                0
+              ) /
+                judgeCount) *
+                10
+            ) / 10
+          : 0;
+
+      // 5. Best Design Students (Max 100)
+      const designAvg =
+        judgeCount > 0
+          ? Math.round(
+              (scores.reduce(
+                (sum, s) =>
+                  sum +
+                  Number(
+                    s.totalDesign ??
+                      Number(s.designCreativity || 0) +
+                        Number(s.designCraftsmanship || 0) +
+                        Number(s.designTheme || 0) +
+                        Number(s.designFit || 0) +
+                        Number(s.designImpact || 0)
+                  ),
+                0
+              ) /
+                judgeCount) *
+                10
+            ) / 10
+          : 0;
+
+      return {
+        candidate,
+        judgeCount,
+        scores,
+        topModelAvg,
+        personalityAvg,
+        stagePresenceAvg,
+        photogenicAvg,
+        designAvg,
+        votes: candidate.votes || 0,
+      };
+    });
+  }, [candidates, judgeScores]);
+
+  // Ranking helper by award
+  const getRankedStats = (category: 'boy' | 'girl', award: AwardKey) => {
+    const list = candidateStats.filter((c) => c.candidate.category === category);
+    return list.sort((a, b) => {
+      switch (award) {
+        case 'topModel':
+          return b.topModelAvg - a.topModelAvg || b.judgeCount - a.judgeCount;
+        case 'personality':
+          return b.personalityAvg - a.personalityAvg || b.judgeCount - a.judgeCount;
+        case 'stagePresence':
+          return b.stagePresenceAvg - a.stagePresenceAvg || b.judgeCount - a.judgeCount;
+        case 'photogenic':
+          return b.photogenicAvg - a.photogenicAvg || b.judgeCount - a.judgeCount;
+        case 'design':
+          return b.designAvg - a.designAvg || b.judgeCount - a.judgeCount;
+        case 'peoplesChoice':
+        default:
+          return b.votes - a.votes;
+      }
+    });
   };
 
-  const boysJudgeStats = candidates
-    .filter((c) => c.category === 'boy')
-    .map(computeJudgeStats)
-    .sort((a, b) => b.averageScore - a.averageScore || b.totalScore - a.totalScore);
-
-  const girlsJudgeStats = candidates
-    .filter((c) => c.category === 'girl')
-    .map(computeJudgeStats)
-    .sort((a, b) => b.averageScore - a.averageScore || b.totalScore - a.totalScore);
-
-  const topBoyJudge = boysJudgeStats[0];
-  const topGirlJudge = girlsJudgeStats[0];
+  // Helper to extract score display for award
+  const getScoreValueForAward = (stat: typeof candidateStats[0], award: AwardKey) => {
+    switch (award) {
+      case 'topModel':
+        return { score: stat.topModelAvg, max: 100 };
+      case 'personality':
+        return { score: stat.personalityAvg, max: 50 };
+      case 'stagePresence':
+        return { score: stat.stagePresenceAvg, max: 30 };
+      case 'photogenic':
+        return { score: stat.photogenicAvg, max: 40 };
+      case 'design':
+        return { score: stat.designAvg, max: 100 };
+      case 'peoplesChoice':
+      default:
+        return { score: stat.votes, max: 0 };
+    }
+  };
 
   const handleResetVotes = async () => {
     if (!window.confirm('Are you sure you want to reset all AUDIENCE votes to 0?')) return;
@@ -238,7 +451,6 @@ export default function AdminLeaderboardPage() {
 
             {passcodeError && (
               <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-center gap-2">
-                <AlertCircle className="w-4 h-4 shrink-0" />
                 <span>{passcodeError}</span>
               </div>
             )}
@@ -252,107 +464,92 @@ export default function AdminLeaderboardPage() {
           </form>
 
           <p className="text-[11px] text-novera-silver">
-            NOVERA ’26 &bull; AIESEC in CINEC Official Results System
+            Authorized Organizing Committee Access Only &bull; NOVERA &rsquo;26
           </p>
         </div>
       </div>
     );
   }
 
+  // Active Award Definition for Tab 2
+  const activeAwardDef = AWARD_DEFINITIONS.find((a) => a.key === selectedJuryAward) || AWARD_DEFINITIONS[0];
+  const rankedBoysForAward = getRankedStats('boy', selectedJuryAward);
+  const rankedGirlsForAward = getRankedStats('girl', selectedJuryAward);
+  const leadingBoyForAward = rankedBoysForAward[0];
+  const leadingGirlForAward = rankedGirlsForAward[0];
+
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
-      {/* Admin Top Banner */}
-      <div className="p-6 sm:p-8 rounded-3xl bg-novera-ink text-novera-paper shadow-editorial mb-8 flex flex-col lg:flex-row items-center justify-between gap-6">
-        <div className="flex items-center gap-4 text-center lg:text-left">
-          <div className="w-14 h-14 rounded-2xl bg-novera-foil/20 border border-novera-foil/40 flex items-center justify-center shrink-0">
-            <BarChart3 className="w-7 h-7 text-novera-gold" />
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10 space-y-8">
+      {/* Top Banner & Navigation */}
+      <div className="p-6 sm:p-8 rounded-3xl bg-white border border-novera-ink/10 shadow-editorial flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+        <div>
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-novera-foil/15 text-xs uppercase tracking-widest font-bold text-novera-foil mb-2">
+            <ShieldCheck className="w-4 h-4 text-novera-gold" />
+            <span>Master Administration Hub</span>
           </div>
-          <div>
-            <div className="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-widest text-novera-gold">
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>Organizer Master Dashboard</span>
-            </div>
-            <h1 className="font-serif text-2xl sm:text-4xl font-bold tracking-tight">
-              NOVERA &rsquo;26 &bull; Results Control Room
-            </h1>
-            <p className="text-xs text-novera-silver mt-1">
-              Separate collection for Audience Public Votes and Judges&rsquo; Scoring Sheets
-            </p>
-          </div>
+          <h1 className="font-serif text-2xl sm:text-4xl font-bold text-novera-ink">
+            Central Tabulation &amp; Surveillance
+          </h1>
+          <p className="text-xs sm:text-sm text-novera-charcoal mt-1">
+            Official Award Marking Alignment &bull; 6 Titles (Girl &amp; Boy) &bull; Live Telemetry
+          </p>
         </div>
 
-        {/* Quick Links & Logout */}
         <div className="flex flex-wrap items-center gap-3">
-          <Link
-            href="/judge"
-            target="_blank"
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold uppercase tracking-wider bg-novera-foil text-novera-paper hover:bg-novera-gold transition-colors"
+          <button
+            onClick={() => window.print()}
+            className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-semibold bg-novera-paper-dim border border-novera-ink/15 text-novera-ink hover:bg-novera-ink hover:text-novera-paper transition-all"
           >
-            <Award className="w-3.5 h-3.5" />
-            <span>Open Judge Portal</span>
-            <ExternalLink className="w-3 h-3" />
-          </Link>
-
-          <Link
-            href="/qr"
-            target="_blank"
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold uppercase tracking-wider bg-white/10 hover:bg-white/20 text-novera-paper transition-colors"
-          >
-            <QrCode className="w-3.5 h-3.5" />
-            <span>Stage QR</span>
-            <ExternalLink className="w-3 h-3" />
-          </Link>
-
+            <Printer className="w-4 h-4" />
+            <span>Print MC Summary</span>
+          </button>
           <button
             onClick={handleLogout}
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold uppercase tracking-wider bg-rose-500/20 text-rose-300 hover:bg-rose-500/30 transition-colors"
+            className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-semibold text-rose-700 bg-rose-50 border border-rose-200 hover:bg-rose-100 transition-colors"
           >
-            <LogOut className="w-3.5 h-3.5" />
-            <span>Lock</span>
+            <LogOut className="w-4 h-4" />
+            <span>Sign Out</span>
           </button>
         </div>
       </div>
 
-      {/* Main Tab Navigation */}
-      <div className="flex justify-center mb-8 px-2">
-        <div className="flex overflow-x-auto max-w-full p-1.5 rounded-2xl bg-white border border-novera-ink/10 shadow-sm gap-1 scrollbar-none">
+      {/* Main Tabs Navigation */}
+      <div className="flex justify-center">
+        <div className="inline-flex p-1.5 rounded-full bg-novera-paper-dim border border-novera-ink/10 shadow-inner w-full max-w-2xl">
           <button
             onClick={() => setActiveTab('audience')}
-            className={`whitespace-nowrap flex items-center gap-1.5 px-3.5 sm:px-6 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold tracking-wider uppercase transition-all ${
+            className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-full text-xs sm:text-sm font-bold uppercase tracking-wider transition-all ${
               activeTab === 'audience'
                 ? 'bg-novera-ink text-novera-paper shadow-md'
                 : 'text-novera-charcoal hover:text-novera-ink'
             }`}
           >
-            <Users className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-novera-gold shrink-0" />
-            <span className="hidden sm:inline">1. Audience Votes ({totalOverallVotes})</span>
-            <span className="sm:hidden">Audience ({totalOverallVotes})</span>
+            <Vote className="w-4 h-4 text-novera-gold" />
+            <span>1. Audience Votes</span>
           </button>
 
           <button
             onClick={() => setActiveTab('judges')}
-            className={`whitespace-nowrap flex items-center gap-1.5 px-3.5 sm:px-6 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold tracking-wider uppercase transition-all ${
+            className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-full text-xs sm:text-sm font-bold uppercase tracking-wider transition-all ${
               activeTab === 'judges'
                 ? 'bg-novera-ink text-novera-paper shadow-md'
                 : 'text-novera-charcoal hover:text-novera-ink'
             }`}
           >
-            <Award className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-novera-gold shrink-0" />
-            <span className="hidden sm:inline">2. Judges&rsquo; Scores ({judgeScores.length})</span>
-            <span className="sm:hidden">Judges ({judgeScores.length})</span>
+            <Award className="w-4 h-4 text-novera-gold" />
+            <span>2. Judges&rsquo; Scores &amp; Awards</span>
           </button>
 
           <button
             onClick={() => setActiveTab('summary')}
-            className={`whitespace-nowrap flex items-center gap-1.5 px-3.5 sm:px-6 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold tracking-wider uppercase transition-all ${
+            className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-full text-xs sm:text-sm font-bold uppercase tracking-wider transition-all ${
               activeTab === 'summary'
-                ? 'bg-novera-foil text-novera-paper shadow-md'
+                ? 'bg-novera-ink text-novera-paper shadow-md'
                 : 'text-novera-charcoal hover:text-novera-ink'
             }`}
           >
-            <Crown className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-novera-paper shrink-0" />
-            <span className="hidden sm:inline">3. Final Winners</span>
-            <span className="sm:hidden">Winners</span>
+            <Trophy className="w-4 h-4 text-novera-gold" />
+            <span>3. Final 6 Titles</span>
           </button>
         </div>
       </div>
@@ -364,18 +561,18 @@ export default function AdminLeaderboardPage() {
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
             <div className="p-6 rounded-2xl bg-white border border-novera-ink/10 shadow-sm flex items-center justify-between">
               <div>
-                <span className="text-xs uppercase tracking-wider text-novera-silver font-semibold">Total Audience Votes</span>
+                <span className="text-xs uppercase tracking-wider text-novera-silver font-semibold">Total Audience Ballots</span>
                 <div className="text-3xl font-serif font-bold text-novera-ink mt-1">{totalOverallVotes}</div>
               </div>
               <div className="w-12 h-12 rounded-xl bg-novera-paper-dim flex items-center justify-center">
-                <Vote className="w-6 h-6 text-novera-foil" />
+                <Users className="w-6 h-6 text-novera-foil" />
               </div>
             </div>
 
             <div className="p-6 rounded-2xl bg-white border border-novera-ink/10 shadow-sm flex items-center justify-between">
               <div>
-                <span className="text-xs uppercase tracking-wider text-novera-silver font-semibold">Best Male Votes</span>
-                <div className="text-3xl font-serif font-bold text-novera-foil mt-1">{totalBoyVotes}</div>
+                <span className="text-xs uppercase tracking-wider text-novera-silver font-semibold">Male Model Votes</span>
+                <div className="text-3xl font-serif font-bold text-novera-ink mt-1">{totalBoyVotes}</div>
               </div>
               <div className="w-12 h-12 rounded-xl bg-novera-paper-dim flex items-center justify-center">
                 <Crown className="w-6 h-6 text-novera-foil" />
@@ -384,7 +581,7 @@ export default function AdminLeaderboardPage() {
 
             <div className="p-6 rounded-2xl bg-white border border-novera-ink/10 shadow-sm flex items-center justify-between">
               <div>
-                <span className="text-xs uppercase tracking-wider text-novera-silver font-semibold">Best Female Votes</span>
+                <span className="text-xs uppercase tracking-wider text-novera-silver font-semibold">Female Model Votes</span>
                 <div className="text-3xl font-serif font-bold text-novera-ink mt-1">{totalGirlVotes}</div>
               </div>
               <div className="w-12 h-12 rounded-xl bg-novera-paper-dim flex items-center justify-center">
@@ -405,7 +602,7 @@ export default function AdminLeaderboardPage() {
               <div className="flex-grow">
                 <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-novera-foil/15 text-[10px] font-bold uppercase tracking-wider text-novera-foil mb-1">
                   <Crown className="w-3 h-3" />
-                  <span>Audience Favorite &bull; Male</span>
+                  <span>Leading Boy &bull; People&rsquo;s Choice</span>
                 </div>
                 <h3 className="font-serif text-xl font-bold text-novera-ink">{topBoyAudience?.name || 'N/A'}</h3>
                 <div className="text-xs text-novera-charcoal mt-1">
@@ -425,7 +622,7 @@ export default function AdminLeaderboardPage() {
               <div className="flex-grow">
                 <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-novera-foil/15 text-[10px] font-bold uppercase tracking-wider text-novera-foil mb-1">
                   <Crown className="w-3 h-3" />
-                  <span>Audience Favorite &bull; Female</span>
+                  <span>Leading Girl &bull; People&rsquo;s Choice</span>
                 </div>
                 <h3 className="font-serif text-xl font-bold text-novera-ink">{topGirlAudience?.name || 'N/A'}</h3>
                 <div className="text-xs text-novera-charcoal mt-1">
@@ -443,10 +640,9 @@ export default function AdminLeaderboardPage() {
                 <h2 className="font-serif text-xl sm:text-2xl font-bold text-novera-ink">
                   Live Vote Distribution (Bar Chart)
                 </h2>
-                <p className="text-xs text-novera-charcoal">Real-time vote comparison across models</p>
+                <p className="text-xs text-novera-charcoal">Real-time vote comparison across runway models</p>
               </div>
 
-              {/* Chart Tabs */}
               <div className="inline-flex p-1 rounded-xl bg-novera-paper-dim border border-novera-ink/10 text-xs">
                 <button
                   onClick={() => setChartCategory('both')}
@@ -533,7 +729,7 @@ export default function AdminLeaderboardPage() {
         </div>
       )}
 
-      {/* ================= TAB 2: JUDGES' SCORES ================= */}
+      {/* ================= TAB 2: JUDGES' SCORES & AWARDS ================= */}
       {activeTab === 'judges' && (
         <div className="space-y-8 animate-in fade-in duration-200">
           {/* 6 Official Judges Roster & Real-time Evaluation Status */}
@@ -542,7 +738,7 @@ export default function AdminLeaderboardPage() {
               <div className="flex items-center gap-2.5">
                 <ShieldCheck className="w-5 h-5 text-novera-foil" />
                 <h3 className="font-serif text-lg font-bold text-novera-ink">
-                  6 Official Judges &bull; Live Audit &amp; Evaluation Status
+                  6 Official Judges &bull; Live Telemetry &amp; Evaluation Audit
                 </h3>
               </div>
               <div className="inline-flex items-center gap-1.5 text-xs text-emerald-700 font-mono font-bold bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">
@@ -552,22 +748,13 @@ export default function AdminLeaderboardPage() {
             </div>
 
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-              {[
-                { name: 'Piyumi', id: 'judge_piyumi' },
-                { name: 'Kalwani', id: 'judge_kalwani' },
-                { name: 'Devdunu', id: 'judge_devdunu' },
-                { name: 'Erusha', id: 'judge_erusha' },
-                { name: 'Sachith', id: 'judge_sachith' },
-                { name: 'Dulmi', id: 'judge_dulmi' },
-              ].map((judge) => {
+              {OFFICIAL_JUDGE_ROSTER.map((judge) => {
                 const count = judgeScores.filter((s) => s.judgeId === judge.id).length;
                 return (
                   <div
                     key={judge.id}
                     className={`p-3 rounded-2xl border text-center transition-all ${
-                      count > 0
-                        ? 'bg-emerald-50/70 border-emerald-300'
-                        : 'bg-novera-paper-dim border-novera-ink/10'
+                      count > 0 ? 'bg-emerald-50/70 border-emerald-300' : 'bg-novera-paper-dim border-novera-ink/10'
                     }`}
                   >
                     <div className="w-8 h-8 rounded-full bg-novera-ink text-novera-gold text-xs font-bold mx-auto flex items-center justify-center mb-1.5 shadow-sm">
@@ -595,132 +782,248 @@ export default function AdminLeaderboardPage() {
             </div>
           </div>
 
-          {/* Top Judges Summary Banner */}
+          {/* Sub-Tabs: 5 Jury Award Categories Alignment */}
+          <div className="space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <div>
+                <span className="text-[10px] uppercase font-bold tracking-widest text-novera-foil">
+                  Official Award Marking Alignment
+                </span>
+                <h3 className="font-serif text-xl font-bold text-novera-ink">
+                  Select Award Title Leaderboard
+                </h3>
+              </div>
+              <div className="text-xs text-novera-charcoal font-medium">
+                {activeAwardDef.criteriaText}
+              </div>
+            </div>
+
+            {/* Award Selection Pills */}
+            <div className="flex flex-wrap gap-2">
+              {AWARD_DEFINITIONS.filter((a) => a.source === 'jury').map((award) => {
+                const Icon = award.icon;
+                const isSelected = selectedJuryAward === award.key;
+                return (
+                  <button
+                    key={award.key}
+                    onClick={() => setSelectedJuryAward(award.key)}
+                    className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs font-bold transition-all ${
+                      isSelected
+                        ? 'bg-novera-ink text-novera-paper shadow-md border-novera-ink'
+                        : 'bg-white text-novera-charcoal border border-novera-ink/10 hover:border-novera-foil hover:text-novera-ink'
+                    }`}
+                  >
+                    <Icon className={`w-4 h-4 ${isSelected ? 'text-novera-gold' : 'text-novera-foil'}`} />
+                    <span>{award.title}</span>
+                    <span
+                      className={`text-[10px] px-2 py-0.5 rounded-full ${
+                        isSelected ? 'bg-white/20 text-white' : 'bg-novera-paper-dim text-novera-charcoal'
+                      }`}
+                    >
+                      /{award.maxScore}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Top Boy & Girl Leaders for Selected Award */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Top Boy by Judges */}
+            {/* Leading Boy */}
             <div className="p-6 rounded-3xl bg-white border-2 border-novera-foil/30 shadow-md flex items-center gap-5">
               <div className="relative w-24 h-24 rounded-2xl overflow-hidden shrink-0 shadow-inner">
-                {topBoyJudge && (
-                  <Image src={topBoyJudge.candidate.imageUrl} alt={topBoyJudge.candidate.name} fill className="object-cover" />
+                {leadingBoyForAward && (
+                  <Image
+                    src={leadingBoyForAward.candidate.imageUrl}
+                    alt={leadingBoyForAward.candidate.name}
+                    fill
+                    className="object-cover"
+                  />
                 )}
               </div>
               <div className="flex-grow">
                 <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-novera-foil/15 text-[10px] font-bold uppercase tracking-wider text-novera-foil mb-1">
-                  <Trophy className="w-3 h-3" />
-                  <span>Jury Best Male &bull; Most Talented</span>
+                  <Crown className="w-3 h-3" />
+                  <span>Leading Boy &bull; {activeAwardDef.title}</span>
                 </div>
-                <h3 className="font-serif text-xl font-bold text-novera-ink">{topBoyJudge?.candidate.name || 'N/A'}</h3>
+                <h3 className="font-serif text-xl font-bold text-novera-ink">
+                  {leadingBoyForAward?.candidate.name || 'N/A'}
+                </h3>
                 <div className="text-xs text-novera-charcoal mt-1">
-                  Average Score: <strong className="text-novera-foil text-lg font-mono">{topBoyJudge?.averageScore || 0}</strong> / 100
-                  ({topBoyJudge?.judgeCount || 0} judges scored)
+                  Average Score:{' '}
+                  <strong className="text-novera-foil text-lg font-mono">
+                    {leadingBoyForAward
+                      ? getScoreValueForAward(leadingBoyForAward, selectedJuryAward).score
+                      : 0}
+                  </strong>{' '}
+                  / {activeAwardDef.maxScore} ({leadingBoyForAward?.judgeCount || 0} judges scored)
                 </div>
               </div>
             </div>
 
-            {/* Top Girl by Judges */}
+            {/* Leading Girl */}
             <div className="p-6 rounded-3xl bg-white border-2 border-novera-foil/30 shadow-md flex items-center gap-5">
               <div className="relative w-24 h-24 rounded-2xl overflow-hidden shrink-0 shadow-inner">
-                {topGirlJudge && (
-                  <Image src={topGirlJudge.candidate.imageUrl} alt={topGirlJudge.candidate.name} fill className="object-cover" />
+                {leadingGirlForAward && (
+                  <Image
+                    src={leadingGirlForAward.candidate.imageUrl}
+                    alt={leadingGirlForAward.candidate.name}
+                    fill
+                    className="object-cover"
+                  />
                 )}
               </div>
               <div className="flex-grow">
                 <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-novera-foil/15 text-[10px] font-bold uppercase tracking-wider text-novera-foil mb-1">
-                  <Trophy className="w-3 h-3" />
-                  <span>Jury Best Female &bull; Most Talented</span>
+                  <Crown className="w-3 h-3" />
+                  <span>Leading Girl &bull; {activeAwardDef.title}</span>
                 </div>
-                <h3 className="font-serif text-xl font-bold text-novera-ink">{topGirlJudge?.candidate.name || 'N/A'}</h3>
+                <h3 className="font-serif text-xl font-bold text-novera-ink">
+                  {leadingGirlForAward?.candidate.name || 'N/A'}
+                </h3>
                 <div className="text-xs text-novera-charcoal mt-1">
-                  Average Score: <strong className="text-novera-foil text-lg font-mono">{topGirlJudge?.averageScore || 0}</strong> / 100
-                  ({topGirlJudge?.judgeCount || 0} judges scored)
+                  Average Score:{' '}
+                  <strong className="text-novera-foil text-lg font-mono">
+                    {leadingGirlForAward
+                      ? getScoreValueForAward(leadingGirlForAward, selectedJuryAward).score
+                      : 0}
+                  </strong>{' '}
+                  / {activeAwardDef.maxScore} ({leadingGirlForAward?.judgeCount || 0} judges scored)
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Detailed Judge Score Tables */}
+          {/* Detailed Ranked Table: Boys & Girls */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {/* Boys Leaderboard by Judges */}
+            {/* Boys Leaderboard */}
             <div className="p-6 rounded-3xl bg-white border border-novera-ink/10 shadow-sm space-y-4">
               <div className="flex items-center justify-between pb-3 border-b border-novera-ink/10">
                 <h3 className="font-serif text-lg font-bold text-novera-ink flex items-center gap-2">
                   <Crown className="w-4 h-4 text-novera-foil" />
-                  <span>Male Contenders &bull; Jury Rankings</span>
+                  <span>Male Contenders &bull; {activeAwardDef.title}</span>
                 </h3>
-                <span className="text-xs text-novera-silver">Sorted by Average Score</span>
+                <span className="text-xs text-novera-silver">
+                  Ranked by Score (Max {activeAwardDef.maxScore})
+                </span>
               </div>
 
               <div className="space-y-3">
-                {boysJudgeStats.map((stat, idx) => (
-                  <div
-                    key={stat.candidate.id}
-                    className="p-3.5 rounded-2xl bg-novera-paper-dim border border-novera-ink/5 flex items-center justify-between gap-3"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="w-7 h-7 rounded-full bg-novera-ink text-novera-paper text-xs font-bold flex items-center justify-center shrink-0">
-                        #{idx + 1}
+                {rankedBoysForAward.map((stat, idx) => {
+                  const scoreObj = getScoreValueForAward(stat, selectedJuryAward);
+                  return (
+                    <div
+                      key={stat.candidate.id}
+                      className="p-3.5 rounded-2xl bg-novera-paper-dim border border-novera-ink/5 flex items-center justify-between gap-3"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div
+                          className={`w-7 h-7 rounded-full text-xs font-bold flex items-center justify-center shrink-0 ${
+                            idx === 0
+                              ? 'bg-novera-foil text-novera-paper'
+                              : 'bg-novera-ink text-novera-paper'
+                          }`}
+                        >
+                          #{idx + 1}
+                        </div>
+                        <div className="relative w-10 h-10 rounded-xl overflow-hidden shrink-0">
+                          <Image
+                            src={stat.candidate.imageUrl}
+                            alt={stat.candidate.name}
+                            fill
+                            className="object-cover"
+                          />
+                        </div>
+                        <div>
+                          <div className="font-serif font-bold text-sm text-novera-ink">
+                            {stat.candidate.name}
+                          </div>
+                          <div className="text-[11px] text-novera-charcoal">
+                            {stat.candidate.candidateNumber} &bull; {stat.judgeCount} judge(s)
+                          </div>
+                        </div>
                       </div>
-                      <div className="relative w-10 h-10 rounded-xl overflow-hidden shrink-0">
-                        <Image src={stat.candidate.imageUrl} alt={stat.candidate.name} fill className="object-cover" />
-                      </div>
-                      <div>
-                        <div className="font-serif font-bold text-sm text-novera-ink">{stat.candidate.name}</div>
-                        <div className="text-[11px] text-novera-charcoal">
-                          {stat.candidate.candidateNumber} &bull; {stat.judgeCount} judge(s)
+
+                      <div className="text-right">
+                        <div className="font-mono text-base font-bold text-novera-foil">
+                          {scoreObj.score}{' '}
+                          <span className="text-xs text-novera-charcoal font-sans">
+                            / {activeAwardDef.maxScore}
+                          </span>
+                        </div>
+                        <div className="text-[10px] text-novera-silver">
+                          {stat.judgeCount > 0 ? 'Verified' : 'No marks yet'}
                         </div>
                       </div>
                     </div>
-
-                    <div className="text-right">
-                      <div className="font-mono text-base font-bold text-novera-foil">
-                        {stat.averageScore} <span className="text-xs text-novera-charcoal font-sans">/ 100</span>
-                      </div>
-                      <div className="text-[10px] text-novera-silver">Total: {stat.totalScore} pts</div>
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
 
-            {/* Girls Leaderboard by Judges */}
+            {/* Girls Leaderboard */}
             <div className="p-6 rounded-3xl bg-white border border-novera-ink/10 shadow-sm space-y-4">
               <div className="flex items-center justify-between pb-3 border-b border-novera-ink/10">
                 <h3 className="font-serif text-lg font-bold text-novera-ink flex items-center gap-2">
                   <Crown className="w-4 h-4 text-novera-foil" />
-                  <span>Female Contenders &bull; Jury Rankings</span>
+                  <span>Female Contenders &bull; {activeAwardDef.title}</span>
                 </h3>
-                <span className="text-xs text-novera-silver">Sorted by Average Score</span>
+                <span className="text-xs text-novera-silver">
+                  Ranked by Score (Max {activeAwardDef.maxScore})
+                </span>
               </div>
 
               <div className="space-y-3">
-                {girlsJudgeStats.map((stat, idx) => (
-                  <div
-                    key={stat.candidate.id}
-                    className="p-3.5 rounded-2xl bg-novera-paper-dim border border-novera-ink/5 flex items-center justify-between gap-3"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="w-7 h-7 rounded-full bg-novera-ink text-novera-paper text-xs font-bold flex items-center justify-center shrink-0">
-                        #{idx + 1}
+                {rankedGirlsForAward.map((stat, idx) => {
+                  const scoreObj = getScoreValueForAward(stat, selectedJuryAward);
+                  return (
+                    <div
+                      key={stat.candidate.id}
+                      className="p-3.5 rounded-2xl bg-novera-paper-dim border border-novera-ink/5 flex items-center justify-between gap-3"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div
+                          className={`w-7 h-7 rounded-full text-xs font-bold flex items-center justify-center shrink-0 ${
+                            idx === 0
+                              ? 'bg-novera-foil text-novera-paper'
+                              : 'bg-novera-ink text-novera-paper'
+                          }`}
+                        >
+                          #{idx + 1}
+                        </div>
+                        <div className="relative w-10 h-10 rounded-xl overflow-hidden shrink-0">
+                          <Image
+                            src={stat.candidate.imageUrl}
+                            alt={stat.candidate.name}
+                            fill
+                            className="object-cover"
+                          />
+                        </div>
+                        <div>
+                          <div className="font-serif font-bold text-sm text-novera-ink">
+                            {stat.candidate.name}
+                          </div>
+                          <div className="text-[11px] text-novera-charcoal">
+                            {stat.candidate.candidateNumber} &bull; {stat.judgeCount} judge(s)
+                          </div>
+                        </div>
                       </div>
-                      <div className="relative w-10 h-10 rounded-xl overflow-hidden shrink-0">
-                        <Image src={stat.candidate.imageUrl} alt={stat.candidate.name} fill className="object-cover" />
-                      </div>
-                      <div>
-                        <div className="font-serif font-bold text-sm text-novera-ink">{stat.candidate.name}</div>
-                        <div className="text-[11px] text-novera-charcoal">
-                          {stat.candidate.candidateNumber} &bull; {stat.judgeCount} judge(s)
+
+                      <div className="text-right">
+                        <div className="font-mono text-base font-bold text-novera-foil">
+                          {scoreObj.score}{' '}
+                          <span className="text-xs text-novera-charcoal font-sans">
+                            / {activeAwardDef.maxScore}
+                          </span>
+                        </div>
+                        <div className="text-[10px] text-novera-silver">
+                          {stat.judgeCount > 0 ? 'Verified' : 'No marks yet'}
                         </div>
                       </div>
                     </div>
-
-                    <div className="text-right">
-                      <div className="font-mono text-base font-bold text-novera-foil">
-                        {stat.averageScore} <span className="text-xs text-novera-charcoal font-sans">/ 100</span>
-                      </div>
-                      <div className="text-[10px] text-novera-silver">Total: {stat.totalScore} pts</div>
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           </div>
@@ -729,7 +1032,9 @@ export default function AdminLeaderboardPage() {
           <div className="p-6 rounded-2xl bg-white border border-novera-ink/10 shadow-sm flex items-center justify-between">
             <div>
               <h4 className="font-bold text-sm text-novera-ink">Reset Judge Scoring Data</h4>
-              <p className="text-xs text-novera-charcoal">Clear all scorecards submitted by judges to begin a fresh round</p>
+              <p className="text-xs text-novera-charcoal">
+                Clear all scorecards submitted by judges to begin a fresh round
+              </p>
             </div>
             <button
               onClick={handleResetJudges}
@@ -741,136 +1046,163 @@ export default function AdminLeaderboardPage() {
         </div>
       )}
 
-      {/* ================= TAB 3: FINAL WINNERS SUMMARY ================= */}
+      {/* ================= TAB 3: FINAL 6 TITLES SUMMARY ================= */}
       {activeTab === 'summary' && (
         <div className="space-y-8 animate-in fade-in duration-200">
           <div className="text-center max-w-2xl mx-auto space-y-2">
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-novera-foil/15 text-xs uppercase tracking-widest font-bold text-novera-foil">
               <Trophy className="w-4 h-4 text-novera-gold" />
-              <span>Official Award Winners Summary</span>
+              <span>Official Runway Award Announcement</span>
             </div>
             <h2 className="font-serif text-3xl sm:text-4xl font-bold text-novera-ink">
-              NOVERA &rsquo;26 Titles
+              NOVERA &rsquo;26 Winners Podium
             </h2>
             <p className="text-xs sm:text-sm text-novera-charcoal">
-              Consolidated announcement card for MCs and Organizing Committee
+              Consolidated announcement sheet for MCs and Organizing Committee (Girl &amp; Boy ranked separately)
             </p>
           </div>
 
+          {/* The 6 Official Award Titles Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {/* Category 1: Audience Choice Awards */}
-            <div className="p-8 rounded-3xl bg-white border-2 border-novera-ink/10 shadow-editorial space-y-6">
-              <div className="flex items-center gap-3 pb-4 border-b border-novera-ink/10">
-                <div className="w-12 h-12 rounded-2xl bg-novera-ink text-novera-gold flex items-center justify-center shrink-0">
-                  <Users className="w-6 h-6" />
-                </div>
-                <div>
-                  <span className="text-[10px] font-bold uppercase tracking-widest text-novera-foil">
-                    Audience Public Choice
-                  </span>
-                  <h3 className="font-serif text-xl font-bold text-novera-ink">
-                    Most Popular Runway Models
-                  </h3>
-                </div>
-              </div>
+            {AWARD_DEFINITIONS.map((award, index) => {
+              const Icon = award.icon;
+              const rankedBoys = getRankedStats('boy', award.key);
+              const rankedGirls = getRankedStats('girl', award.key);
+              const winnerBoy = rankedBoys[0];
+              const winnerGirl = rankedGirls[0];
 
-              {/* King Audience */}
-              <div className="p-4 rounded-2xl bg-novera-paper-dim flex items-center gap-4">
-                <div className="relative w-16 h-16 rounded-xl overflow-hidden shrink-0">
-                  {topBoyAudience && (
-                    <Image src={topBoyAudience.imageUrl} alt={topBoyAudience.name} fill className="object-cover" />
-                  )}
-                </div>
-                <div>
-                  <span className="text-[10px] uppercase font-bold text-novera-foil tracking-wider">
-                    King of the Runway (Audience)
-                  </span>
-                  <h4 className="font-serif text-lg font-bold text-novera-ink">
-                    {topBoyAudience?.name || 'To Be Announced'}
-                  </h4>
-                  <div className="text-xs text-novera-charcoal">
-                    {topBoyAudience?.votes || 0} votes recorded
+              const boyScore = winnerBoy ? getScoreValueForAward(winnerBoy, award.key).score : 0;
+              const girlScore = winnerGirl ? getScoreValueForAward(winnerGirl, award.key).score : 0;
+
+              return (
+                <div
+                  key={award.key}
+                  className="p-6 sm:p-8 rounded-3xl bg-white border-2 border-novera-ink/10 shadow-editorial space-y-6 flex flex-col justify-between"
+                >
+                  {/* Card Header */}
+                  <div>
+                    <div className="flex items-center justify-between pb-4 border-b border-novera-ink/10 mb-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-12 h-12 rounded-2xl bg-novera-ink text-novera-gold flex items-center justify-center shrink-0 shadow-md">
+                          <Icon className="w-6 h-6" />
+                        </div>
+                        <div>
+                          <span className="text-[10px] font-bold uppercase tracking-widest text-novera-foil">
+                            Title #{index + 1} &bull; {award.source === 'jury' ? 'Official Jury Evaluation' : 'Public Web Ballot'}
+                          </span>
+                          <h3 className="font-serif text-xl sm:text-2xl font-bold text-novera-ink">
+                            {award.title}
+                          </h3>
+                        </div>
+                      </div>
+                      <span className="text-xs font-mono font-bold text-novera-charcoal bg-novera-paper-dim px-2.5 py-1 rounded-full border border-novera-ink/10">
+                        {award.source === 'jury' ? `Max ${award.maxScore}` : 'Public Votes'}
+                      </span>
+                    </div>
+
+                    <p className="text-xs text-novera-charcoal mb-5">
+                      {award.criteriaText}
+                    </p>
+
+                    {/* Boy & Girl Winner Cards */}
+                    <div className="space-y-4">
+                      {/* Boy Winner */}
+                      <div className="p-4 rounded-2xl bg-novera-paper-dim border border-novera-ink/10 flex items-center justify-between gap-4">
+                        <div className="flex items-center gap-3">
+                          <div className="relative w-14 h-14 rounded-xl overflow-hidden shrink-0 shadow-inner">
+                            {winnerBoy && (
+                              <Image
+                                src={winnerBoy.candidate.imageUrl}
+                                alt={winnerBoy.candidate.name}
+                                fill
+                                className="object-cover"
+                              />
+                            )}
+                          </div>
+                          <div>
+                            <span className="text-[10px] uppercase font-bold text-novera-foil tracking-wider flex items-center gap-1">
+                              <Crown className="w-3 h-3" />
+                              <span>Male Winner (Boy)</span>
+                            </span>
+                            <h4 className="font-serif text-base font-bold text-novera-ink">
+                              {winnerBoy?.candidate.name || 'To Be Announced'}
+                            </h4>
+                            <span className="text-[11px] text-novera-charcoal">
+                              Candidate No: {winnerBoy?.candidate.candidateNumber || 'N/A'}
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className="text-right">
+                          <div className="font-mono text-lg font-bold text-novera-foil">
+                            {boyScore}
+                            {award.maxScore > 0 && (
+                              <span className="text-xs text-novera-charcoal font-sans">
+                                /{award.maxScore}
+                              </span>
+                            )}
+                          </div>
+                          <div className="text-[10px] text-novera-silver">
+                            {award.source === 'jury'
+                              ? `${winnerBoy?.judgeCount || 0} judges`
+                              : 'audience votes'}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Girl Winner */}
+                      <div className="p-4 rounded-2xl bg-novera-paper-dim border border-novera-ink/10 flex items-center justify-between gap-4">
+                        <div className="flex items-center gap-3">
+                          <div className="relative w-14 h-14 rounded-xl overflow-hidden shrink-0 shadow-inner">
+                            {winnerGirl && (
+                              <Image
+                                src={winnerGirl.candidate.imageUrl}
+                                alt={winnerGirl.candidate.name}
+                                fill
+                                className="object-cover"
+                              />
+                            )}
+                          </div>
+                          <div>
+                            <span className="text-[10px] uppercase font-bold text-novera-foil tracking-wider flex items-center gap-1">
+                              <Crown className="w-3 h-3" />
+                              <span>Female Winner (Girl)</span>
+                            </span>
+                            <h4 className="font-serif text-base font-bold text-novera-ink">
+                              {winnerGirl?.candidate.name || 'To Be Announced'}
+                            </h4>
+                            <span className="text-[11px] text-novera-charcoal">
+                              Candidate No: {winnerGirl?.candidate.candidateNumber || 'N/A'}
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className="text-right">
+                          <div className="font-mono text-lg font-bold text-novera-foil">
+                            {girlScore}
+                            {award.maxScore > 0 && (
+                              <span className="text-xs text-novera-charcoal font-sans">
+                                /{award.maxScore}
+                              </span>
+                            )}
+                          </div>
+                          <div className="text-[10px] text-novera-silver">
+                            {award.source === 'jury'
+                              ? `${winnerGirl?.judgeCount || 0} judges`
+                              : 'audience votes'}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="pt-2 text-[11px] text-novera-silver flex items-center justify-between border-t border-novera-ink/5">
+                    <span>Ranked separately for Girl and Boy</span>
+                    <span className="font-bold text-novera-foil uppercase">NOVERA &rsquo;26 OFFICIAL</span>
                   </div>
                 </div>
-              </div>
-
-              {/* Queen Audience */}
-              <div className="p-4 rounded-2xl bg-novera-paper-dim flex items-center gap-4">
-                <div className="relative w-16 h-16 rounded-xl overflow-hidden shrink-0">
-                  {topGirlAudience && (
-                    <Image src={topGirlAudience.imageUrl} alt={topGirlAudience.name} fill className="object-cover" />
-                  )}
-                </div>
-                <div>
-                  <span className="text-[10px] uppercase font-bold text-novera-foil tracking-wider">
-                    Queen of the Runway (Audience)
-                  </span>
-                  <h4 className="font-serif text-lg font-bold text-novera-ink">
-                    {topGirlAudience?.name || 'To Be Announced'}
-                  </h4>
-                  <div className="text-xs text-novera-charcoal">
-                    {topGirlAudience?.votes || 0} votes recorded
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Category 2: Jury / Most Talented Awards */}
-            <div className="p-8 rounded-3xl bg-white border-2 border-novera-foil/30 shadow-editorial space-y-6">
-              <div className="flex items-center gap-3 pb-4 border-b border-novera-ink/10">
-                <div className="w-12 h-12 rounded-2xl bg-novera-foil text-novera-paper flex items-center justify-center shrink-0">
-                  <Award className="w-6 h-6" />
-                </div>
-                <div>
-                  <span className="text-[10px] font-bold uppercase tracking-widest text-novera-foil">
-                    Jury &bull; Official Evaluation
-                  </span>
-                  <h3 className="font-serif text-xl font-bold text-novera-ink">
-                    Most Talented Runway Models
-                  </h3>
-                </div>
-              </div>
-
-              {/* Best Male Jury */}
-              <div className="p-4 rounded-2xl bg-novera-paper-dim flex items-center gap-4">
-                <div className="relative w-16 h-16 rounded-xl overflow-hidden shrink-0">
-                  {topBoyJudge && (
-                    <Image src={topBoyJudge.candidate.imageUrl} alt={topBoyJudge.candidate.name} fill className="object-cover" />
-                  )}
-                </div>
-                <div>
-                  <span className="text-[10px] uppercase font-bold text-novera-foil tracking-wider">
-                    Best Male Model (Judges&rsquo; Choice)
-                  </span>
-                  <h4 className="font-serif text-lg font-bold text-novera-ink">
-                    {topBoyJudge?.candidate.name || 'To Be Announced'}
-                  </h4>
-                  <div className="text-xs text-novera-charcoal">
-                    Score: {topBoyJudge?.averageScore || 0}/100 ({topBoyJudge?.judgeCount || 0} judges)
-                  </div>
-                </div>
-              </div>
-
-              {/* Best Female Jury */}
-              <div className="p-4 rounded-2xl bg-novera-paper-dim flex items-center gap-4">
-                <div className="relative w-16 h-16 rounded-xl overflow-hidden shrink-0">
-                  {topGirlJudge && (
-                    <Image src={topGirlJudge.candidate.imageUrl} alt={topGirlJudge.candidate.name} fill className="object-cover" />
-                  )}
-                </div>
-                <div>
-                  <span className="text-[10px] uppercase font-bold text-novera-foil tracking-wider">
-                    Best Female Model (Judges&rsquo; Choice)
-                  </span>
-                  <h4 className="font-serif text-lg font-bold text-novera-ink">
-                    {topGirlJudge?.candidate.name || 'To Be Announced'}
-                  </h4>
-                  <div className="text-xs text-novera-charcoal">
-                    Score: {topGirlJudge?.averageScore || 0}/100 ({topGirlJudge?.judgeCount || 0} judges)
-                  </div>
-                </div>
-              </div>
-            </div>
+              );
+            })}
           </div>
         </div>
       )}
