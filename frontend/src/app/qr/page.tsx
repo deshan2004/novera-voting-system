@@ -20,15 +20,12 @@ export default function QrDisplayPage() {
   const [votingUrl, setVotingUrl] = useState<string>('');
   const [copied, setCopied] = useState<boolean>(false);
   const [isFullscreen, setIsFullscreen] = useState<boolean>(false);
-  const [customHost, setCustomHost] = useState<string>('');
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const origin = window.location.origin;
-      const initialUrl = `${origin}/vote`;
-      setVotingUrl(initialUrl);
-      setCustomHost(origin);
+      setVotingUrl(`${origin}/vote`);
     }
   }, []);
 
@@ -37,11 +34,6 @@ export default function QrDisplayPage() {
     navigator.clipboard.writeText(votingUrl);
     setCopied(true);
     setTimeout(() => setCopied(false), 2500);
-  };
-
-  const handleHostChange = (newOrigin: string) => {
-    setCustomHost(newOrigin);
-    setVotingUrl(`${newOrigin.replace(/\/$/, '')}/vote`);
   };
 
   const toggleFullscreen = () => {
@@ -139,20 +131,6 @@ export default function QrDisplayPage() {
             >
               <ExternalLink className="w-4 h-4" />
             </a>
-          </div>
-
-          {/* LAN IP / Custom Host Configuration for projector or phone on local network */}
-          <div className="text-left text-xs text-novera-charcoal bg-novera-paper-dim p-3 rounded-xl border border-novera-ink/10">
-            <label className="block font-medium mb-1 text-[11px] uppercase tracking-wider text-novera-charcoal">
-              Network Origin (Use WiFi IP for phone scanning, e.g. http://192.168.x.x:3000):
-            </label>
-            <input
-              type="text"
-              value={customHost}
-              onChange={(e) => handleHostChange(e.target.value)}
-              placeholder="http://192.168.1.50:3000"
-              className="w-full px-2.5 py-1 text-xs rounded bg-white border border-novera-ink/20 font-mono text-novera-ink outline-none focus:border-novera-foil"
-            />
           </div>
         </div>
 
