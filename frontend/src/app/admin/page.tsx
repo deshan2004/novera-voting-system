@@ -536,6 +536,65 @@ export default function AdminLeaderboardPage() {
       {/* ================= TAB 2: JUDGES' SCORES ================= */}
       {activeTab === 'judges' && (
         <div className="space-y-8 animate-in fade-in duration-200">
+          {/* 6 Official Judges Roster & Real-time Evaluation Status */}
+          <div className="p-6 rounded-3xl bg-white border border-novera-ink/10 shadow-sm space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-novera-ink/10">
+              <div className="flex items-center gap-2.5">
+                <ShieldCheck className="w-5 h-5 text-novera-foil" />
+                <h3 className="font-serif text-lg font-bold text-novera-ink">
+                  6 Official Judges &bull; Live Audit &amp; Evaluation Status
+                </h3>
+              </div>
+              <div className="inline-flex items-center gap-1.5 text-xs text-emerald-700 font-mono font-bold bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
+                <span>LIVE TELEMETRY ACTIVE</span>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+              {[
+                { name: 'Piyumi', id: 'judge_piyumi' },
+                { name: 'Kalwani', id: 'judge_kalwani' },
+                { name: 'Devdunu', id: 'judge_devdunu' },
+                { name: 'Erusha', id: 'judge_erusha' },
+                { name: 'Sachith', id: 'judge_sachith' },
+                { name: 'Dulmi', id: 'judge_dulmi' },
+              ].map((judge) => {
+                const count = judgeScores.filter((s) => s.judgeId === judge.id).length;
+                return (
+                  <div
+                    key={judge.id}
+                    className={`p-3 rounded-2xl border text-center transition-all ${
+                      count > 0
+                        ? 'bg-emerald-50/70 border-emerald-300'
+                        : 'bg-novera-paper-dim border-novera-ink/10'
+                    }`}
+                  >
+                    <div className="w-8 h-8 rounded-full bg-novera-ink text-novera-gold text-xs font-bold mx-auto flex items-center justify-center mb-1.5 shadow-sm">
+                      {judge.name[0]}
+                    </div>
+                    <div className="font-serif font-bold text-xs text-novera-ink truncate">
+                      Judge {judge.name}
+                    </div>
+                    <div className="text-[10px] font-mono mt-1 font-semibold text-novera-charcoal">
+                      {count} / {candidates.length} Scored
+                    </div>
+                    <div className="mt-1.5 flex items-center justify-center gap-1 text-[9px] font-bold uppercase tracking-wider">
+                      <span
+                        className={`w-1.5 h-1.5 rounded-full ${
+                          count > 0 ? 'bg-emerald-500 animate-pulse' : 'bg-zinc-400'
+                        }`}
+                      />
+                      <span className={count > 0 ? 'text-emerald-700' : 'text-zinc-500'}>
+                        {count > 0 ? 'Active' : 'Pending'}
+                      </span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
           {/* Top Judges Summary Banner */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Top Boy by Judges */}
