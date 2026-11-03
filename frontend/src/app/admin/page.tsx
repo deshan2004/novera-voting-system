@@ -371,16 +371,28 @@ export default function AdminLeaderboardPage() {
   const handleResetVotes = async () => {
     if (!window.confirm('Are you sure you want to reset all AUDIENCE votes to 0?')) return;
     setIsResetting(true);
-    await resetAllVotes();
-    loadData();
-    setIsResetting(false);
+    try {
+      await resetAllVotes();
+      setCandidates((prev) => prev.map((c) => ({ ...c, votes: 0 })));
+      loadData();
+    } catch (err) {
+      console.error('Reset error:', err);
+    } finally {
+      setIsResetting(false);
+    }
   };
 
   const handleResetJudges = async () => {
     if (!window.confirm('Are you sure you want to reset all JUDGES scores to 0?')) return;
     setIsResetting(true);
-    await resetAllJudgeScores();
-    setIsResetting(false);
+    try {
+      await resetAllJudgeScores();
+      setJudgeScores([]);
+    } catch (err) {
+      console.error('Reset judges error:', err);
+    } finally {
+      setIsResetting(false);
+    }
   };
 
   const handleSimulateVotes = () => {

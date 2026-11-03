@@ -8,6 +8,8 @@ import {
   getLocalVoterStatus,
   submitVote,
   subscribeToCandidates,
+  syncVoterStatus,
+  subscribeToVoterStatus,
 } from '@/lib/api';
 import confetti from 'canvas-confetti';
 import {
@@ -89,6 +91,16 @@ export default function VotePage() {
       setCategoryFilter('girl');
     }
 
+    // Check remote Firestore voter state and system reset signal
+    syncVoterStatus(voterId).then((synced) => {
+      setVoterStatus(synced);
+      if (synced.hasVotedBoy && !synced.hasVotedGirl) {
+        setCategoryFilter('girl');
+      } else if (!synced.hasVotedBoy) {
+        setCategoryFilter('boy');
+      }
+    });
+
     fetchCandidates().then((list) => {
       setCandidates(list);
     });
@@ -97,15 +109,32 @@ export default function VotePage() {
       setCandidates(list);
     });
 
+    // Real-time listener for voter status resets from admin
+    const unsubscribeVoter = subscribeToVoterStatus(voterId, (updatedStatus) => {
+      setVoterStatus(updatedStatus);
+      if (!updatedStatus.hasVotedBoy && !updatedStatus.hasVotedGirl) {
+        setSelectedBoyId(null);
+        setSelectedGirlId(null);
+        setCategoryFilter('boy');
+      }
+    });
+
     const handleSync = () => {
-      const refreshed = getLocalVoterStatus(voterId);
-      setVoterStatus(refreshed);
+      syncVoterStatus(voterId).then((refreshed) => {
+        setVoterStatus(refreshed);
+        if (!refreshed.hasVotedBoy && !refreshed.hasVotedGirl) {
+          setSelectedBoyId(null);
+          setSelectedGirlId(null);
+          setCategoryFilter('boy');
+        }
+      });
       fetchCandidates().then(setCandidates);
     };
 
     window.addEventListener('novera_vote_updated', handleSync);
     return () => {
       unsubscribeFirebase();
+      unsubscribeVoter();
       window.removeEventListener('novera_vote_updated', handleSync);
     };
   }, []);

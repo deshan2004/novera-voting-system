@@ -283,17 +283,137 @@ export async function submitVote(submission: VoteSubmission): Promise<{
 }
 
 /**
+ * Sync voter status with Firestore & system reset signals
+ */
+export async function syncVoterStatus(voterId: string): Promise<VoterStatus> {
+  let localStatus = getLocalVoterStatus(voterId);
+
+  if (isFirebaseConfigured() && db) {
+    try {
+      // 1. Check global reset state
+      const systemSnap = await getDoc(doc(db, 'system', 'ballot_state'));
+      const lastResetAt = systemSnap.exists() ? systemSnap.data()?.lastResetAt || 0 : 0;
+      const seenReset = Number(localStorage.getItem('novera_last_reset_seen') || '0');
+
+      if (lastResetAt > seenReset) {
+        localStorage.setItem('novera_last_reset_seen', lastResetAt.toString());
+        localStatus = { voterId, hasVotedBoy: false, hasVotedGirl: false };
+        saveLocalVoterStatus(localStatus);
+        return localStatus;
+      }
+
+      // 2. Check remote voter document
+      const voterDocRef = doc(db, 'voters', voterId);
+      const voterSnap = await getDoc(voterDocRef);
+      if (!voterSnap.exists()) {
+        // If wiped in Firestore, reset local status to allow voting fresh
+        localStatus = { voterId, hasVotedBoy: false, hasVotedGirl: false };
+        saveLocalVoterStatus(localStatus);
+        return localStatus;
+      } else {
+        const remote = voterSnap.data() as VoterStatus;
+        localStatus = { ...localStatus, ...remote };
+        saveLocalVoterStatus(localStatus);
+        return localStatus;
+      }
+    } catch (e) {
+      console.warn('Error syncing remote voter status:', e);
+    }
+  }
+
+  return localStatus;
+}
+
+/**
+ * Subscribe to real-time voter status & admin reset broadcasts
+ */
+export function subscribeToVoterStatus(
+  voterId: string,
+  callback: (status: VoterStatus) => void
+): () => void {
+  if (!isFirebaseConfigured() || !db) {
+    callback(getLocalVoterStatus(voterId));
+    return () => {};
+  }
+
+  try {
+    const voterRef = doc(db, 'voters', voterId);
+    const systemRef = doc(db, 'system', 'ballot_state');
+
+    const unsubVoter = onSnapshot(
+      voterRef,
+      (snap) => {
+        if (!snap.exists()) {
+          const clean = { voterId, hasVotedBoy: false, hasVotedGirl: false };
+          saveLocalVoterStatus(clean);
+          callback(clean);
+        } else {
+          const remote = snap.data() as VoterStatus;
+          saveLocalVoterStatus(remote);
+          callback(remote);
+        }
+      },
+      () => {}
+    );
+
+    const unsubSystem = onSnapshot(
+      systemRef,
+      (snap) => {
+        if (snap.exists()) {
+          const lastResetAt = snap.data()?.lastResetAt || 0;
+          const seenReset = Number(localStorage.getItem('novera_last_reset_seen') || '0');
+          if (lastResetAt > seenReset) {
+            localStorage.setItem('novera_last_reset_seen', lastResetAt.toString());
+            const clean = { voterId, hasVotedBoy: false, hasVotedGirl: false };
+            saveLocalVoterStatus(clean);
+            callback(clean);
+          }
+        }
+      },
+      () => {}
+    );
+
+    return () => {
+      unsubVoter();
+      unsubSystem();
+    };
+  } catch (e) {
+    callback(getLocalVoterStatus(voterId));
+    return () => {};
+  }
+}
+
+/**
  * Reset all votes (Admin function)
  */
 export async function resetAllVotes(): Promise<void> {
+  const resetTimestamp = Date.now();
+
   // 1. Firebase Firestore reset
   if (isFirebaseConfigured() && db) {
     try {
-      const snapshot = await getDocs(collection(db, 'candidates'));
-      for (const candidateDoc of snapshot.docs) {
-        await updateDoc(candidateDoc.ref, { votes: 0 });
-      }
-    } catch (e) {}
+      const batch = writeBatch(db);
+
+      // Reset candidate vote counters to 0
+      const candidatesSnapshot = await getDocs(collection(db, 'candidates'));
+      candidatesSnapshot.forEach((candidateDoc) => {
+        batch.update(candidateDoc.ref, { votes: 0 });
+      });
+
+      // Clear all voter documents so devices are unlocked to vote again
+      const votersSnapshot = await getDocs(collection(db, 'voters'));
+      votersSnapshot.forEach((voterDoc) => {
+        batch.delete(voterDoc.ref);
+      });
+
+      // Set global ballot state reset epoch
+      const systemDocRef = doc(db, 'system', 'ballot_state');
+      batch.set(systemDocRef, { lastResetAt: resetTimestamp }, { merge: true });
+
+      await batch.commit();
+    } catch (e) {
+      console.error('Error resetting Firestore votes:', e);
+    }
   }
 
   // 2. Spring Boot reset
@@ -301,10 +421,23 @@ export async function resetAllVotes(): Promise<void> {
     await fetch(`${SPRING_BOOT_API_URL}/admin/reset`, { method: 'POST' });
   } catch (e) {}
 
-  // 3. Local reset
+  // 3. Local candidates reset
   const candidates = getLocalCandidates().map((c) => ({ ...c, votes: 0 }));
   saveLocalCandidates(candidates);
+
+  // 4. Local voter status reset
   if (typeof window !== 'undefined') {
+    const keysToRemove: string[] = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && (key.startsWith('novera_voter') || key.startsWith(STORAGE_KEY_VOTER_STATUS))) {
+        keysToRemove.push(key);
+      }
+    }
+    keysToRemove.forEach((k) => localStorage.removeItem(k));
+    localStorage.removeItem(STORAGE_KEY_VOTER_ID);
+    localStorage.setItem('novera_last_reset_seen', resetTimestamp.toString());
+
     window.dispatchEvent(new Event('novera_vote_updated'));
   }
 }
