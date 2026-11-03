@@ -239,3 +239,34 @@ input[type='range'].glass-slider::-webkit-slider-thumb:hover {
 .animate-float {
   animation: floatGentle 3s ease-in-out infinite;
 }
+@keyframes qrLaserScan {
+  0% {
+    top: 0%;
+    opacity: 0.8;
+  }
+  50% {
+    top: 96%;
+    opacity: 1;
+  }
+  100% {
+    top: 0%;
+    opacity: 0.8;
+  }
+}
+
+.animate-qr-laser {
+  animation: qrLaserScan 2.6s ease-in-out infinite;
+}
+
+@keyframes radarSpin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-radar-spin {
+  animation: radarSpin 4s linear infinite;
+}

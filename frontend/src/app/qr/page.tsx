@@ -19,7 +19,7 @@ export default function QrDisplayPage() {
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const origin = window.location.origin;
-      setVotingUrl(`${origin}/vote`);
+      setVotingUrl(`${origin}/vote?entry=qr`);
     }
 
     const handleFullscreenChange = () => {
@@ -64,16 +64,19 @@ export default function QrDisplayPage() {
           </p>
         </div>
 
-        {/* QR Code Presentation Frame */}
-        <div className="relative group p-5 sm:p-8 rounded-3xl bg-white shadow-2xl border-4 border-novera-foil/40 hover:border-novera-foil transition-all duration-300 flex flex-col items-center max-w-[90vw]">
-          {/* Decorative Corner Accents */}
-          <div className="absolute top-3 left-3 w-4 h-4 border-t-2 border-l-2 border-novera-foil" />
-          <div className="absolute top-3 right-3 w-4 h-4 border-t-2 border-r-2 border-novera-foil" />
-          <div className="absolute bottom-3 left-3 w-4 h-4 border-b-2 border-l-2 border-novera-foil" />
-          <div className="absolute bottom-3 right-3 w-4 h-4 border-b-2 border-r-2 border-novera-foil" />
+        {/* QR Code Presentation Frame with Live Laser Scanner */}
+        <div className="relative group p-5 sm:p-8 rounded-3xl bg-white shadow-[0_0_60px_rgba(203,167,95,0.25)] border-4 border-novera-foil/50 hover:border-novera-foil transition-all duration-300 flex flex-col items-center max-w-[90vw] overflow-hidden">
+          {/* Animated Gold Laser Scanner Line */}
+          <div className="absolute left-4 right-4 h-1 bg-gradient-to-r from-transparent via-amber-400 to-transparent shadow-[0_0_15px_rgba(251,191,36,0.9)] animate-qr-laser z-20 pointer-events-none" />
 
-          {/* QR Code */}
-          <div className="p-3 sm:p-4 bg-white rounded-2xl shadow-inner border border-novera-ink/10 flex items-center justify-center">
+          {/* Decorative Corner Accents */}
+          <div className="absolute top-3 left-3 w-5 h-5 border-t-2 border-l-2 border-novera-foil animate-pulse" />
+          <div className="absolute top-3 right-3 w-5 h-5 border-t-2 border-r-2 border-novera-foil animate-pulse" />
+          <div className="absolute bottom-3 left-3 w-5 h-5 border-b-2 border-l-2 border-novera-foil animate-pulse" />
+          <div className="absolute bottom-3 right-3 w-5 h-5 border-b-2 border-r-2 border-novera-foil animate-pulse" />
+
+          {/* QR Code Container */}
+          <div className="p-3 sm:p-4 bg-white rounded-2xl shadow-inner border border-novera-ink/10 flex items-center justify-center relative z-10">
             {votingUrl ? (
               <QRCodeSVG
                 value={votingUrl}
@@ -90,10 +93,11 @@ export default function QrDisplayPage() {
             )}
           </div>
 
-          {/* Subtitle Under QR */}
-          <div className="mt-4 flex items-center gap-2 text-xs font-bold tracking-widest uppercase text-novera-ink">
+          {/* Subtitle Under QR with Live Pulse */}
+          <div className="mt-4 flex items-center gap-2 text-xs font-bold tracking-widest uppercase text-novera-ink relative z-10">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
             <Smartphone className="w-4 h-4 text-novera-foil" />
-            <span>Open Camera &bull; Scan Instantly</span>
+            <span>Open Camera &bull; Scan Instantly to Vote</span>
           </div>
         </div>
 

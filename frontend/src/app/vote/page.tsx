@@ -27,6 +27,9 @@ export default function VotePage() {
   const [candidates, setCandidates] = useState<Candidate[]>([]);
   const [voterStatus, setVoterStatus] = useState<VoterStatus | null>(null);
 
+  // Creative Scan Entry Animation
+  const [showScanIntro, setShowScanIntro] = useState<boolean>(true);
+
   // Selected candidates for rapid single-screen ballot
   const [selectedBoyId, setSelectedBoyId] = useState<string | null>(null);
   const [selectedGirlId, setSelectedGirlId] = useState<string | null>(null);
@@ -35,6 +38,21 @@ export default function VotePage() {
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
   useEffect(() => {
+    // Check if came from QR scan or fresh session
+    const isFromQr = typeof window !== 'undefined' && window.location.search.includes('entry=qr');
+    const seenIntro = sessionStorage.getItem('novera_scan_intro_played');
+
+    if (isFromQr || !seenIntro) {
+      setShowScanIntro(true);
+      sessionStorage.setItem('novera_scan_intro_played', 'true');
+      const timer = setTimeout(() => {
+        setShowScanIntro(false);
+      }, 1400);
+      return () => clearTimeout(timer);
+    } else {
+      setShowScanIntro(false);
+    }
+
     const voterId = getOrCreateVoterId();
     const status = getLocalVoterStatus(voterId);
     setVoterStatus(status);
@@ -119,6 +137,52 @@ export default function VotePage() {
 
   return (
     <div className="max-w-3xl mx-auto px-4 sm:px-6 py-6 sm:py-10 space-y-6 relative">
+      {/* 🚀 CREATIVE MODERN SCAN ENTRY INTRO OVERLAY */}
+      {showScanIntro && (
+        <div className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-2xl flex flex-col items-center justify-center p-6 text-center select-none animate-in fade-in duration-200">
+          <div className="absolute top-1/4 w-80 h-80 bg-novera-gold/20 rounded-full blur-3xl pointer-events-none" />
+
+          {/* Luxury Holographic QR Scanner Target & Crown Monogram */}
+          <div className="relative w-28 h-28 mx-auto flex items-center justify-center mb-6">
+            <div className="absolute top-0 left-0 w-5 h-5 border-t-2 border-l-2 border-novera-gold" />
+            <div className="absolute top-0 right-0 w-5 h-5 border-t-2 border-r-2 border-novera-gold" />
+            <div className="absolute bottom-0 left-0 w-5 h-5 border-b-2 border-l-2 border-novera-gold" />
+            <div className="absolute bottom-0 right-0 w-5 h-5 border-b-2 border-r-2 border-novera-gold" />
+
+            <div className="w-24 h-24 rounded-full border-2 border-novera-foil/30 border-t-novera-gold animate-radar-spin flex items-center justify-center shadow-[0_0_40px_rgba(203,167,95,0.4)]">
+              <Crown className="w-10 h-10 text-novera-gold animate-bounce" />
+            </div>
+          </div>
+
+          {/* Typography */}
+          <div className="space-y-2 mb-6">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-[10px] font-mono uppercase tracking-widest font-bold">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+              <span>QR CODE VERIFIED &bull; SEAT UNLOCKED</span>
+            </div>
+            <h2 className="font-serif text-2xl sm:text-3xl font-bold text-white tracking-tight">
+              Welcome to NOVERA &rsquo;26
+            </h2>
+            <p className="text-xs text-zinc-400 font-mono">
+              Accessing Central Runway Voting Ballot...
+            </p>
+          </div>
+
+          {/* Animated Progress Bar */}
+          <div className="w-56 h-1.5 bg-zinc-800 rounded-full overflow-hidden border border-zinc-700">
+            <div className="h-full bg-gradient-to-r from-novera-gold-dark via-novera-foil to-amber-300 rounded-full animate-in slide-in-from-left duration-1000 fill-mode-forwards w-full" />
+          </div>
+
+          {/* Quick Skip Button */}
+          <button
+            onClick={() => setShowScanIntro(false)}
+            className="mt-6 text-[11px] font-mono text-zinc-500 hover:text-white uppercase tracking-widest transition-colors"
+          >
+            Skip Intro &rarr;
+          </button>
+        </div>
+      )}
+
       {/* Luxury Ambient Glass Stage Lights */}
       <div className="fixed inset-0 pointer-events-none -z-10 overflow-hidden">
         <div className="absolute top-10 left-1/4 w-96 h-96 bg-amber-200/25 rounded-full blur-3xl animate-pulse" />
