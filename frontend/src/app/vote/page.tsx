@@ -34,6 +34,9 @@ export default function VotePage() {
   const [selectedBoyId, setSelectedBoyId] = useState<string | null>(null);
   const [selectedGirlId, setSelectedGirlId] = useState<string | null>(null);
 
+  // Category view filter (All / Boys / Girls)
+  const [categoryFilter, setCategoryFilter] = useState<'both' | 'boy' | 'girl'>('both');
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
@@ -278,8 +281,54 @@ export default function VotePage() {
       ) : (
         /* FAST TWO-SECTION BALLOT (Single Screen, Compact Chips, No giant photos) */
         <div className="space-y-6">
+          {/* Category Filter Pills (All / Boys / Girls) */}
+          <div className="flex justify-center">
+            <div className="grid grid-cols-3 gap-1.5 w-full max-w-sm p-1.5 rounded-2xl glass-pill shadow-inner">
+              <button
+                type="button"
+                onClick={() => setCategoryFilter('both')}
+                className={`py-2 px-3 rounded-xl text-xs font-bold uppercase tracking-wider whitespace-nowrap transition-all ${
+                  categoryFilter === 'both'
+                    ? 'bg-novera-ink text-novera-paper shadow-md'
+                    : 'text-novera-charcoal hover:text-novera-ink hover:bg-white/40'
+                }`}
+              >
+                All (Both)
+              </button>
+              <button
+                type="button"
+                onClick={() => setCategoryFilter('boy')}
+                className={`py-2 px-3 rounded-xl text-xs font-bold uppercase tracking-wider whitespace-nowrap transition-all flex items-center justify-center gap-1.5 ${
+                  categoryFilter === 'boy'
+                    ? 'bg-novera-ink text-novera-paper shadow-md'
+                    : 'text-novera-charcoal hover:text-novera-ink hover:bg-white/40'
+                }`}
+              >
+                <span>Boys</span>
+                {(selectedBoyId || hasVotedBoy) && (
+                  <span className="w-2 h-2 rounded-full bg-emerald-400 inline-block shadow-sm" />
+                )}
+              </button>
+              <button
+                type="button"
+                onClick={() => setCategoryFilter('girl')}
+                className={`py-2 px-3 rounded-xl text-xs font-bold uppercase tracking-wider whitespace-nowrap transition-all flex items-center justify-center gap-1.5 ${
+                  categoryFilter === 'girl'
+                    ? 'bg-novera-ink text-novera-paper shadow-md'
+                    : 'text-novera-charcoal hover:text-novera-ink hover:bg-white/40'
+                }`}
+              >
+                <span>Girls</span>
+                {(selectedGirlId || hasVotedGirl) && (
+                  <span className="w-2 h-2 rounded-full bg-emerald-400 inline-block shadow-sm" />
+                )}
+              </button>
+            </div>
+          </div>
+
           {/* SECTION 1: BEST MALE MODEL (BOY) */}
-          <div className="p-5 sm:p-6 rounded-3xl glass-panel shadow-sm space-y-4">
+          {(categoryFilter === 'both' || categoryFilter === 'boy') && (
+            <div className="p-5 sm:p-6 rounded-3xl glass-panel shadow-sm space-y-4">
             <div className="flex items-center justify-between pb-3 border-b border-novera-ink/10">
               <div className="flex items-center gap-2">
                 <Crown className="w-4 h-4 text-novera-gold" />
@@ -369,10 +418,12 @@ export default function VotePage() {
               </div>
             )}
           </div>
+          )}
 
           {/* SECTION 2: BEST FEMALE MODEL (GIRL) */}
-          <div className="p-5 sm:p-6 rounded-3xl glass-panel shadow-sm space-y-4">
-            <div className="flex items-center justify-between pb-3 border-b border-novera-ink/10">
+          {(categoryFilter === 'both' || categoryFilter === 'girl') && (
+            <div className="p-5 sm:p-6 rounded-3xl glass-panel shadow-sm space-y-4">
+              <div className="flex items-center justify-between pb-3 border-b border-novera-ink/10">
               <div className="flex items-center gap-2">
                 <Crown className="w-4 h-4 text-novera-gold" />
                 <h3 className="font-serif text-lg font-bold text-novera-ink">
@@ -461,6 +512,7 @@ export default function VotePage() {
               </div>
             )}
           </div>
+          )}
 
           {/* FAST ACTION SUBMIT BUTTON */}
           <div className="pt-2">
