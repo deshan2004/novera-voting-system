@@ -29,6 +29,7 @@ export default function VotePage() {
 
   // Creative Scan Entry Animation
   const [showScanIntro, setShowScanIntro] = useState<boolean>(true);
+  const [introStage, setIntroStage] = useState<'scan' | 'verified' | 'exit'>('scan');
 
   // Selected candidates for rapid single-screen ballot
   const [selectedBoyId, setSelectedBoyId] = useState<string | null>(null);
@@ -40,6 +41,13 @@ export default function VotePage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
+  const handleDismissIntro = () => {
+    setIntroStage('exit');
+    setTimeout(() => {
+      setShowScanIntro(false);
+    }, 400);
+  };
+
   useEffect(() => {
     // Check if came from QR scan or fresh session
     const isFromQr = typeof window !== 'undefined' && window.location.search.includes('entry=qr');
@@ -47,11 +55,29 @@ export default function VotePage() {
 
     if (isFromQr || !seenIntro) {
       setShowScanIntro(true);
+      setIntroStage('scan');
       sessionStorage.setItem('novera_scan_intro_played', 'true');
-      const timer = setTimeout(() => {
+
+      // Stage 1 -> Stage 2: Verified (1200ms)
+      const verifyTimer = setTimeout(() => {
+        setIntroStage('verified');
+      }, 1200);
+
+      // Stage 2 -> Stage 3: Smooth Dissolve Curtain (2800ms)
+      const exitTimer = setTimeout(() => {
+        setIntroStage('exit');
+      }, 2800);
+
+      // Finish and Unmount (3200ms)
+      const finishTimer = setTimeout(() => {
         setShowScanIntro(false);
-      }, 1400);
-      return () => clearTimeout(timer);
+      }, 3200);
+
+      return () => {
+        clearTimeout(verifyTimer);
+        clearTimeout(exitTimer);
+        clearTimeout(finishTimer);
+      };
     } else {
       setShowScanIntro(false);
     }
@@ -140,48 +166,90 @@ export default function VotePage() {
 
   return (
     <div className="max-w-3xl mx-auto px-4 sm:px-6 py-6 sm:py-10 space-y-6 relative">
-      {/* 🚀 CREATIVE MODERN SCAN ENTRY INTRO OVERLAY */}
+      {/* 👑 HAUTE COUTURE LUXURY RUNWAY ENTRY INTRO */}
       {showScanIntro && (
-        <div className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-2xl flex flex-col items-center justify-center p-6 text-center select-none animate-in fade-in duration-200">
-          <div className="absolute top-1/4 w-80 h-80 bg-novera-gold/20 rounded-full blur-3xl pointer-events-none" />
+        <div
+          className={`fixed inset-0 z-[100] bg-[#070605] flex flex-col items-center justify-center p-6 text-center select-none transition-all duration-500 ease-out ${
+            introStage === 'exit'
+              ? 'opacity-0 scale-105 pointer-events-none'
+              : 'opacity-100 scale-100'
+          }`}
+        >
+          {/* Ambient Runway Spotlight Glow */}
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-amber-600/15 via-[#0b0906] to-[#040302] pointer-events-none" />
+          <div className="absolute top-1/4 w-96 h-96 bg-novera-gold/15 rounded-full blur-[100px] pointer-events-none" />
 
-          {/* Luxury Holographic QR Scanner Target & Crown Monogram */}
-          <div className="relative w-28 h-28 mx-auto flex items-center justify-center mb-6">
-            <div className="absolute top-0 left-0 w-5 h-5 border-t-2 border-l-2 border-novera-gold" />
-            <div className="absolute top-0 right-0 w-5 h-5 border-t-2 border-r-2 border-novera-gold" />
-            <div className="absolute bottom-0 left-0 w-5 h-5 border-b-2 border-l-2 border-novera-gold" />
-            <div className="absolute bottom-0 right-0 w-5 h-5 border-b-2 border-r-2 border-novera-gold" />
+          {/* Luxury Concentric Insignia Emblem */}
+          <div className="relative w-32 h-32 mx-auto flex items-center justify-center mb-7">
+            {/* Soft Ambient Halo */}
+            <div className="absolute w-36 h-36 rounded-full bg-amber-400/10 blur-xl animate-luxury-glow pointer-events-none" />
 
-            <div className="w-24 h-24 rounded-full border-2 border-novera-foil/30 border-t-novera-gold animate-radar-spin flex items-center justify-center shadow-[0_0_40px_rgba(203,167,95,0.4)]">
-              <Crown className="w-10 h-10 text-novera-gold animate-bounce" />
+            {/* Rotating Haute Couture Gold Outer Orbit */}
+            <div className="absolute inset-0 rounded-full border border-novera-foil/30 border-dashed animate-spin-slow" />
+
+            {/* Inner Polished Gold Seal */}
+            <div className="relative w-24 h-24 rounded-full border-2 border-novera-gold/70 bg-black/60 backdrop-blur-md shadow-[0_0_35px_rgba(203,167,95,0.35)] flex items-center justify-center">
+              {/* Runway Corner Brackets */}
+              <div className="absolute -top-1 -left-1 w-3 h-3 border-t-2 border-l-2 border-amber-300" />
+              <div className="absolute -top-1 -right-1 w-3 h-3 border-t-2 border-r-2 border-amber-300" />
+              <div className="absolute -bottom-1 -left-1 w-3 h-3 border-b-2 border-l-2 border-amber-300" />
+              <div className="absolute -bottom-1 -right-1 w-3 h-3 border-b-2 border-r-2 border-amber-300" />
+
+              {introStage === 'scan' ? (
+                <Crown className="w-10 h-10 text-novera-gold drop-shadow-[0_0_15px_rgba(236,213,153,0.9)] animate-pulse" />
+              ) : (
+                <div className="animate-in zoom-in-75 duration-300">
+                  <Check className="w-10 h-10 text-emerald-400 stroke-[3] drop-shadow-[0_0_15px_rgba(52,211,153,0.9)]" />
+                </div>
+              )}
             </div>
           </div>
 
-          {/* Typography */}
-          <div className="space-y-2 mb-6">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-[10px] font-mono uppercase tracking-widest font-bold">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
-              <span>QR CODE VERIFIED &bull; SEAT UNLOCKED</span>
-            </div>
-            <h2 className="font-serif text-2xl sm:text-3xl font-bold text-white tracking-tight">
-              Welcome to NOVERA &rsquo;26
-            </h2>
-            <p className="text-xs text-zinc-400 font-mono">
-              Accessing Central Runway Voting Ballot...
+          {/* High Fashion Typography */}
+          <div className="space-y-3 mb-8 max-w-sm mx-auto">
+            <span className="text-[10px] font-mono tracking-[0.35em] uppercase text-amber-200/70 block">
+              AIESEC in CINEC Presents
+            </span>
+
+            <h1 className="font-serif text-3xl sm:text-4xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-[#ecd599] via-white to-[#b3924f] drop-shadow-sm">
+              NOVERA &rsquo;26
+            </h1>
+
+            <p className="text-[11px] font-mono uppercase tracking-[0.2em] text-zinc-400">
+              Official Runway Voting Ballot
             </p>
+
+            {/* Dynamic Stage Pill */}
+            <div className="pt-2">
+              {introStage === 'scan' ? (
+                <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-500/15 border border-amber-500/40 text-amber-200 text-[11px] font-mono tracking-wider">
+                  <span className="w-2 h-2 rounded-full bg-amber-400 animate-ping" />
+                  <span>AUTHENTICATING BALLOT CREDENTIALS...</span>
+                </div>
+              ) : (
+                <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/20 border border-emerald-400/50 text-emerald-300 text-[11px] font-mono tracking-wider animate-in fade-in zoom-in-95 duration-200">
+                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                  <span>SEAT VERIFIED &bull; RUNWAY BALLOT UNLOCKED</span>
+                </div>
+              )}
+            </div>
           </div>
 
-          {/* Animated Progress Bar */}
-          <div className="w-56 h-1.5 bg-zinc-800 rounded-full overflow-hidden border border-zinc-700">
-            <div className="h-full bg-gradient-to-r from-novera-gold-dark via-novera-foil to-amber-300 rounded-full animate-in slide-in-from-left duration-1000 fill-mode-forwards w-full" />
+          {/* Sleek Golden Hairline Progress Bar */}
+          <div className="w-64 h-1 bg-zinc-900 rounded-full overflow-hidden border border-amber-500/20 shadow-inner mb-6">
+            <div
+              className="h-full bg-gradient-to-r from-amber-700 via-novera-foil to-amber-200 rounded-full transition-all duration-[2400ms] ease-out"
+              style={{ width: introStage === 'scan' ? '45%' : '100%' }}
+            />
           </div>
 
           {/* Quick Skip Button */}
           <button
-            onClick={() => setShowScanIntro(false)}
-            className="mt-6 text-[11px] font-mono text-zinc-500 hover:text-white uppercase tracking-widest transition-colors"
+            type="button"
+            onClick={handleDismissIntro}
+            className="px-4 py-1.5 rounded-full glass-badge-gold text-amber-200/80 hover:text-white text-[11px] font-mono uppercase tracking-widest transition-all hover:scale-105 active:scale-95"
           >
-            Skip Intro &rarr;
+            Skip to Ballot &rarr;
           </button>
         </div>
       )}

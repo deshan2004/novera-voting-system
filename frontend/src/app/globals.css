@@ -270,3 +270,31 @@ input[type='range'].glass-slider::-webkit-slider-thumb:hover {
 .animate-radar-spin {
   animation: radarSpin 4s linear infinite;
 }
+
+@keyframes spinSlow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin-slow {
+  animation: spinSlow 18s linear infinite;
+}
+
+@keyframes luxuryGlow {
+  0%, 100% {
+    opacity: 0.5;
+    transform: scale(0.98);
+  }
+  50% {
+    opacity: 0.9;
+    transform: scale(1.04);
+  }
+}
+
+.animate-luxury-glow {
+  animation: luxuryGlow 3s ease-in-out infinite;
+}
