@@ -479,12 +479,19 @@ export default function AdminLeaderboardPage() {
   const leadingGirlForAward = rankedGirlsForAward[0];
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10 space-y-8">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10 space-y-8 relative">
+      {/* Luxury Ambient Glass Stage Lights */}
+      <div className="fixed inset-0 pointer-events-none -z-10 overflow-hidden">
+        <div className="absolute top-12 left-1/4 w-[500px] h-[500px] bg-gradient-to-tr from-amber-200/25 via-novera-gold/15 to-transparent rounded-full blur-3xl" />
+        <div className="absolute top-1/3 right-8 w-[450px] h-[450px] bg-gradient-to-br from-rose-200/20 via-amber-100/15 to-transparent rounded-full blur-3xl" />
+        <div className="absolute bottom-20 left-12 w-[550px] h-[550px] bg-gradient-to-tr from-novera-foil/10 via-amber-200/20 to-transparent rounded-full blur-3xl" />
+      </div>
+
       {/* Top Banner & Navigation */}
-      <div className="p-6 sm:p-8 rounded-3xl bg-white border border-novera-ink/10 shadow-editorial flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+      <div className="p-6 sm:p-8 rounded-3xl glass-panel shadow-luxury flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
         <div>
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-novera-foil/15 text-xs uppercase tracking-widest font-bold text-novera-foil mb-2">
-            <ShieldCheck className="w-4 h-4 text-novera-gold" />
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full glass-badge-gold text-xs uppercase tracking-widest font-bold text-novera-foil mb-2">
+            <ShieldCheck className="w-4 h-4 text-novera-gold animate-float" />
             <span>Master Administration Hub</span>
           </div>
           <h1 className="font-serif text-2xl sm:text-4xl font-bold text-novera-ink">
@@ -498,14 +505,14 @@ export default function AdminLeaderboardPage() {
         <div className="flex flex-wrap items-center gap-3">
           <button
             onClick={() => window.print()}
-            className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-semibold bg-novera-paper-dim border border-novera-ink/15 text-novera-ink hover:bg-novera-ink hover:text-novera-paper transition-all"
+            className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-2xl text-xs font-semibold glass-pill text-novera-ink hover:bg-novera-ink hover:text-novera-paper transition-all shadow-sm"
           >
             <Printer className="w-4 h-4" />
             <span>Print MC Summary</span>
           </button>
           <button
             onClick={handleLogout}
-            className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-semibold text-rose-700 bg-rose-50 border border-rose-200 hover:bg-rose-100 transition-colors"
+            className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-2xl text-xs font-semibold text-rose-800 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-300/40 backdrop-blur-md transition-colors shadow-sm"
           >
             <LogOut className="w-4 h-4" />
             <span>Sign Out</span>
@@ -515,13 +522,13 @@ export default function AdminLeaderboardPage() {
 
       {/* Main Tabs Navigation */}
       <div className="flex justify-center">
-        <div className="inline-flex p-1.5 rounded-full bg-novera-paper-dim border border-novera-ink/10 shadow-inner w-full max-w-2xl">
+        <div className="inline-flex p-1.5 rounded-full glass-pill shadow-inner w-full max-w-2xl">
           <button
             onClick={() => setActiveTab('audience')}
-            className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-full text-xs sm:text-sm font-bold uppercase tracking-wider transition-all ${
+            className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-full text-xs sm:text-sm font-bold uppercase tracking-wider transition-all duration-300 ${
               activeTab === 'audience'
-                ? 'bg-novera-ink text-novera-paper shadow-md'
-                : 'text-novera-charcoal hover:text-novera-ink'
+                ? 'bg-novera-ink text-novera-paper shadow-xl scale-[1.02] border border-white/10'
+                : 'text-novera-charcoal hover:text-novera-ink hover:bg-white/40'
             }`}
           >
             <Vote className="w-4 h-4 text-novera-gold" />
@@ -530,10 +537,10 @@ export default function AdminLeaderboardPage() {
 
           <button
             onClick={() => setActiveTab('judges')}
-            className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-full text-xs sm:text-sm font-bold uppercase tracking-wider transition-all ${
+            className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-full text-xs sm:text-sm font-bold uppercase tracking-wider transition-all duration-300 ${
               activeTab === 'judges'
-                ? 'bg-novera-ink text-novera-paper shadow-md'
-                : 'text-novera-charcoal hover:text-novera-ink'
+                ? 'bg-novera-ink text-novera-paper shadow-xl scale-[1.02] border border-white/10'
+                : 'text-novera-charcoal hover:text-novera-ink hover:bg-white/40'
             }`}
           >
             <Award className="w-4 h-4 text-novera-gold" />
@@ -542,10 +549,10 @@ export default function AdminLeaderboardPage() {
 
           <button
             onClick={() => setActiveTab('summary')}
-            className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-full text-xs sm:text-sm font-bold uppercase tracking-wider transition-all ${
+            className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-full text-xs sm:text-sm font-bold uppercase tracking-wider transition-all duration-300 ${
               activeTab === 'summary'
-                ? 'bg-novera-ink text-novera-paper shadow-md'
-                : 'text-novera-charcoal hover:text-novera-ink'
+                ? 'bg-novera-ink text-novera-paper shadow-xl scale-[1.02] border border-white/10'
+                : 'text-novera-charcoal hover:text-novera-ink hover:bg-white/40'
             }`}
           >
             <Trophy className="w-4 h-4 text-novera-gold" />
