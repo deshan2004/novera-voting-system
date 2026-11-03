@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Candidate, VoterStatus, GenderCategory } from '@/lib/types';
+import { Candidate, VoterStatus } from '@/lib/types';
 import {
   fetchCandidates,
   getOrCreateVoterId,
@@ -17,18 +17,20 @@ import {
   Sparkles,
   ShieldCheck,
   AlertCircle,
-  Award,
-  ChevronRight,
-  Info,
+  Crown,
+  Check,
   RefreshCw,
+  Send,
 } from 'lucide-react';
-import Image from 'next/image';
 
 export default function VotePage() {
   const [candidates, setCandidates] = useState<Candidate[]>([]);
-  const [selectedCategory, setSelectedCategory] = useState<GenderCategory>('boy');
   const [voterStatus, setVoterStatus] = useState<VoterStatus | null>(null);
-  const [selectedCandidate, setSelectedCandidate] = useState<Candidate | null>(null);
+
+  // Selected candidates for rapid single-screen ballot
+  const [selectedBoyId, setSelectedBoyId] = useState<string | null>(null);
+  const [selectedGirlId, setSelectedGirlId] = useState<string | null>(null);
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
@@ -37,12 +39,10 @@ export default function VotePage() {
     const status = getLocalVoterStatus(voterId);
     setVoterStatus(status);
 
-    // Initial fetch
     fetchCandidates().then((list) => {
       setCandidates(list);
     });
 
-    // Real-time Firebase Firestore subscription
     const unsubscribeFirebase = subscribeToCandidates((list) => {
       setCandidates(list);
     });
@@ -63,26 +63,35 @@ export default function VotePage() {
   const boys = candidates.filter((c) => c.category === 'boy');
   const girls = candidates.filter((c) => c.category === 'girl');
 
-  const hasVotedCurrentCategory =
-    selectedCategory === 'boy'
-      ? voterStatus?.hasVotedBoy
-      : voterStatus?.hasVotedGirl;
+  const getCandidateById = (id?: string) => candidates.find((c) => c.id === id);
 
-  const currentVotedForId =
-    selectedCategory === 'boy'
-      ? voterStatus?.boyVotedFor
-      : voterStatus?.girlVotedFor;
+  const hasVotedBoy = !!voterStatus?.hasVotedBoy;
+  const hasVotedGirl = !!voterStatus?.hasVotedGirl;
+  const hasVotedBoth = hasVotedBoy && hasVotedGirl;
 
-  const handleVoteConfirm = async () => {
-    if (!selectedCandidate || !voterStatus) return;
+  // Single-Tap Fast Ballot Submission
+  const handleFastSubmit = async () => {
+    if (!voterStatus) return;
+
+    // Determine what is being submitted
+    const boyToSubmit = !hasVotedBoy ? selectedBoyId : undefined;
+    const girlToSubmit = !hasVotedGirl ? selectedGirlId : undefined;
+
+    if (!boyToSubmit && !girlToSubmit) {
+      setFeedback({
+        type: 'error',
+        message: 'Please tap on your favorite Male and Female contenders before submitting.',
+      });
+      return;
+    }
 
     setIsSubmitting(true);
     setFeedback(null);
 
     const submission = {
       voterId: voterStatus.voterId,
-      boyCandidateId: selectedCandidate.category === 'boy' ? selectedCandidate.id : undefined,
-      girlCandidateId: selectedCandidate.category === 'girl' ? selectedCandidate.id : undefined,
+      boyCandidateId: boyToSubmit || undefined,
+      girlCandidateId: girlToSubmit || undefined,
     };
 
     const result = await submitVote(submission);
@@ -90,123 +99,54 @@ export default function VotePage() {
 
     if (result.success) {
       setVoterStatus(result.voterStatus);
-      setFeedback({ type: 'success', message: result.message });
-      setSelectedCandidate(null);
+      setSelectedBoyId(null);
+      setSelectedGirlId(null);
+      setFeedback({ type: 'success', message: 'Your votes have been officially recorded in NOVERA ’26!' });
 
-      // Trigger celebratory confetti
       confetti({
-        particleCount: 80,
-        spread: 70,
-        origin: { y: 0.6 },
-        colors: ['#b3924f', '#0b0b0b', '#eed9a8'],
+        particleCount: 100,
+        spread: 80,
+        origin: { y: 0.5 },
+        colors: ['#b3924f', '#0b0b0b', '#ecd599', '#10b981'],
       });
-
-      // Automatically suggest switching to the other category if not yet voted!
-      if (selectedCandidate.category === 'boy' && !result.voterStatus.hasVotedGirl) {
-        setTimeout(() => setSelectedCategory('girl'), 1800);
-      } else if (selectedCandidate.category === 'girl' && !result.voterStatus.hasVotedBoy) {
-        setTimeout(() => setSelectedCategory('boy'), 1800);
-      }
     } else {
       setFeedback({ type: 'error', message: result.message });
     }
   };
 
-  const getCandidateById = (id?: string) => candidates.find((c) => c.id === id);
+  const boyVotedCandidate = getCandidateById(voterStatus?.boyVotedFor);
+  const girlVotedCandidate = getCandidateById(voterStatus?.girlVotedFor);
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 relative">
+    <div className="max-w-3xl mx-auto px-4 sm:px-6 py-6 sm:py-10 space-y-6 relative">
       {/* Luxury Ambient Glass Stage Lights */}
       <div className="fixed inset-0 pointer-events-none -z-10 overflow-hidden">
-        <div className="absolute top-10 left-1/4 w-96 h-96 bg-amber-200/25 rounded-full blur-3xl" />
+        <div className="absolute top-10 left-1/4 w-96 h-96 bg-amber-200/25 rounded-full blur-3xl animate-pulse" />
         <div className="absolute bottom-1/4 right-10 w-96 h-96 bg-rose-200/20 rounded-full blur-3xl" />
       </div>
 
-      {/* Top Banner / Heading */}
-      <div className="text-center max-w-2xl mx-auto mb-8 space-y-3">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full glass-badge-gold text-xs uppercase tracking-widest font-semibold text-novera-foil">
+      {/* Clean Minimal Header (No technical jargon) */}
+      <div className="text-center space-y-2">
+        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full glass-badge-gold text-xs uppercase tracking-widest font-semibold text-novera-foil">
           <Sparkles className="w-3.5 h-3.5 text-novera-gold animate-spin" style={{ animationDuration: '6s' }} />
-          <span>Stage Ballot &bull; 1 Boy + 1 Girl</span>
+          <span>Official Runway Ballot &bull; NOVERA &rsquo;26</span>
         </div>
-        <h1 className="font-serif text-3xl sm:text-5xl font-bold tracking-tight text-novera-ink">
-          Official Runway Ballot
+        <h1 className="font-serif text-3xl sm:text-4xl font-bold tracking-tight text-novera-ink">
+          Cast Your Votes
         </h1>
-        <p className="text-sm text-novera-charcoal leading-relaxed">
-          Select your favorite contenders below. Each attendee is strictly permitted{' '}
-          <strong className="text-novera-ink">one vote for Best Male Model</strong> and{' '}
-          <strong className="text-novera-ink">one vote for Best Female Model</strong>.
+        <p className="text-xs sm:text-sm text-novera-charcoal max-w-md mx-auto">
+          Tap your favorite contender for <strong className="text-novera-ink">Best Male Model</strong> and{' '}
+          <strong className="text-novera-ink">Best Female Model</strong>, then hit submit below.
         </p>
-      </div>
-
-      {/* Voter Status Tracker Card */}
-      <div className="mb-8 p-4 sm:p-6 rounded-3xl glass-panel shadow-luxury">
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-3 text-center sm:text-left">
-            <div className="w-10 h-10 rounded-2xl glass-dark flex items-center justify-center shrink-0 border border-novera-foil/30 shadow-md">
-              <ShieldCheck className="w-5 h-5 text-novera-gold animate-float" />
-            </div>
-            <div>
-              <div className="text-xs uppercase tracking-wider text-novera-silver font-semibold">Your Ballot Status</div>
-              <div className="text-xs font-mono text-novera-charcoal truncate max-w-[220px] sm:max-w-none">
-                ID: {voterStatus?.voterId ? voterStatus.voterId.substring(0, 16) + '...' : 'Generating...'}
-              </div>
-            </div>
-          </div>
-
-          {/* Status Badges */}
-          <div className="flex flex-wrap items-center gap-2.5 w-full sm:w-auto justify-center">
-            {/* Boy Status */}
-            <div
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border backdrop-blur-md ${
-                voterStatus?.hasVotedBoy
-                  ? 'bg-emerald-50/80 text-emerald-800 border-emerald-300'
-                  : 'bg-amber-50/80 text-amber-800 border-amber-300'
-              }`}
-            >
-              {voterStatus?.hasVotedBoy ? (
-                <>
-                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                  <span>Boy: {getCandidateById(voterStatus.boyVotedFor)?.name.split(' ')[0] || 'Voted'}</span>
-                </>
-              ) : (
-                <>
-                  <Vote className="w-3.5 h-3.5 text-amber-600 shrink-0" />
-                  <span>Boy: Pending</span>
-                </>
-              )}
-            </div>
-
-            {/* Girl Status */}
-            <div
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border backdrop-blur-md ${
-                voterStatus?.hasVotedGirl
-                  ? 'bg-emerald-50/80 text-emerald-800 border-emerald-300'
-                  : 'bg-amber-50/80 text-amber-800 border-amber-300'
-              }`}
-            >
-              {voterStatus?.hasVotedGirl ? (
-                <>
-                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                  <span>Girl: {getCandidateById(voterStatus.girlVotedFor)?.name.split(' ')[0] || 'Voted'}</span>
-                </>
-              ) : (
-                <>
-                  <Vote className="w-3.5 h-3.5 text-amber-600 shrink-0" />
-                  <span>Girl: Pending</span>
-                </>
-              )}
-            </div>
-          </div>
-        </div>
       </div>
 
       {/* Feedback Alert */}
       {feedback && (
         <div
-          className={`mb-8 p-4 rounded-xl flex items-start gap-3 text-sm ${
+          className={`p-4 rounded-2xl flex items-start gap-3 text-xs sm:text-sm shadow-md animate-in fade-in duration-200 ${
             feedback.type === 'success'
-              ? 'bg-emerald-50 border border-emerald-300 text-emerald-900'
-              : 'bg-rose-50 border border-rose-300 text-rose-900'
+              ? 'bg-emerald-500/10 border border-emerald-400/50 text-emerald-950 backdrop-blur-md'
+              : 'bg-rose-500/10 border border-rose-400/50 text-rose-950 backdrop-blur-md'
           }`}
         >
           {feedback.type === 'success' ? (
@@ -214,259 +154,290 @@ export default function VotePage() {
           ) : (
             <AlertCircle className="w-5 h-5 text-rose-600 shrink-0 mt-0.5" />
           )}
-          <div className="flex-grow font-medium">{feedback.message}</div>
+          <div className="flex-grow font-semibold">{feedback.message}</div>
         </div>
       )}
 
-      {/* Category Toggle Tabs (Boy / Girl) */}
-      <div className="flex justify-center mb-8 px-2">
-        <div className="grid grid-cols-2 gap-2 w-full max-w-lg p-1.5 rounded-full glass-pill shadow-inner">
-          <button
-            onClick={() => {
-              setSelectedCategory('boy');
-              setSelectedCandidate(null);
-            }}
-            className={`flex items-center justify-center gap-2 py-3 px-4 rounded-full text-xs sm:text-sm font-semibold tracking-wider uppercase whitespace-nowrap transition-all duration-200 ${
-              selectedCategory === 'boy'
-                ? 'bg-novera-ink text-novera-paper shadow-lg border border-white/15'
-                : 'text-novera-charcoal hover:text-novera-ink hover:bg-white/50'
-            }`}
-          >
-            <span>Male (Boy)</span>
-            {voterStatus?.hasVotedBoy && (
-              <span className="w-2 h-2 rounded-full bg-emerald-400" />
-            )}
-          </button>
-
-          <button
-            onClick={() => {
-              setSelectedCategory('girl');
-              setSelectedCandidate(null);
-            }}
-            className={`flex items-center justify-center gap-2 py-3 px-4 rounded-full text-xs sm:text-sm font-semibold tracking-wider uppercase whitespace-nowrap transition-all duration-200 ${
-              selectedCategory === 'girl'
-                ? 'bg-novera-ink text-novera-paper shadow-lg border border-white/15'
-                : 'text-novera-charcoal hover:text-novera-ink hover:bg-white/50'
-            }`}
-          >
-            <span>Female (Girl)</span>
-            {voterStatus?.hasVotedGirl && (
-              <span className="w-2 h-2 rounded-full bg-emerald-400" />
-            )}
-          </button>
-        </div>
-      </div>
-
-      {/* Category Notice */}
-      <div className="mb-6 flex items-center justify-between">
-        <div>
-          <h2 className="font-serif text-2xl font-bold text-novera-ink">
-            {selectedCategory === 'boy' ? 'Contenders — Best Male Model' : 'Contenders — Best Female Model'}
-          </h2>
-          <p className="text-xs text-novera-charcoal">
-            {hasVotedCurrentCategory
-              ? 'You have already finalized your vote for this category. One vote per attendee enforced.'
-              : 'Tap on a contender card to select and confirm your vote.'}
-          </p>
-        </div>
-        {hasVotedCurrentCategory && (
-          <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100/80 backdrop-blur-md text-emerald-800 text-xs font-semibold border border-emerald-300">
-            <Lock className="w-3.5 h-3.5" />
-            <span>Category Finalized</span>
+      {/* COMPLETED BALLOT RECEIPT (If both votes are already cast) */}
+      {hasVotedBoth ? (
+        <div className="p-6 sm:p-8 rounded-3xl glass-panel shadow-2xl text-center space-y-6 animate-in zoom-in-95 duration-300">
+          <div className="w-16 h-16 rounded-full bg-emerald-500/20 border-2 border-emerald-500 text-emerald-600 mx-auto flex items-center justify-center shadow-lg">
+            <Check className="w-9 h-9 stroke-[3]" />
           </div>
-        )}
-      </div>
 
-      {/* Candidate Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        {(selectedCategory === 'boy' ? boys : girls).map((candidate) => {
-          const isVotedForThis = currentVotedForId === candidate.id;
-          const isSelected = selectedCandidate?.id === candidate.id;
-          const isCategoryLocked = hasVotedCurrentCategory;
+          <div className="space-y-1">
+            <span className="text-[10px] font-mono uppercase tracking-widest text-emerald-700 font-bold bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">
+              Verified &bull; Ballot Sealed
+            </span>
+            <h2 className="font-serif text-2xl sm:text-3xl font-bold text-novera-ink pt-2">
+              Your Votes Are Recorded!
+            </h2>
+            <p className="text-xs text-novera-charcoal">
+              Thank you for participating in NOVERA &rsquo;26. Your selections have been added to the master tabulation ledger.
+            </p>
+          </div>
 
-          return (
-            <div
-              key={candidate.id}
-              onClick={() => {
-                if (!isCategoryLocked) {
-                  setSelectedCandidate(candidate);
-                }
-              }}
-              className={`group relative rounded-3xl overflow-hidden glass-card transition-all duration-300 flex flex-col justify-between hover:-translate-y-2 ${
-                isVotedForThis
-                  ? 'border-emerald-500 ring-2 ring-emerald-400/80 shadow-[0_15px_35px_rgba(16,185,129,0.2)]'
-                  : isSelected
-                  ? 'border-novera-foil ring-2 ring-novera-foil shadow-luxury scale-[1.02]'
-                  : isCategoryLocked
-                  ? 'opacity-60 cursor-not-allowed'
-                  : 'hover:border-novera-foil/60 hover:shadow-2xl cursor-pointer'
-              }`}
-            >
-              {/* Photo & Number Badge */}
-              <div className="relative aspect-[3/4] w-full bg-novera-paper-dim overflow-hidden">
-                <img
-                  src={candidate.imageUrl}
-                  alt={candidate.name}
-                  className="w-full h-full object-cover group-hover:scale-108 transition-transform duration-700 ease-out"
-                />
-
-                <div className="absolute top-3 left-3 px-3 py-1 rounded-xl glass-badge text-novera-paper font-mono text-xs font-bold tracking-wider shadow-md">
-                  {candidate.candidateNumber}
-                </div>
-
-                {isVotedForThis && (
-                  <div className="absolute inset-0 bg-emerald-950/70 backdrop-blur-sm flex flex-col items-center justify-center text-white p-4 text-center animate-in fade-in duration-200">
-                    <CheckCircle2 className="w-12 h-12 text-emerald-400 mb-2 animate-bounce" />
-                    <span className="font-serif text-lg font-bold">Your Official Vote</span>
-                    <span className="text-[11px] tracking-wider uppercase text-emerald-200">Locked in ballot</span>
-                  </div>
-                )}
+          {/* Voted Cards Preview */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-left max-w-lg mx-auto">
+            {/* Boy */}
+            <div className="p-4 rounded-2xl glass-card border border-emerald-300/60 shadow-sm flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-novera-ink text-novera-gold text-xs font-mono font-bold flex items-center justify-center shrink-0">
+                {boyVotedCandidate?.candidateNumber || 'M-XX'}
               </div>
+              <div className="truncate">
+                <span className="text-[10px] uppercase font-bold text-novera-foil block">Best Male Model</span>
+                <span className="font-serif font-bold text-sm text-novera-ink truncate block">
+                  {boyVotedCandidate?.name || 'Voted'}
+                </span>
+              </div>
+            </div>
 
-              {/* Bio & Details */}
-              <div className="p-5 flex-grow flex flex-col justify-between space-y-4">
-                <div>
-                  <div className="flex items-center justify-between">
-                    <h3 className="font-serif text-lg font-bold text-novera-ink group-hover:text-novera-foil transition-colors truncate">
-                      {candidate.name}
-                    </h3>
-                    {candidate.age && (
-                      <span className="text-xs text-novera-silver font-medium">Age {candidate.age}</span>
-                    )}
-                  </div>
-                  <p className="mt-2 text-xs text-novera-charcoal line-clamp-3 leading-relaxed">
-                    {candidate.bio}
-                  </p>
+            {/* Girl */}
+            <div className="p-4 rounded-2xl glass-card border border-emerald-300/60 shadow-sm flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-novera-ink text-novera-gold text-xs font-mono font-bold flex items-center justify-center shrink-0">
+                {girlVotedCandidate?.candidateNumber || 'F-XX'}
+              </div>
+              <div className="truncate">
+                <span className="text-[10px] uppercase font-bold text-novera-foil block">Best Female Model</span>
+                <span className="font-serif font-bold text-sm text-novera-ink truncate block">
+                  {girlVotedCandidate?.name || 'Voted'}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div className="pt-2 text-[11px] text-novera-silver flex items-center justify-center gap-2">
+            <Lock className="w-3.5 h-3.5 text-emerald-600" />
+            <span>Strict single-ballot verification enforced</span>
+          </div>
+        </div>
+      ) : (
+        /* FAST TWO-SECTION BALLOT (Single Screen, Compact Chips, No giant photos) */
+        <div className="space-y-6">
+          {/* SECTION 1: BEST MALE MODEL (BOY) */}
+          <div className="p-5 sm:p-6 rounded-3xl glass-panel shadow-sm space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-novera-ink/10">
+              <div className="flex items-center gap-2">
+                <Crown className="w-4 h-4 text-novera-gold" />
+                <h3 className="font-serif text-lg font-bold text-novera-ink">
+                  1. Best Male Model (Boy)
+                </h3>
+              </div>
+              {hasVotedBoy ? (
+                <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200 flex items-center gap-1">
+                  <Check className="w-3 h-3" />
+                  <span>Voted: {boyVotedCandidate?.candidateNumber}</span>
+                </span>
+              ) : (
+                <span className="text-[10px] font-mono text-novera-charcoal font-semibold uppercase tracking-wider">
+                  Pick 1 Male Model
+                </span>
+              )}
+            </div>
+
+            {hasVotedBoy ? (
+              <div className="p-3.5 rounded-2xl bg-emerald-50/70 border border-emerald-300 text-xs flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <span className="px-2.5 py-1 rounded-lg bg-emerald-700 text-white font-mono font-bold text-xs">
+                    {boyVotedCandidate?.candidateNumber}
+                  </span>
+                  <span className="font-serif font-bold text-sm text-emerald-950">
+                    {boyVotedCandidate?.name}
+                  </span>
                 </div>
-
-                {/* Vote Action Button */}
-                <div className="pt-2 border-t border-novera-ink/5">
-                  {isVotedForThis ? (
-                    <div className="w-full py-2.5 rounded-2xl bg-emerald-50/80 backdrop-blur-md text-emerald-700 text-xs font-bold uppercase tracking-wider text-center flex items-center justify-center gap-1.5 border border-emerald-300 shadow-sm">
-                      <CheckCircle2 className="w-4 h-4" />
-                      <span>Vote Recorded</span>
-                    </div>
-                  ) : isCategoryLocked ? (
-                    <div className="w-full py-2.5 rounded-2xl glass-pill text-gray-500 text-xs font-semibold uppercase tracking-wider text-center flex items-center justify-center gap-1.5">
-                      <Lock className="w-3.5 h-3.5" />
-                      <span>Ballot Closed</span>
-                    </div>
-                  ) : (
+                <span className="text-[11px] text-emerald-700 font-semibold uppercase tracking-wider flex items-center gap-1">
+                  <Lock className="w-3.5 h-3.5" />
+                  <span>Locked</span>
+                </span>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {boys.map((candidate) => {
+                  const isSelected = selectedBoyId === candidate.id;
+                  return (
                     <button
+                      key={candidate.id}
                       type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setSelectedCandidate(candidate);
-                      }}
-                      className={`w-full py-2.5 rounded-2xl text-xs font-semibold uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 shadow-sm ${
+                      onClick={() => setSelectedBoyId(candidate.id)}
+                      className={`p-3.5 rounded-2xl text-left flex items-center justify-between gap-3 transition-all duration-200 ${
                         isSelected
-                          ? 'bg-novera-foil text-novera-paper shadow-md'
-                          : 'glass-pill text-novera-ink hover:bg-novera-ink hover:text-novera-paper'
+                          ? 'bg-novera-ink text-novera-paper shadow-lg ring-2 ring-novera-foil scale-[1.01]'
+                          : 'glass-card hover:border-novera-foil/50 hover:bg-white/90 text-novera-ink'
                       }`}
                     >
-                      <Vote className="w-4 h-4" />
-                      <span>{isSelected ? 'Selected' : 'Select Contender'}</span>
+                      <div className="flex items-center gap-3 truncate">
+                        <span
+                          className={`w-10 h-10 rounded-xl font-mono text-xs font-bold flex items-center justify-center shrink-0 transition-colors ${
+                            isSelected
+                              ? 'bg-novera-gold text-novera-ink'
+                              : 'bg-novera-paper-dim text-novera-ink border border-novera-ink/10'
+                          }`}
+                        >
+                          {candidate.candidateNumber}
+                        </span>
+                        <div className="truncate">
+                          <span className="font-serif font-bold text-sm truncate block">
+                            {candidate.name}
+                          </span>
+                          <span
+                            className={`text-[11px] block truncate ${
+                              isSelected ? 'text-zinc-300' : 'text-novera-charcoal'
+                            }`}
+                          >
+                            Contender
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Selection Ring */}
+                      <div
+                        className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 border-2 transition-all ${
+                          isSelected
+                            ? 'bg-novera-gold border-novera-gold text-novera-ink'
+                            : 'border-novera-ink/20'
+                        }`}
+                      >
+                        {isSelected && <Check className="w-3.5 h-3.5 stroke-[3]" />}
+                      </div>
                     </button>
-                  )}
-                </div>
+                  );
+                })}
               </div>
-            </div>
-          );
-        })}
-      </div>
+            )}
+          </div>
 
-      {/* Confirmation Drawer / Modal with Frosted Glass Look */}
-      {selectedCandidate && !hasVotedCurrentCategory && (
-        <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-xl flex items-end sm:items-center justify-center p-4 animate-in fade-in duration-200">
-          <div className="glass-panel rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl border border-white/80 animate-in zoom-in-95 duration-200">
-            <div className="flex items-center justify-between pb-4 border-b border-novera-ink/10">
+          {/* SECTION 2: BEST FEMALE MODEL (GIRL) */}
+          <div className="p-5 sm:p-6 rounded-3xl glass-panel shadow-sm space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-novera-ink/10">
               <div className="flex items-center gap-2">
-                <Award className="w-5 h-5 text-novera-gold animate-float" />
-                <span className="font-serif text-lg font-bold text-novera-ink">Confirm Your Vote</span>
+                <Crown className="w-4 h-4 text-novera-gold" />
+                <h3 className="font-serif text-lg font-bold text-novera-ink">
+                  2. Best Female Model (Girl)
+                </h3>
               </div>
-              <button
-                onClick={() => setSelectedCandidate(null)}
-                className="w-8 h-8 rounded-full glass-pill flex items-center justify-center text-xs text-novera-charcoal hover:text-novera-ink"
-              >
-                &times;
-              </button>
-            </div>
-
-            <div className="py-6 flex items-center gap-4">
-              <img
-                src={selectedCandidate.imageUrl}
-                alt={selectedCandidate.name}
-                className="w-20 h-24 object-cover rounded-2xl shadow-lg border border-novera-foil/30"
-              />
-              <div className="space-y-1">
-                <span className="text-[10px] font-mono uppercase tracking-widest px-2.5 py-1 rounded-xl glass-badge text-white">
-                  {selectedCandidate.candidateNumber}
+              {hasVotedGirl ? (
+                <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200 flex items-center gap-1">
+                  <Check className="w-3 h-3" />
+                  <span>Voted: {girlVotedCandidate?.candidateNumber}</span>
                 </span>
-                <h4 className="font-serif text-xl font-bold text-novera-ink">{selectedCandidate.name}</h4>
-                <p className="text-xs text-novera-foil font-semibold uppercase tracking-wider">
-                  Category: {selectedCandidate.category === 'boy' ? 'Best Male Model' : 'Best Female Model'}
-                </p>
+              ) : (
+                <span className="text-[10px] font-mono text-novera-charcoal font-semibold uppercase tracking-wider">
+                  Pick 1 Female Model
+                </span>
+              )}
+            </div>
+
+            {hasVotedGirl ? (
+              <div className="p-3.5 rounded-2xl bg-emerald-50/70 border border-emerald-300 text-xs flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <span className="px-2.5 py-1 rounded-lg bg-emerald-700 text-white font-mono font-bold text-xs">
+                    {girlVotedCandidate?.candidateNumber}
+                  </span>
+                  <span className="font-serif font-bold text-sm text-emerald-950">
+                    {girlVotedCandidate?.name}
+                  </span>
+                </div>
+                <span className="text-[11px] text-emerald-700 font-semibold uppercase tracking-wider flex items-center gap-1">
+                  <Lock className="w-3.5 h-3.5" />
+                  <span>Locked</span>
+                </span>
               </div>
-            </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {girls.map((candidate) => {
+                  const isSelected = selectedGirlId === candidate.id;
+                  return (
+                    <button
+                      key={candidate.id}
+                      type="button"
+                      onClick={() => setSelectedGirlId(candidate.id)}
+                      className={`p-3.5 rounded-2xl text-left flex items-center justify-between gap-3 transition-all duration-200 ${
+                        isSelected
+                          ? 'bg-novera-ink text-novera-paper shadow-lg ring-2 ring-novera-foil scale-[1.01]'
+                          : 'glass-card hover:border-novera-foil/50 hover:bg-white/90 text-novera-ink'
+                      }`}
+                    >
+                      <div className="flex items-center gap-3 truncate">
+                        <span
+                          className={`w-10 h-10 rounded-xl font-mono text-xs font-bold flex items-center justify-center shrink-0 transition-colors ${
+                            isSelected
+                              ? 'bg-novera-gold text-novera-ink'
+                              : 'bg-novera-paper-dim text-novera-ink border border-novera-ink/10'
+                          }`}
+                        >
+                          {candidate.candidateNumber}
+                        </span>
+                        <div className="truncate">
+                          <span className="font-serif font-bold text-sm truncate block">
+                            {candidate.name}
+                          </span>
+                          <span
+                            className={`text-[11px] block truncate ${
+                              isSelected ? 'text-zinc-300' : 'text-novera-charcoal'
+                            }`}
+                          >
+                            Contender
+                          </span>
+                        </div>
+                      </div>
 
-            <div className="p-3.5 rounded-2xl bg-amber-50/80 backdrop-blur-md border border-amber-300 text-amber-900 text-xs flex items-start gap-2 mb-6 shadow-sm">
-              <Info className="w-4 h-4 shrink-0 mt-0.5 text-amber-700" />
-              <span>
-                <strong>Important:</strong> You can only vote for ONE {selectedCandidate.category === 'boy' ? 'Boy' : 'Girl'}. Once confirmed, your selection cannot be changed.
-              </span>
-            </div>
-
-            <div className="flex items-center gap-3">
-              <button
-                type="button"
-                onClick={() => setSelectedCandidate(null)}
-                className="flex-1 py-3.5 rounded-2xl glass-pill text-xs font-semibold uppercase tracking-wider text-novera-charcoal hover:bg-white/60 transition-colors shadow-sm"
-              >
-                Go Back
-              </button>
-              <button
-                type="button"
-                disabled={isSubmitting}
-                onClick={handleVoteConfirm}
-                className="flex-1 py-3.5 rounded-2xl bg-novera-foil text-novera-paper hover:bg-novera-ink text-xs font-semibold uppercase tracking-wider transition-all shadow-xl flex items-center justify-center gap-2 group relative overflow-hidden"
-              >
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/25 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 pointer-events-none" />
-                {isSubmitting ? (
-                  <>
-                    <RefreshCw className="w-4 h-4 animate-spin" />
-                    <span>Submitting...</span>
-                  </>
-                ) : (
-                  <>
-                    <CheckCircle2 className="w-4 h-4" />
-                    <span>Confirm Vote</span>
-                  </>
-                )}
-              </button>
-            </div>
+                      {/* Selection Ring */}
+                      <div
+                        className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 border-2 transition-all ${
+                          isSelected
+                            ? 'bg-novera-gold border-novera-gold text-novera-ink'
+                            : 'border-novera-ink/20'
+                        }`}
+                      >
+                        {isSelected && <Check className="w-3.5 h-3.5 stroke-[3]" />}
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
           </div>
-        </div>
-      )}
 
-      {/* Completion Banner when both categories are voted */}
-      {voterStatus?.hasVotedBoy && voterStatus?.hasVotedGirl && (
-        <div className="mt-12 p-6 sm:p-8 rounded-3xl bg-novera-ink text-novera-paper text-center space-y-4 border border-novera-foil/40 shadow-luxury">
-          <div className="w-14 h-14 rounded-full bg-novera-foil/20 border border-novera-foil flex items-center justify-center mx-auto">
-            <Award className="w-8 h-8 text-novera-gold" />
-          </div>
-          <h3 className="font-serif text-2xl sm:text-3xl font-bold tracking-tight">
-            Thank You &bull; Your Full Ballot is Cast!
-          </h3>
-          <p className="text-xs sm:text-sm text-novera-paper-dim max-w-lg mx-auto">
-            Both your Best Male Model and Best Female Model choices have been securely preserved. Official winners will be announced live on stage!
-          </p>
-          <div className="pt-2 inline-flex items-center gap-2 px-5 py-2 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-xs font-semibold uppercase tracking-wider">
-            <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-            <span>Ballot Verified &bull; Official Attendee</span>
+          {/* FAST ACTION SUBMIT BUTTON */}
+          <div className="pt-2">
+            <button
+              type="button"
+              onClick={handleFastSubmit}
+              disabled={isSubmitting || (!selectedBoyId && !selectedGirlId)}
+              className={`w-full py-4 rounded-2xl font-bold uppercase tracking-wider text-xs sm:text-sm flex items-center justify-center gap-2 transition-all shadow-xl group relative overflow-hidden ${
+                selectedBoyId || selectedGirlId
+                  ? 'bg-novera-foil text-novera-paper hover:bg-novera-ink'
+                  : 'bg-novera-paper-dim text-novera-charcoal cursor-not-allowed opacity-60 border border-novera-ink/10'
+              }`}
+            >
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 pointer-events-none" />
+              {isSubmitting ? (
+                <>
+                  <RefreshCw className="w-4 h-4 animate-spin" />
+                  <span>Recording Votes...</span>
+                </>
+              ) : (
+                <>
+                  <Send className="w-4 h-4" />
+                  <span>
+                    Submit Ballot{' '}
+                    {selectedBoyId && selectedGirlId
+                      ? '(1 Boy + 1 Girl)'
+                      : selectedBoyId
+                      ? '(Male Model)'
+                      : selectedGirlId
+                      ? '(Female Model)'
+                      : ''}
+                  </span>
+                </>
+              )}
+            </button>
+            <p className="text-center text-[11px] text-novera-charcoal mt-2">
+              Each device is verified for 1 vote per category. Your vote locks once submitted.
+            </p>
           </div>
         </div>
       )}
     </div>
   );
 }
-
