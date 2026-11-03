@@ -15,7 +15,6 @@ import {
   AlertCircle,
   Save,
   Radio,
-  Activity,
   Check,
   Zap,
   Palette,
@@ -45,9 +44,6 @@ export default function JudgePortalPage() {
   const [candidates, setCandidates] = useState<Candidate[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<GenderCategory>('boy');
   const [judgeScores, setJudgeScores] = useState<JudgeScore[]>([]);
-
-  // Live Telemetry Clock & Latency
-  const [telemetryPing, setTelemetryPing] = useState<number>(14);
 
   // Active scoring candidate
   const [scoringCandidate, setScoringCandidate] = useState<Candidate | null>(null);
@@ -100,13 +96,8 @@ export default function JudgePortalPage() {
       setJudgeScores(scores);
     });
 
-    const pingInterval = setInterval(() => {
-      setTelemetryPing(Math.floor(Math.random() * 8) + 11);
-    }, 3000);
-
     return () => {
       unsubscribe();
-      clearInterval(pingInterval);
     };
   }, []);
 
@@ -351,7 +342,7 @@ export default function JudgePortalPage() {
         <div className="absolute bottom-20 left-12 w-[550px] h-[550px] bg-gradient-to-tr from-novera-foil/10 via-amber-200/20 to-transparent rounded-full blur-3xl" />
       </div>
 
-      {/* 🔴 LIVE ADMIN SURVEILLANCE & AUDIT HUD (FROSTED CRIMSON GLASS LOOK) */}
+      {/* 🔴 LIVE ADMIN SURVEILLANCE HUD (FROSTED CRIMSON GLASS LOOK) */}
       <div className="p-4 sm:p-5 rounded-3xl glass-crimson-hud text-white relative overflow-hidden animate-surveillance-glow">
         {/* Animated Laser Scanner Sweep across glass surface */}
         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-red-500/25 to-transparent w-1/3 animate-scan-sweep pointer-events-none" />
@@ -363,14 +354,10 @@ export default function JudgePortalPage() {
               <Radio className="w-5 h-5 text-red-400 relative z-10" />
             </div>
             <div>
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="text-[10px] sm:text-[11px] font-mono uppercase tracking-[0.25em] font-bold text-red-400 flex items-center gap-1.5">
+              <div className="flex items-center gap-2">
+                <span className="text-[11px] sm:text-xs font-mono uppercase tracking-[0.25em] font-bold text-red-400 flex items-center gap-1.5">
                   <Eye className="w-3.5 h-3.5 animate-pulse" />
                   <span>LIVE ADMIN SURVEILLANCE ACTIVE</span>
-                </span>
-                <span className="w-1.5 h-1.5 rounded-full bg-red-400 hidden sm:inline-block" />
-                <span className="text-[10px] text-zinc-300 font-mono glass-badge px-2.5 py-0.5 rounded-lg">
-                  AUDIT ID: #{activeJudge.code.toUpperCase()}-STREAM
                 </span>
               </div>
               <p className="text-xs text-zinc-200 mt-1 font-medium">
@@ -379,22 +366,11 @@ export default function JudgePortalPage() {
             </div>
           </div>
 
-          <div className="flex items-center gap-2.5 shrink-0 w-full sm:w-auto justify-between sm:justify-end">
-            {/* Live Audio/Signal Telemetry Waveform */}
-            <div className="flex items-center gap-1 h-6 px-3 py-1 rounded-xl glass-badge border border-emerald-500/40">
-              <span className="w-1 bg-emerald-400 rounded-full animate-eq-1" />
-              <span className="w-1 bg-emerald-400 rounded-full animate-eq-2" />
-              <span className="w-1 bg-emerald-400 rounded-full animate-eq-3" />
-              <span className="w-1 bg-emerald-400 rounded-full animate-eq-4" />
-              <span className="text-[10px] text-emerald-400 font-mono font-bold tracking-wider ml-1.5">
-                {telemetryPing}ms
-              </span>
-            </div>
-
-            <div className="flex items-center gap-1.5 text-[10px] font-mono text-zinc-200 glass-badge px-3 py-1.5 rounded-xl border border-white/15">
-              <Activity className="w-3.5 h-3.5 text-emerald-400 animate-pulse" />
-              <span>SOCKET: 256-BIT</span>
-            </div>
+          <div className="flex items-center gap-2 shrink-0 self-end sm:self-center">
+            <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-red-500/20 text-red-300 border border-red-500/40 text-xs font-semibold tracking-wide">
+              <span className="w-2 h-2 rounded-full bg-red-400 animate-pulse" />
+              <span>LIVE MONITORED</span>
+            </span>
           </div>
         </div>
       </div>
