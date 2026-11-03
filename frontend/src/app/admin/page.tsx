@@ -521,42 +521,42 @@ export default function AdminLeaderboardPage() {
       </div>
 
       {/* Main Tabs Navigation */}
-      <div className="flex justify-center">
-        <div className="inline-flex p-1.5 rounded-full glass-pill shadow-inner w-full max-w-2xl">
+      <div className="flex justify-center my-2">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 p-1.5 rounded-2xl sm:rounded-full glass-pill shadow-inner w-full max-w-3xl">
           <button
             onClick={() => setActiveTab('audience')}
-            className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-full text-xs sm:text-sm font-bold uppercase tracking-wider transition-all duration-300 ${
+            className={`flex items-center justify-center gap-2 py-3 px-4 rounded-xl sm:rounded-full text-xs sm:text-sm font-bold uppercase tracking-wider whitespace-nowrap transition-all duration-200 ${
               activeTab === 'audience'
-                ? 'bg-novera-ink text-novera-paper shadow-xl scale-[1.02] border border-white/10'
-                : 'text-novera-charcoal hover:text-novera-ink hover:bg-white/40'
+                ? 'bg-novera-ink text-novera-paper shadow-lg border border-white/15'
+                : 'text-novera-charcoal hover:text-novera-ink hover:bg-white/50'
             }`}
           >
-            <Vote className="w-4 h-4 text-novera-gold" />
-            <span>1. Audience Votes</span>
+            <Vote className={`w-4 h-4 shrink-0 ${activeTab === 'audience' ? 'text-novera-gold' : 'text-novera-foil'}`} />
+            <span>Audience Votes</span>
           </button>
 
           <button
             onClick={() => setActiveTab('judges')}
-            className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-full text-xs sm:text-sm font-bold uppercase tracking-wider transition-all duration-300 ${
+            className={`flex items-center justify-center gap-2 py-3 px-4 rounded-xl sm:rounded-full text-xs sm:text-sm font-bold uppercase tracking-wider whitespace-nowrap transition-all duration-200 ${
               activeTab === 'judges'
-                ? 'bg-novera-ink text-novera-paper shadow-xl scale-[1.02] border border-white/10'
-                : 'text-novera-charcoal hover:text-novera-ink hover:bg-white/40'
+                ? 'bg-novera-ink text-novera-paper shadow-lg border border-white/15'
+                : 'text-novera-charcoal hover:text-novera-ink hover:bg-white/50'
             }`}
           >
-            <Award className="w-4 h-4 text-novera-gold" />
-            <span>2. Judges&rsquo; Scores &amp; Awards</span>
+            <Award className={`w-4 h-4 shrink-0 ${activeTab === 'judges' ? 'text-novera-gold' : 'text-novera-foil'}`} />
+            <span>Jury Scores</span>
           </button>
 
           <button
             onClick={() => setActiveTab('summary')}
-            className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-full text-xs sm:text-sm font-bold uppercase tracking-wider transition-all duration-300 ${
+            className={`flex items-center justify-center gap-2 py-3 px-4 rounded-xl sm:rounded-full text-xs sm:text-sm font-bold uppercase tracking-wider whitespace-nowrap transition-all duration-200 ${
               activeTab === 'summary'
-                ? 'bg-novera-ink text-novera-paper shadow-xl scale-[1.02] border border-white/10'
-                : 'text-novera-charcoal hover:text-novera-ink hover:bg-white/40'
+                ? 'bg-novera-ink text-novera-paper shadow-lg border border-white/15'
+                : 'text-novera-charcoal hover:text-novera-ink hover:bg-white/50'
             }`}
           >
-            <Trophy className="w-4 h-4 text-novera-gold" />
-            <span>3. Final 6 Titles</span>
+            <Trophy className={`w-4 h-4 shrink-0 ${activeTab === 'summary' ? 'text-novera-gold' : 'text-novera-foil'}`} />
+            <span>Final 6 Titles</span>
           </button>
         </div>
       </div>

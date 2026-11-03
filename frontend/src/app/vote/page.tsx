@@ -220,20 +220,19 @@ export default function VotePage() {
 
       {/* Category Toggle Tabs (Boy / Girl) */}
       <div className="flex justify-center mb-8 px-2">
-        <div className="inline-flex w-full max-w-md p-1.5 rounded-full glass-pill shadow-inner">
+        <div className="grid grid-cols-2 gap-2 w-full max-w-lg p-1.5 rounded-full glass-pill shadow-inner">
           <button
             onClick={() => {
               setSelectedCategory('boy');
               setSelectedCandidate(null);
             }}
-            className={`flex-1 flex items-center justify-center gap-1.5 px-3 sm:px-6 py-2.5 rounded-full text-xs sm:text-sm font-semibold tracking-wider uppercase transition-all duration-300 ${
+            className={`flex items-center justify-center gap-2 py-3 px-4 rounded-full text-xs sm:text-sm font-semibold tracking-wider uppercase whitespace-nowrap transition-all duration-200 ${
               selectedCategory === 'boy'
-                ? 'bg-novera-ink text-novera-paper shadow-xl scale-[1.02] border border-white/10'
-                : 'text-novera-charcoal hover:text-novera-ink hover:bg-white/40'
+                ? 'bg-novera-ink text-novera-paper shadow-lg border border-white/15'
+                : 'text-novera-charcoal hover:text-novera-ink hover:bg-white/50'
             }`}
           >
-            <span className="hidden sm:inline">Best Male Model (Boy)</span>
-            <span className="sm:hidden">Male (Boy)</span>
+            <span>Male (Boy)</span>
             {voterStatus?.hasVotedBoy && (
               <span className="w-2 h-2 rounded-full bg-emerald-400" />
             )}
@@ -244,14 +243,13 @@ export default function VotePage() {
               setSelectedCategory('girl');
               setSelectedCandidate(null);
             }}
-            className={`flex-1 flex items-center justify-center gap-1.5 px-3 sm:px-6 py-2.5 rounded-full text-xs sm:text-sm font-semibold tracking-wider uppercase transition-all duration-300 ${
+            className={`flex items-center justify-center gap-2 py-3 px-4 rounded-full text-xs sm:text-sm font-semibold tracking-wider uppercase whitespace-nowrap transition-all duration-200 ${
               selectedCategory === 'girl'
-                ? 'bg-novera-ink text-novera-paper shadow-xl scale-[1.02] border border-white/10'
-                : 'text-novera-charcoal hover:text-novera-ink hover:bg-white/40'
+                ? 'bg-novera-ink text-novera-paper shadow-lg border border-white/15'
+                : 'text-novera-charcoal hover:text-novera-ink hover:bg-white/50'
             }`}
           >
-            <span className="hidden sm:inline">Best Female Model (Girl)</span>
-            <span className="sm:hidden">Female (Girl)</span>
+            <span>Female (Girl)</span>
             {voterStatus?.hasVotedGirl && (
               <span className="w-2 h-2 rounded-full bg-emerald-400" />
             )}
