@@ -41,8 +41,23 @@ export default function StageQrInteractiveBackground({
     if (!ctx) return;
 
     let animationFrameId: number;
-    let width = (canvas.width = window.innerWidth);
-    let height = (canvas.height = window.innerHeight);
+    let dpr = Math.min(window.devicePixelRatio || 1, 2);
+    let width = window.innerWidth;
+    let height = window.innerHeight;
+
+    const setupCanvas = () => {
+      dpr = Math.min(window.devicePixelRatio || 1, 2);
+      width = window.innerWidth;
+      height = window.innerHeight;
+      canvas.width = width * dpr;
+      canvas.height = height * dpr;
+      canvas.style.width = `${width}px`;
+      canvas.style.height = `${height}px`;
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.scale(dpr, dpr);
+    };
+
+    setupCanvas();
 
     // Mouse tracking with smooth easing
     const mouse = {
@@ -53,9 +68,7 @@ export default function StageQrInteractiveBackground({
     };
 
     const handleResize = () => {
-      if (!canvas) return;
-      width = canvas.width = window.innerWidth;
-      height = canvas.height = window.innerHeight;
+      setupCanvas();
     };
     window.addEventListener('resize', handleResize);
 
@@ -78,9 +91,9 @@ export default function StageQrInteractiveBackground({
       cameraFlashes.push({
         x,
         y,
-        alpha: 0.95,
+        alpha: 0.85,
         size,
-        decay: 0.05,
+        decay: 0.035,
       });
     };
 
@@ -100,25 +113,25 @@ export default function StageQrInteractiveBackground({
     const sparkles: Sparkle[] = Array.from({ length: SPARKLE_COUNT }, () => ({
       x: Math.random() * width,
       y: Math.random() * height,
-      speedY: -(Math.random() * 0.75 + 0.25),
-      speedX: (Math.random() - 0.5) * 0.35,
-      size: Math.random() * 2.5 + 0.8,
+      speedY: -(Math.random() * 0.6 + 0.2),
+      speedX: (Math.random() - 0.5) * 0.3,
+      size: Math.random() * 2.2 + 0.8,
       alpha: Math.random() * 0.75 + 0.25,
-      pulseSpeed: Math.random() * 0.03 + 0.015,
+      pulseSpeed: Math.random() * 0.02 + 0.01,
       pulseOffset: Math.random() * Math.PI * 2,
       isStar: Math.random() > 0.65,
       color: Math.random() > 0.3 ? '255, 245, 220' : '236, 213, 153',
     }));
 
-    let time = 0;
-    let nextRandomFlash = 50;
+    let nextRandomFlash = 90;
 
-    const render = () => {
-      time += 0.018;
+    const render = (timestamp: number) => {
+      // High-precision subpixel continuous time for 100% jitter-free rendering
+      const time = timestamp * 0.00065;
 
       // Smooth pointer follow for stage lighting
-      mouse.x += (mouse.targetX - mouse.x) * 0.06;
-      mouse.y += (mouse.targetY - mouse.y) * 0.06;
+      mouse.x += (mouse.targetX - mouse.x) * 0.05;
+      mouse.y += (mouse.targetY - mouse.y) * 0.05;
 
       ctx.clearRect(0, 0, width, height);
 
@@ -130,33 +143,23 @@ export default function StageQrInteractiveBackground({
       ctx.fillStyle = bgGrad;
       ctx.fillRect(0, 0, width, height);
 
-      // --- Random Ambient Paparazzi Camera Flashes (Fashion Runway Pit Effect) ---
-      nextRandomFlash--;
-      if (nextRandomFlash <= 0) {
-        // Trigger a camera flash along the edges or bottom
-        const flashX = Math.random() * width;
-        const flashY = Math.random() > 0.4 ? height * (0.65 + Math.random() * 0.35) : Math.random() * height;
-        triggerFlash(flashX, flashY, Math.random() * 150 + 100);
-        nextRandomFlash = Math.floor(Math.random() * 70 + 40);
-      }
+      // --- Theatrical Sweeping Volumetric Stage Beams (Ultra-Smooth Sinusoidal Curves) ---
+      // Beam 1: Left Overhead Stage Light (Smooth gentle pan)
+      const angle1 = -0.28 + Math.sin(time * 0.4) * 0.16;
+      drawTheatricalBeam(ctx, width * 0.12, 0, angle1, 0.22, '236, 213, 153', width, height, 160);
 
-      // --- Theatrical Sweeping Volumetric Stage Beams ---
-      // Beam 1: Left Overhead Stage Light
-      const angle1 = -0.35 + Math.sin(time * 0.6) * 0.22;
-      drawTheatricalBeam(ctx, width * 0.12, 0, angle1, 0.25, '236, 213, 153', width, height);
+      // Beam 2: Right Overhead Stage Light (Smooth gentle pan)
+      const angle2 = 0.28 - Math.sin(time * 0.45) * 0.17;
+      drawTheatricalBeam(ctx, width * 0.88, 0, angle2, 0.22, '218, 165, 32', width, height, 160);
 
-      // Beam 2: Right Overhead Stage Light
-      const angle2 = 0.35 - Math.sin(time * 0.75) * 0.25;
-      drawTheatricalBeam(ctx, width * 0.88, 0, angle2, 0.25, '218, 165, 32', width, height);
-
-      // Beam 3: Interactive Dynamic Follow-Spot (Tracks mouse / center)
+      // Beam 3: Interactive Center Follow-Spot (Smooth track)
       const targetAngle = Math.atan2(mouse.y - 0, mouse.x - width * 0.5) - Math.PI / 2;
-      drawTheatricalBeam(ctx, width * 0.5, -20, targetAngle, 0.32, '255, 235, 175', width, height, 220);
+      drawTheatricalBeam(ctx, width * 0.5, -20, targetAngle, 0.28, '255, 235, 175', width, height, 200);
 
       // --- High-Fashion Flowing Satin / Golden Silk Waves (Bottom Half) ---
-      drawSilkWave(ctx, width, height, time, 0.55, 'rgba(179, 146, 79, 0.08)', 40, 0.7);
-      drawSilkWave(ctx, width, height, time + 2, 0.68, 'rgba(218, 165, 32, 0.07)', 55, 0.5);
-      drawSilkWave(ctx, width, height, time + 4, 0.82, 'rgba(236, 213, 153, 0.05)', 35, 0.9);
+      drawSilkWave(ctx, width, height, time, 0.55, 'rgba(179, 146, 79, 0.08)', 35, 0.5);
+      drawSilkWave(ctx, width, height, time + 2, 0.68, 'rgba(218, 165, 32, 0.07)', 45, 0.4);
+      drawSilkWave(ctx, width, height, time + 4, 0.82, 'rgba(236, 213, 153, 0.05)', 30, 0.6);
 
       // --- Anamorphic Golden Horizon Flare Passing Center Horizontally ---
       const flareY = height * 0.5;
@@ -219,7 +222,16 @@ export default function StageQrInteractiveBackground({
         }
       }
 
-      // --- Render Paparazzi Camera Flashes ---
+      // --- Subtle Ambient Paparazzi Camera Flashes ---
+      nextRandomFlash--;
+      if (nextRandomFlash <= 0) {
+        const flashX = Math.random() * width;
+        const flashY = Math.random() > 0.4 ? height * (0.65 + Math.random() * 0.35) : Math.random() * height;
+        triggerFlash(flashX, flashY, Math.random() * 120 + 80);
+        nextRandomFlash = Math.floor(Math.random() * 120 + 70);
+      }
+
+      // Render Paparazzi Camera Flashes
       for (let i = cameraFlashes.length - 1; i >= 0; i--) {
         const f = cameraFlashes[i];
         f.alpha -= f.decay;
@@ -229,18 +241,16 @@ export default function StageQrInteractiveBackground({
           continue;
         }
 
-        // Brilliant cross flare + radial burst
         const burstGrad = ctx.createRadialGradient(f.x, f.y, 0, f.x, f.y, f.size);
         burstGrad.addColorStop(0, `rgba(255, 255, 255, ${f.alpha})`);
-        burstGrad.addColorStop(0.2, `rgba(255, 240, 200, ${f.alpha * 0.75})`);
-        burstGrad.addColorStop(0.6, `rgba(218, 165, 32, ${f.alpha * 0.25})`);
+        burstGrad.addColorStop(0.2, `rgba(255, 240, 200, ${f.alpha * 0.6})`);
+        burstGrad.addColorStop(0.6, `rgba(218, 165, 32, ${f.alpha * 0.2})`);
         burstGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
         ctx.fillStyle = burstGrad;
         ctx.fillRect(f.x - f.size, f.y - f.size, f.size * 2, f.size * 2);
 
-        // Horizontal lens streak
-        ctx.strokeStyle = `rgba(255, 250, 230, ${f.alpha * 0.8})`;
-        ctx.lineWidth = 1.5;
+        ctx.strokeStyle = `rgba(255, 250, 230, ${f.alpha * 0.7})`;
+        ctx.lineWidth = 1.2;
         ctx.beginPath();
         ctx.moveTo(f.x - f.size * 1.5, f.y);
         ctx.lineTo(f.x + f.size * 1.5, f.y);
@@ -250,7 +260,7 @@ export default function StageQrInteractiveBackground({
       animationFrameId = requestAnimationFrame(render);
     };
 
-    render();
+    animationFrameId = requestAnimationFrame(render);
 
     return () => {
       cancelAnimationFrame(animationFrameId);
@@ -271,7 +281,7 @@ export default function StageQrInteractiveBackground({
   );
 }
 
-// Helper: Draw Volumetric Theatrical Stage Light Beam
+// Helper: Draw Volumetric Theatrical Stage Light Beam (Feathered, Anti-Aliased & Jitter-Free)
 function drawTheatricalBeam(
   ctx: CanvasRenderingContext2D,
   originX: number,
@@ -283,32 +293,65 @@ function drawTheatricalBeam(
   height: number,
   spread = 180
 ) {
-  const beamLength = height * 1.4;
-  const endCenterX = originX + Math.sin(angleRad) * beamLength;
-  const endCenterY = originY + Math.cos(angleRad) * beamLength;
-
-  const normalX = -Math.cos(angleRad);
-  const normalY = Math.sin(angleRad);
-
-  const leftX = endCenterX + normalX * spread;
-  const leftY = endCenterY + normalY * spread;
-  const rightX = endCenterX - normalX * spread;
-  const rightY = endCenterY - normalY * spread;
-
   ctx.save();
+  ctx.translate(originX, originY);
+  ctx.rotate(angleRad);
+
+  const beamLength = height * 1.5;
+
+  // Layer 1: Wide, ultra-soft feathered penumbra (soft outer ambient spread)
+  const penumbraGrad = ctx.createLinearGradient(0, 0, 0, beamLength);
+  penumbraGrad.addColorStop(0, `rgba(${color}, ${maxAlpha * 0.35})`);
+  penumbraGrad.addColorStop(0.35, `rgba(${color}, ${maxAlpha * 0.15})`);
+  penumbraGrad.addColorStop(1, `rgba(${color}, 0)`);
+
   ctx.beginPath();
-  ctx.moveTo(originX, originY);
-  ctx.lineTo(leftX, leftY);
-  ctx.lineTo(rightX, rightY);
+  ctx.moveTo(0, 0);
+  ctx.lineTo(-spread * 1.25, beamLength);
+  ctx.lineTo(spread * 1.25, beamLength);
   ctx.closePath();
-
-  const beamGrad = ctx.createLinearGradient(originX, originY, endCenterX, endCenterY);
-  beamGrad.addColorStop(0, `rgba(${color}, ${maxAlpha})`);
-  beamGrad.addColorStop(0.4, `rgba(${color}, ${maxAlpha * 0.5})`);
-  beamGrad.addColorStop(1, `rgba(${color}, 0)`);
-
-  ctx.fillStyle = beamGrad;
+  ctx.fillStyle = penumbraGrad;
   ctx.fill();
+
+  // Layer 2: Main volumetric beam body
+  const mainGrad = ctx.createLinearGradient(0, 0, 0, beamLength);
+  mainGrad.addColorStop(0, `rgba(${color}, ${maxAlpha * 0.75})`);
+  mainGrad.addColorStop(0.3, `rgba(${color}, ${maxAlpha * 0.4})`);
+  mainGrad.addColorStop(0.85, `rgba(${color}, ${maxAlpha * 0.08})`);
+  mainGrad.addColorStop(1, `rgba(${color}, 0)`);
+
+  ctx.beginPath();
+  ctx.moveTo(0, 0);
+  ctx.lineTo(-spread * 0.75, beamLength);
+  ctx.lineTo(spread * 0.75, beamLength);
+  ctx.closePath();
+  ctx.fillStyle = mainGrad;
+  ctx.fill();
+
+  // Layer 3: Focused luminous core (bright center shaft)
+  const coreGrad = ctx.createLinearGradient(0, 0, 0, beamLength * 0.85);
+  coreGrad.addColorStop(0, `rgba(255, 255, 255, ${maxAlpha * 0.9})`);
+  coreGrad.addColorStop(0.25, `rgba(${color}, ${maxAlpha * 0.5})`);
+  coreGrad.addColorStop(1, `rgba(${color}, 0)`);
+
+  ctx.beginPath();
+  ctx.moveTo(0, 0);
+  ctx.lineTo(-spread * 0.3, beamLength * 0.85);
+  ctx.lineTo(spread * 0.3, beamLength * 0.85);
+  ctx.closePath();
+  ctx.fillStyle = coreGrad;
+  ctx.fill();
+
+  // Glowing projector lens bulb at source
+  const bulbGrad = ctx.createRadialGradient(0, 0, 0, 0, 0, 20);
+  bulbGrad.addColorStop(0, `rgba(255, 255, 255, ${maxAlpha})`);
+  bulbGrad.addColorStop(0.4, `rgba(${color}, ${maxAlpha * 0.8})`);
+  bulbGrad.addColorStop(1, 'rgba(0,0,0,0)');
+  ctx.fillStyle = bulbGrad;
+  ctx.beginPath();
+  ctx.arc(0, 0, 20, 0, Math.PI * 2);
+  ctx.fill();
+
   ctx.restore();
 }
 
