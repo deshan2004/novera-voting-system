@@ -301,22 +301,13 @@ export default function JudgePortalPage() {
   }
 
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10 space-y-6 relative">
-      {/* 🌟 LUXURY AMBIENT GLASS LIGHTS (Refracted through frosted glass panels) */}
-      <div className="fixed inset-0 pointer-events-none -z-10 overflow-hidden">
-        <div
-          className="absolute top-12 left-1/4 w-[500px] h-[500px] bg-gradient-to-tr from-amber-200/30 via-novera-gold/15 to-transparent rounded-full blur-3xl animate-pulse"
-          style={{ animationDuration: '9s' }}
-        />
-        <div
-          className="absolute top-1/3 right-8 w-[450px] h-[450px] bg-gradient-to-br from-rose-200/25 via-amber-100/15 to-transparent rounded-full blur-3xl animate-pulse"
-          style={{ animationDuration: '11s' }}
-        />
-        <div className="absolute bottom-20 left-12 w-[550px] h-[550px] bg-gradient-to-tr from-novera-foil/10 via-amber-200/20 to-transparent rounded-full blur-3xl" />
-      </div>
+    <div className="min-h-screen relative bg-[#070605] text-white overflow-x-hidden">
+      {/* Haute Couture Fashion Runway Stage Animation */}
+      <RunwayStageBackground />
 
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10 space-y-6 relative z-10">
       {/* 🔴 LIVE ADMIN SURVEILLANCE HUD (FROSTED CRIMSON GLASS LOOK) */}
-      <div className="p-4 sm:p-5 rounded-3xl glass-crimson-hud text-white relative overflow-hidden animate-surveillance-glow">
+      <div className="p-4 sm:p-5 rounded-3xl bg-red-950/30 backdrop-blur-2xl border border-red-500/30 text-white relative overflow-hidden shadow-[0_0_25px_rgba(239,68,68,0.2)]">
         {/* Animated Laser Scanner Sweep across glass surface */}
         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-red-500/25 to-transparent w-1/3 animate-scan-sweep pointer-events-none" />
 
@@ -349,38 +340,38 @@ export default function JudgePortalPage() {
       </div>
 
       {/* 👑 TOP HEADER CARD WITH LUXURY FROSTED GLASS & PROGRESS METER */}
-      <div className="p-6 sm:p-8 rounded-3xl glass-panel flex flex-col md:flex-row items-center justify-between gap-6 relative overflow-hidden transition-all duration-300 hover:shadow-2xl">
+      <div className="p-6 sm:p-8 rounded-3xl bg-black/40 backdrop-blur-2xl border border-white/15 flex flex-col md:flex-row items-center justify-between gap-6 relative overflow-hidden transition-all duration-300 hover:shadow-2xl">
         <div className="flex items-center gap-4 text-center sm:text-left w-full sm:w-auto">
-          <div className="relative w-14 h-14 rounded-2xl glass-dark flex items-center justify-center shrink-0 border border-novera-foil/50 shadow-lg">
+          <div className="relative w-14 h-14 rounded-2xl bg-white/10 backdrop-blur-md flex items-center justify-center shrink-0 border border-novera-gold/40 shadow-lg">
             <Award className="w-7 h-7 text-novera-gold animate-float" />
-            <div className="absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full bg-emerald-500 border-2 border-white animate-pulse" />
+            <div className="absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full bg-emerald-500 border-2 border-[#070605] animate-pulse" />
           </div>
           <div>
-            <div className="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-widest text-novera-foil">
+            <div className="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-widest text-novera-gold">
               <Sparkles className="w-3.5 h-3.5 text-novera-gold animate-spin" style={{ animationDuration: '6s' }} />
               <span>Official Runway Jury &bull; Seat Verified</span>
             </div>
-            <h1 className="font-serif text-2xl sm:text-3xl font-bold text-novera-ink">
+            <h1 className="font-serif text-2xl sm:text-3xl font-bold text-white">
               {activeJudge.name}
             </h1>
-            <p className="text-xs text-novera-charcoal mt-0.5">
-              {activeJudge.title} &bull; Model Performance &amp; Student Design Marking
+            <p className="text-xs text-zinc-300 mt-0.5">
+              {activeJudge.title} &bull; Model Performance &amp; Runway Evaluation
             </p>
           </div>
         </div>
 
         {/* Right Status Controls with Progress Bar */}
         <div className="flex flex-wrap items-center gap-4 w-full md:w-auto justify-between md:justify-end">
-          <div className="px-4 py-2.5 rounded-2xl glass-pill text-xs space-y-1.5 shadow-sm">
+          <div className="px-4 py-2.5 rounded-2xl bg-white/5 border border-white/15 backdrop-blur-md text-xs space-y-1.5 shadow-sm">
             <div className="flex items-center justify-between gap-3 text-xs">
-              <span className="text-novera-charcoal font-medium">Evaluation:</span>
-              <span className="font-mono font-bold text-novera-foil">
+              <span className="text-zinc-300 font-medium">Evaluation:</span>
+              <span className="font-mono font-bold text-novera-gold">
                 {scoredCount} / {currentCategoryCandidates.length} ({progressPercent}%)
               </span>
             </div>
-            <div className="w-32 sm:w-40 h-2 rounded-full bg-novera-ink/10 overflow-hidden p-0.5">
+            <div className="w-32 sm:w-40 h-2 rounded-full bg-white/10 overflow-hidden p-0.5">
               <div
-                className="h-full bg-gradient-to-r from-novera-gold-dark via-novera-foil to-amber-300 rounded-full transition-all duration-700 shadow-sm"
+                className="h-full bg-gradient-to-r from-amber-600 via-novera-gold to-amber-200 rounded-full transition-all duration-700 shadow-sm"
                 style={{ width: `${progressPercent}%` }}
               />
             </div>
@@ -388,7 +379,7 @@ export default function JudgePortalPage() {
 
           <button
             onClick={handleLogout}
-            className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-2xl text-xs font-semibold text-rose-800 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-300/40 backdrop-blur-md transition-all shadow-sm"
+            className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-2xl text-xs font-semibold text-rose-300 bg-rose-500/20 hover:bg-rose-500/30 border border-rose-500/40 backdrop-blur-md transition-all shadow-sm"
           >
             <LogOut className="w-3.5 h-3.5" />
             <span>Sign Out</span>
@@ -398,16 +389,16 @@ export default function JudgePortalPage() {
 
       {/* 🔘 CATEGORY TOGGLE (MODERN FROSTED GLASS PILL) */}
       <div className="flex justify-center px-2 my-2">
-        <div className="grid grid-cols-2 gap-2 w-full max-w-xl p-1.5 rounded-full glass-pill shadow-inner">
+        <div className="grid grid-cols-2 gap-2 w-full max-w-xl p-1.5 rounded-full bg-black/50 backdrop-blur-xl border border-white/15 shadow-inner">
           <button
             onClick={() => setSelectedCategory('boy')}
             className={`flex items-center justify-center gap-2 py-3 px-4 rounded-full text-xs sm:text-sm font-bold tracking-wider uppercase whitespace-nowrap transition-all duration-200 ${
               selectedCategory === 'boy'
-                ? 'bg-novera-ink text-novera-paper shadow-lg border border-white/15'
-                : 'text-novera-charcoal hover:text-novera-ink hover:bg-white/50'
+                ? 'bg-gradient-to-r from-novera-gold to-amber-500 text-black shadow-lg font-extrabold'
+                : 'text-zinc-400 hover:text-white hover:bg-white/10'
             }`}
           >
-            <Crown className={`w-3.5 h-3.5 shrink-0 ${selectedCategory === 'boy' ? 'text-novera-gold' : 'text-novera-foil'}`} />
+            <Crown className={`w-3.5 h-3.5 shrink-0 ${selectedCategory === 'boy' ? 'text-black' : 'text-novera-gold'}`} />
             <span>Male (Boys)</span>
           </button>
 
@@ -415,11 +406,11 @@ export default function JudgePortalPage() {
             onClick={() => setSelectedCategory('girl')}
             className={`flex items-center justify-center gap-2 py-3 px-4 rounded-full text-xs sm:text-sm font-bold tracking-wider uppercase whitespace-nowrap transition-all duration-200 ${
               selectedCategory === 'girl'
-                ? 'bg-novera-ink text-novera-paper shadow-lg border border-white/15'
-                : 'text-novera-charcoal hover:text-novera-ink hover:bg-white/50'
+                ? 'bg-gradient-to-r from-novera-gold to-amber-500 text-black shadow-lg font-extrabold'
+                : 'text-zinc-400 hover:text-white hover:bg-white/10'
             }`}
           >
-            <Crown className={`w-3.5 h-3.5 shrink-0 ${selectedCategory === 'girl' ? 'text-novera-gold' : 'text-novera-foil'}`} />
+            <Crown className={`w-3.5 h-3.5 shrink-0 ${selectedCategory === 'girl' ? 'text-black' : 'text-novera-gold'}`} />
             <span>Female (Girls)</span>
           </button>
         </div>
@@ -436,13 +427,13 @@ export default function JudgePortalPage() {
               key={candidate.id}
               className={`group rounded-3xl p-5 flex flex-col justify-between transition-all duration-300 hover:-translate-y-2 ${
                 isScored
-                  ? 'glass-card-scored'
-                  : 'glass-card hover:border-novera-foil hover:shadow-2xl'
+                  ? 'bg-emerald-950/20 backdrop-blur-xl border border-emerald-500/40 shadow-[0_0_25px_rgba(16,185,129,0.15)] text-white'
+                  : 'bg-black/40 backdrop-blur-xl border border-white/15 hover:border-novera-gold/60 hover:shadow-2xl text-white'
               }`}
             >
               <div>
                 {/* Image Card with Glass Badges and Hover Zoom */}
-                <div className="relative aspect-[3/4] w-full rounded-2xl overflow-hidden mb-4 bg-novera-paper-dim shadow-inner">
+                <div className="relative aspect-[3/4] w-full rounded-2xl overflow-hidden mb-4 bg-black/40 shadow-inner">
                   <Image
                     src={candidate.imageUrl}
                     alt={candidate.name}
@@ -452,10 +443,10 @@ export default function JudgePortalPage() {
                   />
 
                   {/* Dark Vignette Overlay on Bottom */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/25 pointer-events-none" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/30 pointer-events-none" />
 
                   {/* Candidate No Glass Badge */}
-                  <div className="absolute top-3 left-3 px-3 py-1 rounded-xl glass-badge text-white font-mono text-xs font-bold tracking-wider shadow-md">
+                  <div className="absolute top-3 left-3 px-3 py-1 rounded-xl bg-black/60 border border-white/20 backdrop-blur-md text-white font-mono text-xs font-bold tracking-wider shadow-md">
                     {candidate.candidateNumber}
                   </div>
 
@@ -475,31 +466,31 @@ export default function JudgePortalPage() {
                   </div>
                 </div>
 
-                <p className="text-xs text-novera-charcoal line-clamp-2 mb-4 font-normal">
+                <p className="text-xs text-zinc-300 line-clamp-2 mb-4 font-normal">
                   {candidate.bio || 'Official Runway Contender representing elegance, poise, and personality.'}
                 </p>
 
                 {/* Score Summary Box with Frosted Emerald Glass */}
                 {isScored && (
-                  <div className="p-3.5 rounded-2xl glass-panel-subtle bg-emerald-500/10 border-emerald-400/30 text-[11px] space-y-1.5 mb-4 shadow-sm">
-                    <div className="flex justify-between text-emerald-950 font-bold">
+                  <div className="p-3.5 rounded-2xl bg-emerald-950/40 border border-emerald-500/30 text-[11px] space-y-1.5 mb-4 shadow-sm text-white">
+                    <div className="flex justify-between text-emerald-300 font-bold">
                       <span className="flex items-center gap-1">
-                        <Crown className="w-3 h-3 text-emerald-700" />
+                        <Crown className="w-3 h-3 text-emerald-400" />
                         <span>Top Model:</span>
                       </span>
-                      <span className="font-mono">{score.totalModel}/100</span>
+                      <span className="font-mono text-emerald-200">{score.totalModel}/100</span>
                     </div>
-                    <div className="flex justify-between text-emerald-800">
+                    <div className="flex justify-between text-zinc-300">
                       <span>Best Personality:</span>
-                      <span className="font-mono">{score.personalityScore}/50</span>
+                      <span className="font-mono text-white">{score.personalityScore}/50</span>
                     </div>
-                    <div className="flex justify-between text-emerald-800">
+                    <div className="flex justify-between text-zinc-300">
                       <span>Stage Presence:</span>
-                      <span className="font-mono">{score.stagePresenceScore}/30</span>
+                      <span className="font-mono text-white">{score.stagePresenceScore}/30</span>
                     </div>
-                    <div className="flex justify-between text-emerald-800">
+                    <div className="flex justify-between text-zinc-300">
                       <span>Most Photogenic:</span>
-                      <span className="font-mono">{score.photogenicScore}/40</span>
+                      <span className="font-mono text-white">{score.photogenicScore}/40</span>
                     </div>
                   </div>
                 )}
@@ -510,8 +501,8 @@ export default function JudgePortalPage() {
                 onClick={() => openScoringModal(candidate)}
                 className={`w-full py-3 rounded-2xl text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-all relative overflow-hidden group/btn shadow-md ${
                   isScored
-                    ? 'glass-pill text-novera-ink hover:bg-novera-foil hover:text-novera-paper'
-                    : 'bg-novera-ink text-novera-paper hover:bg-novera-foil'
+                    ? 'bg-white/10 hover:bg-white/20 text-white border border-white/20 backdrop-blur-md'
+                    : 'bg-gradient-to-r from-[#d4af37] via-[#f3e5ab] to-[#aa7c11] text-black font-extrabold hover:brightness-110 shadow-lg'
                 }`}
               >
                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover/btn:translate-x-full transition-transform duration-700 pointer-events-none" />
@@ -525,12 +516,12 @@ export default function JudgePortalPage() {
 
       {/* 🚀 ULTRA-MODERN GLASS SCORING MODAL DRAWER */}
       {scoringCandidate && (
-        <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-xl flex items-end sm:items-center justify-center p-0 sm:p-4 animate-in fade-in duration-200">
-          <div className="max-w-lg w-full glass-panel rounded-t-3xl sm:rounded-3xl p-5 sm:p-8 border border-white/80 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.35)] relative animate-in zoom-in-95 duration-200 max-h-[92vh] overflow-y-auto">
+        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-2xl flex items-end sm:items-center justify-center p-0 sm:p-4 animate-in fade-in duration-200">
+          <div className="max-w-lg w-full bg-[#0c0a08]/95 backdrop-blur-3xl rounded-t-3xl sm:rounded-3xl p-5 sm:p-8 border border-white/20 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.8)] relative animate-in zoom-in-95 duration-200 max-h-[92vh] overflow-y-auto text-white">
             {/* Header */}
-            <div className="flex items-center justify-between pb-4 border-b border-novera-ink/10 mb-4">
+            <div className="flex items-center justify-between pb-4 border-b border-white/10 mb-4">
               <div className="flex items-center gap-3">
-                <div className="relative w-12 h-12 rounded-2xl overflow-hidden shrink-0 shadow-md border border-white/60">
+                <div className="relative w-12 h-12 rounded-2xl overflow-hidden shrink-0 shadow-md border border-white/20">
                   <Image
                     src={scoringCandidate.imageUrl}
                     alt={scoringCandidate.name}
@@ -539,150 +530,150 @@ export default function JudgePortalPage() {
                   />
                 </div>
                 <div>
-                  <div className="text-[10px] font-mono uppercase tracking-widest text-novera-foil font-bold">
+                  <div className="text-[10px] font-mono uppercase tracking-widest text-novera-gold font-bold">
                     {scoringCandidate.candidateNumber} &bull; {scoringCandidate.category === 'boy' ? 'Male Model' : 'Female Model'}
                   </div>
-                  <h3 className="font-serif text-xl font-bold text-novera-ink">
+                  <h3 className="font-serif text-xl font-bold text-white">
                     {scoringCandidate.name}
                   </h3>
                 </div>
               </div>
               <button
                 onClick={() => setScoringCandidate(null)}
-                className="w-8 h-8 rounded-full glass-pill hover:bg-novera-ink hover:text-novera-paper text-novera-charcoal flex items-center justify-center transition-colors text-base font-bold shadow-sm"
+                className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-zinc-300 flex items-center justify-center transition-colors text-base font-bold shadow-sm"
               >
                 &times;
               </button>
             </div>
 
             {/* Live Awards Alignment Badge Bar in Frosted Glass */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 p-3 rounded-2xl glass-panel-subtle text-center mb-4">
-                  <div className="p-1.5 rounded-xl bg-white/70 shadow-sm border border-white/80">
-                    <span className="text-[9px] uppercase tracking-wider text-novera-charcoal font-bold block">Top Model</span>
-                    <strong className="text-base font-mono text-novera-foil">{totalModel}/100</strong>
-                  </div>
-                  <div className="p-1.5 rounded-xl bg-white/70 shadow-sm border border-white/80">
-                    <span className="text-[9px] uppercase tracking-wider text-novera-charcoal font-bold block">Personality</span>
-                    <strong className="text-base font-mono text-novera-ink">{personalityScore}/50</strong>
-                  </div>
-                  <div className="p-1.5 rounded-xl bg-white/70 shadow-sm border border-white/80">
-                    <span className="text-[9px] uppercase tracking-wider text-novera-charcoal font-bold block">Stage Pres.</span>
-                    <strong className="text-base font-mono text-novera-ink">{stagePresenceScore}/30</strong>
-                  </div>
-                  <div className="p-1.5 rounded-xl bg-white/70 shadow-sm border border-white/80">
-                    <span className="text-[9px] uppercase tracking-wider text-novera-charcoal font-bold block">Photogenic</span>
-                    <strong className="text-base font-mono text-novera-ink">{photogenicScore}/40</strong>
-                  </div>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 p-3 rounded-2xl bg-white/5 border border-white/10 text-center mb-4">
+              <div className="p-1.5 rounded-xl bg-white/5 border border-white/10 shadow-sm">
+                <span className="text-[9px] uppercase tracking-wider text-zinc-400 font-bold block">Top Model</span>
+                <strong className="text-base font-mono text-novera-gold">{totalModel}/100</strong>
+              </div>
+              <div className="p-1.5 rounded-xl bg-white/5 border border-white/10 shadow-sm">
+                <span className="text-[9px] uppercase tracking-wider text-zinc-400 font-bold block">Personality</span>
+                <strong className="text-base font-mono text-white">{personalityScore}/50</strong>
+              </div>
+              <div className="p-1.5 rounded-xl bg-white/5 border border-white/10 shadow-sm">
+                <span className="text-[9px] uppercase tracking-wider text-zinc-400 font-bold block">Stage Pres.</span>
+                <strong className="text-base font-mono text-white">{stagePresenceScore}/30</strong>
+              </div>
+              <div className="p-1.5 rounded-xl bg-white/5 border border-white/10 shadow-sm">
+                <span className="text-[9px] uppercase tracking-wider text-zinc-400 font-bold block">Photogenic</span>
+                <strong className="text-base font-mono text-white">{photogenicScore}/40</strong>
+              </div>
+            </div>
+
+            {/* 6 Official Model Criteria Sliders with Glass styling */}
+            <div className="space-y-4 pt-1">
+              <div>
+                <div className="flex justify-between items-center text-xs mb-1.5">
+                  <span className="font-semibold text-zinc-200">Walking (Ramp walk cadence &amp; gait)</span>
+                  <span className="px-2.5 py-0.5 rounded-full bg-novera-gold/20 text-novera-gold font-mono font-bold text-xs border border-novera-gold/40">
+                    {walking} / 20
+                  </span>
                 </div>
+                <input
+                  type="range"
+                  min="0"
+                  max="20"
+                  value={walking}
+                  onChange={(e) => setWalking(Number(e.target.value))}
+                  className="w-full glass-slider cursor-pointer accent-[#b3924f]"
+                />
+              </div>
 
-                {/* 6 Official Model Criteria Sliders with Glass styling */}
-                <div className="space-y-4 pt-1">
-                  <div>
-                    <div className="flex justify-between items-center text-xs mb-1.5">
-                      <span className="font-semibold text-novera-ink">Walking (Ramp walk cadence &amp; gait)</span>
-                      <span className="px-2.5 py-0.5 rounded-full bg-novera-foil/15 text-novera-foil font-mono font-bold text-xs border border-novera-foil/30">
-                        {walking} / 20
-                      </span>
-                    </div>
-                    <input
-                      type="range"
-                      min="0"
-                      max="20"
-                      value={walking}
-                      onChange={(e) => setWalking(Number(e.target.value))}
-                      className="w-full glass-slider cursor-pointer"
-                    />
-                  </div>
-
-                  <div>
-                    <div className="flex justify-between items-center text-xs mb-1.5">
-                      <span className="font-semibold text-novera-ink">Confidence (Attitude &amp; character)</span>
-                      <span className="px-2.5 py-0.5 rounded-full bg-novera-foil/15 text-novera-foil font-mono font-bold text-xs border border-novera-foil/30">
-                        {confidence} / 20
-                      </span>
-                    </div>
-                    <input
-                      type="range"
-                      min="0"
-                      max="20"
-                      value={confidence}
-                      onChange={(e) => setConfidence(Number(e.target.value))}
-                      className="w-full glass-slider cursor-pointer"
-                    />
-                  </div>
-
-                  <div>
-                    <div className="flex justify-between items-center text-xs mb-1.5">
-                      <span className="font-semibold text-novera-ink">Stage Presence (Audience impact)</span>
-                      <span className="px-2.5 py-0.5 rounded-full bg-novera-foil/15 text-novera-foil font-mono font-bold text-xs border border-novera-foil/30">
-                        {stage} / 20
-                      </span>
-                    </div>
-                    <input
-                      type="range"
-                      min="0"
-                      max="20"
-                      value={stage}
-                      onChange={(e) => setStage(Number(e.target.value))}
-                      className="w-full glass-slider cursor-pointer"
-                    />
-                  </div>
-
-                  <div>
-                    <div className="flex justify-between items-center text-xs mb-1.5">
-                      <span className="font-semibold text-novera-ink">Posture (Spine alignment &amp; poise)</span>
-                      <span className="px-2.5 py-0.5 rounded-full bg-novera-foil/15 text-novera-foil font-mono font-bold text-xs border border-novera-foil/30">
-                        {posture} / 15
-                      </span>
-                    </div>
-                    <input
-                      type="range"
-                      min="0"
-                      max="15"
-                      value={posture}
-                      onChange={(e) => setPosture(Number(e.target.value))}
-                      className="w-full glass-slider cursor-pointer"
-                    />
-                  </div>
-
-                  <div>
-                    <div className="flex justify-between items-center text-xs mb-1.5">
-                      <span className="font-semibold text-novera-ink">Poses (Runway turns &amp; pauses)</span>
-                      <span className="px-2.5 py-0.5 rounded-full bg-novera-foil/15 text-novera-foil font-mono font-bold text-xs border border-novera-foil/30">
-                        {poses} / 15
-                      </span>
-                    </div>
-                    <input
-                      type="range"
-                      min="0"
-                      max="15"
-                      value={poses}
-                      onChange={(e) => setPoses(Number(e.target.value))}
-                      className="w-full glass-slider cursor-pointer"
-                    />
-                  </div>
-
-                  <div>
-                    <div className="flex justify-between items-center text-xs mb-1.5">
-                      <span className="font-semibold text-novera-ink">Face (Facial expression &amp; camera-ready)</span>
-                      <span className="px-2.5 py-0.5 rounded-full bg-novera-foil/15 text-novera-foil font-mono font-bold text-xs border border-novera-foil/30">
-                        {face} / 10
-                      </span>
-                    </div>
-                    <input
-                      type="range"
-                      min="0"
-                      max="10"
-                      value={face}
-                      onChange={(e) => setFace(Number(e.target.value))}
-                      className="w-full glass-slider cursor-pointer"
-                    />
-                  </div>
+              <div>
+                <div className="flex justify-between items-center text-xs mb-1.5">
+                  <span className="font-semibold text-zinc-200">Confidence (Attitude &amp; character)</span>
+                  <span className="px-2.5 py-0.5 rounded-full bg-novera-gold/20 text-novera-gold font-mono font-bold text-xs border border-novera-gold/40">
+                    {confidence} / 20
+                  </span>
                 </div>
+                <input
+                  type="range"
+                  min="0"
+                  max="20"
+                  value={confidence}
+                  onChange={(e) => setConfidence(Number(e.target.value))}
+                  className="w-full glass-slider cursor-pointer accent-[#b3924f]"
+                />
+              </div>
+
+              <div>
+                <div className="flex justify-between items-center text-xs mb-1.5">
+                  <span className="font-semibold text-zinc-200">Stage Presence (Audience impact)</span>
+                  <span className="px-2.5 py-0.5 rounded-full bg-novera-gold/20 text-novera-gold font-mono font-bold text-xs border border-novera-gold/40">
+                    {stage} / 20
+                  </span>
+                </div>
+                <input
+                  type="range"
+                  min="0"
+                  max="20"
+                  value={stage}
+                  onChange={(e) => setStage(Number(e.target.value))}
+                  className="w-full glass-slider cursor-pointer accent-[#b3924f]"
+                />
+              </div>
+
+              <div>
+                <div className="flex justify-between items-center text-xs mb-1.5">
+                  <span className="font-semibold text-zinc-200">Posture (Spine alignment &amp; poise)</span>
+                  <span className="px-2.5 py-0.5 rounded-full bg-novera-gold/20 text-novera-gold font-mono font-bold text-xs border border-novera-gold/40">
+                    {posture} / 15
+                  </span>
+                </div>
+                <input
+                  type="range"
+                  min="0"
+                  max="15"
+                  value={posture}
+                  onChange={(e) => setPosture(Number(e.target.value))}
+                  className="w-full glass-slider cursor-pointer accent-[#b3924f]"
+                />
+              </div>
+
+              <div>
+                <div className="flex justify-between items-center text-xs mb-1.5">
+                  <span className="font-semibold text-zinc-200">Poses (Runway turns &amp; pauses)</span>
+                  <span className="px-2.5 py-0.5 rounded-full bg-novera-gold/20 text-novera-gold font-mono font-bold text-xs border border-novera-gold/40">
+                    {poses} / 15
+                  </span>
+                </div>
+                <input
+                  type="range"
+                  min="0"
+                  max="15"
+                  value={poses}
+                  onChange={(e) => setPoses(Number(e.target.value))}
+                  className="w-full glass-slider cursor-pointer accent-[#b3924f]"
+                />
+              </div>
+
+              <div>
+                <div className="flex justify-between items-center text-xs mb-1.5">
+                  <span className="font-semibold text-zinc-200">Face (Facial expression &amp; camera-ready)</span>
+                  <span className="px-2.5 py-0.5 rounded-full bg-novera-gold/20 text-novera-gold font-mono font-bold text-xs border border-novera-gold/40">
+                    {face} / 10
+                  </span>
+                </div>
+                <input
+                  type="range"
+                  min="0"
+                  max="10"
+                  value={face}
+                  onChange={(e) => setFace(Number(e.target.value))}
+                  className="w-full glass-slider cursor-pointer accent-[#b3924f]"
+                />
+              </div>
+            </div>
 
             {/* Judge Notes in Frosted Glass Input */}
             <div className="pt-3">
-              <label className="block text-xs font-semibold text-novera-charcoal mb-1">
+              <label className="block text-xs font-semibold text-zinc-300 mb-1">
                 Confidential Judge Notes (Visible to Admin)
               </label>
               <textarea
@@ -690,7 +681,7 @@ export default function JudgePortalPage() {
                 onChange={(e) => setNotes(e.target.value)}
                 placeholder="e.g. Excellent posture and striking outfit presentation..."
                 rows={2}
-                className="w-full px-3 py-2 text-xs rounded-2xl glass-input text-novera-ink outline-none focus:border-novera-foil resize-none shadow-inner"
+                className="w-full px-3 py-2 text-xs rounded-2xl bg-white/5 border border-white/15 text-white placeholder-zinc-500 outline-none focus:border-novera-gold resize-none shadow-inner"
               />
             </div>
 
@@ -699,7 +690,7 @@ export default function JudgePortalPage() {
               <button
                 type="button"
                 onClick={() => setScoringCandidate(null)}
-                className="w-1/3 py-3 rounded-2xl glass-pill text-xs font-semibold text-novera-charcoal hover:bg-white/60 transition-colors shadow-sm"
+                className="w-1/3 py-3 rounded-2xl bg-white/10 hover:bg-white/20 text-xs font-semibold text-zinc-300 transition-colors shadow-sm"
               >
                 Cancel
               </button>
@@ -707,10 +698,10 @@ export default function JudgePortalPage() {
                 type="button"
                 onClick={handleScoreSubmit}
                 disabled={isSaving}
-                className="w-2/3 py-3 rounded-2xl bg-novera-ink text-novera-paper hover:bg-novera-foil text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-xl disabled:opacity-50 group relative overflow-hidden"
+                className="w-2/3 py-3 rounded-2xl bg-gradient-to-r from-[#d4af37] via-[#f3e5ab] to-[#aa7c11] text-black font-extrabold hover:brightness-110 text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-xl disabled:opacity-50 group relative overflow-hidden"
               >
                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 pointer-events-none" />
-                <Save className="w-4 h-4 text-novera-gold" />
+                <Save className="w-4 h-4 text-black" />
                 <span>Submit Score to Admin</span>
               </button>
             </div>
@@ -790,6 +781,7 @@ export default function JudgePortalPage() {
           </div>
         </div>
       )}
+      </div>
     </div>
   );
 }

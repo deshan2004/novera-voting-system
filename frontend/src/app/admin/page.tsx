@@ -468,25 +468,22 @@ export default function AdminLeaderboardPage() {
   const leadingGirlForAward = rankedGirlsForAward[0];
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10 space-y-8 relative">
-      {/* Luxury Ambient Glass Stage Lights */}
-      <div className="fixed inset-0 pointer-events-none -z-10 overflow-hidden">
-        <div className="absolute top-12 left-1/4 w-[500px] h-[500px] bg-gradient-to-tr from-amber-200/25 via-novera-gold/15 to-transparent rounded-full blur-3xl" />
-        <div className="absolute top-1/3 right-8 w-[450px] h-[450px] bg-gradient-to-br from-rose-200/20 via-amber-100/15 to-transparent rounded-full blur-3xl" />
-        <div className="absolute bottom-20 left-12 w-[550px] h-[550px] bg-gradient-to-tr from-novera-foil/10 via-amber-200/20 to-transparent rounded-full blur-3xl" />
-      </div>
+    <div className="min-h-screen relative bg-[#070605] text-white overflow-x-hidden">
+      {/* Haute Couture Fashion Runway Stage Animation */}
+      <RunwayStageBackground />
 
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10 space-y-8 relative z-10">
       {/* Top Banner & Navigation */}
-      <div className="p-6 sm:p-8 rounded-3xl glass-panel shadow-luxury flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+      <div className="p-6 sm:p-8 rounded-3xl bg-black/40 backdrop-blur-2xl border border-white/15 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 shadow-2xl">
         <div>
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full glass-badge-gold text-xs uppercase tracking-widest font-bold text-novera-foil mb-2">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-black/50 backdrop-blur-xl border border-white/20 text-xs uppercase tracking-widest font-bold text-novera-gold mb-2">
             <ShieldCheck className="w-4 h-4 text-novera-gold animate-float" />
             <span>Master Administration Hub</span>
           </div>
-          <h1 className="font-serif text-2xl sm:text-4xl font-bold text-novera-ink">
+          <h1 className="font-serif text-2xl sm:text-4xl font-bold text-white">
             Central Tabulation &amp; Surveillance
           </h1>
-          <p className="text-xs sm:text-sm text-novera-charcoal mt-1">
+          <p className="text-xs sm:text-sm text-zinc-300 mt-1">
             Official Award Marking Alignment &bull; 6 Titles (Girl &amp; Boy) &bull; Live Telemetry
           </p>
         </div>
@@ -494,14 +491,14 @@ export default function AdminLeaderboardPage() {
         <div className="flex flex-wrap items-center gap-3">
           <button
             onClick={() => window.print()}
-            className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-2xl text-xs font-semibold glass-pill text-novera-ink hover:bg-novera-ink hover:text-novera-paper transition-all shadow-sm"
+            className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-2xl text-xs font-semibold bg-white/10 hover:bg-white/20 text-white border border-white/15 backdrop-blur-md transition-all shadow-sm"
           >
             <Printer className="w-4 h-4" />
             <span>Print MC Summary</span>
           </button>
           <button
             onClick={handleLogout}
-            className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-2xl text-xs font-semibold text-rose-800 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-300/40 backdrop-blur-md transition-colors shadow-sm"
+            className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-2xl text-xs font-semibold text-rose-300 bg-rose-500/20 hover:bg-rose-500/30 border border-rose-500/40 backdrop-blur-md transition-colors shadow-sm"
           >
             <LogOut className="w-4 h-4" />
             <span>Sign Out</span>
@@ -511,16 +508,16 @@ export default function AdminLeaderboardPage() {
 
       {/* Main Tabs Navigation */}
       <div className="flex justify-center my-2">
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 p-1.5 rounded-2xl sm:rounded-full glass-pill shadow-inner w-full max-w-3xl">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 p-1.5 rounded-2xl sm:rounded-full bg-black/50 backdrop-blur-xl border border-white/15 shadow-inner w-full max-w-3xl">
           <button
             onClick={() => setActiveTab('audience')}
             className={`flex items-center justify-center gap-2 py-3 px-4 rounded-xl sm:rounded-full text-xs sm:text-sm font-bold uppercase tracking-wider whitespace-nowrap transition-all duration-200 ${
               activeTab === 'audience'
-                ? 'bg-novera-ink text-novera-paper shadow-lg border border-white/15'
-                : 'text-novera-charcoal hover:text-novera-ink hover:bg-white/50'
+                ? 'bg-gradient-to-r from-novera-gold to-amber-500 text-black shadow-lg font-extrabold'
+                : 'text-zinc-400 hover:text-white hover:bg-white/10'
             }`}
           >
-            <Vote className={`w-4 h-4 shrink-0 ${activeTab === 'audience' ? 'text-novera-gold' : 'text-novera-foil'}`} />
+            <Vote className={`w-4 h-4 shrink-0 ${activeTab === 'audience' ? 'text-black' : 'text-novera-gold'}`} />
             <span>Audience Votes</span>
           </button>
 
@@ -528,11 +525,11 @@ export default function AdminLeaderboardPage() {
             onClick={() => setActiveTab('judges')}
             className={`flex items-center justify-center gap-2 py-3 px-4 rounded-xl sm:rounded-full text-xs sm:text-sm font-bold uppercase tracking-wider whitespace-nowrap transition-all duration-200 ${
               activeTab === 'judges'
-                ? 'bg-novera-ink text-novera-paper shadow-lg border border-white/15'
-                : 'text-novera-charcoal hover:text-novera-ink hover:bg-white/50'
+                ? 'bg-gradient-to-r from-novera-gold to-amber-500 text-black shadow-lg font-extrabold'
+                : 'text-zinc-400 hover:text-white hover:bg-white/10'
             }`}
           >
-            <Award className={`w-4 h-4 shrink-0 ${activeTab === 'judges' ? 'text-novera-gold' : 'text-novera-foil'}`} />
+            <Award className={`w-4 h-4 shrink-0 ${activeTab === 'judges' ? 'text-black' : 'text-novera-gold'}`} />
             <span>Jury Scores</span>
           </button>
 
@@ -540,11 +537,11 @@ export default function AdminLeaderboardPage() {
             onClick={() => setActiveTab('summary')}
             className={`flex items-center justify-center gap-2 py-3 px-4 rounded-xl sm:rounded-full text-xs sm:text-sm font-bold uppercase tracking-wider whitespace-nowrap transition-all duration-200 ${
               activeTab === 'summary'
-                ? 'bg-novera-ink text-novera-paper shadow-lg border border-white/15'
-                : 'text-novera-charcoal hover:text-novera-ink hover:bg-white/50'
+                ? 'bg-gradient-to-r from-novera-gold to-amber-500 text-black shadow-lg font-extrabold'
+                : 'text-zinc-400 hover:text-white hover:bg-white/10'
             }`}
           >
-            <Trophy className={`w-4 h-4 shrink-0 ${activeTab === 'summary' ? 'text-novera-gold' : 'text-novera-foil'}`} />
+            <Trophy className={`w-4 h-4 shrink-0 ${activeTab === 'summary' ? 'text-black' : 'text-novera-gold'}`} />
             <span>Final 6 Titles</span>
           </button>
         </div>
@@ -555,33 +552,33 @@ export default function AdminLeaderboardPage() {
         <div className="space-y-8 animate-in fade-in duration-200">
           {/* Quick Metrics */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-            <div className="p-6 rounded-2xl bg-white border border-novera-ink/10 shadow-sm flex items-center justify-between">
+            <div className="p-6 rounded-2xl bg-black/40 backdrop-blur-2xl border border-white/15 shadow-xl flex items-center justify-between text-white">
               <div>
-                <span className="text-xs uppercase tracking-wider text-novera-silver font-semibold">Total Audience Ballots</span>
-                <div className="text-3xl font-serif font-bold text-novera-ink mt-1">{totalOverallVotes}</div>
+                <span className="text-xs uppercase tracking-wider text-zinc-400 font-semibold">Total Audience Ballots</span>
+                <div className="text-3xl font-serif font-bold text-white mt-1">{totalOverallVotes}</div>
               </div>
-              <div className="w-12 h-12 rounded-xl bg-novera-paper-dim flex items-center justify-center">
-                <Users className="w-6 h-6 text-novera-foil" />
+              <div className="w-12 h-12 rounded-xl bg-white/10 border border-white/15 flex items-center justify-center text-novera-gold">
+                <Users className="w-6 h-6 text-novera-gold" />
               </div>
             </div>
 
-            <div className="p-6 rounded-2xl bg-white border border-novera-ink/10 shadow-sm flex items-center justify-between">
+            <div className="p-6 rounded-2xl bg-black/40 backdrop-blur-2xl border border-white/15 shadow-xl flex items-center justify-between text-white">
               <div>
-                <span className="text-xs uppercase tracking-wider text-novera-silver font-semibold">Male Model Votes</span>
-                <div className="text-3xl font-serif font-bold text-novera-ink mt-1">{totalBoyVotes}</div>
+                <span className="text-xs uppercase tracking-wider text-zinc-400 font-semibold">Male Model Votes</span>
+                <div className="text-3xl font-serif font-bold text-white mt-1">{totalBoyVotes}</div>
               </div>
-              <div className="w-12 h-12 rounded-xl bg-novera-paper-dim flex items-center justify-center">
-                <Crown className="w-6 h-6 text-novera-foil" />
+              <div className="w-12 h-12 rounded-xl bg-white/10 border border-white/15 flex items-center justify-center text-novera-gold">
+                <Crown className="w-6 h-6 text-novera-gold" />
               </div>
             </div>
 
-            <div className="p-6 rounded-2xl bg-white border border-novera-ink/10 shadow-sm flex items-center justify-between">
+            <div className="p-6 rounded-2xl bg-black/40 backdrop-blur-2xl border border-white/15 shadow-xl flex items-center justify-between text-white">
               <div>
-                <span className="text-xs uppercase tracking-wider text-novera-silver font-semibold">Female Model Votes</span>
-                <div className="text-3xl font-serif font-bold text-novera-ink mt-1">{totalGirlVotes}</div>
+                <span className="text-xs uppercase tracking-wider text-zinc-400 font-semibold">Female Model Votes</span>
+                <div className="text-3xl font-serif font-bold text-white mt-1">{totalGirlVotes}</div>
               </div>
-              <div className="w-12 h-12 rounded-xl bg-novera-paper-dim flex items-center justify-center">
-                <Crown className="w-6 h-6 text-novera-ink" />
+              <div className="w-12 h-12 rounded-xl bg-white/10 border border-white/15 flex items-center justify-center text-novera-gold">
+                <Crown className="w-6 h-6 text-novera-gold" />
               </div>
             </div>
           </div>
@@ -589,40 +586,40 @@ export default function AdminLeaderboardPage() {
           {/* Leaders Showcase */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Leading Boy */}
-            <div className="p-6 rounded-3xl bg-white border-2 border-novera-foil/30 shadow-md flex items-center gap-5">
-              <div className="relative w-24 h-24 rounded-2xl overflow-hidden shrink-0 shadow-inner">
+            <div className="p-6 rounded-3xl bg-black/40 backdrop-blur-2xl border-2 border-novera-gold/40 shadow-xl flex items-center gap-5 text-white">
+              <div className="relative w-24 h-24 rounded-2xl overflow-hidden shrink-0 shadow-inner border border-white/15">
                 {topBoyAudience && (
                   <Image src={topBoyAudience.imageUrl} alt={topBoyAudience.name} fill className="object-cover" />
                 )}
               </div>
               <div className="flex-grow">
-                <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-novera-foil/15 text-[10px] font-bold uppercase tracking-wider text-novera-foil mb-1">
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-novera-gold/20 border border-novera-gold/30 text-[10px] font-bold uppercase tracking-wider text-novera-gold mb-1">
                   <Crown className="w-3 h-3" />
                   <span>Leading Boy &bull; People&rsquo;s Choice</span>
                 </div>
-                <h3 className="font-serif text-xl font-bold text-novera-ink">{topBoyAudience?.name || 'N/A'}</h3>
-                <div className="text-xs text-novera-charcoal mt-1">
-                  <strong className="text-novera-foil text-base font-mono">{topBoyAudience?.votes || 0}</strong> votes (
+                <h3 className="font-serif text-xl font-bold text-white">{topBoyAudience?.name || 'N/A'}</h3>
+                <div className="text-xs text-zinc-300 mt-1">
+                  <strong className="text-novera-gold text-base font-mono">{topBoyAudience?.votes || 0}</strong> votes (
                   {totalBoyVotes > 0 ? Math.round(((topBoyAudience?.votes || 0) / totalBoyVotes) * 100) : 0}%)
                 </div>
               </div>
             </div>
 
             {/* Leading Girl */}
-            <div className="p-6 rounded-3xl bg-white border-2 border-novera-foil/30 shadow-md flex items-center gap-5">
-              <div className="relative w-24 h-24 rounded-2xl overflow-hidden shrink-0 shadow-inner">
+            <div className="p-6 rounded-3xl bg-black/40 backdrop-blur-2xl border-2 border-novera-gold/40 shadow-xl flex items-center gap-5 text-white">
+              <div className="relative w-24 h-24 rounded-2xl overflow-hidden shrink-0 shadow-inner border border-white/15">
                 {topGirlAudience && (
                   <Image src={topGirlAudience.imageUrl} alt={topGirlAudience.name} fill className="object-cover" />
                 )}
               </div>
               <div className="flex-grow">
-                <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-novera-foil/15 text-[10px] font-bold uppercase tracking-wider text-novera-foil mb-1">
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-novera-gold/20 border border-novera-gold/30 text-[10px] font-bold uppercase tracking-wider text-novera-gold mb-1">
                   <Crown className="w-3 h-3" />
                   <span>Leading Girl &bull; People&rsquo;s Choice</span>
                 </div>
-                <h3 className="font-serif text-xl font-bold text-novera-ink">{topGirlAudience?.name || 'N/A'}</h3>
-                <div className="text-xs text-novera-charcoal mt-1">
-                  <strong className="text-novera-foil text-base font-mono">{topGirlAudience?.votes || 0}</strong> votes (
+                <h3 className="font-serif text-xl font-bold text-white">{topGirlAudience?.name || 'N/A'}</h3>
+                <div className="text-xs text-zinc-300 mt-1">
+                  <strong className="text-novera-gold text-base font-mono">{topGirlAudience?.votes || 0}</strong> votes (
                   {totalGirlVotes > 0 ? Math.round(((topGirlAudience?.votes || 0) / totalGirlVotes) * 100) : 0}%)
                 </div>
               </div>
@@ -630,20 +627,20 @@ export default function AdminLeaderboardPage() {
           </div>
 
           {/* Bar Chart Section */}
-          <div className="p-6 sm:p-8 rounded-3xl bg-white border border-novera-ink/10 shadow-editorial">
-            <div className="flex flex-col sm:flex-row items-center justify-between pb-6 border-b border-novera-ink/10 gap-4">
+          <div className="p-6 sm:p-8 rounded-3xl bg-black/40 backdrop-blur-2xl border border-white/15 shadow-2xl text-white">
+            <div className="flex flex-col sm:flex-row items-center justify-between pb-6 border-b border-white/10 gap-4">
               <div>
-                <h2 className="font-serif text-xl sm:text-2xl font-bold text-novera-ink">
+                <h2 className="font-serif text-xl sm:text-2xl font-bold text-white">
                   Live Vote Distribution (Bar Chart)
                 </h2>
-                <p className="text-xs text-novera-charcoal">Real-time vote comparison across runway models</p>
+                <p className="text-xs text-zinc-400">Real-time vote comparison across runway models</p>
               </div>
 
-              <div className="inline-flex p-1 rounded-xl bg-novera-paper-dim border border-novera-ink/10 text-xs">
+              <div className="inline-flex p-1 rounded-xl bg-white/10 border border-white/15 text-xs">
                 <button
                   onClick={() => setChartCategory('both')}
                   className={`px-3 py-1.5 rounded-lg font-medium transition-all ${
-                    chartCategory === 'both' ? 'bg-white shadow text-novera-ink font-bold' : 'text-novera-charcoal'
+                    chartCategory === 'both' ? 'bg-gradient-to-r from-novera-gold to-amber-500 text-black font-extrabold shadow' : 'text-zinc-400 hover:text-white'
                   }`}
                 >
                   All Models
@@ -651,7 +648,7 @@ export default function AdminLeaderboardPage() {
                 <button
                   onClick={() => setChartCategory('boy')}
                   className={`px-3 py-1.5 rounded-lg font-medium transition-all ${
-                    chartCategory === 'boy' ? 'bg-white shadow text-novera-ink font-bold' : 'text-novera-charcoal'
+                    chartCategory === 'boy' ? 'bg-gradient-to-r from-novera-gold to-amber-500 text-black font-extrabold shadow' : 'text-zinc-400 hover:text-white'
                   }`}
                 >
                   Boys Only
@@ -659,7 +656,7 @@ export default function AdminLeaderboardPage() {
                 <button
                   onClick={() => setChartCategory('girl')}
                   className={`px-3 py-1.5 rounded-lg font-medium transition-all ${
-                    chartCategory === 'girl' ? 'bg-white shadow text-novera-ink font-bold' : 'text-novera-charcoal'
+                    chartCategory === 'girl' ? 'bg-gradient-to-r from-novera-gold to-amber-500 text-black font-extrabold shadow' : 'text-zinc-400 hover:text-white'
                   }`}
                 >
                   Girls Only
@@ -670,18 +667,18 @@ export default function AdminLeaderboardPage() {
             <div className="mt-8 h-80 w-full">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 25 }}>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e5e5e5" />
-                  <XAxis dataKey="name" tick={{ fontSize: 11, fill: '#666' }} interval={0} angle={-25} textAnchor="end" />
-                  <YAxis tick={{ fontSize: 11, fill: '#666' }} allowDecimals={false} />
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255, 255, 255, 0.1)" />
+                  <XAxis dataKey="name" tick={{ fontSize: 11, fill: '#d4d4d8' }} interval={0} angle={-25} textAnchor="end" />
+                  <YAxis tick={{ fontSize: 11, fill: '#d4d4d8' }} allowDecimals={false} />
                   <Tooltip
                     content={({ active, payload }) => {
                       if (active && payload && payload.length) {
                         const data = payload[0].payload;
                         return (
-                          <div className="bg-novera-ink text-novera-paper p-3 rounded-xl shadow-xl text-xs space-y-1">
+                          <div className="bg-[#0c0a08]/95 backdrop-blur-xl border border-white/20 text-white p-3 rounded-xl shadow-xl text-xs space-y-1">
                             <div className="font-bold text-novera-gold">{data.fullName}</div>
-                            <div className="text-novera-silver">Category: {data.category}</div>
-                            <div className="font-mono text-sm font-bold">{data.votes} votes</div>
+                            <div className="text-zinc-400">Category: {data.category}</div>
+                            <div className="font-mono text-sm font-bold text-white">{data.votes} votes</div>
                           </div>
                         );
                       }
@@ -699,15 +696,15 @@ export default function AdminLeaderboardPage() {
           </div>
 
           {/* Admin Tools for Audience Votes */}
-          <div className="p-6 rounded-2xl bg-white border border-novera-ink/10 shadow-sm flex flex-wrap items-center justify-between gap-4">
+          <div className="p-6 rounded-2xl bg-black/40 backdrop-blur-2xl border border-white/15 shadow-xl flex flex-wrap items-center justify-between gap-4 text-white">
             <div>
-              <h4 className="font-bold text-sm text-novera-ink">Audience Vote Management</h4>
-              <p className="text-xs text-novera-charcoal">Test or clear public votes before the live session</p>
+              <h4 className="font-bold text-sm text-white">Audience Vote Management</h4>
+              <p className="text-xs text-zinc-400">Test or clear public votes before the live session</p>
             </div>
             <div className="flex items-center gap-3">
               <button
                 onClick={handleSimulateVotes}
-                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold bg-novera-paper-dim border border-novera-ink/15 text-novera-ink hover:bg-novera-ink hover:text-novera-paper transition-all"
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold bg-white/10 border border-white/15 text-white hover:bg-white/20 transition-all"
               >
                 <Shuffle className="w-3.5 h-3.5" />
                 <span>Simulate Demo Votes</span>
@@ -715,7 +712,7 @@ export default function AdminLeaderboardPage() {
               <button
                 onClick={handleResetVotes}
                 disabled={isResetting}
-                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold bg-rose-50 text-rose-700 border border-rose-200 hover:bg-rose-100 transition-all"
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold bg-rose-500/20 text-rose-300 border border-rose-500/40 hover:bg-rose-500/30 transition-all"
               >
                 <RotateCcw className="w-3.5 h-3.5" />
                 <span>Reset Audience Votes</span>
@@ -729,21 +726,21 @@ export default function AdminLeaderboardPage() {
       {activeTab === 'judges' && (
         <div className="space-y-8 animate-in fade-in duration-200">
           {/* 6 Official Judges Roster & Real-time Evaluation Status */}
-          <div className="p-6 rounded-3xl bg-white border border-novera-ink/10 shadow-sm space-y-4">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-novera-ink/10 gap-2">
+          <div className="p-6 rounded-3xl bg-black/40 backdrop-blur-2xl border border-white/15 shadow-xl space-y-4 text-white">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-white/10 gap-2">
               <div>
                 <div className="flex items-center gap-2.5">
-                  <ShieldCheck className="w-5 h-5 text-novera-foil" />
-                  <h3 className="font-serif text-lg font-bold text-novera-ink">
+                  <ShieldCheck className="w-5 h-5 text-novera-gold" />
+                  <h3 className="font-serif text-lg font-bold text-white">
                     6 Official Judges &bull; Live Telemetry &amp; Evaluation Audit
                   </h3>
                 </div>
-                <p className="text-[11px] text-novera-charcoal mt-0.5">
+                <p className="text-[11px] text-zinc-300 mt-0.5">
                   Click any judge card below to view their individual scores, criteria breakdown, and remarks.
                 </p>
               </div>
-              <div className="inline-flex items-center gap-1.5 text-xs text-emerald-700 font-mono font-bold bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200 self-start sm:self-auto">
-                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
+              <div className="inline-flex items-center gap-1.5 text-xs text-emerald-300 font-mono font-bold bg-emerald-950/60 px-2.5 py-1 rounded-full border border-emerald-500/40 self-start sm:self-auto">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
                 <span>LIVE TELEMETRY ACTIVE</span>
               </div>
             </div>
@@ -759,35 +756,35 @@ export default function AdminLeaderboardPage() {
                       setSelectedAuditJudge(judge);
                       setAuditCategoryFilter('all');
                     }}
-                    className={`p-3 rounded-2xl border text-center transition-all cursor-pointer hover:shadow-md hover:scale-[1.02] active:scale-[0.98] group relative overflow-hidden flex flex-col justify-between ${
+                    className={`p-3 rounded-2xl border text-center transition-all cursor-pointer hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] group relative overflow-hidden flex flex-col justify-between ${
                       count > 0
-                        ? 'bg-emerald-50/70 border-emerald-300 hover:border-emerald-500'
-                        : 'bg-novera-paper-dim border-novera-ink/10 hover:border-novera-foil/50'
+                        ? 'bg-emerald-950/30 border-emerald-500/40 hover:border-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.15)]'
+                        : 'bg-white/5 border-white/10 hover:border-white/25'
                     }`}
                   >
                     <div>
-                      <div className="w-8 h-8 rounded-full bg-novera-ink text-novera-gold text-xs font-bold mx-auto flex items-center justify-center mb-1.5 shadow-sm group-hover:bg-novera-foil group-hover:text-novera-paper transition-colors">
+                      <div className="w-8 h-8 rounded-full bg-novera-gold/20 text-novera-gold border border-novera-gold/30 text-xs font-bold mx-auto flex items-center justify-center mb-1.5 shadow-sm group-hover:bg-novera-gold group-hover:text-black transition-colors">
                         {judge.name[0]}
                       </div>
-                      <div className="font-serif font-bold text-xs text-novera-ink truncate">
+                      <div className="font-serif font-bold text-xs text-white truncate">
                         Judge {judge.name}
                       </div>
-                      <div className="text-[10px] font-mono mt-1 font-semibold text-novera-charcoal">
+                      <div className="text-[10px] font-mono mt-1 font-semibold text-zinc-300">
                         {count} / {candidates.length} Scored
                       </div>
                       <div className="mt-1.5 flex items-center justify-center gap-1 text-[9px] font-bold uppercase tracking-wider">
                         <span
                           className={`w-1.5 h-1.5 rounded-full ${
-                            count > 0 ? 'bg-emerald-500 animate-pulse' : 'bg-zinc-400'
+                            count > 0 ? 'bg-emerald-400 animate-pulse' : 'bg-zinc-500'
                           }`}
                         />
-                        <span className={count > 0 ? 'text-emerald-700' : 'text-zinc-500'}>
+                        <span className={count > 0 ? 'text-emerald-300' : 'text-zinc-400'}>
                           {count > 0 ? 'Active' : 'Pending'}
                         </span>
                       </div>
                     </div>
 
-                    <div className="mt-2.5 pt-1.5 border-t border-novera-ink/10 flex items-center justify-center gap-1 text-[9px] font-bold uppercase tracking-wider text-novera-foil group-hover:text-novera-ink transition-colors">
+                    <div className="mt-2.5 pt-1.5 border-t border-white/10 flex items-center justify-center gap-1 text-[9px] font-bold uppercase tracking-wider text-novera-gold group-hover:text-white transition-colors">
                       <Eye className="w-2.5 h-2.5" />
                       <span>View Scores</span>
                     </div>
@@ -801,14 +798,14 @@ export default function AdminLeaderboardPage() {
           <div className="space-y-4">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
               <div>
-                <span className="text-[10px] uppercase font-bold tracking-widest text-novera-foil">
+                <span className="text-[10px] uppercase font-bold tracking-widest text-novera-gold">
                   Official Award Marking Alignment
                 </span>
-                <h3 className="font-serif text-xl font-bold text-novera-ink">
+                <h3 className="font-serif text-xl font-bold text-white">
                   Select Award Title Leaderboard
                 </h3>
               </div>
-              <div className="text-xs text-novera-charcoal font-medium">
+              <div className="text-xs text-zinc-300 font-medium">
                 {activeAwardDef.criteriaText}
               </div>
             </div>
@@ -824,15 +821,15 @@ export default function AdminLeaderboardPage() {
                     onClick={() => setSelectedJuryAward(award.key)}
                     className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs font-bold transition-all ${
                       isSelected
-                        ? 'bg-novera-ink text-novera-paper shadow-md border-novera-ink'
-                        : 'bg-white text-novera-charcoal border border-novera-ink/10 hover:border-novera-foil hover:text-novera-ink'
+                        ? 'bg-gradient-to-r from-novera-gold to-amber-500 text-black shadow-lg font-extrabold'
+                        : 'bg-white/10 text-zinc-300 border border-white/15 hover:bg-white/20 hover:text-white'
                     }`}
                   >
-                    <Icon className={`w-4 h-4 ${isSelected ? 'text-novera-gold' : 'text-novera-foil'}`} />
+                    <Icon className={`w-4 h-4 ${isSelected ? 'text-black' : 'text-novera-gold'}`} />
                     <span>{award.title}</span>
                     <span
                       className={`text-[10px] px-2 py-0.5 rounded-full ${
-                        isSelected ? 'bg-white/20 text-white' : 'bg-novera-paper-dim text-novera-charcoal'
+                        isSelected ? 'bg-black/20 text-black font-mono' : 'bg-white/10 text-zinc-300'
                       }`}
                     >
                       /{award.maxScore}
@@ -846,8 +843,8 @@ export default function AdminLeaderboardPage() {
           {/* Top Boy & Girl Leaders for Selected Award */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Leading Boy */}
-            <div className="p-6 rounded-3xl bg-white border-2 border-novera-foil/30 shadow-md flex items-center gap-5">
-              <div className="relative w-24 h-24 rounded-2xl overflow-hidden shrink-0 shadow-inner">
+            <div className="p-6 rounded-3xl bg-black/40 backdrop-blur-2xl border-2 border-novera-gold/40 shadow-xl flex items-center gap-5 text-white">
+              <div className="relative w-24 h-24 rounded-2xl overflow-hidden shrink-0 shadow-inner border border-white/15">
                 {leadingBoyForAward && (
                   <Image
                     src={leadingBoyForAward.candidate.imageUrl}
@@ -858,16 +855,16 @@ export default function AdminLeaderboardPage() {
                 )}
               </div>
               <div className="flex-grow">
-                <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-novera-foil/15 text-[10px] font-bold uppercase tracking-wider text-novera-foil mb-1">
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-novera-gold/20 border border-novera-gold/30 text-[10px] font-bold uppercase tracking-wider text-novera-gold mb-1">
                   <Crown className="w-3 h-3" />
                   <span>Leading Boy &bull; {activeAwardDef.title}</span>
                 </div>
-                <h3 className="font-serif text-xl font-bold text-novera-ink">
+                <h3 className="font-serif text-xl font-bold text-white">
                   {leadingBoyForAward?.candidate.name || 'N/A'}
                 </h3>
-                <div className="text-xs text-novera-charcoal mt-1">
+                <div className="text-xs text-zinc-300 mt-1">
                   Average Score:{' '}
-                  <strong className="text-novera-foil text-lg font-mono">
+                  <strong className="text-novera-gold text-lg font-mono">
                     {leadingBoyForAward
                       ? getScoreValueForAward(leadingBoyForAward, selectedJuryAward).score
                       : 0}
@@ -878,8 +875,8 @@ export default function AdminLeaderboardPage() {
             </div>
 
             {/* Leading Girl */}
-            <div className="p-6 rounded-3xl bg-white border-2 border-novera-foil/30 shadow-md flex items-center gap-5">
-              <div className="relative w-24 h-24 rounded-2xl overflow-hidden shrink-0 shadow-inner">
+            <div className="p-6 rounded-3xl bg-black/40 backdrop-blur-2xl border-2 border-novera-gold/40 shadow-xl flex items-center gap-5 text-white">
+              <div className="relative w-24 h-24 rounded-2xl overflow-hidden shrink-0 shadow-inner border border-white/15">
                 {leadingGirlForAward && (
                   <Image
                     src={leadingGirlForAward.candidate.imageUrl}
@@ -890,16 +887,16 @@ export default function AdminLeaderboardPage() {
                 )}
               </div>
               <div className="flex-grow">
-                <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-novera-foil/15 text-[10px] font-bold uppercase tracking-wider text-novera-foil mb-1">
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-novera-gold/20 border border-novera-gold/30 text-[10px] font-bold uppercase tracking-wider text-novera-gold mb-1">
                   <Crown className="w-3 h-3" />
                   <span>Leading Girl &bull; {activeAwardDef.title}</span>
                 </div>
-                <h3 className="font-serif text-xl font-bold text-novera-ink">
+                <h3 className="font-serif text-xl font-bold text-white">
                   {leadingGirlForAward?.candidate.name || 'N/A'}
                 </h3>
-                <div className="text-xs text-novera-charcoal mt-1">
+                <div className="text-xs text-zinc-300 mt-1">
                   Average Score:{' '}
-                  <strong className="text-novera-foil text-lg font-mono">
+                  <strong className="text-novera-gold text-lg font-mono">
                     {leadingGirlForAward
                       ? getScoreValueForAward(leadingGirlForAward, selectedJuryAward).score
                       : 0}
@@ -913,13 +910,13 @@ export default function AdminLeaderboardPage() {
           {/* Detailed Ranked Table: Boys & Girls */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* Boys Leaderboard */}
-            <div className="p-6 rounded-3xl bg-white border border-novera-ink/10 shadow-sm space-y-4">
-              <div className="flex items-center justify-between pb-3 border-b border-novera-ink/10">
-                <h3 className="font-serif text-lg font-bold text-novera-ink flex items-center gap-2">
-                  <Crown className="w-4 h-4 text-novera-foil" />
+            <div className="p-6 rounded-3xl bg-black/40 backdrop-blur-2xl border border-white/15 shadow-xl space-y-4 text-white">
+              <div className="flex items-center justify-between pb-3 border-b border-white/10">
+                <h3 className="font-serif text-lg font-bold text-white flex items-center gap-2">
+                  <Crown className="w-4 h-4 text-novera-gold" />
                   <span>Male Contenders &bull; {activeAwardDef.title}</span>
                 </h3>
-                <span className="text-xs text-novera-silver">
+                <span className="text-xs text-zinc-400">
                   Ranked by Score (Max {activeAwardDef.maxScore})
                 </span>
               </div>
@@ -930,19 +927,19 @@ export default function AdminLeaderboardPage() {
                   return (
                     <div
                       key={stat.candidate.id}
-                      className="p-3.5 rounded-2xl bg-novera-paper-dim border border-novera-ink/5 flex items-center justify-between gap-3"
+                      className="p-3.5 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-between gap-3 text-white"
                     >
                       <div className="flex items-center gap-3">
                         <div
                           className={`w-7 h-7 rounded-full text-xs font-bold flex items-center justify-center shrink-0 ${
                             idx === 0
-                              ? 'bg-novera-foil text-novera-paper'
-                              : 'bg-novera-ink text-novera-paper'
+                              ? 'bg-gradient-to-r from-novera-gold to-amber-500 text-black font-extrabold'
+                              : 'bg-white/15 text-white'
                           }`}
                         >
                           #{idx + 1}
                         </div>
-                        <div className="relative w-10 h-10 rounded-xl overflow-hidden shrink-0">
+                        <div className="relative w-10 h-10 rounded-xl overflow-hidden shrink-0 border border-white/10">
                           <Image
                             src={stat.candidate.imageUrl}
                             alt={stat.candidate.name}
@@ -951,23 +948,23 @@ export default function AdminLeaderboardPage() {
                           />
                         </div>
                         <div>
-                          <div className="font-serif font-bold text-sm text-novera-ink">
+                          <div className="font-serif font-bold text-sm text-white">
                             {stat.candidate.name}
                           </div>
-                          <div className="text-[11px] text-novera-charcoal">
+                          <div className="text-[11px] text-zinc-400">
                             {stat.candidate.candidateNumber} &bull; {stat.judgeCount} judge(s)
                           </div>
                         </div>
                       </div>
 
                       <div className="text-right">
-                        <div className="font-mono text-base font-bold text-novera-foil">
+                        <div className="font-mono text-base font-bold text-novera-gold">
                           {scoreObj.score}{' '}
-                          <span className="text-xs text-novera-charcoal font-sans">
+                          <span className="text-xs text-zinc-400 font-sans">
                             / {activeAwardDef.maxScore}
                           </span>
                         </div>
-                        <div className="text-[10px] text-novera-silver">
+                        <div className="text-[10px] text-zinc-400">
                           {stat.judgeCount > 0 ? 'Verified' : 'No marks yet'}
                         </div>
                       </div>
@@ -978,13 +975,13 @@ export default function AdminLeaderboardPage() {
             </div>
 
             {/* Girls Leaderboard */}
-            <div className="p-6 rounded-3xl bg-white border border-novera-ink/10 shadow-sm space-y-4">
-              <div className="flex items-center justify-between pb-3 border-b border-novera-ink/10">
-                <h3 className="font-serif text-lg font-bold text-novera-ink flex items-center gap-2">
-                  <Crown className="w-4 h-4 text-novera-foil" />
+            <div className="p-6 rounded-3xl bg-black/40 backdrop-blur-2xl border border-white/15 shadow-xl space-y-4 text-white">
+              <div className="flex items-center justify-between pb-3 border-b border-white/10">
+                <h3 className="font-serif text-lg font-bold text-white flex items-center gap-2">
+                  <Crown className="w-4 h-4 text-novera-gold" />
                   <span>Female Contenders &bull; {activeAwardDef.title}</span>
                 </h3>
-                <span className="text-xs text-novera-silver">
+                <span className="text-xs text-zinc-400">
                   Ranked by Score (Max {activeAwardDef.maxScore})
                 </span>
               </div>
@@ -995,19 +992,19 @@ export default function AdminLeaderboardPage() {
                   return (
                     <div
                       key={stat.candidate.id}
-                      className="p-3.5 rounded-2xl bg-novera-paper-dim border border-novera-ink/5 flex items-center justify-between gap-3"
+                      className="p-3.5 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-between gap-3 text-white"
                     >
                       <div className="flex items-center gap-3">
                         <div
                           className={`w-7 h-7 rounded-full text-xs font-bold flex items-center justify-center shrink-0 ${
                             idx === 0
-                              ? 'bg-novera-foil text-novera-paper'
-                              : 'bg-novera-ink text-novera-paper'
+                              ? 'bg-gradient-to-r from-novera-gold to-amber-500 text-black font-extrabold'
+                              : 'bg-white/15 text-white'
                           }`}
                         >
                           #{idx + 1}
                         </div>
-                        <div className="relative w-10 h-10 rounded-xl overflow-hidden shrink-0">
+                        <div className="relative w-10 h-10 rounded-xl overflow-hidden shrink-0 border border-white/10">
                           <Image
                             src={stat.candidate.imageUrl}
                             alt={stat.candidate.name}
@@ -1016,23 +1013,23 @@ export default function AdminLeaderboardPage() {
                           />
                         </div>
                         <div>
-                          <div className="font-serif font-bold text-sm text-novera-ink">
+                          <div className="font-serif font-bold text-sm text-white">
                             {stat.candidate.name}
                           </div>
-                          <div className="text-[11px] text-novera-charcoal">
+                          <div className="text-[11px] text-zinc-400">
                             {stat.candidate.candidateNumber} &bull; {stat.judgeCount} judge(s)
                           </div>
                         </div>
                       </div>
 
                       <div className="text-right">
-                        <div className="font-mono text-base font-bold text-novera-foil">
+                        <div className="font-mono text-base font-bold text-novera-gold">
                           {scoreObj.score}{' '}
-                          <span className="text-xs text-novera-charcoal font-sans">
+                          <span className="text-xs text-zinc-400 font-sans">
                             / {activeAwardDef.maxScore}
                           </span>
                         </div>
-                        <div className="text-[10px] text-novera-silver">
+                        <div className="text-[10px] text-zinc-400">
                           {stat.judgeCount > 0 ? 'Verified' : 'No marks yet'}
                         </div>
                       </div>
@@ -1044,16 +1041,16 @@ export default function AdminLeaderboardPage() {
           </div>
 
           {/* Reset Judges Scores */}
-          <div className="p-6 rounded-2xl bg-white border border-novera-ink/10 shadow-sm flex items-center justify-between">
+          <div className="p-6 rounded-2xl bg-black/40 backdrop-blur-2xl border border-white/15 shadow-xl flex items-center justify-between text-white">
             <div>
-              <h4 className="font-bold text-sm text-novera-ink">Reset Judge Scoring Data</h4>
-              <p className="text-xs text-novera-charcoal">
+              <h4 className="font-bold text-sm text-white">Reset Judge Scoring Data</h4>
+              <p className="text-xs text-zinc-400">
                 Clear all scorecards submitted by judges to begin a fresh round
               </p>
             </div>
             <button
               onClick={handleResetJudges}
-              className="px-4 py-2 rounded-xl text-xs font-semibold bg-rose-50 text-rose-700 border border-rose-200 hover:bg-rose-100 transition-all"
+              className="px-4 py-2 rounded-xl text-xs font-semibold bg-rose-500/20 text-rose-300 border border-rose-500/40 hover:bg-rose-500/30 transition-all"
             >
               Reset All Judge Scores
             </button>
@@ -1065,14 +1062,14 @@ export default function AdminLeaderboardPage() {
       {activeTab === 'summary' && (
         <div className="space-y-8 animate-in fade-in duration-200">
           <div className="text-center max-w-2xl mx-auto space-y-2">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-novera-foil/15 text-xs uppercase tracking-widest font-bold text-novera-foil">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-novera-gold/20 border border-novera-gold/30 text-xs uppercase tracking-widest font-bold text-novera-gold">
               <Trophy className="w-4 h-4 text-novera-gold" />
               <span>Official Runway Award Announcement</span>
             </div>
-            <h2 className="font-serif text-3xl sm:text-4xl font-bold text-novera-ink">
+            <h2 className="font-serif text-3xl sm:text-4xl font-bold text-white">
               NOVERA &rsquo;26 Winners Podium
             </h2>
-            <p className="text-xs sm:text-sm text-novera-charcoal">
+            <p className="text-xs sm:text-sm text-zinc-300">
               Consolidated announcement sheet for MCs and Organizing Committee (Girl &amp; Boy ranked separately)
             </p>
           </div>
@@ -1092,39 +1089,39 @@ export default function AdminLeaderboardPage() {
               return (
                 <div
                   key={award.key}
-                  className="p-6 sm:p-8 rounded-3xl bg-white border-2 border-novera-ink/10 shadow-editorial space-y-6 flex flex-col justify-between"
+                  className="p-6 sm:p-8 rounded-3xl bg-black/40 backdrop-blur-2xl border-2 border-white/15 hover:border-novera-gold/50 shadow-2xl space-y-6 flex flex-col justify-between text-white transition-all duration-300"
                 >
                   {/* Card Header */}
                   <div>
-                    <div className="flex items-center justify-between pb-4 border-b border-novera-ink/10 mb-4">
+                    <div className="flex items-center justify-between pb-4 border-b border-white/10 mb-4">
                       <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 rounded-2xl bg-novera-ink text-novera-gold flex items-center justify-center shrink-0 shadow-md">
+                        <div className="w-12 h-12 rounded-2xl bg-novera-gold/20 border border-novera-gold/30 text-novera-gold flex items-center justify-center shrink-0 shadow-md">
                           <Icon className="w-6 h-6" />
                         </div>
                         <div>
-                          <span className="text-[10px] font-bold uppercase tracking-widest text-novera-foil">
+                          <span className="text-[10px] font-bold uppercase tracking-widest text-novera-gold">
                             Title #{index + 1} &bull; {award.source === 'jury' ? 'Official Jury Evaluation' : 'Public Web Ballot'}
                           </span>
-                          <h3 className="font-serif text-xl sm:text-2xl font-bold text-novera-ink">
+                          <h3 className="font-serif text-xl sm:text-2xl font-bold text-white">
                             {award.title}
                           </h3>
                         </div>
                       </div>
-                      <span className="text-xs font-mono font-bold text-novera-charcoal bg-novera-paper-dim px-2.5 py-1 rounded-full border border-novera-ink/10">
+                      <span className="text-xs font-mono font-bold text-zinc-300 bg-white/10 px-2.5 py-1 rounded-full border border-white/15">
                         {award.source === 'jury' ? `Max ${award.maxScore}` : 'Public Votes'}
                       </span>
                     </div>
 
-                    <p className="text-xs text-novera-charcoal mb-5">
+                    <p className="text-xs text-zinc-300 mb-5">
                       {award.criteriaText}
                     </p>
 
                     {/* Boy & Girl Winner Cards */}
                     <div className="space-y-4">
                       {/* Boy Winner */}
-                      <div className="p-4 rounded-2xl bg-novera-paper-dim border border-novera-ink/10 flex items-center justify-between gap-4">
+                      <div className="p-4 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-between gap-4 text-white">
                         <div className="flex items-center gap-3">
-                          <div className="relative w-14 h-14 rounded-xl overflow-hidden shrink-0 shadow-inner">
+                          <div className="relative w-14 h-14 rounded-xl overflow-hidden shrink-0 shadow-inner border border-white/10">
                             {winnerBoy && (
                               <Image
                                 src={winnerBoy.candidate.imageUrl}
@@ -1135,29 +1132,29 @@ export default function AdminLeaderboardPage() {
                             )}
                           </div>
                           <div>
-                            <span className="text-[10px] uppercase font-bold text-novera-foil tracking-wider flex items-center gap-1">
+                            <span className="text-[10px] uppercase font-bold text-novera-gold tracking-wider flex items-center gap-1">
                               <Crown className="w-3 h-3" />
                               <span>Male Winner (Boy)</span>
                             </span>
-                            <h4 className="font-serif text-base font-bold text-novera-ink">
+                            <h4 className="font-serif text-base font-bold text-white">
                               {winnerBoy?.candidate.name || 'To Be Announced'}
                             </h4>
-                            <span className="text-[11px] text-novera-charcoal">
+                            <span className="text-[11px] text-zinc-400">
                               Candidate No: {winnerBoy?.candidate.candidateNumber || 'N/A'}
                             </span>
                           </div>
                         </div>
 
                         <div className="text-right">
-                          <div className="font-mono text-lg font-bold text-novera-foil">
+                          <div className="font-mono text-lg font-bold text-novera-gold">
                             {boyScore}
                             {award.maxScore > 0 && (
-                              <span className="text-xs text-novera-charcoal font-sans">
+                              <span className="text-xs text-zinc-400 font-sans">
                                 /{award.maxScore}
                               </span>
                             )}
                           </div>
-                          <div className="text-[10px] text-novera-silver">
+                          <div className="text-[10px] text-zinc-400">
                             {award.source === 'jury'
                               ? `${winnerBoy?.judgeCount || 0} judges`
                               : 'audience votes'}
@@ -1166,9 +1163,9 @@ export default function AdminLeaderboardPage() {
                       </div>
 
                       {/* Girl Winner */}
-                      <div className="p-4 rounded-2xl bg-novera-paper-dim border border-novera-ink/10 flex items-center justify-between gap-4">
+                      <div className="p-4 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-between gap-4 text-white">
                         <div className="flex items-center gap-3">
-                          <div className="relative w-14 h-14 rounded-xl overflow-hidden shrink-0 shadow-inner">
+                          <div className="relative w-14 h-14 rounded-xl overflow-hidden shrink-0 shadow-inner border border-white/10">
                             {winnerGirl && (
                               <Image
                                 src={winnerGirl.candidate.imageUrl}
@@ -1179,29 +1176,29 @@ export default function AdminLeaderboardPage() {
                             )}
                           </div>
                           <div>
-                            <span className="text-[10px] uppercase font-bold text-novera-foil tracking-wider flex items-center gap-1">
+                            <span className="text-[10px] uppercase font-bold text-novera-gold tracking-wider flex items-center gap-1">
                               <Crown className="w-3 h-3" />
                               <span>Female Winner (Girl)</span>
                             </span>
-                            <h4 className="font-serif text-base font-bold text-novera-ink">
+                            <h4 className="font-serif text-base font-bold text-white">
                               {winnerGirl?.candidate.name || 'To Be Announced'}
                             </h4>
-                            <span className="text-[11px] text-novera-charcoal">
+                            <span className="text-[11px] text-zinc-400">
                               Candidate No: {winnerGirl?.candidate.candidateNumber || 'N/A'}
                             </span>
                           </div>
                         </div>
 
                         <div className="text-right">
-                          <div className="font-mono text-lg font-bold text-novera-foil">
+                          <div className="font-mono text-lg font-bold text-novera-gold">
                             {girlScore}
                             {award.maxScore > 0 && (
-                              <span className="text-xs text-novera-charcoal font-sans">
+                              <span className="text-xs text-zinc-400 font-sans">
                                 /{award.maxScore}
                               </span>
                             )}
                           </div>
-                          <div className="text-[10px] text-novera-silver">
+                          <div className="text-[10px] text-zinc-400">
                             {award.source === 'jury'
                               ? `${winnerGirl?.judgeCount || 0} judges`
                               : 'audience votes'}
@@ -1211,9 +1208,9 @@ export default function AdminLeaderboardPage() {
                     </div>
                   </div>
 
-                  <div className="pt-2 text-[11px] text-novera-silver flex items-center justify-between border-t border-novera-ink/5">
+                  <div className="pt-2 text-[11px] text-zinc-400 flex items-center justify-between border-t border-white/10">
                     <span>Ranked separately for Girl and Boy</span>
-                    <span className="font-bold text-novera-foil uppercase">NOVERA &rsquo;26 OFFICIAL</span>
+                    <span className="font-bold text-novera-gold uppercase">NOVERA &rsquo;26 OFFICIAL</span>
                   </div>
                 </div>
               );
@@ -1223,29 +1220,29 @@ export default function AdminLeaderboardPage() {
       )}
       {/* ================= JUDGE SCORECARD AUDIT MODAL ================= */}
       {selectedAuditJudge && (
-        <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-xl flex items-center justify-center p-3 sm:p-6 animate-in fade-in duration-200">
-          <div className="max-w-3xl w-full glass-panel rounded-3xl p-5 sm:p-7 border border-white/80 shadow-2xl relative animate-in zoom-in-95 duration-200 max-h-[90vh] flex flex-col overflow-hidden text-left">
+        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-2xl flex items-center justify-center p-3 sm:p-6 animate-in fade-in duration-200">
+          <div className="max-w-3xl w-full bg-[#0c0a08]/95 backdrop-blur-3xl rounded-3xl p-5 sm:p-7 border border-white/20 shadow-2xl relative animate-in zoom-in-95 duration-200 max-h-[90vh] flex flex-col overflow-hidden text-left text-white">
             {/* Modal Header */}
-            <div className="flex items-start justify-between pb-4 border-b border-novera-ink/10 shrink-0">
+            <div className="flex items-start justify-between pb-4 border-b border-white/10 shrink-0">
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-2xl bg-novera-ink text-novera-gold text-lg font-serif font-bold flex items-center justify-center shadow-md">
+                <div className="w-12 h-12 rounded-2xl bg-novera-gold/20 text-novera-gold border border-novera-gold/30 text-lg font-serif font-bold flex items-center justify-center shadow-md">
                   {selectedAuditJudge.name[0]}
                 </div>
                 <div>
-                  <div className="text-[10px] font-mono uppercase tracking-widest text-novera-foil font-bold">
+                  <div className="text-[10px] font-mono uppercase tracking-widest text-novera-gold font-bold">
                     Official Jury Evaluation Audit
                   </div>
-                  <h3 className="font-serif text-xl sm:text-2xl font-bold text-novera-ink">
+                  <h3 className="font-serif text-xl sm:text-2xl font-bold text-white">
                     Judge {selectedAuditJudge.name}
                   </h3>
-                  <div className="text-xs text-novera-charcoal font-medium">
+                  <div className="text-xs text-zinc-300 font-medium">
                     {selectedAuditJudge.title}
                   </div>
                 </div>
               </div>
               <button
                 onClick={() => setSelectedAuditJudge(null)}
-                className="w-8 h-8 rounded-full glass-pill hover:bg-novera-ink hover:text-novera-paper text-novera-charcoal flex items-center justify-center transition-colors text-base font-bold shadow-sm"
+                className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-zinc-300 flex items-center justify-center transition-colors text-base font-bold shadow-sm"
               >
                 &times;
               </button>
@@ -1254,14 +1251,14 @@ export default function AdminLeaderboardPage() {
             {/* Filter & Progress Summary Bar */}
             <div className="py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shrink-0">
               <div className="flex items-center gap-2">
-                <span className="text-xs font-semibold text-novera-charcoal">Filter:</span>
-                <div className="flex p-1 rounded-xl glass-pill">
+                <span className="text-xs font-semibold text-zinc-300">Filter:</span>
+                <div className="flex p-1 rounded-xl bg-white/10 border border-white/10">
                   <button
                     onClick={() => setAuditCategoryFilter('all')}
                     className={`px-3 py-1 rounded-lg text-xs font-bold uppercase transition-all ${
                       auditCategoryFilter === 'all'
-                        ? 'bg-novera-ink text-novera-paper shadow-sm'
-                        : 'text-novera-charcoal hover:text-novera-ink'
+                        ? 'bg-gradient-to-r from-novera-gold to-amber-500 text-black font-extrabold shadow-sm'
+                        : 'text-zinc-400 hover:text-white'
                     }`}
                   >
                     All ({candidates.length})
@@ -1270,8 +1267,8 @@ export default function AdminLeaderboardPage() {
                     onClick={() => setAuditCategoryFilter('boy')}
                     className={`px-3 py-1 rounded-lg text-xs font-bold uppercase transition-all ${
                       auditCategoryFilter === 'boy'
-                        ? 'bg-novera-ink text-novera-paper shadow-sm'
-                        : 'text-novera-charcoal hover:text-novera-ink'
+                        ? 'bg-gradient-to-r from-novera-gold to-amber-500 text-black font-extrabold shadow-sm'
+                        : 'text-zinc-400 hover:text-white'
                     }`}
                   >
                     Boys ({candidates.filter((c) => c.category === 'boy').length})
@@ -1280,8 +1277,8 @@ export default function AdminLeaderboardPage() {
                     onClick={() => setAuditCategoryFilter('girl')}
                     className={`px-3 py-1 rounded-lg text-xs font-bold uppercase transition-all ${
                       auditCategoryFilter === 'girl'
-                        ? 'bg-novera-ink text-novera-paper shadow-sm'
-                        : 'text-novera-charcoal hover:text-novera-ink'
+                        ? 'bg-gradient-to-r from-novera-gold to-amber-500 text-black font-extrabold shadow-sm'
+                        : 'text-zinc-400 hover:text-white'
                     }`}
                   >
                     Girls ({candidates.filter((c) => c.category === 'girl').length})
@@ -1290,9 +1287,9 @@ export default function AdminLeaderboardPage() {
               </div>
 
               {/* Completion Tag */}
-              <div className="text-xs font-mono font-semibold text-novera-charcoal flex items-center gap-2">
+              <div className="text-xs font-mono font-semibold text-zinc-300 flex items-center gap-2">
                 <span>Completed:</span>
-                <span className="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-bold border border-emerald-300">
+                <span className="px-2.5 py-0.5 rounded-full bg-emerald-950/60 text-emerald-300 font-bold border border-emerald-500/40">
                   {judgeScores.filter((s) => s.judgeId === selectedAuditJudge.id).length} / {candidates.length} Scored
                 </span>
               </div>
@@ -1312,14 +1309,14 @@ export default function AdminLeaderboardPage() {
                       key={candidate.id}
                       className={`p-4 rounded-2xl border transition-all ${
                         score
-                          ? 'glass-card border-emerald-300/70 shadow-sm'
-                          : 'bg-novera-paper-dim/60 border-novera-ink/10 opacity-70'
+                          ? 'bg-emerald-950/20 border-emerald-500/40 shadow-sm text-white'
+                          : 'bg-white/5 border-white/10 opacity-70 text-zinc-300'
                       }`}
                     >
                       {/* Candidate Row Header */}
-                      <div className="flex items-center justify-between gap-3 pb-3 border-b border-novera-ink/10">
+                      <div className="flex items-center justify-between gap-3 pb-3 border-b border-white/10">
                         <div className="flex items-center gap-3">
-                          <div className="relative w-12 h-12 rounded-xl overflow-hidden shrink-0 shadow-sm border border-white/60">
+                          <div className="relative w-12 h-12 rounded-xl overflow-hidden shrink-0 shadow-sm border border-white/20">
                             <Image
                               src={candidate.imageUrl}
                               alt={candidate.name}
@@ -1329,14 +1326,14 @@ export default function AdminLeaderboardPage() {
                           </div>
                           <div>
                             <div className="flex items-center gap-2">
-                              <span className="px-2 py-0.5 rounded-md bg-novera-ink text-novera-gold font-mono font-bold text-xs">
+                              <span className="px-2 py-0.5 rounded-md bg-white/10 text-novera-gold font-mono font-bold text-xs border border-white/15">
                                 {candidate.candidateNumber}
                               </span>
-                              <span className="text-[10px] uppercase font-bold text-novera-foil">
+                              <span className="text-[10px] uppercase font-bold text-novera-gold">
                                 {candidate.category === 'boy' ? 'Male Model' : 'Female Model'}
                               </span>
                             </div>
-                            <h4 className="font-serif font-bold text-base text-novera-ink pt-0.5">
+                            <h4 className="font-serif font-bold text-base text-white pt-0.5">
                               {candidate.name}
                             </h4>
                           </div>
@@ -1346,15 +1343,15 @@ export default function AdminLeaderboardPage() {
                         <div className="text-right shrink-0">
                           {score ? (
                             <div>
-                              <div className="text-[10px] uppercase tracking-wider text-emerald-700 font-bold">
+                              <div className="text-[10px] uppercase tracking-wider text-emerald-400 font-bold">
                                 Total Score
                               </div>
-                              <div className="font-mono text-2xl font-bold text-novera-foil">
-                                {score.totalModel} <span className="text-xs text-novera-charcoal font-sans">/ 100</span>
+                              <div className="font-mono text-2xl font-bold text-novera-gold">
+                                {score.totalModel} <span className="text-xs text-zinc-400 font-sans">/ 100</span>
                               </div>
                             </div>
                           ) : (
-                            <span className="px-3 py-1 rounded-full bg-zinc-200/80 text-zinc-600 text-xs font-mono font-semibold">
+                            <span className="px-3 py-1 rounded-full bg-white/10 text-zinc-400 text-xs font-mono font-semibold border border-white/10">
                               Pending Evaluation
                             </span>
                           )}
@@ -1366,57 +1363,57 @@ export default function AdminLeaderboardPage() {
                         <div className="pt-3 space-y-2.5">
                           {/* 6 Official Runway Criteria Chips */}
                           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 text-center text-xs">
-                            <div className="p-2 rounded-xl bg-white/70 border border-white/80 shadow-xs">
-                              <span className="text-[10px] text-novera-charcoal font-semibold block">Walking</span>
-                              <strong className="font-mono text-sm text-novera-ink">{score.walking} / 20</strong>
+                            <div className="p-2 rounded-xl bg-white/5 border border-white/10 shadow-xs">
+                              <span className="text-[10px] text-zinc-400 font-semibold block">Walking</span>
+                              <strong className="font-mono text-sm text-white">{score.walking} / 20</strong>
                             </div>
-                            <div className="p-2 rounded-xl bg-white/70 border border-white/80 shadow-xs">
-                              <span className="text-[10px] text-novera-charcoal font-semibold block">Confidence</span>
-                              <strong className="font-mono text-sm text-novera-ink">{score.confidence} / 20</strong>
+                            <div className="p-2 rounded-xl bg-white/5 border border-white/10 shadow-xs">
+                              <span className="text-[10px] text-zinc-400 font-semibold block">Confidence</span>
+                              <strong className="font-mono text-sm text-white">{score.confidence} / 20</strong>
                             </div>
-                            <div className="p-2 rounded-xl bg-white/70 border border-white/80 shadow-xs">
-                              <span className="text-[10px] text-novera-charcoal font-semibold block">Stage Pres.</span>
-                              <strong className="font-mono text-sm text-novera-ink">{score.stage} / 20</strong>
+                            <div className="p-2 rounded-xl bg-white/5 border border-white/10 shadow-xs">
+                              <span className="text-[10px] text-zinc-400 font-semibold block">Stage Pres.</span>
+                              <strong className="font-mono text-sm text-white">{score.stage} / 20</strong>
                             </div>
-                            <div className="p-2 rounded-xl bg-white/70 border border-white/80 shadow-xs">
-                              <span className="text-[10px] text-novera-charcoal font-semibold block">Posture</span>
-                              <strong className="font-mono text-sm text-novera-ink">{score.posture} / 15</strong>
+                            <div className="p-2 rounded-xl bg-white/5 border border-white/10 shadow-xs">
+                              <span className="text-[10px] text-zinc-400 font-semibold block">Posture</span>
+                              <strong className="font-mono text-sm text-white">{score.posture} / 15</strong>
                             </div>
-                            <div className="p-2 rounded-xl bg-white/70 border border-white/80 shadow-xs">
-                              <span className="text-[10px] text-novera-charcoal font-semibold block">Poses</span>
-                              <strong className="font-mono text-sm text-novera-ink">{score.poses} / 15</strong>
+                            <div className="p-2 rounded-xl bg-white/5 border border-white/10 shadow-xs">
+                              <span className="text-[10px] text-zinc-400 font-semibold block">Poses</span>
+                              <strong className="font-mono text-sm text-white">{score.poses} / 15</strong>
                             </div>
-                            <div className="p-2 rounded-xl bg-white/70 border border-white/80 shadow-xs">
-                              <span className="text-[10px] text-novera-charcoal font-semibold block">Face</span>
-                              <strong className="font-mono text-sm text-novera-ink">{score.face} / 10</strong>
+                            <div className="p-2 rounded-xl bg-white/5 border border-white/10 shadow-xs">
+                              <span className="text-[10px] text-zinc-400 font-semibold block">Face</span>
+                              <strong className="font-mono text-sm text-white">{score.face} / 10</strong>
                             </div>
                           </div>
 
                           {/* Sub-award totals summary */}
-                          <div className="flex flex-wrap items-center justify-between gap-2 p-2.5 rounded-xl bg-amber-50/60 border border-amber-200/60 text-xs">
+                          <div className="flex flex-wrap items-center justify-between gap-2 p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-xs">
                             <div className="flex items-center gap-1.5">
-                              <Star className="w-3.5 h-3.5 text-amber-600" />
-                              <span className="text-zinc-700">Personality:</span>
-                              <strong className="font-mono text-novera-ink">{score.personalityScore}/50</strong>
+                              <Star className="w-3.5 h-3.5 text-amber-400" />
+                              <span className="text-zinc-300">Personality:</span>
+                              <strong className="font-mono text-white">{score.personalityScore}/50</strong>
                             </div>
                             <div className="flex items-center gap-1.5">
-                              <Zap className="w-3.5 h-3.5 text-amber-600" />
-                              <span className="text-zinc-700">Stage Impact:</span>
-                              <strong className="font-mono text-novera-ink">{score.stagePresenceScore}/30</strong>
+                              <Zap className="w-3.5 h-3.5 text-amber-400" />
+                              <span className="text-zinc-300">Stage Impact:</span>
+                              <strong className="font-mono text-white">{score.stagePresenceScore}/30</strong>
                             </div>
                             <div className="flex items-center gap-1.5">
-                              <Camera className="w-3.5 h-3.5 text-amber-600" />
-                              <span className="text-zinc-700">Photogenic:</span>
-                              <strong className="font-mono text-novera-ink">{score.photogenicScore}/40</strong>
+                              <Camera className="w-3.5 h-3.5 text-amber-400" />
+                              <span className="text-zinc-300">Photogenic:</span>
+                              <strong className="font-mono text-white">{score.photogenicScore}/40</strong>
                             </div>
                           </div>
 
                           {/* Confidential Notes */}
                           {score.notes && (
-                            <div className="p-2.5 rounded-xl bg-white/80 border border-novera-ink/10 text-xs text-novera-charcoal italic flex items-start gap-2">
-                              <MessageSquare className="w-3.5 h-3.5 text-novera-foil shrink-0 mt-0.5" />
+                            <div className="p-2.5 rounded-xl bg-white/5 border border-white/10 text-xs text-zinc-300 italic flex items-start gap-2">
+                              <MessageSquare className="w-3.5 h-3.5 text-novera-gold shrink-0 mt-0.5" />
                               <div>
-                                <span className="font-semibold text-novera-ink not-italic">Judge Remark: </span>
+                                <span className="font-semibold text-white not-italic">Judge Remark: </span>
                                 &ldquo;{score.notes}&rdquo;
                               </div>
                             </div>
@@ -1429,11 +1426,11 @@ export default function AdminLeaderboardPage() {
             </div>
 
             {/* Modal Footer */}
-            <div className="pt-3 border-t border-novera-ink/10 flex justify-end shrink-0">
+            <div className="pt-3 border-t border-white/10 flex justify-end shrink-0">
               <button
                 type="button"
                 onClick={() => setSelectedAuditJudge(null)}
-                className="px-5 py-2.5 rounded-xl bg-novera-ink text-novera-paper hover:bg-novera-foil text-xs font-bold uppercase tracking-wider transition-all shadow-sm"
+                className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-novera-gold to-amber-500 text-black font-extrabold hover:brightness-110 text-xs uppercase tracking-wider transition-all shadow-sm"
               >
                 Close Audit View
               </button>
@@ -1441,6 +1438,7 @@ export default function AdminLeaderboardPage() {
           </div>
         </div>
       )}
+      </div>
     </div>
   );
 }

@@ -24,6 +24,7 @@ import {
   RefreshCw,
   Send,
 } from 'lucide-react';
+import RunwayStageBackground from '@/app/components/RunwayStageBackground';
 
 export default function VotePage() {
   const [candidates, setCandidates] = useState<Candidate[]>([]);
@@ -217,7 +218,11 @@ export default function VotePage() {
   const girlVotedCandidate = getCandidateById(voterStatus?.girlVotedFor);
 
   return (
-    <div className="max-w-3xl mx-auto px-3 sm:px-6 py-5 sm:py-10 space-y-5 sm:space-y-6 relative">
+    <div className="min-h-screen relative bg-[#070605] text-white overflow-x-hidden">
+      {/* Haute Couture Fashion Runway Stage Animation */}
+      <RunwayStageBackground />
+
+      <div className="max-w-3xl mx-auto px-3 sm:px-6 py-5 sm:py-10 space-y-5 sm:space-y-6 relative z-10">
       {/* 👑 HAUTE COUTURE LUXURY RUNWAY ENTRY INTRO */}
       {showScanIntro && (
         <div
@@ -314,16 +319,16 @@ export default function VotePage() {
 
       {/* Clean Minimal Header (No technical jargon) */}
       <div className="text-center space-y-2">
-        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full glass-badge-gold text-xs uppercase tracking-widest font-semibold text-novera-foil">
+        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/40 backdrop-blur-xl border border-white/20 text-xs uppercase tracking-widest font-semibold text-novera-gold">
           <Sparkles className="w-3.5 h-3.5 text-novera-gold animate-spin" style={{ animationDuration: '6s' }} />
           <span>Official Runway Ballot &bull; NOVERA &rsquo;26</span>
         </div>
-        <h1 className="font-serif text-3xl sm:text-4xl font-bold tracking-tight text-novera-ink">
+        <h1 className="font-serif text-3xl sm:text-4xl font-bold tracking-tight text-white drop-shadow-sm">
           Cast Your Votes
         </h1>
-        <p className="text-xs sm:text-sm text-novera-charcoal max-w-md mx-auto">
-          Tap your favorite contender for <strong className="text-novera-ink">Best Male Model</strong> and{' '}
-          <strong className="text-novera-ink">Best Female Model</strong>, then hit submit below.
+        <p className="text-xs sm:text-sm text-zinc-300 max-w-md mx-auto">
+          Tap your favorite contender for <strong className="text-white">Best Male Model</strong> and{' '}
+          <strong className="text-white">Best Female Model</strong>, then hit submit below.
         </p>
       </div>
 
@@ -332,14 +337,14 @@ export default function VotePage() {
         <div
           className={`p-4 rounded-2xl flex items-start gap-3 text-xs sm:text-sm shadow-md animate-in fade-in duration-200 ${
             feedback.type === 'success'
-              ? 'bg-emerald-500/10 border border-emerald-400/50 text-emerald-950 backdrop-blur-md'
-              : 'bg-rose-500/10 border border-rose-400/50 text-rose-950 backdrop-blur-md'
+              ? 'bg-emerald-500/20 border border-emerald-400/50 text-emerald-200 backdrop-blur-md'
+              : 'bg-rose-500/20 border border-rose-400/50 text-rose-200 backdrop-blur-md'
           }`}
         >
           {feedback.type === 'success' ? (
-            <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
+            <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />
           ) : (
-            <AlertCircle className="w-5 h-5 text-rose-600 shrink-0 mt-0.5" />
+            <AlertCircle className="w-5 h-5 text-rose-400 shrink-0 mt-0.5" />
           )}
           <div className="flex-grow font-semibold">{feedback.message}</div>
         </div>
@@ -347,19 +352,19 @@ export default function VotePage() {
 
       {/* COMPLETED BALLOT RECEIPT (If both votes are already cast) */}
       {hasVotedBoth ? (
-        <div className="p-6 sm:p-8 rounded-3xl glass-panel shadow-2xl text-center space-y-6 animate-in zoom-in-95 duration-300">
-          <div className="w-16 h-16 rounded-full bg-emerald-500/20 border-2 border-emerald-500 text-emerald-600 mx-auto flex items-center justify-center shadow-lg">
+        <div className="p-6 sm:p-8 rounded-3xl bg-black/50 backdrop-blur-2xl border border-white/15 shadow-2xl text-center space-y-6 animate-in zoom-in-95 duration-300 text-white">
+          <div className="w-16 h-16 rounded-full bg-emerald-500/20 border-2 border-emerald-400 text-emerald-400 mx-auto flex items-center justify-center shadow-lg">
             <Check className="w-9 h-9 stroke-[3]" />
           </div>
 
           <div className="space-y-1">
-            <span className="text-[10px] font-mono uppercase tracking-widest text-emerald-700 font-bold bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">
+            <span className="text-[10px] font-mono uppercase tracking-widest text-emerald-300 font-bold bg-emerald-950/60 px-3 py-1 rounded-full border border-emerald-500/40">
               Verified &bull; Ballot Sealed
             </span>
-            <h2 className="font-serif text-2xl sm:text-3xl font-bold text-novera-ink pt-2">
+            <h2 className="font-serif text-2xl sm:text-3xl font-bold text-white pt-2">
               Your Votes Are Recorded!
             </h2>
-            <p className="text-xs text-novera-charcoal">
+            <p className="text-xs text-zinc-300">
               Thank you for participating in NOVERA &rsquo;26. Your selections have been added to the master tabulation ledger.
             </p>
           </div>
@@ -367,34 +372,34 @@ export default function VotePage() {
           {/* Voted Cards Preview */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-left max-w-lg mx-auto">
             {/* Boy */}
-            <div className="p-4 rounded-2xl glass-card border border-emerald-300/60 shadow-sm flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-novera-ink text-novera-gold text-xs font-mono font-bold flex items-center justify-center shrink-0">
+            <div className="p-4 rounded-2xl bg-white/5 border border-white/15 backdrop-blur-md shadow-sm flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-novera-gold/20 border border-novera-gold/40 text-novera-gold text-xs font-mono font-bold flex items-center justify-center shrink-0">
                 {boyVotedCandidate?.candidateNumber || 'M-XX'}
               </div>
               <div className="truncate">
-                <span className="text-[10px] uppercase font-bold text-novera-foil block">Best Male Model</span>
-                <span className="font-serif font-bold text-sm text-novera-ink truncate block">
+                <span className="text-[10px] uppercase font-bold text-novera-gold block">Best Male Model</span>
+                <span className="font-serif font-bold text-sm text-white truncate block">
                   {boyVotedCandidate?.name || 'Voted'}
                 </span>
               </div>
             </div>
 
             {/* Girl */}
-            <div className="p-4 rounded-2xl glass-card border border-emerald-300/60 shadow-sm flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-novera-ink text-novera-gold text-xs font-mono font-bold flex items-center justify-center shrink-0">
+            <div className="p-4 rounded-2xl bg-white/5 border border-white/15 backdrop-blur-md shadow-sm flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-novera-gold/20 border border-novera-gold/40 text-novera-gold text-xs font-mono font-bold flex items-center justify-center shrink-0">
                 {girlVotedCandidate?.candidateNumber || 'F-XX'}
               </div>
               <div className="truncate">
-                <span className="text-[10px] uppercase font-bold text-novera-foil block">Best Female Model</span>
-                <span className="font-serif font-bold text-sm text-novera-ink truncate block">
+                <span className="text-[10px] uppercase font-bold text-novera-gold block">Best Female Model</span>
+                <span className="font-serif font-bold text-sm text-white truncate block">
                   {girlVotedCandidate?.name || 'Voted'}
                 </span>
               </div>
             </div>
           </div>
 
-          <div className="pt-2 text-[11px] text-novera-silver flex items-center justify-center gap-2">
-            <Lock className="w-3.5 h-3.5 text-emerald-600" />
+          <div className="pt-2 text-[11px] text-zinc-400 flex items-center justify-center gap-2">
+            <Lock className="w-3.5 h-3.5 text-emerald-400" />
             <span>Strict single-ballot verification enforced</span>
           </div>
         </div>
@@ -403,14 +408,14 @@ export default function VotePage() {
         <div className="space-y-6">
           {/* Category Switch Tabs (Boys vs Girls only - NO All tab) */}
           <div className="flex justify-center">
-            <div className="grid grid-cols-2 gap-1.5 w-full max-w-xs p-1.5 rounded-2xl glass-pill shadow-inner">
+            <div className="grid grid-cols-2 gap-1.5 w-full max-w-xs p-1.5 rounded-2xl bg-black/50 backdrop-blur-xl border border-white/15 shadow-inner">
               <button
                 type="button"
                 onClick={() => setCategoryFilter('boy')}
                 className={`py-2.5 px-4 rounded-xl text-xs sm:text-sm font-bold uppercase tracking-wider whitespace-nowrap transition-all flex items-center justify-center gap-2 ${
                   categoryFilter === 'boy'
-                    ? 'bg-novera-ink text-novera-paper shadow-md'
-                    : 'text-novera-charcoal hover:text-novera-ink hover:bg-white/40'
+                    ? 'bg-gradient-to-r from-novera-gold to-amber-500 text-black shadow-lg font-extrabold'
+                    : 'text-zinc-400 hover:text-white hover:bg-white/10'
                 }`}
               >
                 <span>Boys</span>
@@ -425,8 +430,8 @@ export default function VotePage() {
                 onClick={() => setCategoryFilter('girl')}
                 className={`py-2.5 px-4 rounded-xl text-xs sm:text-sm font-bold uppercase tracking-wider whitespace-nowrap transition-all flex items-center justify-center gap-2 ${
                   categoryFilter === 'girl'
-                    ? 'bg-novera-ink text-novera-paper shadow-md'
-                    : 'text-novera-charcoal hover:text-novera-ink hover:bg-white/40'
+                    ? 'bg-gradient-to-r from-novera-gold to-amber-500 text-black shadow-lg font-extrabold'
+                    : 'text-zinc-400 hover:text-white hover:bg-white/10'
                 }`}
               >
                 <span>Girls</span>
@@ -441,37 +446,37 @@ export default function VotePage() {
 
           {/* SECTION 1: BEST MALE MODEL (BOY) */}
           {categoryFilter === 'boy' && (
-            <div className="p-4 sm:p-6 rounded-3xl glass-panel shadow-sm space-y-4">
-              <div className="flex items-center justify-between pb-3 border-b border-novera-ink/10">
+            <div className="p-4 sm:p-6 rounded-3xl bg-black/40 backdrop-blur-2xl border border-white/15 shadow-2xl space-y-4">
+              <div className="flex items-center justify-between pb-3 border-b border-white/10">
                 <div className="flex items-center gap-2">
                   <Crown className="w-4 h-4 text-novera-gold" />
-                  <h3 className="font-serif text-lg font-bold text-novera-ink">
+                  <h3 className="font-serif text-lg font-bold text-white">
                     1. Best Male Model (Boy)
                   </h3>
                 </div>
                 {hasVotedBoy ? (
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200 flex items-center gap-1">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-300 bg-emerald-950/60 px-2.5 py-1 rounded-full border border-emerald-500/40 flex items-center gap-1">
                     <Check className="w-3 h-3" />
                     <span>Voted: {boyVotedCandidate?.candidateNumber}</span>
                   </span>
                 ) : (
-                  <span className="text-[10px] font-mono text-novera-charcoal font-semibold uppercase tracking-wider">
+                  <span className="text-[10px] font-mono text-zinc-400 font-semibold uppercase tracking-wider">
                     Pick 1 Male Model
                   </span>
                 )}
               </div>
 
               {hasVotedBoy ? (
-                <div className="p-3.5 rounded-2xl bg-emerald-50/70 border border-emerald-300 text-xs flex items-center justify-between">
+                <div className="p-3.5 rounded-2xl bg-emerald-950/40 border border-emerald-500/40 text-xs flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <span className="px-2.5 py-1 rounded-lg bg-emerald-700 text-white font-mono font-bold text-xs">
+                    <span className="px-2.5 py-1 rounded-lg bg-emerald-600 text-white font-mono font-bold text-xs">
                       {boyVotedCandidate?.candidateNumber}
                     </span>
-                    <span className="font-serif font-bold text-sm text-emerald-950">
+                    <span className="font-serif font-bold text-sm text-emerald-200">
                       {boyVotedCandidate?.name}
                     </span>
                   </div>
-                  <span className="text-[11px] text-emerald-700 font-semibold uppercase tracking-wider flex items-center gap-1">
+                  <span className="text-[11px] text-emerald-300 font-semibold uppercase tracking-wider flex items-center gap-1">
                     <Lock className="w-3.5 h-3.5" />
                     <span>Locked</span>
                   </span>
@@ -487,27 +492,27 @@ export default function VotePage() {
                         onClick={() => setSelectedBoyId(candidate.id)}
                         className={`p-3.5 rounded-2xl text-left flex items-center justify-between gap-3 transition-all duration-200 ${
                           isSelected
-                            ? 'bg-novera-ink text-novera-paper shadow-lg ring-2 ring-novera-foil scale-[1.01]'
-                            : 'glass-card hover:border-novera-foil/50 hover:bg-white/90 text-novera-ink'
+                            ? 'bg-gradient-to-r from-novera-foil/30 to-amber-900/30 text-white shadow-[0_0_25px_rgba(203,167,95,0.35)] border-2 border-novera-foil scale-[1.01]'
+                            : 'bg-white/5 hover:bg-white/10 border border-white/10 text-white backdrop-blur-md'
                         }`}
                       >
                         <div className="flex items-center gap-3 truncate">
                           <span
                             className={`w-10 h-10 rounded-xl font-mono text-xs font-bold flex items-center justify-center shrink-0 transition-colors ${
                               isSelected
-                                ? 'bg-novera-gold text-novera-ink'
-                                : 'bg-novera-paper-dim text-novera-ink border border-novera-ink/10'
+                                ? 'bg-gradient-to-br from-novera-gold to-amber-500 text-black font-extrabold'
+                                : 'bg-white/10 text-novera-gold border border-white/15'
                             }`}
                           >
                             {candidate.candidateNumber}
                           </span>
                           <div className="truncate">
-                            <span className="font-serif font-bold text-sm truncate block">
+                            <span className="font-serif font-bold text-sm truncate block text-white">
                               {candidate.name}
                             </span>
                             <span
                               className={`text-[11px] block truncate ${
-                                isSelected ? 'text-zinc-300' : 'text-novera-charcoal'
+                                isSelected ? 'text-amber-200' : 'text-zinc-400'
                               }`}
                             >
                               Contender
@@ -519,8 +524,8 @@ export default function VotePage() {
                         <div
                           className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 border-2 transition-all ${
                             isSelected
-                              ? 'bg-novera-gold border-novera-gold text-novera-ink'
-                              : 'border-novera-ink/20'
+                              ? 'bg-novera-gold border-novera-gold text-black'
+                              : 'border-white/20'
                           }`}
                         >
                           {isSelected && <Check className="w-3.5 h-3.5 stroke-[3]" />}
@@ -540,8 +545,8 @@ export default function VotePage() {
                     disabled={isSubmitting || !selectedBoyId}
                     className={`w-full py-4 rounded-2xl font-bold uppercase tracking-wider text-xs sm:text-sm flex items-center justify-center gap-2 transition-all shadow-xl group relative overflow-hidden ${
                       selectedBoyId
-                        ? 'bg-novera-foil text-novera-paper hover:bg-novera-ink'
-                        : 'bg-novera-paper-dim text-novera-charcoal cursor-not-allowed opacity-60 border border-novera-ink/10'
+                        ? 'bg-gradient-to-r from-[#d4af37] via-[#f3e5ab] to-[#aa7c11] text-[#0a0a0a] hover:brightness-110 font-extrabold shadow-[0_0_25px_rgba(212,175,55,0.4)]'
+                        : 'bg-white/5 text-zinc-500 cursor-not-allowed opacity-50 border border-white/10'
                     }`}
                   >
                     <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 pointer-events-none" />
@@ -567,7 +572,7 @@ export default function VotePage() {
                   <button
                     type="button"
                     onClick={() => setCategoryFilter('girl')}
-                    className="w-full py-3.5 rounded-2xl font-bold uppercase tracking-wider text-xs sm:text-sm flex items-center justify-center gap-2 transition-all bg-novera-ink text-novera-paper hover:bg-novera-foil shadow-lg"
+                    className="w-full py-3.5 rounded-2xl font-bold uppercase tracking-wider text-xs sm:text-sm flex items-center justify-center gap-2 transition-all bg-gradient-to-r from-novera-gold to-amber-600 text-black font-extrabold hover:brightness-110 shadow-lg"
                   >
                     <span>Now Vote for Female Model (Girls)</span>
                     <span>&rarr;</span>
@@ -579,37 +584,37 @@ export default function VotePage() {
 
           {/* SECTION 2: BEST FEMALE MODEL (GIRL) */}
           {categoryFilter === 'girl' && (
-            <div className="p-4 sm:p-6 rounded-3xl glass-panel shadow-sm space-y-4">
-              <div className="flex items-center justify-between pb-3 border-b border-novera-ink/10">
+            <div className="p-4 sm:p-6 rounded-3xl bg-black/40 backdrop-blur-2xl border border-white/15 shadow-2xl space-y-4">
+              <div className="flex items-center justify-between pb-3 border-b border-white/10">
                 <div className="flex items-center gap-2">
                   <Crown className="w-4 h-4 text-novera-gold" />
-                  <h3 className="font-serif text-lg font-bold text-novera-ink">
+                  <h3 className="font-serif text-lg font-bold text-white">
                     2. Best Female Model (Girl)
                   </h3>
                 </div>
                 {hasVotedGirl ? (
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200 flex items-center gap-1">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-300 bg-emerald-950/60 px-2.5 py-1 rounded-full border border-emerald-500/40 flex items-center gap-1">
                     <Check className="w-3 h-3" />
                     <span>Voted: {girlVotedCandidate?.candidateNumber}</span>
                   </span>
                 ) : (
-                  <span className="text-[10px] font-mono text-novera-charcoal font-semibold uppercase tracking-wider">
+                  <span className="text-[10px] font-mono text-zinc-400 font-semibold uppercase tracking-wider">
                     Pick 1 Female Model
                   </span>
                 )}
               </div>
 
               {hasVotedGirl ? (
-                <div className="p-3.5 rounded-2xl bg-emerald-50/70 border border-emerald-300 text-xs flex items-center justify-between">
+                <div className="p-3.5 rounded-2xl bg-emerald-950/40 border border-emerald-500/40 text-xs flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <span className="px-2.5 py-1 rounded-lg bg-emerald-700 text-white font-mono font-bold text-xs">
+                    <span className="px-2.5 py-1 rounded-lg bg-emerald-600 text-white font-mono font-bold text-xs">
                       {girlVotedCandidate?.candidateNumber}
                     </span>
-                    <span className="font-serif font-bold text-sm text-emerald-950">
+                    <span className="font-serif font-bold text-sm text-emerald-200">
                       {girlVotedCandidate?.name}
                     </span>
                   </div>
-                  <span className="text-[11px] text-emerald-700 font-semibold uppercase tracking-wider flex items-center gap-1">
+                  <span className="text-[11px] text-emerald-300 font-semibold uppercase tracking-wider flex items-center gap-1">
                     <Lock className="w-3.5 h-3.5" />
                     <span>Locked</span>
                   </span>
@@ -625,27 +630,27 @@ export default function VotePage() {
                         onClick={() => setSelectedGirlId(candidate.id)}
                         className={`p-3.5 rounded-2xl text-left flex items-center justify-between gap-3 transition-all duration-200 ${
                           isSelected
-                            ? 'bg-novera-ink text-novera-paper shadow-lg ring-2 ring-novera-foil scale-[1.01]'
-                            : 'glass-card hover:border-novera-foil/50 hover:bg-white/90 text-novera-ink'
+                            ? 'bg-gradient-to-r from-novera-foil/30 to-amber-900/30 text-white shadow-[0_0_25px_rgba(203,167,95,0.35)] border-2 border-novera-foil scale-[1.01]'
+                            : 'bg-white/5 hover:bg-white/10 border border-white/10 text-white backdrop-blur-md'
                         }`}
                       >
                         <div className="flex items-center gap-3 truncate">
                           <span
                             className={`w-10 h-10 rounded-xl font-mono text-xs font-bold flex items-center justify-center shrink-0 transition-colors ${
                               isSelected
-                                ? 'bg-novera-gold text-novera-ink'
-                                : 'bg-novera-paper-dim text-novera-ink border border-novera-ink/10'
+                                ? 'bg-gradient-to-br from-novera-gold to-amber-500 text-black font-extrabold'
+                                : 'bg-white/10 text-novera-gold border border-white/15'
                             }`}
                           >
                             {candidate.candidateNumber}
                           </span>
                           <div className="truncate">
-                            <span className="font-serif font-bold text-sm truncate block">
+                            <span className="font-serif font-bold text-sm truncate block text-white">
                               {candidate.name}
                             </span>
                             <span
                               className={`text-[11px] block truncate ${
-                                isSelected ? 'text-zinc-300' : 'text-novera-charcoal'
+                                isSelected ? 'text-amber-200' : 'text-zinc-400'
                               }`}
                             >
                               Contender
@@ -657,8 +662,8 @@ export default function VotePage() {
                         <div
                           className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 border-2 transition-all ${
                             isSelected
-                              ? 'bg-novera-gold border-novera-gold text-novera-ink'
-                              : 'border-novera-ink/20'
+                              ? 'bg-novera-gold border-novera-gold text-black'
+                              : 'border-white/20'
                           }`}
                         >
                           {isSelected && <Check className="w-3.5 h-3.5 stroke-[3]" />}
@@ -678,8 +683,8 @@ export default function VotePage() {
                     disabled={isSubmitting || !selectedGirlId}
                     className={`w-full py-4 rounded-2xl font-bold uppercase tracking-wider text-xs sm:text-sm flex items-center justify-center gap-2 transition-all shadow-xl group relative overflow-hidden ${
                       selectedGirlId
-                        ? 'bg-novera-foil text-novera-paper hover:bg-novera-ink'
-                        : 'bg-novera-paper-dim text-novera-charcoal cursor-not-allowed opacity-60 border border-novera-ink/10'
+                        ? 'bg-gradient-to-r from-[#d4af37] via-[#f3e5ab] to-[#aa7c11] text-[#0a0a0a] hover:brightness-110 font-extrabold shadow-[0_0_25px_rgba(212,175,55,0.4)]'
+                        : 'bg-white/5 text-zinc-500 cursor-not-allowed opacity-50 border border-white/10'
                     }`}
                   >
                     <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 pointer-events-none" />
@@ -705,7 +710,7 @@ export default function VotePage() {
                   <button
                     type="button"
                     onClick={() => setCategoryFilter('boy')}
-                    className="w-full py-3.5 rounded-2xl font-bold uppercase tracking-wider text-xs sm:text-sm flex items-center justify-center gap-2 transition-all bg-novera-ink text-novera-paper hover:bg-novera-foil shadow-lg"
+                    className="w-full py-3.5 rounded-2xl font-bold uppercase tracking-wider text-xs sm:text-sm flex items-center justify-center gap-2 transition-all bg-gradient-to-r from-novera-gold to-amber-600 text-black font-extrabold hover:brightness-110 shadow-lg"
                   >
                     <span>Vote for Male Model (Boys)</span>
                     <span>&rarr;</span>
@@ -715,11 +720,12 @@ export default function VotePage() {
             </div>
           )}
 
-          <p className="text-center text-[11px] text-novera-charcoal pt-1">
+          <p className="text-center text-[11px] text-zinc-400 pt-1">
             Each device is verified for 1 vote per category. Your vote locks once submitted.
           </p>
         </div>
       )}
+      </div>
     </div>
   );
 }
