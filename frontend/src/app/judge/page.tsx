@@ -17,7 +17,6 @@ import {
   Radio,
   Check,
   Zap,
-  Palette,
   Camera,
   Heart,
   Crown,
@@ -48,22 +47,14 @@ export default function JudgePortalPage() {
 
   // Active scoring candidate
   const [scoringCandidate, setScoringCandidate] = useState<Candidate | null>(null);
-  const [sheetTab, setSheetTab] = useState<'model' | 'design'>('model');
 
-  // 1. Model Official Runway Criteria (Max 100)
+  // Model Official Runway Criteria (Max 100)
   const [walking, setWalking] = useState<number>(16); // max 20
   const [confidence, setConfidence] = useState<number>(16); // max 20
   const [stage, setStage] = useState<number>(16); // max 20
   const [posture, setPosture] = useState<number>(12); // max 15
   const [poses, setPoses] = useState<number>(12); // max 15
   const [face, setFace] = useState<number>(8); // max 10
-
-  // 2. Student Design Official Criteria (Max 100)
-  const [designCreativity, setDesignCreativity] = useState<number>(24); // max 30
-  const [designCraftsmanship, setDesignCraftsmanship] = useState<number>(20); // max 25
-  const [designTheme, setDesignTheme] = useState<number>(16); // max 20
-  const [designFit, setDesignFit] = useState<number>(12); // max 15
-  const [designImpact, setDesignImpact] = useState<number>(8); // max 10
 
   const [notes, setNotes] = useState<string>('');
   const [isSaving, setIsSaving] = useState<boolean>(false);
@@ -137,7 +128,6 @@ export default function JudgePortalPage() {
 
   const openScoringModal = (candidate: Candidate) => {
     setScoringCandidate(candidate);
-    setSheetTab('model');
 
     const existing = judgeScores.find(
       (s) => s.judgeId === selectedJudgeId && s.candidateId === candidate.id
@@ -150,13 +140,6 @@ export default function JudgePortalPage() {
       setPosture(existing.posture ?? 12);
       setPoses(existing.poses ?? 12);
       setFace(existing.face ?? 8);
-
-      setDesignCreativity(existing.designCreativity ?? 24);
-      setDesignCraftsmanship(existing.designCraftsmanship ?? 20);
-      setDesignTheme(existing.designTheme ?? 16);
-      setDesignFit(existing.designFit ?? 12);
-      setDesignImpact(existing.designImpact ?? 8);
-
       setNotes(existing.notes || '');
     } else {
       setWalking(16);
@@ -165,13 +148,6 @@ export default function JudgePortalPage() {
       setPosture(12);
       setPoses(12);
       setFace(8);
-
-      setDesignCreativity(24);
-      setDesignCraftsmanship(20);
-      setDesignTheme(16);
-      setDesignFit(12);
-      setDesignImpact(8);
-
       setNotes('');
     }
   };
@@ -181,7 +157,6 @@ export default function JudgePortalPage() {
   const personalityScore = Number(confidence) + Number(stage) + Number(face); // max 50
   const stagePresenceScore = Math.min(10, Math.round(Number(confidence) / 2)) + Number(stage); // max 30 (10 conf + 20 stage)
   const photogenicScore = Number(posture) + Number(poses) + Number(face); // max 40
-  const totalDesign = Number(designCreativity) + Number(designCraftsmanship) + Number(designTheme) + Number(designFit) + Number(designImpact); // max 100
 
   const handleScoreSubmit = async () => {
     if (!scoringCandidate) return;
@@ -208,13 +183,13 @@ export default function JudgePortalPage() {
       stagePresenceScore,
       photogenicScore,
 
-      // Student Design Sheet
-      designCreativity: Number(designCreativity),
-      designCraftsmanship: Number(designCraftsmanship),
-      designTheme: Number(designTheme),
-      designFit: Number(designFit),
-      designImpact: Number(designImpact),
-      totalDesign,
+      // Student Design (deprecated / set to 0)
+      designCreativity: 0,
+      designCraftsmanship: 0,
+      designTheme: 0,
+      designFit: 0,
+      designImpact: 0,
+      totalDesign: 0,
 
       notes,
       updatedAt: Date.now(),
@@ -526,13 +501,6 @@ export default function JudgePortalPage() {
                       <span>Most Photogenic:</span>
                       <span className="font-mono">{score.photogenicScore}/40</span>
                     </div>
-                    <div className="flex justify-between text-emerald-900 pt-1.5 border-t border-emerald-200/60 font-semibold">
-                      <span className="flex items-center gap-1">
-                        <Palette className="w-3 h-3 text-emerald-700" />
-                        <span>Student Design:</span>
-                      </span>
-                      <span className="font-mono font-bold">{score.totalDesign}/100</span>
-                    </div>
                   </div>
                 )}
               </div>
@@ -587,39 +555,8 @@ export default function JudgePortalPage() {
               </button>
             </div>
 
-            {/* Sheet Tabs: Model vs Design */}
-            <div className="flex p-1 rounded-2xl glass-pill mb-5 shadow-inner">
-              <button
-                type="button"
-                onClick={() => setSheetTab('model')}
-                className={`flex-1 py-2.5 text-xs font-bold uppercase tracking-wider rounded-xl transition-all flex items-center justify-center gap-1.5 ${
-                  sheetTab === 'model'
-                    ? 'bg-novera-ink text-novera-paper shadow-lg border border-white/10'
-                    : 'text-novera-charcoal hover:text-novera-ink'
-                }`}
-              >
-                <Crown className="w-3.5 h-3.5 text-novera-gold" />
-                <span>1. Model Performance (100)</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => setSheetTab('design')}
-                className={`flex-1 py-2.5 text-xs font-bold uppercase tracking-wider rounded-xl transition-all flex items-center justify-center gap-1.5 ${
-                  sheetTab === 'design'
-                    ? 'bg-novera-foil text-novera-paper shadow-lg border border-white/10'
-                    : 'text-novera-charcoal hover:text-novera-ink'
-                }`}
-              >
-                <Palette className="w-3.5 h-3.5 text-novera-paper" />
-                <span>2. Student Design (100)</span>
-              </button>
-            </div>
-
-            {/* TAB 1: MODEL PERFORMANCE OFFICIAL CRITERIA */}
-            {sheetTab === 'model' && (
-              <div className="space-y-4">
-                {/* Live Awards Alignment Badge Bar in Frosted Glass */}
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 p-3 rounded-2xl glass-panel-subtle text-center">
+            {/* Live Awards Alignment Badge Bar in Frosted Glass */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 p-3 rounded-2xl glass-panel-subtle text-center mb-4">
                   <div className="p-1.5 rounded-xl bg-white/70 shadow-sm border border-white/80">
                     <span className="text-[9px] uppercase tracking-wider text-novera-charcoal font-bold block">Top Model</span>
                     <strong className="text-base font-mono text-novera-foil">{totalModel}/100</strong>
@@ -742,110 +679,6 @@ export default function JudgePortalPage() {
                     />
                   </div>
                 </div>
-              </div>
-            )}
-
-            {/* TAB 2: STUDENT DESIGN OFFICIAL CRITERIA */}
-            {sheetTab === 'design' && (
-              <div className="space-y-4">
-                <div className="p-4 rounded-2xl glass-dark text-novera-paper flex items-center justify-between shadow-lg border border-novera-foil/30">
-                  <div>
-                    <span className="text-[10px] uppercase tracking-wider text-novera-gold font-bold">
-                      Student Outfit Design Score
-                    </span>
-                    <div className="text-[11px] text-novera-silver">Judged strictly on design craft</div>
-                  </div>
-                  <strong className="text-2xl font-serif text-novera-gold font-mono">{totalDesign}/100</strong>
-                </div>
-
-                <div className="space-y-4 pt-1">
-                  <div>
-                    <div className="flex justify-between items-center text-xs mb-1.5">
-                      <span className="font-semibold text-novera-ink">Creativity &amp; Originality (Fresh concept)</span>
-                      <span className="px-2.5 py-0.5 rounded-full bg-novera-foil/15 text-novera-foil font-mono font-bold text-xs border border-novera-foil/30">
-                        {designCreativity} / 30
-                      </span>
-                    </div>
-                    <input
-                      type="range"
-                      min="0"
-                      max="30"
-                      value={designCreativity}
-                      onChange={(e) => setDesignCreativity(Number(e.target.value))}
-                      className="w-full glass-slider cursor-pointer"
-                    />
-                  </div>
-
-                  <div>
-                    <div className="flex justify-between items-center text-xs mb-1.5">
-                      <span className="font-semibold text-novera-ink">Craftsmanship &amp; Finish (Stitching &amp; detail)</span>
-                      <span className="px-2.5 py-0.5 rounded-full bg-novera-foil/15 text-novera-foil font-mono font-bold text-xs border border-novera-foil/30">
-                        {designCraftsmanship} / 25
-                      </span>
-                    </div>
-                    <input
-                      type="range"
-                      min="0"
-                      max="25"
-                      value={designCraftsmanship}
-                      onChange={(e) => setDesignCraftsmanship(Number(e.target.value))}
-                      className="w-full glass-slider cursor-pointer"
-                    />
-                  </div>
-
-                  <div>
-                    <div className="flex justify-between items-center text-xs mb-1.5">
-                      <span className="font-semibold text-novera-ink">Theme Relevance (Fitting event theme)</span>
-                      <span className="px-2.5 py-0.5 rounded-full bg-novera-foil/15 text-novera-foil font-mono font-bold text-xs border border-novera-foil/30">
-                        {designTheme} / 20
-                      </span>
-                    </div>
-                    <input
-                      type="range"
-                      min="0"
-                      max="20"
-                      value={designTheme}
-                      onChange={(e) => setDesignTheme(Number(e.target.value))}
-                      className="w-full glass-slider cursor-pointer"
-                    />
-                  </div>
-
-                  <div>
-                    <div className="flex justify-between items-center text-xs mb-1.5">
-                      <span className="font-semibold text-novera-ink">Fit &amp; Styling (Sitting on model in motion)</span>
-                      <span className="px-2.5 py-0.5 rounded-full bg-novera-foil/15 text-novera-foil font-mono font-bold text-xs border border-novera-foil/30">
-                        {designFit} / 15
-                      </span>
-                    </div>
-                    <input
-                      type="range"
-                      min="0"
-                      max="15"
-                      value={designFit}
-                      onChange={(e) => setDesignFit(Number(e.target.value))}
-                      className="w-full glass-slider cursor-pointer"
-                    />
-                  </div>
-
-                  <div>
-                    <div className="flex justify-between items-center text-xs mb-1.5">
-                      <span className="font-semibold text-novera-ink">Overall Impact (Stage visual effect)</span>
-                      <span className="px-2.5 py-0.5 rounded-full bg-novera-foil/15 text-novera-foil font-mono font-bold text-xs border border-novera-foil/30">
-                        {designImpact} / 10
-                      </span>
-                    </div>
-                    <input
-                      type="range"
-                      min="0"
-                      max="10"
-                      value={designImpact}
-                      onChange={(e) => setDesignImpact(Number(e.target.value))}
-                      className="w-full glass-slider cursor-pointer"
-                    />
-                  </div>
-                </div>
-              </div>
-            )}
 
             {/* Judge Notes in Frosted Glass Input */}
             <div className="pt-3">

@@ -57,13 +57,13 @@ export interface JudgeScore {
   stagePresenceScore: number; // Max 30 (Confidence 10 + Stage 20)
   photogenicScore: number; // Max 40 (Posture 15 + Poses 15 + Face 10)
 
-  // 2. Student Design Criteria (Max 100 -> Best Design Students)
-  designCreativity: number; // Max 30
-  designCraftsmanship: number; // Max 25
-  designTheme: number; // Max 20
-  designFit: number; // Max 15
-  designImpact: number; // Max 10
-  totalDesign: number; // Max 100
+  // 2. Student Design Criteria (Optional/Deprecated)
+  designCreativity?: number;
+  designCraftsmanship?: number;
+  designTheme?: number;
+  designFit?: number;
+  designImpact?: number;
+  totalDesign?: number;
 
   notes?: string;
   updatedAt: number;
@@ -76,7 +76,7 @@ export interface CandidateAwardRankings {
   personalityAvg: number; // /50
   stagePresenceAvg: number; // /30
   photogenicAvg: number; // /40
-  designAvg: number; // /100
+  designAvg?: number; // /100
   scores: JudgeScore[];
 }
 

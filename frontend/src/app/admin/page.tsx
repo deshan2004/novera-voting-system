@@ -32,7 +32,6 @@ import {
   Shuffle,
   Vote,
   Camera,
-  Palette,
   Zap,
   Heart,
   Printer,
@@ -57,7 +56,6 @@ export type AwardKey =
   | 'personality'
   | 'stagePresence'
   | 'photogenic'
-  | 'design'
   | 'peoplesChoice';
 
 interface AwardDefinition {
@@ -106,15 +104,6 @@ const AWARD_DEFINITIONS: AwardDefinition[] = [
     maxScore: 40,
     source: 'jury',
     criteriaText: 'Posture & Poise (15) + Poses (15) + Facial Expression (10)',
-  },
-  {
-    key: 'design',
-    title: 'Best Design (Students)',
-    subtitle: 'Design Marking Sheet (Max 100)',
-    icon: Palette,
-    maxScore: 100,
-    source: 'jury',
-    criteriaText: 'Creativity (30) + Craftsmanship (25) + Theme (20) + Fit (15) + Impact (10)',
   },
   {
     key: 'peoplesChoice',
@@ -292,28 +281,6 @@ export default function AdminLeaderboardPage() {
             ) / 10
           : 0;
 
-      // 5. Best Design Students (Max 100)
-      const designAvg =
-        judgeCount > 0
-          ? Math.round(
-              (scores.reduce(
-                (sum, s) =>
-                  sum +
-                  Number(
-                    s.totalDesign ??
-                      Number(s.designCreativity || 0) +
-                        Number(s.designCraftsmanship || 0) +
-                        Number(s.designTheme || 0) +
-                        Number(s.designFit || 0) +
-                        Number(s.designImpact || 0)
-                  ),
-                0
-              ) /
-                judgeCount) *
-                10
-            ) / 10
-          : 0;
-
       return {
         candidate,
         judgeCount,
@@ -322,7 +289,6 @@ export default function AdminLeaderboardPage() {
         personalityAvg,
         stagePresenceAvg,
         photogenicAvg,
-        designAvg,
         votes: candidate.votes || 0,
       };
     });
@@ -341,8 +307,6 @@ export default function AdminLeaderboardPage() {
           return b.stagePresenceAvg - a.stagePresenceAvg || b.judgeCount - a.judgeCount;
         case 'photogenic':
           return b.photogenicAvg - a.photogenicAvg || b.judgeCount - a.judgeCount;
-        case 'design':
-          return b.designAvg - a.designAvg || b.judgeCount - a.judgeCount;
         case 'peoplesChoice':
         default:
           return b.votes - a.votes;
@@ -361,8 +325,6 @@ export default function AdminLeaderboardPage() {
         return { score: stat.stagePresenceAvg, max: 30 };
       case 'photogenic':
         return { score: stat.photogenicAvg, max: 40 };
-      case 'design':
-        return { score: stat.designAvg, max: 100 };
       case 'peoplesChoice':
       default:
         return { score: stat.votes, max: 0 };
