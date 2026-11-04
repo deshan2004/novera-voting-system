@@ -298,3 +298,59 @@ input[type='range'].glass-slider::-webkit-slider-thumb:hover {
 .animate-luxury-glow {
   animation: luxuryGlow 3s ease-in-out infinite;
 }
+
+/* ================= RUNWAY STAGE LIGHTS & SPOTLIGHTS ================= */
+@keyframes spotlightLeft {
+  0% {
+    transform: rotate(-25deg) scaleX(1);
+    opacity: 0.35;
+  }
+  50% {
+    transform: rotate(10deg) scaleX(1.2);
+    opacity: 0.65;
+  }
+  100% {
+    transform: rotate(-25deg) scaleX(1);
+    opacity: 0.35;
+  }
+}
+
+.animate-spotlight-left {
+  animation: spotlightLeft 9s ease-in-out infinite;
+  transform-origin: top left;
+}
+
+@keyframes spotlightRight {
+  0% {
+    transform: rotate(25deg) scaleX(1);
+    opacity: 0.35;
+  }
+  50% {
+    transform: rotate(-10deg) scaleX(1.2);
+    opacity: 0.65;
+  }
+  100% {
+    transform: rotate(25deg) scaleX(1);
+    opacity: 0.35;
+  }
+}
+
+.animate-spotlight-right {
+  animation: spotlightRight 11s ease-in-out infinite;
+  transform-origin: top right;
+}
+
+@keyframes runwayTrackPulse {
+  0%, 100% {
+    opacity: 0.3;
+    filter: drop-shadow(0 0 10px rgba(236, 213, 153, 0.4));
+  }
+  50% {
+    opacity: 0.75;
+    filter: drop-shadow(0 0 25px rgba(236, 213, 153, 0.9));
+  }
+}
+
+.animate-runway-pulse {
+  animation: runwayTrackPulse 4s ease-in-out infinite;
+}

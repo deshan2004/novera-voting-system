@@ -39,6 +39,7 @@ import {
   Trophy,
 } from 'lucide-react';
 import Image from 'next/image';
+import RunwayStageBackground from '@/app/components/RunwayStageBackground';
 
 const ADMIN_PASSCODE = 'novera2026';
 
@@ -428,20 +429,29 @@ export default function AdminLeaderboardPage() {
 
   if (!isAuthenticated) {
     return (
-      <div className="min-h-[75vh] flex items-center justify-center p-4">
-        <div className="max-w-md w-full bg-white rounded-3xl p-8 border border-novera-ink/10 shadow-editorial text-center space-y-6">
-          <div className="w-16 h-16 rounded-2xl bg-novera-ink text-novera-gold mx-auto flex items-center justify-center shadow-md">
-            <Lock className="w-8 h-8" />
+      <div className="min-h-[85vh] flex items-center justify-center p-4 relative overflow-hidden">
+        {/* Haute Couture Fashion Runway Stage Animation & Looping Video Background */}
+        <RunwayStageBackground />
+
+        <div className="max-w-md w-full bg-white/95 backdrop-blur-2xl rounded-3xl p-6 sm:p-8 border border-white/60 shadow-[0_30px_90px_rgba(0,0,0,0.65)] text-center space-y-6 relative overflow-hidden animate-in zoom-in-95 duration-500">
+          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-novera-foil to-transparent animate-scan-sweep" />
+
+          {/* Luxury Monogram Floating Badge */}
+          <div className="relative mx-auto w-20 h-20 flex items-center justify-center">
+            <div className="absolute inset-0 rounded-2xl bg-amber-400/20 blur-xl animate-luxury-glow pointer-events-none" />
+            <div className="w-16 h-16 rounded-2xl bg-novera-ink text-novera-gold flex items-center justify-center shadow-2xl border border-novera-foil/50 animate-float relative z-10">
+              <Lock className="w-8 h-8 text-novera-gold drop-shadow-[0_0_12px_rgba(236,213,153,0.8)]" />
+            </div>
           </div>
 
-          <div className="space-y-1">
-            <span className="text-[11px] font-semibold tracking-[0.25em] uppercase text-novera-foil">
-              Restricted Area
+          <div className="space-y-1.5">
+            <span className="text-[11px] font-semibold tracking-[0.25em] uppercase text-novera-foil block">
+              Restricted Area &bull; Organizing Committee
             </span>
-            <h1 className="font-serif text-2xl sm:text-3xl font-bold text-novera-ink">
+            <h1 className="font-serif text-2xl sm:text-3xl font-extrabold text-novera-ink tracking-tight pt-1">
               NOVERA &rsquo;26 Admin
             </h1>
-            <p className="text-xs text-novera-charcoal">
+            <p className="text-xs text-novera-charcoal font-medium">
               Enter master administrator password to view live audience votes and judge evaluations.
             </p>
           </div>
@@ -456,26 +466,29 @@ export default function AdminLeaderboardPage() {
                 placeholder="Enter admin passcode"
                 value={passcode}
                 onChange={(e) => setPasscode(e.target.value)}
-                className="w-full px-4 py-3 rounded-xl border border-novera-ink/20 text-xs sm:text-sm bg-novera-paper-dim text-novera-ink outline-none focus:border-novera-foil font-mono"
+                className="w-full px-4 py-3.5 rounded-2xl glass-input text-xs sm:text-sm bg-white/70 text-novera-ink outline-none focus:border-novera-foil font-mono text-center tracking-widest text-base shadow-inner border border-novera-ink/15 transition-all focus:bg-white"
                 required
+                autoFocus
               />
             </div>
 
             {passcodeError && (
-              <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-center gap-2">
+              <div className="p-3 rounded-2xl bg-rose-50/90 border border-rose-200 text-rose-800 text-xs flex items-center gap-2 shadow-sm animate-in fade-in duration-200">
                 <span>{passcodeError}</span>
               </div>
             )}
 
             <button
               type="submit"
-              className="w-full py-3.5 rounded-xl bg-novera-ink text-novera-paper hover:bg-novera-foil transition-all text-xs font-bold uppercase tracking-wider shadow-sm"
+              className="w-full py-4 rounded-2xl bg-novera-ink text-novera-paper hover:bg-novera-foil transition-all text-xs font-bold uppercase tracking-wider shadow-xl flex items-center justify-center gap-2 group relative overflow-hidden"
             >
-              Unlock Admin Dashboard
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 pointer-events-none" />
+              <Lock className="w-4 h-4 text-novera-gold" />
+              <span>Unlock Admin Dashboard</span>
             </button>
           </form>
 
-          <p className="text-[11px] text-novera-silver">
+          <p className="text-[11px] text-novera-charcoal/80 font-mono">
             Authorized Organizing Committee Access Only &bull; NOVERA &rsquo;26
           </p>
         </div>
