@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { QRCodeSVG } from 'qrcode.react';
 import {
   Maximize2,
@@ -18,6 +19,7 @@ import { subscribeToVotingSettings } from '@/lib/api';
 import { VotingSettings } from '@/lib/types';
 
 export default function QrDisplayPage() {
+  const router = useRouter();
   const [votingUrl, setVotingUrl] = useState<string>('');
   const [isFullscreen, setIsFullscreen] = useState<boolean>(false);
   const [tilt, setTilt] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
@@ -96,6 +98,8 @@ export default function QrDisplayPage() {
           countdownUntil={votingSettings.countdownUntil!}
           onComplete={() => {
             setVotingSettings((prev) => ({ ...prev, countdownUntil: null }));
+            // As soon as countdown completes, navigate directly to the QR link!
+            router.push('/vote?entry=qr');
           }}
         />
       )}
@@ -116,7 +120,7 @@ export default function QrDisplayPage() {
           </h1>
           <p className="text-[11px] sm:text-sm md:text-base text-zinc-300 max-w-xl mx-auto px-2 font-light tracking-wide leading-relaxed">
             {isVotingLive
-              ? 'Point your smartphone camera at the illuminated QR code to cast your votes for Best Male Model and Best Female Model.'
+              ? 'Point your smartphone camera at the illuminated QR code or tap to cast your votes for Best Male Model and Best Female Model.'
               : 'Audience voting will unlock live on this screen during the runway showcase. Watch the stage for the official opening countdown!'}
           </p>
         </div>
@@ -141,8 +145,12 @@ export default function QrDisplayPage() {
           <div className="absolute bottom-3 right-3 w-4 h-4 sm:w-5 sm:h-5 border-b-2 border-r-2 border-novera-foil/70" />
 
           {isVotingLive ? (
-            /* High-Contrast Focused QR Code Stage Podium (Unlocked & Active) */
-            <div className="p-3 sm:p-5 bg-white rounded-2xl shadow-[0_0_40px_rgba(255,255,255,0.7),0_0_80px_rgba(218,165,32,0.4)] border-2 border-amber-300/80 flex items-center justify-center relative z-10 transition-transform duration-300 group-hover:scale-[1.02] animate-in zoom-in-90 duration-500">
+            /* High-Contrast Focused QR Code Stage Podium (Unlocked & Active - Clickable to enter directly) */
+            <div
+              onClick={() => router.push('/vote?entry=qr')}
+              className="p-3 sm:p-5 bg-white rounded-2xl shadow-[0_0_40px_rgba(255,255,255,0.7),0_0_80px_rgba(218,165,32,0.4)] border-2 border-amber-300/80 flex items-center justify-center relative z-10 transition-transform duration-300 hover:scale-[1.03] cursor-pointer group animate-in zoom-in-90 duration-500"
+              title="Click or Tap to open Voting Ballot directly"
+            >
               {/* Gold Target Reticles */}
               <div className="absolute -top-1.5 -left-1.5 w-3.5 h-3.5 sm:w-4 sm:h-4 border-t-2 border-l-2 border-amber-500" />
               <div className="absolute -top-1.5 -right-1.5 w-3.5 h-3.5 sm:w-4 sm:h-4 border-t-2 border-r-2 border-amber-500" />
@@ -192,19 +200,31 @@ export default function QrDisplayPage() {
           )}
 
           {/* Subtitle Under QR with Live Pulse */}
-          <div className="mt-4 sm:mt-5 flex items-center gap-2 text-[10px] sm:text-xs font-bold tracking-[0.15em] sm:tracking-[0.2em] uppercase text-zinc-100 relative z-10">
-            {isVotingLive ? (
-              <>
-                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping shrink-0" />
-                <Smartphone className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-novera-gold shrink-0" />
-                <span className="truncate">Open Camera &bull; Scan Instantly to Vote</span>
-              </>
-            ) : (
-              <>
-                <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse shrink-0" />
-                <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-novera-gold shrink-0" />
-                <span className="truncate">Standby &bull; QR Unlocks After Countdown</span>
-              </>
+          <div className="mt-4 sm:mt-5 flex flex-col items-center gap-2 relative z-10">
+            <div className="flex items-center gap-2 text-[10px] sm:text-xs font-bold tracking-[0.15em] sm:tracking-[0.2em] uppercase text-zinc-100">
+              {isVotingLive ? (
+                <>
+                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping shrink-0" />
+                  <Smartphone className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-novera-gold shrink-0" />
+                  <span className="truncate">Open Camera &bull; Scan or Tap to Vote</span>
+                </>
+              ) : (
+                <>
+                  <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse shrink-0" />
+                  <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-novera-gold shrink-0" />
+                  <span className="truncate">Standby &bull; Unlocks After Countdown</span>
+                </>
+              )}
+            </div>
+
+            {isVotingLive && (
+              <button
+                type="button"
+                onClick={() => router.push('/vote?entry=qr')}
+                className="mt-1 px-4 py-1.5 rounded-full bg-white/10 hover:bg-white/20 text-novera-gold border border-novera-gold/30 text-[11px] font-mono uppercase tracking-widest transition-all hover:scale-105 active:scale-95 shadow-sm"
+              >
+                Go to Voting Ballot Directly &rarr;
+              </button>
             )}
           </div>
         </div>

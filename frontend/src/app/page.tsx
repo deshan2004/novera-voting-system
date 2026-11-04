@@ -1,10 +1,40 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Vote, Users, CheckCircle2, Award, ArrowRight, ShieldCheck, Sparkles, QrCode } from 'lucide-react';
 import RunwayStageBackground from '@/app/components/RunwayStageBackground';
+import VotingCountdownOverlay from '@/app/components/VotingCountdownOverlay';
+import { subscribeToVotingSettings } from '@/lib/api';
+import { VotingSettings } from '@/lib/types';
 
 export default function HomePage() {
+  const router = useRouter();
+  const [votingSettings, setVotingSettings] = useState<VotingSettings>({ isVotingOpen: false });
+
+  useEffect(() => {
+    const unsub = subscribeToVotingSettings((settings) => {
+      setVotingSettings(settings);
+    });
+    return () => unsub();
+  }, []);
+
+  const isCountingDown = !!(votingSettings.countdownUntil && votingSettings.countdownUntil > Date.now());
+
   return (
     <div className="relative min-h-screen bg-[#070605] text-white overflow-hidden">
+      {/* 🌟 SYNCHRONIZED RUNWAY OPENING COUNTDOWN OVERLAY ON WEBSITE */}
+      {isCountingDown && (
+        <VotingCountdownOverlay
+          countdownUntil={votingSettings.countdownUntil!}
+          onComplete={() => {
+            setVotingSettings((prev) => ({ ...prev, countdownUntil: null }));
+            router.push('/vote');
+          }}
+        />
+      )}
+
       {/* Runway Stage Animation */}
       <RunwayStageBackground />
 
@@ -15,6 +45,18 @@ export default function HomePage() {
             <span className="w-2 h-2 rounded-full bg-novera-gold animate-ping" />
             <span>Official Runway Voting Portal</span>
           </div>
+
+          {votingSettings.isVotingOpen && (
+            <div className="pt-1">
+              <Link
+                href="/vote"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-500/20 border border-emerald-500/50 text-emerald-300 text-xs font-mono font-bold animate-pulse shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:bg-emerald-500/30 transition-colors"
+              >
+                <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping" />
+                <span>AUDIENCE VOTING IS LIVE NOW &bull; CAST YOUR VOTE &rarr;</span>
+              </Link>
+            </div>
+          )}
 
           <h1 className="font-serif text-3xl sm:text-5xl lg:text-7xl font-bold tracking-tight text-white leading-[1.1] drop-shadow-md">
             Vote for the Faces of <span className="gold-gradient-text drop-shadow-[0_0_25px_rgba(203,167,95,0.4)]">NOVERA ’26</span>
