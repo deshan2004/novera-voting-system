@@ -44,6 +44,7 @@ import {
 } from 'lucide-react';
 import Image from 'next/image';
 import RunwayStageBackground from '@/app/components/RunwayStageBackground';
+import VotingCountdownOverlay from '@/app/components/VotingCountdownOverlay';
 
 const ADMIN_PASSCODE = 'novera2026';
 
@@ -178,17 +179,31 @@ export default function AdminLeaderboardPage() {
   }, []);
 
   const toggleVotingStatus = async () => {
-    const nextStatus = !votingSettings.isVotingOpen;
-    setIsUpdatingVotingStatus(true);
-    try {
-      await saveVotingSettings({
-        isVotingOpen: nextStatus,
-        announcement: nextStatus
-          ? 'Audience voting is LIVE!'
-          : 'Audience voting is currently PAUSED / CONCLUDED by the Central Committee.',
-      });
-    } finally {
-      setIsUpdatingVotingStatus(false);
+    if (!votingSettings.isVotingOpen) {
+      // Opening voting: initiate a cinematic 5-second synchronized countdown
+      const countdownTarget = Date.now() + 5200;
+      setIsUpdatingVotingStatus(true);
+      try {
+        await saveVotingSettings({
+          isVotingOpen: true,
+          countdownUntil: countdownTarget,
+          announcement: 'Audience voting is LIVE!',
+        });
+      } finally {
+        setIsUpdatingVotingStatus(false);
+      }
+    } else {
+      // Closing voting: immediate lock
+      setIsUpdatingVotingStatus(true);
+      try {
+        await saveVotingSettings({
+          isVotingOpen: false,
+          countdownUntil: null,
+          announcement: 'Audience voting is currently PAUSED / CONCLUDED by the Central Committee.',
+        });
+      } finally {
+        setIsUpdatingVotingStatus(false);
+      }
     }
   };
 
@@ -493,6 +508,16 @@ export default function AdminLeaderboardPage() {
 
   return (
     <div className="min-h-screen relative bg-[#070605] text-white overflow-x-hidden print:bg-white print:text-black print:min-h-0">
+      {/* 🌟 CINEMATIC RUNWAY OPENING COUNTDOWN OVERLAY */}
+      {votingSettings.countdownUntil && votingSettings.countdownUntil > Date.now() && (
+        <VotingCountdownOverlay
+          countdownUntil={votingSettings.countdownUntil}
+          onComplete={() => {
+            saveVotingSettings({ ...votingSettings, countdownUntil: null });
+          }}
+        />
+      )}
+
       {/* Haute Couture Fashion Runway Stage Animation */}
       <div className="print:hidden">
         <RunwayStageBackground />

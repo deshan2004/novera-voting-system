@@ -26,6 +26,7 @@ import {
   Send,
 } from 'lucide-react';
 import RunwayStageBackground from '@/app/components/RunwayStageBackground';
+import VotingCountdownOverlay from '@/app/components/VotingCountdownOverlay';
 
 export default function VotePage() {
   const [candidates, setCandidates] = useState<Candidate[]>([]);
@@ -235,6 +236,13 @@ export default function VotePage() {
 
   return (
     <div className="min-h-screen relative bg-[#070605] text-white overflow-x-hidden">
+      {/* 🌟 SYNCHRONIZED RUNWAY OPENING COUNTDOWN OVERLAY */}
+      {votingSettings.countdownUntil && votingSettings.countdownUntil > Date.now() && (
+        <VotingCountdownOverlay
+          countdownUntil={votingSettings.countdownUntil}
+        />
+      )}
+
       {/* Haute Couture Fashion Runway Stage Animation */}
       <RunwayStageBackground />
 

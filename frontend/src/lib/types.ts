@@ -22,6 +22,7 @@ export interface VotingSettings {
   isVotingOpen: boolean;
   announcement?: string;
   updatedAt?: number;
+  countdownUntil?: number | null;
 }
 
 export interface VoterStatus {

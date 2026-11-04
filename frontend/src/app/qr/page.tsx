@@ -11,12 +11,16 @@ import {
   RefreshCw,
 } from 'lucide-react';
 import StageQrInteractiveBackground from '@/app/components/StageQrInteractiveBackground';
+import VotingCountdownOverlay from '@/app/components/VotingCountdownOverlay';
+import { subscribeToVotingSettings } from '@/lib/api';
+import { VotingSettings } from '@/lib/types';
 
 export default function QrDisplayPage() {
   const [votingUrl, setVotingUrl] = useState<string>('');
   const [isFullscreen, setIsFullscreen] = useState<boolean>(false);
   const [tilt, setTilt] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const [qrSize, setQrSize] = useState<number>(230);
+  const [votingSettings, setVotingSettings] = useState<VotingSettings>({ isVotingOpen: true });
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -49,7 +53,12 @@ export default function QrDisplayPage() {
       document.addEventListener('fullscreenchange', handleFullscreenChange);
       document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
 
+      const unsubVoting = subscribeToVotingSettings((settings) => {
+        setVotingSettings(settings);
+      });
+
       return () => {
+        unsubVoting();
         window.removeEventListener('resize', calculateSize);
         document.removeEventListener('fullscreenchange', handleFullscreenChange);
         document.removeEventListener('webkitfullscreenchange', handleFullscreenChange);
@@ -76,6 +85,13 @@ export default function QrDisplayPage() {
 
   return (
     <div className="relative min-h-screen w-full bg-[#050505] text-novera-paper flex flex-col items-center justify-center px-3 py-6 sm:p-8 select-none overflow-x-hidden">
+      {/* 🌟 SYNCHRONIZED RUNWAY OPENING COUNTDOWN OVERLAY ON STAGE SCREEN */}
+      {votingSettings.countdownUntil && votingSettings.countdownUntil > Date.now() && (
+        <VotingCountdownOverlay
+          countdownUntil={votingSettings.countdownUntil}
+        />
+      )}
+
       {/* Interactive Cinematic Stage Canvas Background */}
       <StageQrInteractiveBackground onPointerMoveCoords={handlePointerCoords} />
 
