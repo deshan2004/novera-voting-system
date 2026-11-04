@@ -106,45 +106,92 @@ export async function saveVotingSettings(settings: VotingSettings): Promise<void
 
   if (typeof window !== 'undefined') {
     window.dispatchEvent(new CustomEvent('novera_voting_settings_updated', { detail: settings }));
+    try {
+      if ('BroadcastChannel' in window) {
+        const bc = new BroadcastChannel('novera_voting_channel');
+        bc.postMessage({ type: 'VOTING_SETTINGS_UPDATED', settings });
+        bc.close();
+      }
+    } catch (e) {}
   }
 }
 
 export function subscribeToVotingSettings(callback: (settings: VotingSettings) => void): () => void {
-  if (!isFirebaseConfigured() || !db) {
-    callback(getLocalVotingSettings());
-    const handler = (e: any) => {
-      callback(e.detail || getLocalVotingSettings());
+  // 1. Initial local state
+  callback(getLocalVotingSettings());
+
+  // Try immediate remote fetch
+  fetchVotingSettings().then((s) => callback(s)).catch(() => {});
+
+  const cleanupFns: (() => void)[] = [];
+
+  if (typeof window !== 'undefined') {
+    // 2. In-window custom event
+    const handleCustom = (e: any) => {
+      if (e.detail) callback(e.detail);
     };
-    if (typeof window !== 'undefined') {
-      window.addEventListener('novera_voting_settings_updated', handler);
-      return () => window.removeEventListener('novera_voting_settings_updated', handler);
-    }
-    return () => {};
+    window.addEventListener('novera_voting_settings_updated', handleCustom);
+    cleanupFns.push(() => window.removeEventListener('novera_voting_settings_updated', handleCustom));
+
+    // 3. Cross-tab storage event
+    const handleStorage = (e: StorageEvent) => {
+      if (e.key === STORAGE_KEY_VOTING_SETTINGS && e.newValue) {
+        try {
+          callback(JSON.parse(e.newValue));
+        } catch (err) {}
+      }
+    };
+    window.addEventListener('storage', handleStorage);
+    cleanupFns.push(() => window.removeEventListener('storage', handleStorage));
+
+    // 4. Instant BroadcastChannel across tabs
+    try {
+      if ('BroadcastChannel' in window) {
+        const bc = new BroadcastChannel('novera_voting_channel');
+        bc.onmessage = (event) => {
+          if (event.data?.type === 'VOTING_SETTINGS_UPDATED' && event.data.settings) {
+            callback(event.data.settings);
+          }
+        };
+        cleanupFns.push(() => {
+          bc.close();
+        });
+      }
+    } catch (e) {}
+
+    // 5. Polling fallback every 1.5 seconds for rock-solid reliability across screens
+    const pollInterval = setInterval(() => {
+      fetchVotingSettings().then((s) => callback(s)).catch(() => {});
+    }, 1500);
+    cleanupFns.push(() => clearInterval(pollInterval));
   }
 
-  try {
-    const docRef = doc(db, 'settings', 'voting');
-    const unsubscribe = onSnapshot(
-      docRef,
-      (snap) => {
-        if (snap.exists()) {
-          const data = snap.data() as VotingSettings;
-          saveLocalVotingSettings(data);
-          callback(data);
-        } else {
-          callback(getLocalVotingSettings());
+  // 6. Firestore real-time onSnapshot for multi-device sync
+  if (isFirebaseConfigured() && db) {
+    try {
+      const docRef = doc(db, 'settings', 'voting');
+      const unsubscribeFirestore = onSnapshot(
+        docRef,
+        (snap) => {
+          if (snap.exists()) {
+            const data = snap.data() as VotingSettings;
+            saveLocalVotingSettings(data);
+            callback(data);
+          } else {
+            callback(getLocalVotingSettings());
+          }
+        },
+        (error) => {
+          console.warn('Firestore voting settings onSnapshot error:', error);
         }
-      },
-      (error) => {
-        console.warn('Firestore voting settings onSnapshot error:', error);
-        callback(getLocalVotingSettings());
-      }
-    );
-    return unsubscribe;
-  } catch (e) {
-    callback(getLocalVotingSettings());
-    return () => {};
+      );
+      cleanupFns.push(unsubscribeFirestore);
+    } catch (e) {}
   }
+
+  return () => {
+    cleanupFns.forEach((fn) => fn());
+  };
 }
 
 /**

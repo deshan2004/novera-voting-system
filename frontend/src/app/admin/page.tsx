@@ -515,7 +515,11 @@ export default function AdminLeaderboardPage() {
         <VotingCountdownOverlay
           countdownUntil={votingSettings.countdownUntil}
           onComplete={() => {
-            saveVotingSettings({ ...votingSettings, countdownUntil: null });
+            saveVotingSettings({
+              isVotingOpen: true,
+              countdownUntil: null,
+              announcement: 'Audience voting is LIVE!',
+            });
           }}
         />
       )}

@@ -85,8 +85,8 @@ export default function QrDisplayPage() {
     });
   };
 
-  const isCountingDown = !!(votingSettings.countdownUntil && votingSettings.countdownUntil > Date.now());
-  const isQrActive = votingSettings.isVotingOpen && !isCountingDown;
+  const isVotingLive = !!votingSettings.isVotingOpen;
+  const isCountingDown = !!(isVotingLive && votingSettings.countdownUntil && votingSettings.countdownUntil > Date.now());
 
   return (
     <div className="relative min-h-screen w-full bg-[#050505] text-novera-paper flex flex-col items-center justify-center px-3 py-6 sm:p-8 select-none overflow-x-hidden">
@@ -108,14 +108,14 @@ export default function QrDisplayPage() {
         {/* Title */}
         <div className="space-y-1.5 sm:space-y-2 px-2">
           <h1 className="font-serif text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-white drop-shadow-md">
-            {isQrActive ? (
+            {isVotingLive ? (
               <>Scan to Vote &bull; <span className="text-novera-foil">NOVERA ’26</span></>
             ) : (
               <>Official Runway Ballot &bull; <span className="text-novera-foil">NOVERA ’26</span></>
             )}
           </h1>
           <p className="text-[11px] sm:text-sm md:text-base text-zinc-300 max-w-xl mx-auto px-2 font-light tracking-wide leading-relaxed">
-            {isQrActive
+            {isVotingLive
               ? 'Point your smartphone camera at the illuminated QR code to cast your votes for Best Male Model and Best Female Model.'
               : 'Audience voting will unlock live on this screen during the runway showcase. Watch the stage for the official opening countdown!'}
           </p>
@@ -140,7 +140,7 @@ export default function QrDisplayPage() {
           <div className="absolute bottom-3 left-3 w-4 h-4 sm:w-5 sm:h-5 border-b-2 border-l-2 border-novera-foil/70" />
           <div className="absolute bottom-3 right-3 w-4 h-4 sm:w-5 sm:h-5 border-b-2 border-r-2 border-novera-foil/70" />
 
-          {isQrActive ? (
+          {isVotingLive ? (
             /* High-Contrast Focused QR Code Stage Podium (Unlocked & Active) */
             <div className="p-3 sm:p-5 bg-white rounded-2xl shadow-[0_0_40px_rgba(255,255,255,0.7),0_0_80px_rgba(218,165,32,0.4)] border-2 border-amber-300/80 flex items-center justify-center relative z-10 transition-transform duration-300 group-hover:scale-[1.02] animate-in zoom-in-90 duration-500">
               {/* Gold Target Reticles */}
@@ -193,7 +193,7 @@ export default function QrDisplayPage() {
 
           {/* Subtitle Under QR with Live Pulse */}
           <div className="mt-4 sm:mt-5 flex items-center gap-2 text-[10px] sm:text-xs font-bold tracking-[0.15em] sm:tracking-[0.2em] uppercase text-zinc-100 relative z-10">
-            {isQrActive ? (
+            {isVotingLive ? (
               <>
                 <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping shrink-0" />
                 <Smartphone className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-novera-gold shrink-0" />
