@@ -18,17 +18,17 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     <>
       {/* Editorial Top Marquee / Banner */}
       <div
-        className={`text-xs uppercase tracking-widest py-2 px-4 flex justify-between items-center transition-colors border-b ${
+        className={`text-[10px] sm:text-xs uppercase tracking-widest py-1.5 sm:py-2 px-3 sm:px-4 flex justify-between items-center transition-colors border-b ${
           isDarkTheme
             ? 'bg-black/40 backdrop-blur-md border-white/10 text-zinc-300'
             : 'bg-novera-ink/90 backdrop-blur-md border-novera-charcoal/30 text-novera-paper'
         }`}
       >
-        <div className="flex items-center gap-2">
-          <Sparkles className="w-3.5 h-3.5 text-novera-gold animate-pulse" />
-          <span>AIESEC in CINEC Presents &middot; NOVERA &rsquo;26</span>
+        <div className="flex items-center gap-1.5 sm:gap-2 truncate">
+          <Sparkles className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-novera-gold animate-pulse shrink-0" />
+          <span className="truncate">AIESEC in CINEC Presents &middot; NOVERA &rsquo;26</span>
         </div>
-        <div className="hidden sm:flex items-center gap-4 text-[11px] text-novera-silver">
+        <div className="hidden sm:flex items-center gap-4 text-[11px] text-novera-silver shrink-0">
           <span>MODELING &amp; PERSONALITY DEVELOPMENT</span>
           <span>&bull;</span>
           <span className="text-novera-gold">STRICT 1 BOY + 1 GIRL BALLOT</span>
@@ -43,17 +43,17 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
             : 'bg-novera-paper/40 border-novera-ink/10 text-novera-ink'
         }`}
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between">
           <Link href="/" className="group flex flex-col">
             <span
-              className={`font-serif text-2xl sm:text-3xl font-bold tracking-tight transition-colors ${
+              className={`font-serif text-xl sm:text-3xl font-bold tracking-tight transition-colors ${
                 isDarkTheme ? 'text-white group-hover:text-novera-foil' : 'text-novera-ink group-hover:text-novera-foil'
               }`}
             >
               NOVERA <span className="text-novera-foil">&rsquo;26</span>
             </span>
             <span
-              className={`text-[10px] tracking-[0.25em] uppercase ${
+              className={`text-[9px] sm:text-[10px] tracking-[0.2em] sm:tracking-[0.25em] uppercase ${
                 isDarkTheme ? 'text-zinc-400' : 'text-novera-charcoal'
               }`}
             >
@@ -61,12 +61,12 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
             </span>
           </Link>
 
-          <nav className="flex items-center gap-3">
+          <nav className="flex items-center gap-2 sm:gap-3">
             <Link
               href="/vote"
-              className="flex items-center gap-1.5 px-5 py-2.5 rounded-full text-xs sm:text-sm font-semibold tracking-wider uppercase bg-novera-foil text-novera-paper hover:bg-novera-ink transition-all shadow-sm"
+              className="flex items-center gap-1.5 px-3.5 py-2 sm:px-5 sm:py-2.5 rounded-full text-xs sm:text-sm font-semibold tracking-wider uppercase bg-novera-foil text-novera-paper hover:bg-novera-ink transition-all shadow-sm"
             >
-              <Vote className="w-4 h-4" />
+              <Vote className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               <span>Cast Vote</span>
             </Link>
           </nav>

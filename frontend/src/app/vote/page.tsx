@@ -217,7 +217,7 @@ export default function VotePage() {
   const girlVotedCandidate = getCandidateById(voterStatus?.girlVotedFor);
 
   return (
-    <div className="max-w-3xl mx-auto px-4 sm:px-6 py-6 sm:py-10 space-y-6 relative">
+    <div className="max-w-3xl mx-auto px-3 sm:px-6 py-5 sm:py-10 space-y-5 sm:space-y-6 relative">
       {/* 👑 HAUTE COUTURE LUXURY RUNWAY ENTRY INTRO */}
       {showScanIntro && (
         <div
@@ -441,7 +441,7 @@ export default function VotePage() {
 
           {/* SECTION 1: BEST MALE MODEL (BOY) */}
           {categoryFilter === 'boy' && (
-            <div className="p-5 sm:p-6 rounded-3xl glass-panel shadow-sm space-y-4">
+            <div className="p-4 sm:p-6 rounded-3xl glass-panel shadow-sm space-y-4">
               <div className="flex items-center justify-between pb-3 border-b border-novera-ink/10">
                 <div className="flex items-center gap-2">
                   <Crown className="w-4 h-4 text-novera-gold" />
@@ -579,7 +579,7 @@ export default function VotePage() {
 
           {/* SECTION 2: BEST FEMALE MODEL (GIRL) */}
           {categoryFilter === 'girl' && (
-            <div className="p-5 sm:p-6 rounded-3xl glass-panel shadow-sm space-y-4">
+            <div className="p-4 sm:p-6 rounded-3xl glass-panel shadow-sm space-y-4">
               <div className="flex items-center justify-between pb-3 border-b border-novera-ink/10">
                 <div className="flex items-center gap-2">
                   <Crown className="w-4 h-4 text-novera-gold" />

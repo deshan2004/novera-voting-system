@@ -429,33 +429,33 @@ export default function AdminLeaderboardPage() {
 
   if (!isAuthenticated) {
     return (
-      <div className="min-h-[85vh] flex items-center justify-center p-4 relative overflow-hidden">
+      <div className="min-h-[85vh] flex items-center justify-center p-3 sm:p-4 relative overflow-hidden">
         {/* Haute Couture Fashion Runway Stage Animation */}
         <RunwayStageBackground />
 
-        <div className="max-w-md w-full bg-black/40 backdrop-blur-2xl rounded-3xl p-6 sm:p-8 border border-white/20 shadow-[0_30px_90px_rgba(0,0,0,0.8),inset_0_1px_1px_rgba(255,255,255,0.2)] text-center space-y-6 relative overflow-hidden animate-in zoom-in-95 duration-500">
+        <div className="max-w-sm sm:max-w-md w-full bg-black/40 backdrop-blur-2xl rounded-3xl p-5 sm:p-8 border border-white/20 shadow-[0_30px_90px_rgba(0,0,0,0.8),inset_0_1px_1px_rgba(255,255,255,0.2)] text-center space-y-5 sm:space-y-6 relative overflow-hidden animate-in zoom-in-95 duration-500">
           <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-amber-300 to-transparent animate-scan-sweep" />
 
           {/* Luxury Monogram Floating Badge */}
-          <div className="relative mx-auto w-20 h-20 flex items-center justify-center">
+          <div className="relative mx-auto w-16 h-16 sm:w-20 sm:h-20 flex items-center justify-center">
             <div className="absolute inset-0 rounded-2xl bg-amber-400/25 blur-xl animate-luxury-glow pointer-events-none" />
-            <div className="w-16 h-16 rounded-2xl bg-white/10 backdrop-blur-xl text-novera-gold flex items-center justify-center shadow-2xl border border-amber-400/40 animate-float relative z-10">
-              <Lock className="w-8 h-8 text-amber-300 drop-shadow-[0_0_12px_rgba(236,213,153,0.9)]" />
+            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-white/10 backdrop-blur-xl text-novera-gold flex items-center justify-center shadow-2xl border border-amber-400/40 animate-float relative z-10">
+              <Lock className="w-6 h-6 sm:w-8 sm:h-8 text-amber-300 drop-shadow-[0_0_12px_rgba(236,213,153,0.9)]" />
             </div>
           </div>
 
-          <div className="space-y-1.5">
-            <h1 className="font-serif text-2xl sm:text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-[#FFF5D6] via-[#ECD599] to-[#B3924F] tracking-tight pt-1">
+          <div className="space-y-1 sm:space-y-1.5">
+            <h1 className="font-serif text-xl sm:text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-[#FFF5D6] via-[#ECD599] to-[#B3924F] tracking-tight pt-1">
               NOVERA &rsquo;26 Admin
             </h1>
-            <p className="text-xs text-zinc-300 font-medium">
+            <p className="text-[11px] sm:text-xs text-zinc-300 font-medium">
               Enter master administrator password to view live audience votes and judge evaluations.
             </p>
           </div>
 
           <form onSubmit={handleLogin} className="space-y-4 text-left">
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-amber-200/90 mb-1.5">
+              <label className="block text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-amber-200/90 mb-1.5">
                 Master Passcode
               </label>
               <input
@@ -463,7 +463,7 @@ export default function AdminLeaderboardPage() {
                 placeholder="Enter admin passcode"
                 value={passcode}
                 onChange={(e) => setPasscode(e.target.value)}
-                className="w-full px-4 py-3.5 rounded-2xl bg-white/10 text-xs sm:text-sm text-white placeholder-zinc-400 outline-none focus:border-amber-400 focus:bg-white/15 font-mono text-center tracking-widest text-base shadow-inner border border-white/20 transition-all backdrop-blur-md"
+                className="w-full px-4 py-3 sm:py-3.5 rounded-2xl bg-white/10 text-xs sm:text-sm text-white placeholder-zinc-400 outline-none focus:border-amber-400 focus:bg-white/15 font-mono text-center tracking-widest text-base shadow-inner border border-white/20 transition-all backdrop-blur-md"
                 required
                 autoFocus
               />
@@ -477,7 +477,7 @@ export default function AdminLeaderboardPage() {
 
             <button
               type="submit"
-              className="w-full py-3.5 rounded-full bg-novera-foil text-novera-paper hover:bg-novera-ink transition-all text-xs sm:text-sm font-semibold tracking-wider uppercase shadow-md flex items-center justify-center gap-2 group relative overflow-hidden"
+              className="w-full py-3 sm:py-3.5 rounded-full bg-novera-foil text-novera-paper hover:bg-novera-ink transition-all text-xs sm:text-sm font-semibold tracking-wider uppercase shadow-md flex items-center justify-center gap-2 group relative overflow-hidden"
             >
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 pointer-events-none" />
               <Lock className="w-4 h-4" />
@@ -485,7 +485,7 @@ export default function AdminLeaderboardPage() {
             </button>
           </form>
 
-          <p className="text-[11px] text-zinc-400 font-mono">
+          <p className="text-[10px] sm:text-[11px] text-zinc-400 font-mono">
             Authorized Organizing Committee Access Only &bull; NOVERA &rsquo;26
           </p>
         </div>
