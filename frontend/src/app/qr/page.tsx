@@ -9,6 +9,8 @@ import {
   Vote,
   ShieldCheck,
   RefreshCw,
+  Lock,
+  Sparkles,
 } from 'lucide-react';
 import StageQrInteractiveBackground from '@/app/components/StageQrInteractiveBackground';
 import VotingCountdownOverlay from '@/app/components/VotingCountdownOverlay';
@@ -83,12 +85,18 @@ export default function QrDisplayPage() {
     });
   };
 
+  const isCountingDown = !!(votingSettings.countdownUntil && votingSettings.countdownUntil > Date.now());
+  const isQrActive = votingSettings.isVotingOpen && !isCountingDown;
+
   return (
     <div className="relative min-h-screen w-full bg-[#050505] text-novera-paper flex flex-col items-center justify-center px-3 py-6 sm:p-8 select-none overflow-x-hidden">
       {/* 🌟 SYNCHRONIZED RUNWAY OPENING COUNTDOWN OVERLAY ON STAGE SCREEN */}
-      {votingSettings.countdownUntil && votingSettings.countdownUntil > Date.now() && (
+      {isCountingDown && (
         <VotingCountdownOverlay
-          countdownUntil={votingSettings.countdownUntil}
+          countdownUntil={votingSettings.countdownUntil!}
+          onComplete={() => {
+            setVotingSettings((prev) => ({ ...prev, countdownUntil: null }));
+          }}
         />
       )}
 
@@ -100,10 +108,16 @@ export default function QrDisplayPage() {
         {/* Title */}
         <div className="space-y-1.5 sm:space-y-2 px-2">
           <h1 className="font-serif text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-white drop-shadow-md">
-            Scan to Vote &bull; <span className="text-novera-foil">NOVERA ’26</span>
+            {isQrActive ? (
+              <>Scan to Vote &bull; <span className="text-novera-foil">NOVERA ’26</span></>
+            ) : (
+              <>Official Runway Ballot &bull; <span className="text-novera-foil">NOVERA ’26</span></>
+            )}
           </h1>
           <p className="text-[11px] sm:text-sm md:text-base text-zinc-300 max-w-xl mx-auto px-2 font-light tracking-wide leading-relaxed">
-            Point your smartphone camera at the illuminated QR code to cast your votes for Best Male Model and Best Female Model.
+            {isQrActive
+              ? 'Point your smartphone camera at the illuminated QR code to cast your votes for Best Male Model and Best Female Model.'
+              : 'Audience voting will unlock live on this screen during the runway showcase. Watch the stage for the official opening countdown!'}
           </p>
         </div>
 
@@ -126,41 +140,72 @@ export default function QrDisplayPage() {
           <div className="absolute bottom-3 left-3 w-4 h-4 sm:w-5 sm:h-5 border-b-2 border-l-2 border-novera-foil/70" />
           <div className="absolute bottom-3 right-3 w-4 h-4 sm:w-5 sm:h-5 border-b-2 border-r-2 border-novera-foil/70" />
 
-          {/* High-Contrast Focused QR Code Stage Podium (Ensures 100% Reliable Scanning) */}
-          <div className="p-3 sm:p-5 bg-white rounded-2xl shadow-[0_0_40px_rgba(255,255,255,0.7),0_0_80px_rgba(218,165,32,0.4)] border-2 border-amber-300/80 flex items-center justify-center relative z-10 transition-transform duration-300 group-hover:scale-[1.02]">
-            {/* Gold Target Reticles */}
-            <div className="absolute -top-1.5 -left-1.5 w-3.5 h-3.5 sm:w-4 sm:h-4 border-t-2 border-l-2 border-amber-500" />
-            <div className="absolute -top-1.5 -right-1.5 w-3.5 h-3.5 sm:w-4 sm:h-4 border-t-2 border-r-2 border-amber-500" />
-            <div className="absolute -bottom-1.5 -left-1.5 w-3.5 h-3.5 sm:w-4 sm:h-4 border-b-2 border-l-2 border-amber-500" />
-            <div className="absolute -bottom-1.5 -right-1.5 w-3.5 h-3.5 sm:w-4 sm:h-4 border-b-2 border-r-2 border-amber-500" />
+          {isQrActive ? (
+            /* High-Contrast Focused QR Code Stage Podium (Unlocked & Active) */
+            <div className="p-3 sm:p-5 bg-white rounded-2xl shadow-[0_0_40px_rgba(255,255,255,0.7),0_0_80px_rgba(218,165,32,0.4)] border-2 border-amber-300/80 flex items-center justify-center relative z-10 transition-transform duration-300 group-hover:scale-[1.02] animate-in zoom-in-90 duration-500">
+              {/* Gold Target Reticles */}
+              <div className="absolute -top-1.5 -left-1.5 w-3.5 h-3.5 sm:w-4 sm:h-4 border-t-2 border-l-2 border-amber-500" />
+              <div className="absolute -top-1.5 -right-1.5 w-3.5 h-3.5 sm:w-4 sm:h-4 border-t-2 border-r-2 border-amber-500" />
+              <div className="absolute -bottom-1.5 -left-1.5 w-3.5 h-3.5 sm:w-4 sm:h-4 border-b-2 border-l-2 border-amber-500" />
+              <div className="absolute -bottom-1.5 -right-1.5 w-3.5 h-3.5 sm:w-4 sm:h-4 border-b-2 border-r-2 border-amber-500" />
 
-            {/* Sweeping Laser Scanner Beam */}
-            <div className="absolute left-2 right-2 h-1 bg-gradient-to-r from-transparent via-amber-400 to-transparent shadow-[0_0_18px_rgba(251,191,36,1)] animate-qr-laser z-20 pointer-events-none" />
+              {/* Sweeping Laser Scanner Beam */}
+              <div className="absolute left-2 right-2 h-1 bg-gradient-to-r from-transparent via-amber-400 to-transparent shadow-[0_0_18px_rgba(251,191,36,1)] animate-qr-laser z-20 pointer-events-none" />
 
-            {votingUrl ? (
-              <QRCodeSVG
-                value={votingUrl}
-                size={qrSize}
-                level="H"
-                includeMargin={false}
-                fgColor="#0b0b0b"
-                bgColor="#ffffff"
-              />
-            ) : (
-              <div
-                style={{ width: `${qrSize}px`, height: `${qrSize}px` }}
-                className="flex items-center justify-center"
-              >
-                <RefreshCw className="w-8 h-8 animate-spin text-novera-foil" />
+              {votingUrl ? (
+                <QRCodeSVG
+                  value={votingUrl}
+                  size={qrSize}
+                  level="H"
+                  includeMargin={false}
+                  fgColor="#0b0b0b"
+                  bgColor="#ffffff"
+                />
+              ) : (
+                <div
+                  style={{ width: `${qrSize}px`, height: `${qrSize}px` }}
+                  className="flex items-center justify-center"
+                >
+                  <RefreshCw className="w-8 h-8 animate-spin text-novera-foil" />
+                </div>
+              )}
+            </div>
+          ) : (
+            /* Locked Stage Standby Emblem (Until Voting is Opened) */
+            <div
+              style={{ width: `${qrSize + 40}px`, minHeight: `${qrSize + 40}px` }}
+              className="p-6 bg-black/60 rounded-2xl shadow-[0_0_40px_rgba(203,167,95,0.2)] border-2 border-novera-gold/40 flex flex-col items-center justify-center text-center relative z-10 space-y-4 animate-in fade-in duration-300"
+            >
+              <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-full border-2 border-novera-gold/60 bg-black/80 flex items-center justify-center shadow-[0_0_25px_rgba(203,167,95,0.4)]">
+                <div className="absolute inset-0 rounded-full border border-amber-300/30 border-dashed animate-spin-slow" />
+                <Lock className="w-8 h-8 sm:w-10 sm:h-10 text-novera-gold animate-pulse" />
               </div>
-            )}
-          </div>
+              <div className="space-y-1">
+                <span className="text-xs sm:text-sm font-serif font-bold uppercase tracking-wider text-white block">
+                  Voting Ballot Standby
+                </span>
+                <span className="text-[10px] font-mono uppercase tracking-[0.2em] text-amber-200/80 block">
+                  Awaiting Opening Signal
+                </span>
+              </div>
+            </div>
+          )}
 
           {/* Subtitle Under QR with Live Pulse */}
           <div className="mt-4 sm:mt-5 flex items-center gap-2 text-[10px] sm:text-xs font-bold tracking-[0.15em] sm:tracking-[0.2em] uppercase text-zinc-100 relative z-10">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping shrink-0" />
-            <Smartphone className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-novera-gold shrink-0" />
-            <span className="truncate">Open Camera &bull; Scan Instantly</span>
+            {isQrActive ? (
+              <>
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping shrink-0" />
+                <Smartphone className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-novera-gold shrink-0" />
+                <span className="truncate">Open Camera &bull; Scan Instantly to Vote</span>
+              </>
+            ) : (
+              <>
+                <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse shrink-0" />
+                <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-novera-gold shrink-0" />
+                <span className="truncate">Standby &bull; QR Unlocks After Countdown</span>
+              </>
+            )}
           </div>
         </div>
 

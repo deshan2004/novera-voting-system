@@ -39,6 +39,7 @@ import {
   Printer,
   Trophy,
   Eye,
+  EyeOff,
   MessageSquare,
   CheckCircle2,
 } from 'lucide-react';
@@ -138,6 +139,7 @@ export default function AdminLeaderboardPage() {
   const [chartCategory, setChartCategory] = useState<'both' | 'boy' | 'girl'>('both');
   const [votingSettings, setVotingSettings] = useState<VotingSettings>({ isVotingOpen: true });
   const [isUpdatingVotingStatus, setIsUpdatingVotingStatus] = useState<boolean>(false);
+  const [isPrivacyMasked, setIsPrivacyMasked] = useState<boolean>(true);
 
   const loadData = () => {
     fetchCandidates().then((list) => {
@@ -556,6 +558,30 @@ export default function AdminLeaderboardPage() {
             <span>{votingSettings.isVotingOpen ? 'Audience Voting: OPEN' : 'Audience Voting: CLOSED'}</span>
           </button>
 
+          {/* Privacy Shield Toggle (Hides counts & leaders from backstage bystanders) */}
+          <button
+            type="button"
+            onClick={() => setIsPrivacyMasked(!isPrivacyMasked)}
+            className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs font-bold uppercase tracking-wider transition-all shadow-md backdrop-blur-md border ${
+              isPrivacyMasked
+                ? 'bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border-amber-500/40 shadow-[0_0_20px_rgba(245,158,11,0.25)]'
+                : 'bg-zinc-800/80 hover:bg-zinc-700/80 text-zinc-300 border-white/20'
+            }`}
+            title={isPrivacyMasked ? 'Privacy Shield is ACTIVE (Results concealed from bystanders)' : 'Privacy Shield is REVEALED'}
+          >
+            {isPrivacyMasked ? (
+              <>
+                <EyeOff className="w-4 h-4 text-amber-400" />
+                <span>Privacy Shield: ACTIVE</span>
+              </>
+            ) : (
+              <>
+                <Eye className="w-4 h-4 text-emerald-400" />
+                <span>Privacy Shield: REVEALED</span>
+              </>
+            )}
+          </button>
+
           <button
             onClick={() => window.print()}
             className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-2xl text-xs font-semibold bg-white/10 hover:bg-white/20 text-white border border-white/15 backdrop-blur-md transition-all shadow-sm"
@@ -622,7 +648,13 @@ export default function AdminLeaderboardPage() {
             <div className="p-6 rounded-2xl bg-black/40 backdrop-blur-2xl border border-white/15 shadow-xl flex items-center justify-between text-white">
               <div>
                 <span className="text-xs uppercase tracking-wider text-zinc-400 font-semibold">Total Audience Ballots</span>
-                <div className="text-3xl font-serif font-bold text-white mt-1">{totalOverallVotes}</div>
+                <div className="text-3xl font-serif font-bold text-white mt-1">
+                  {isPrivacyMasked ? (
+                    <span className="font-mono tracking-widest text-novera-gold text-2xl font-bold">••••••</span>
+                  ) : (
+                    totalOverallVotes
+                  )}
+                </div>
               </div>
               <div className="w-12 h-12 rounded-xl bg-white/10 border border-white/15 flex items-center justify-center text-novera-gold">
                 <Users className="w-6 h-6 text-novera-gold" />
@@ -632,7 +664,13 @@ export default function AdminLeaderboardPage() {
             <div className="p-6 rounded-2xl bg-black/40 backdrop-blur-2xl border border-white/15 shadow-xl flex items-center justify-between text-white">
               <div>
                 <span className="text-xs uppercase tracking-wider text-zinc-400 font-semibold">Male Model Votes</span>
-                <div className="text-3xl font-serif font-bold text-white mt-1">{totalBoyVotes}</div>
+                <div className="text-3xl font-serif font-bold text-white mt-1">
+                  {isPrivacyMasked ? (
+                    <span className="font-mono tracking-widest text-novera-gold text-2xl font-bold">••••</span>
+                  ) : (
+                    totalBoyVotes
+                  )}
+                </div>
               </div>
               <div className="w-12 h-12 rounded-xl bg-white/10 border border-white/15 flex items-center justify-center text-novera-gold">
                 <Crown className="w-6 h-6 text-novera-gold" />
@@ -642,7 +680,13 @@ export default function AdminLeaderboardPage() {
             <div className="p-6 rounded-2xl bg-black/40 backdrop-blur-2xl border border-white/15 shadow-xl flex items-center justify-between text-white">
               <div>
                 <span className="text-xs uppercase tracking-wider text-zinc-400 font-semibold">Female Model Votes</span>
-                <div className="text-3xl font-serif font-bold text-white mt-1">{totalGirlVotes}</div>
+                <div className="text-3xl font-serif font-bold text-white mt-1">
+                  {isPrivacyMasked ? (
+                    <span className="font-mono tracking-widest text-novera-gold text-2xl font-bold">••••</span>
+                  ) : (
+                    totalGirlVotes
+                  )}
+                </div>
               </div>
               <div className="w-12 h-12 rounded-xl bg-white/10 border border-white/15 flex items-center justify-center text-novera-gold">
                 <Crown className="w-6 h-6 text-novera-gold" />
@@ -651,7 +695,31 @@ export default function AdminLeaderboardPage() {
           </div>
 
           {/* Leaders Showcase */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 relative">
+            {isPrivacyMasked && (
+              <div className="absolute inset-0 z-30 bg-black/90 backdrop-blur-md rounded-3xl border border-novera-gold/30 p-6 flex flex-col items-center justify-center text-center space-y-3 shadow-2xl">
+                <div className="w-14 h-14 rounded-full bg-novera-gold/20 border border-novera-gold/40 flex items-center justify-center shadow-[0_0_20px_rgba(203,167,95,0.3)]">
+                  <EyeOff className="w-7 h-7 text-novera-gold animate-pulse" />
+                </div>
+                <div className="space-y-1">
+                  <h4 className="font-serif text-lg font-bold text-white uppercase tracking-wider">
+                    Audience Leaders Masked
+                  </h4>
+                  <p className="text-xs text-zinc-400 max-w-md">
+                    Confidential mode is active to prevent bystanders or backstage participants from peeking at the live standings.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsPrivacyMasked(false)}
+                  className="px-4 py-2 rounded-xl bg-gradient-to-r from-novera-gold to-amber-500 text-black font-extrabold text-xs uppercase tracking-wider hover:brightness-110 shadow-md transition-all flex items-center gap-1.5"
+                >
+                  <Eye className="w-3.5 h-3.5" />
+                  <span>Reveal Leaders</span>
+                </button>
+              </div>
+            )}
+
             {/* Leading Boy */}
             <div className="p-6 rounded-3xl bg-black/40 backdrop-blur-2xl border-2 border-novera-gold/40 shadow-xl flex items-center gap-5 text-white">
               <div className="relative w-24 h-24 rounded-2xl overflow-hidden shrink-0 shadow-inner border border-white/15">
@@ -731,7 +799,25 @@ export default function AdminLeaderboardPage() {
               </div>
             </div>
 
-            <div className="mt-8 h-80 w-full">
+            <div className="mt-8 h-80 w-full relative">
+              {isPrivacyMasked && (
+                <div className="absolute inset-0 z-20 bg-black/85 backdrop-blur-md rounded-2xl flex flex-col items-center justify-center text-center p-4 space-y-3">
+                  <EyeOff className="w-8 h-8 text-novera-gold animate-pulse" />
+                  <span className="font-serif text-sm font-bold uppercase tracking-wider text-white">
+                    Vote Distribution Concealed
+                  </span>
+                  <p className="text-xs text-zinc-400 max-w-sm">
+                    Relative standings are shielded from public view. Unmask to inspect real-time bar graphs.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => setIsPrivacyMasked(false)}
+                    className="px-3.5 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-novera-gold border border-novera-gold/30 text-xs font-bold uppercase tracking-wider transition-all"
+                  >
+                    Reveal Chart
+                  </button>
+                </div>
+              )}
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 25 }}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255, 255, 255, 0.1)" />
@@ -908,7 +994,31 @@ export default function AdminLeaderboardPage() {
           </div>
 
           {/* Top Boy & Girl Leaders for Selected Award */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 relative">
+            {isPrivacyMasked && (
+              <div className="absolute inset-0 z-30 bg-black/90 backdrop-blur-md rounded-3xl border border-novera-gold/30 p-6 flex flex-col items-center justify-center text-center space-y-3 shadow-2xl">
+                <div className="w-14 h-14 rounded-full bg-novera-gold/20 border border-novera-gold/40 flex items-center justify-center shadow-[0_0_20px_rgba(203,167,95,0.3)]">
+                  <EyeOff className="w-7 h-7 text-novera-gold animate-pulse" />
+                </div>
+                <div className="space-y-1">
+                  <h4 className="font-serif text-lg font-bold text-white uppercase tracking-wider">
+                    Jury Category Leaders Masked
+                  </h4>
+                  <p className="text-xs text-zinc-400 max-w-md">
+                    Live average scores and leading candidates are confidential until revealed by the Admin.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsPrivacyMasked(false)}
+                  className="px-4 py-2 rounded-xl bg-gradient-to-r from-novera-gold to-amber-500 text-black font-extrabold text-xs uppercase tracking-wider hover:brightness-110 shadow-md transition-all flex items-center gap-1.5"
+                >
+                  <Eye className="w-3.5 h-3.5" />
+                  <span>Reveal Category Leaders</span>
+                </button>
+              </div>
+            )}
+
             {/* Leading Boy */}
             <div className="p-6 rounded-3xl bg-black/40 backdrop-blur-2xl border-2 border-novera-gold/40 shadow-xl flex items-center gap-5 text-white">
               <div className="relative w-24 h-24 rounded-2xl overflow-hidden shrink-0 shadow-inner border border-white/15">
@@ -1142,7 +1252,30 @@ export default function AdminLeaderboardPage() {
           </div>
 
           {/* The 6 Official Award Titles Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 relative">
+            {isPrivacyMasked && (
+              <div className="absolute inset-0 z-30 bg-black/90 backdrop-blur-md rounded-3xl border border-novera-gold/30 p-8 flex flex-col items-center justify-center text-center space-y-4 shadow-2xl">
+                <div className="w-16 h-16 rounded-full bg-novera-gold/20 border border-novera-gold/40 flex items-center justify-center shadow-[0_0_25px_rgba(203,167,95,0.4)]">
+                  <EyeOff className="w-8 h-8 text-novera-gold animate-pulse" />
+                </div>
+                <div className="space-y-1.5 max-w-md">
+                  <h4 className="font-serif text-xl font-bold text-white uppercase tracking-wider">
+                    Official Award Winners Shielded
+                  </h4>
+                  <p className="text-xs text-zinc-400">
+                    Winners for all 6 titles are hidden for stage confidentiality. Unmask when ready to announce or certify.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsPrivacyMasked(false)}
+                  className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-novera-gold to-amber-500 text-black font-extrabold text-xs uppercase tracking-wider hover:brightness-110 shadow-lg transition-all flex items-center gap-2"
+                >
+                  <Eye className="w-4 h-4" />
+                  <span>Reveal Winners Podium</span>
+                </button>
+              </div>
+            )}
             {AWARD_DEFINITIONS.map((award, index) => {
               const Icon = award.icon;
               const rankedBoys = getRankedStats('boy', award.key);

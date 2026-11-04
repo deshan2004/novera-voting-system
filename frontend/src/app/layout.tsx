@@ -22,7 +22,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className="bg-novera-paper text-novera-ink flex flex-col min-h-screen">
+      <body className="bg-[#070605] text-white flex flex-col min-h-screen">
         <AppShell>{children}</AppShell>
       </body>
     </html>
