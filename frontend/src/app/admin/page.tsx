@@ -1,6 +1,8 @@
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { Candidate, JudgeScore, VotingSettings } from '@/lib/types';
 import {
   fetchCandidates,
@@ -40,6 +42,7 @@ import {
   Trophy,
   Eye,
   EyeOff,
+  QrCode,
   MessageSquare,
   CheckCircle2,
 } from 'lucide-react';
@@ -124,6 +127,7 @@ const AWARD_DEFINITIONS: AwardDefinition[] = [
 ];
 
 export default function AdminLeaderboardPage() {
+  const router = useRouter();
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [passcode, setPasscode] = useState<string>('');
   const [passcodeError, setPasscodeError] = useState<string>('');
@@ -191,6 +195,8 @@ export default function AdminLeaderboardPage() {
           countdownUntil: countdownTarget,
           announcement: 'Audience voting is LIVE!',
         });
+        // Immediately navigate to the Stage QR Screen (/qr)
+        router.push('/qr');
       } finally {
         setIsUpdatingVotingStatus(false);
       }
@@ -561,6 +567,16 @@ export default function AdminLeaderboardPage() {
             <span className={`w-2.5 h-2.5 rounded-full ${votingSettings.isVotingOpen ? 'bg-emerald-400 animate-ping' : 'bg-rose-400'}`} />
             <span>{votingSettings.isVotingOpen ? 'Audience Voting: OPEN' : 'Audience Voting: CLOSED'}</span>
           </button>
+
+          {/* Direct link to Stage QR Screen */}
+          <Link
+            href="/qr"
+            className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-2xl text-xs font-bold uppercase tracking-wider bg-white/10 hover:bg-white/20 text-white border border-white/15 backdrop-blur-md transition-all shadow-sm hover:border-novera-gold/50"
+            title="Open Stage QR Screen for Audience"
+          >
+            <QrCode className="w-4 h-4 text-novera-gold" />
+            <span>Stage QR Screen</span>
+          </Link>
 
           {/* Privacy Shield Toggle (Hides counts & leaders from backstage bystanders) */}
           <button

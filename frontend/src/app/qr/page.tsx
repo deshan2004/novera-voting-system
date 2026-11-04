@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { QRCodeSVG } from 'qrcode.react';
 import {
   Maximize2,
@@ -92,14 +93,22 @@ export default function QrDisplayPage() {
 
   return (
     <div className="relative min-h-screen w-full bg-[#050505] text-novera-paper flex flex-col items-center justify-center px-3 py-6 sm:p-8 select-none overflow-x-hidden">
+      {/* 🔒 Quick Return to Master Admin Hub */}
+      <Link
+        href="/admin"
+        className="fixed top-4 left-4 z-40 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/60 hover:bg-black/90 text-zinc-300 hover:text-white border border-white/20 backdrop-blur-md text-xs font-mono transition-all shadow-md"
+        title="Return to Master Admin Hub"
+      >
+        <Lock className="w-3.5 h-3.5 text-novera-gold" />
+        <span>Admin Hub</span>
+      </Link>
+
       {/* 🌟 SYNCHRONIZED RUNWAY OPENING COUNTDOWN OVERLAY ON STAGE SCREEN */}
       {isCountingDown && (
         <VotingCountdownOverlay
           countdownUntil={votingSettings.countdownUntil!}
           onComplete={() => {
             setVotingSettings((prev) => ({ ...prev, countdownUntil: null }));
-            // As soon as countdown completes, navigate directly to the QR link!
-            router.push('/vote?entry=qr');
           }}
         />
       )}
