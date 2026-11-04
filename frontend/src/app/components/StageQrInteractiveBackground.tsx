@@ -7,25 +7,25 @@ interface StageQrInteractiveBackgroundProps {
   onPointerMoveCoords?: (coords: { x: number; y: number; normX: number; normY: number }) => void;
 }
 
-interface Particle {
+interface Sparkle {
   x: number;
   y: number;
-  vx: number;
-  vy: number;
-  radius: number;
+  speedY: number;
+  speedX: number;
+  size: number;
   alpha: number;
-  color: string;
   pulseSpeed: number;
   pulseOffset: number;
+  isStar: boolean;
+  color: string;
 }
 
-interface Ripple {
+interface CameraFlash {
   x: number;
   y: number;
-  radius: number;
-  maxRadius: number;
   alpha: number;
-  color: string;
+  size: number;
+  decay: number;
 }
 
 export default function StageQrInteractiveBackground({
@@ -47,10 +47,9 @@ export default function StageQrInteractiveBackground({
     // Mouse tracking with smooth easing
     const mouse = {
       x: width / 2,
-      y: height / 2,
+      y: height * 0.45,
       targetX: width / 2,
-      targetY: height / 2,
-      isHovering: false,
+      targetY: height * 0.45,
     };
 
     const handleResize = () => {
@@ -65,28 +64,30 @@ export default function StageQrInteractiveBackground({
       const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
       mouse.targetX = clientX;
       mouse.targetY = clientY;
-      mouse.isHovering = true;
 
       if (onPointerMoveCoords) {
-        // Normalized from -1 to 1 relative to center
         const normX = (clientX - width / 2) / (width / 2);
         const normY = (clientY - height / 2) / (height / 2);
         onPointerMoveCoords({ x: clientX, y: clientY, normX, normY });
       }
     };
 
-    const ripples: Ripple[] = [];
+    const cameraFlashes: CameraFlash[] = [];
+
+    const triggerFlash = (x: number, y: number, size = 180) => {
+      cameraFlashes.push({
+        x,
+        y,
+        alpha: 0.95,
+        size,
+        decay: 0.05,
+      });
+    };
+
     const handlePointerDown = (e: MouseEvent | TouchEvent) => {
       const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
       const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
-      ripples.push({
-        x: clientX,
-        y: clientY,
-        radius: 10,
-        maxRadius: Math.max(width, height) * 0.45,
-        alpha: 0.8,
-        color: '251, 191, 36',
-      });
+      triggerFlash(clientX, clientY, 320);
     };
 
     window.addEventListener('mousemove', handlePointerMove);
@@ -94,178 +95,156 @@ export default function StageQrInteractiveBackground({
     window.addEventListener('mousedown', handlePointerDown);
     window.addEventListener('touchstart', handlePointerDown, { passive: true });
 
-    // 1. Constellation Particle Nexus
-    const PARTICLE_COUNT = Math.min(65, Math.floor((width * height) / 18000));
-    const particles: Particle[] = Array.from({ length: PARTICLE_COUNT }, () => ({
+    // 1. Rising Runway Diamond Sparkles & Stardust
+    const SPARKLE_COUNT = 70;
+    const sparkles: Sparkle[] = Array.from({ length: SPARKLE_COUNT }, () => ({
       x: Math.random() * width,
       y: Math.random() * height,
-      vx: (Math.random() - 0.5) * 0.45,
-      vy: (Math.random() - 0.5) * 0.45,
-      radius: Math.random() * 2 + 1,
-      alpha: Math.random() * 0.7 + 0.25,
-      color: Math.random() > 0.35 ? '236, 213, 153' : '251, 191, 36',
-      pulseSpeed: Math.random() * 0.02 + 0.01,
+      speedY: -(Math.random() * 0.75 + 0.25),
+      speedX: (Math.random() - 0.5) * 0.35,
+      size: Math.random() * 2.5 + 0.8,
+      alpha: Math.random() * 0.75 + 0.25,
+      pulseSpeed: Math.random() * 0.03 + 0.015,
       pulseOffset: Math.random() * Math.PI * 2,
+      isStar: Math.random() > 0.65,
+      color: Math.random() > 0.3 ? '255, 245, 220' : '236, 213, 153',
     }));
 
-    // 2. Continuous Concentric Holographic Pulse Waves from Center
-    const pulseWaves = [
-      { radius: 100, speed: 0.85, maxRadius: 650, alpha: 0.4 },
-      { radius: 240, speed: 0.85, maxRadius: 650, alpha: 0.3 },
-      { radius: 380, speed: 0.85, maxRadius: 650, alpha: 0.2 },
-      { radius: 520, speed: 0.85, maxRadius: 650, alpha: 0.1 },
-    ];
-
     let time = 0;
+    let nextRandomFlash = 50;
 
     const render = () => {
-      time += 0.016;
+      time += 0.018;
 
-      // Smooth cursor lerp
-      mouse.x += (mouse.targetX - mouse.x) * 0.08;
-      mouse.y += (mouse.targetY - mouse.y) * 0.08;
+      // Smooth pointer follow for stage lighting
+      mouse.x += (mouse.targetX - mouse.x) * 0.06;
+      mouse.y += (mouse.targetY - mouse.y) * 0.06;
 
       ctx.clearRect(0, 0, width, height);
 
-      const centerX = width / 2;
-      const centerY = height * 0.5;
-
-      // --- Deep Cinematic Radial Backdrop ---
-      const bgGlow = ctx.createRadialGradient(centerX, centerY, 50, centerX, centerY, Math.max(width, height) * 0.7);
-      bgGlow.addColorStop(0, 'rgba(30, 22, 10, 0.75)');
-      bgGlow.addColorStop(0.4, 'rgba(15, 12, 6, 0.9)');
-      bgGlow.addColorStop(1, 'rgba(5, 5, 5, 1)');
-      ctx.fillStyle = bgGlow;
+      // --- Deep Cinematic Black / Charcoal Gradient ---
+      const bgGrad = ctx.createLinearGradient(0, 0, 0, height);
+      bgGrad.addColorStop(0, '#040404');
+      bgGrad.addColorStop(0.5, '#090807');
+      bgGrad.addColorStop(1, '#030303');
+      ctx.fillStyle = bgGrad;
       ctx.fillRect(0, 0, width, height);
 
-      // --- Interactive Spotlight / Aura following Pointer ---
-      const mouseGlow = ctx.createRadialGradient(mouse.x, mouse.y, 0, mouse.x, mouse.y, 340);
-      mouseGlow.addColorStop(0, 'rgba(218, 165, 32, 0.18)');
-      mouseGlow.addColorStop(0.5, 'rgba(180, 130, 40, 0.05)');
-      mouseGlow.addColorStop(1, 'rgba(0, 0, 0, 0)');
-      ctx.fillStyle = mouseGlow;
-      ctx.fillRect(0, 0, width, height);
-
-      // --- Central Concentric Radar / Audio Pulse Waves ---
-      ctx.lineWidth = 1.5;
-      for (const wave of pulseWaves) {
-        wave.radius += wave.speed;
-        if (wave.radius > wave.maxRadius) {
-          wave.radius = 80;
-        }
-        const progress = (wave.radius - 80) / (wave.maxRadius - 80);
-        const waveAlpha = Math.sin(progress * Math.PI) * 0.35;
-
-        ctx.strokeStyle = `rgba(236, 213, 153, ${waveAlpha})`;
-        ctx.beginPath();
-        ctx.arc(centerX, centerY, wave.radius, 0, Math.PI * 2);
-        ctx.stroke();
+      // --- Random Ambient Paparazzi Camera Flashes (Fashion Runway Pit Effect) ---
+      nextRandomFlash--;
+      if (nextRandomFlash <= 0) {
+        // Trigger a camera flash along the edges or bottom
+        const flashX = Math.random() * width;
+        const flashY = Math.random() > 0.4 ? height * (0.65 + Math.random() * 0.35) : Math.random() * height;
+        triggerFlash(flashX, flashY, Math.random() * 150 + 100);
+        nextRandomFlash = Math.floor(Math.random() * 70 + 40);
       }
 
-      // --- Rotating Luxury Gyroscope / Celestial Orbital Rings ---
-      const baseRingRadius = Math.min(width, height) * 0.32;
+      // --- Theatrical Sweeping Volumetric Stage Beams ---
+      // Beam 1: Left Overhead Stage Light
+      const angle1 = -0.35 + Math.sin(time * 0.6) * 0.22;
+      drawTheatricalBeam(ctx, width * 0.12, 0, angle1, 0.25, '236, 213, 153', width, height);
 
-      // Ring 1: Slow Golden Dashed Ring (Clockwise)
-      ctx.save();
-      ctx.translate(centerX, centerY);
-      ctx.rotate(time * 0.12);
-      ctx.setLineDash([8, 12]);
-      ctx.lineWidth = 1;
-      ctx.strokeStyle = 'rgba(218, 165, 32, 0.28)';
-      ctx.beginPath();
-      ctx.arc(0, 0, baseRingRadius, 0, Math.PI * 2);
-      ctx.stroke();
-      ctx.restore();
+      // Beam 2: Right Overhead Stage Light
+      const angle2 = 0.35 - Math.sin(time * 0.75) * 0.25;
+      drawTheatricalBeam(ctx, width * 0.88, 0, angle2, 0.25, '218, 165, 32', width, height);
 
-      // Ring 2: Outer Accent Ring with 4 Cardinal Diamond Blips (Counter-clockwise)
-      ctx.save();
-      ctx.translate(centerX, centerY);
-      ctx.rotate(-time * 0.08);
-      ctx.setLineDash([4, 20]);
-      ctx.lineWidth = 1.2;
-      ctx.strokeStyle = 'rgba(245, 215, 145, 0.32)';
-      ctx.beginPath();
-      ctx.arc(0, 0, baseRingRadius * 1.25, 0, Math.PI * 2);
-      ctx.stroke();
+      // Beam 3: Interactive Dynamic Follow-Spot (Tracks mouse / center)
+      const targetAngle = Math.atan2(mouse.y - 0, mouse.x - width * 0.5) - Math.PI / 2;
+      drawTheatricalBeam(ctx, width * 0.5, -20, targetAngle, 0.32, '255, 235, 175', width, height, 220);
 
-      // 4 Cardinal Diamond Coordinates
-      ctx.setLineDash([]);
-      for (let i = 0; i < 4; i++) {
-        const angle = (i * Math.PI) / 2;
-        const dx = Math.cos(angle) * (baseRingRadius * 1.25);
-        const dy = Math.sin(angle) * (baseRingRadius * 1.25);
-        ctx.fillStyle = 'rgba(255, 223, 128, 0.8)';
-        ctx.beginPath();
-        ctx.arc(dx, dy, 3, 0, Math.PI * 2);
-        ctx.fill();
-      }
-      ctx.restore();
+      // --- High-Fashion Flowing Satin / Golden Silk Waves (Bottom Half) ---
+      drawSilkWave(ctx, width, height, time, 0.55, 'rgba(179, 146, 79, 0.08)', 40, 0.7);
+      drawSilkWave(ctx, width, height, time + 2, 0.68, 'rgba(218, 165, 32, 0.07)', 55, 0.5);
+      drawSilkWave(ctx, width, height, time + 4, 0.82, 'rgba(236, 213, 153, 0.05)', 35, 0.9);
 
-      // --- Click / Tap Shockwave Ripples ---
-      for (let i = ripples.length - 1; i >= 0; i--) {
-        const r = ripples[i];
-        r.radius += 5.5;
-        r.alpha *= 0.96;
+      // --- Anamorphic Golden Horizon Flare Passing Center Horizontally ---
+      const flareY = height * 0.5;
+      const flareGrad = ctx.createLinearGradient(0, flareY, width, flareY);
+      flareGrad.addColorStop(0, 'rgba(218, 165, 32, 0)');
+      flareGrad.addColorStop(0.35, 'rgba(236, 213, 153, 0.04)');
+      flareGrad.addColorStop(0.5, `rgba(255, 248, 220, ${0.12 + Math.sin(time * 1.5) * 0.05})`);
+      flareGrad.addColorStop(0.65, 'rgba(236, 213, 153, 0.04)');
+      flareGrad.addColorStop(1, 'rgba(218, 165, 32, 0)');
+      ctx.fillStyle = flareGrad;
+      ctx.fillRect(0, flareY - 1.5, width, 3);
 
-        ctx.strokeStyle = `rgba(${r.color}, ${r.alpha})`;
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.arc(r.x, r.y, r.radius, 0, Math.PI * 2);
-        ctx.stroke();
+      // Soft vertical glow around flare center
+      const centerGlow = ctx.createRadialGradient(width * 0.5, flareY, 0, width * 0.5, flareY, width * 0.45);
+      centerGlow.addColorStop(0, 'rgba(218, 165, 32, 0.12)');
+      centerGlow.addColorStop(0.5, 'rgba(179, 146, 79, 0.03)');
+      centerGlow.addColorStop(1, 'rgba(0, 0, 0, 0)');
+      ctx.fillStyle = centerGlow;
+      ctx.fillRect(0, flareY - 140, width, 280);
 
-        if (r.alpha < 0.02 || r.radius > r.maxRadius) {
-          ripples.splice(i, 1);
+      // --- Rising Runway Diamond Sparkles & Stardust ---
+      for (const sp of sparkles) {
+        sp.y += sp.speedY;
+        sp.x += sp.speedX + Math.sin(time + sp.pulseOffset) * 0.25;
+
+        if (sp.y < -10) {
+          sp.y = height + 10;
+          sp.x = Math.random() * width;
         }
-      }
+        if (sp.x < 0) sp.x = width;
+        if (sp.x > width) sp.x = 0;
 
-      // --- Interactive Particles & Constellation Filaments ---
-      for (let i = 0; i < particles.length; i++) {
-        const p = particles[i];
-
-        // Normal float
-        p.x += p.vx;
-        p.y += p.vy;
-
-        // Wrap around bounds
-        if (p.x < 0) p.x = width;
-        if (p.x > width) p.x = 0;
-        if (p.y < 0) p.y = height;
-        if (p.y > height) p.y = 0;
-
-        // Interactive mouse interaction (magnetic push / subtle drift)
-        const dxMouse = mouse.x - p.x;
-        const dyMouse = mouse.y - p.y;
-        const distMouse = Math.sqrt(dxMouse * dxMouse + dyMouse * dyMouse);
-        if (distMouse < 160) {
-          const force = (160 - distMouse) / 160;
-          p.x -= (dxMouse / distMouse) * force * 1.8;
-          p.y -= (dyMouse / distMouse) * force * 1.8;
-        }
-
-        // Draw particle node
         const currentAlpha = Math.max(
-          0.15,
-          p.alpha + Math.sin(time * 2 + p.pulseOffset) * 0.25
+          0.1,
+          sp.alpha + Math.sin(time * 2.5 + sp.pulseOffset) * 0.35
         );
-        ctx.fillStyle = `rgba(${p.color}, ${currentAlpha})`;
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-        ctx.fill();
 
-        // Connect nearby nodes with delicate gold filaments
-        for (let j = i + 1; j < particles.length; j++) {
-          const p2 = particles[j];
-          const dist = Math.hypot(p.x - p2.x, p.y - p2.y);
-          if (dist < 90) {
-            const lineAlpha = (1 - dist / 90) * 0.18;
-            ctx.strokeStyle = `rgba(236, 213, 153, ${lineAlpha})`;
-            ctx.lineWidth = 0.75;
-            ctx.beginPath();
-            ctx.moveTo(p.x, p.y);
-            ctx.lineTo(p2.x, p2.y);
-            ctx.stroke();
-          }
+        if (sp.isStar) {
+          // 4-Point Diamond Sparkle Glint
+          ctx.strokeStyle = `rgba(${sp.color}, ${currentAlpha})`;
+          ctx.lineWidth = 1;
+          const arm = sp.size * 2.4;
+          ctx.beginPath();
+          ctx.moveTo(sp.x - arm, sp.y);
+          ctx.lineTo(sp.x + arm, sp.y);
+          ctx.moveTo(sp.x, sp.y - arm);
+          ctx.lineTo(sp.x, sp.y + arm);
+          ctx.stroke();
+
+          ctx.fillStyle = `rgba(255, 255, 255, ${currentAlpha})`;
+          ctx.beginPath();
+          ctx.arc(sp.x, sp.y, sp.size * 0.6, 0, Math.PI * 2);
+          ctx.fill();
+        } else {
+          // Soft golden dust orb
+          ctx.fillStyle = `rgba(${sp.color}, ${currentAlpha})`;
+          ctx.beginPath();
+          ctx.arc(sp.x, sp.y, sp.size, 0, Math.PI * 2);
+          ctx.fill();
         }
+      }
+
+      // --- Render Paparazzi Camera Flashes ---
+      for (let i = cameraFlashes.length - 1; i >= 0; i--) {
+        const f = cameraFlashes[i];
+        f.alpha -= f.decay;
+
+        if (f.alpha <= 0) {
+          cameraFlashes.splice(i, 1);
+          continue;
+        }
+
+        // Brilliant cross flare + radial burst
+        const burstGrad = ctx.createRadialGradient(f.x, f.y, 0, f.x, f.y, f.size);
+        burstGrad.addColorStop(0, `rgba(255, 255, 255, ${f.alpha})`);
+        burstGrad.addColorStop(0.2, `rgba(255, 240, 200, ${f.alpha * 0.75})`);
+        burstGrad.addColorStop(0.6, `rgba(218, 165, 32, ${f.alpha * 0.25})`);
+        burstGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+        ctx.fillStyle = burstGrad;
+        ctx.fillRect(f.x - f.size, f.y - f.size, f.size * 2, f.size * 2);
+
+        // Horizontal lens streak
+        ctx.strokeStyle = `rgba(255, 250, 230, ${f.alpha * 0.8})`;
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.moveTo(f.x - f.size * 1.5, f.y);
+        ctx.lineTo(f.x + f.size * 1.5, f.y);
+        ctx.stroke();
       }
 
       animationFrameId = requestAnimationFrame(render);
@@ -290,4 +269,85 @@ export default function StageQrInteractiveBackground({
       style={{ touchAction: 'none' }}
     />
   );
+}
+
+// Helper: Draw Volumetric Theatrical Stage Light Beam
+function drawTheatricalBeam(
+  ctx: CanvasRenderingContext2D,
+  originX: number,
+  originY: number,
+  angleRad: number,
+  maxAlpha: number,
+  color: string,
+  width: number,
+  height: number,
+  spread = 180
+) {
+  const beamLength = height * 1.4;
+  const endCenterX = originX + Math.sin(angleRad) * beamLength;
+  const endCenterY = originY + Math.cos(angleRad) * beamLength;
+
+  const normalX = -Math.cos(angleRad);
+  const normalY = Math.sin(angleRad);
+
+  const leftX = endCenterX + normalX * spread;
+  const leftY = endCenterY + normalY * spread;
+  const rightX = endCenterX - normalX * spread;
+  const rightY = endCenterY - normalY * spread;
+
+  ctx.save();
+  ctx.beginPath();
+  ctx.moveTo(originX, originY);
+  ctx.lineTo(leftX, leftY);
+  ctx.lineTo(rightX, rightY);
+  ctx.closePath();
+
+  const beamGrad = ctx.createLinearGradient(originX, originY, endCenterX, endCenterY);
+  beamGrad.addColorStop(0, `rgba(${color}, ${maxAlpha})`);
+  beamGrad.addColorStop(0.4, `rgba(${color}, ${maxAlpha * 0.5})`);
+  beamGrad.addColorStop(1, `rgba(${color}, 0)`);
+
+  ctx.fillStyle = beamGrad;
+  ctx.fill();
+  ctx.restore();
+}
+
+// Helper: Draw Haute Couture Flowing Silk Fabric Wave
+function drawSilkWave(
+  ctx: CanvasRenderingContext2D,
+  width: number,
+  height: number,
+  time: number,
+  baseHeightRatio: number,
+  fillColor: string,
+  amplitude: number,
+  speed: number
+) {
+  const startY = height * baseHeightRatio;
+
+  ctx.save();
+  ctx.beginPath();
+  ctx.moveTo(0, height);
+  ctx.lineTo(0, startY + Math.sin(time * speed) * amplitude);
+
+  const points = 6;
+  const step = width / points;
+
+  for (let i = 1; i <= points; i++) {
+    const prevX = (i - 1) * step;
+    const prevY = startY + Math.sin(time * speed + (i - 1) * 0.8) * amplitude;
+    const currX = i * step;
+    const currY = startY + Math.sin(time * speed + i * 0.8) * amplitude;
+
+    const cpX = (prevX + currX) / 2;
+    const cpY = (prevY + currY) / 2 + Math.cos(time * speed + i) * 15;
+
+    ctx.quadraticCurveTo(cpX, cpY, currX, currY);
+  }
+
+  ctx.lineTo(width, height);
+  ctx.closePath();
+  ctx.fillStyle = fillColor;
+  ctx.fill();
+  ctx.restore();
 }

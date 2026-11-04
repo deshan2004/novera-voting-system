@@ -87,7 +87,7 @@ export default function QrDisplayPage() {
         >
           {/* Subtle Ambient Golden Glow Behind QR */}
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-            <div className="w-64 h-64 sm:w-80 sm:h-80 rounded-full bg-novera-gold/15 blur-3xl animate-pulse" />
+            <div className="w-full max-w-sm h-36 bg-amber-400/10 blur-3xl animate-pulse" />
           </div>
 
           {/* Decorative Corner Accents on Glass Card */}
