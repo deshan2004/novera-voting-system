@@ -72,15 +72,21 @@ export default function QrDisplayPage() {
 
       const calculateSize = () => {
         const w = window.innerWidth;
+        const h = window.innerHeight;
         const isFS = !!document.fullscreenElement;
         if (isFS) {
-          setQrSize(Math.min(340, Math.floor(w * 0.75)));
+          // Keep QR scaled gracefully so whole layout fits in vertical height with zero clipping
+          const maxByHeight = Math.floor(h * 0.35);
+          const maxByWidth = Math.floor(w * 0.35);
+          setQrSize(Math.max(180, Math.min(270, maxByHeight, maxByWidth)));
+        } else if (h < 750) {
+          setQrSize(Math.max(160, Math.min(210, Math.floor(h * 0.28))));
         } else if (w < 380) {
           setQrSize(190);
         } else if (w < 640) {
           setQrSize(220);
         } else {
-          setQrSize(260);
+          setQrSize(250);
         }
       };
 
@@ -130,7 +136,7 @@ export default function QrDisplayPage() {
   const isCountingDown = !!(isVotingLive && votingSettings.countdownUntil && votingSettings.countdownUntil > Date.now());
 
   return (
-    <div className="relative min-h-screen w-full bg-[#050505] text-novera-paper flex flex-col items-center justify-center px-3 py-6 sm:p-8 select-none overflow-x-hidden">
+    <div className="relative min-h-screen w-full bg-[#050505] text-novera-paper flex flex-col items-center justify-between p-3 sm:py-5 sm:px-8 select-none overflow-y-auto overflow-x-hidden">
       {/* 🔒 Quick Return to Master Admin Hub */}
       <Link
         href="/admin"
@@ -161,27 +167,27 @@ export default function QrDisplayPage() {
       <StageQrInteractiveBackground onPointerMoveCoords={handlePointerCoords} />
 
       {/* Main Content (Elevated above interactive canvas) */}
-      <div className="relative z-10 max-w-4xl w-full flex flex-col items-center text-center space-y-5 sm:space-y-7 my-auto">
+      <div className="relative z-10 max-w-4xl w-full flex flex-col items-center text-center space-y-3 sm:space-y-4 my-auto">
         {/* Title */}
-        <div className="space-y-1.5 sm:space-y-2 px-2">
-          <h1 className="font-serif text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-white drop-shadow-md">
+        <div className="space-y-1 px-2">
+          <h1 className="font-serif text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight text-white drop-shadow-md">
             {isVotingLive ? (
               <>Scan to Vote &bull; <span className="text-novera-foil">NOVERA ’26</span></>
             ) : (
               <>Official Runway Ballot &bull; <span className="text-novera-foil">NOVERA ’26</span></>
             )}
           </h1>
-          <p className="text-[11px] sm:text-sm md:text-base text-zinc-300 max-w-xl mx-auto px-2 font-light tracking-wide leading-relaxed">
+          <p className="text-[11px] sm:text-xs md:text-sm text-zinc-300 max-w-xl mx-auto px-2 font-light tracking-wide leading-relaxed">
             {isVotingLive
-              ? 'Point your smartphone camera at the illuminated QR code or tap to cast your votes for Best Male Model and Best Female Model.'
+              ? 'Point your smartphone camera at the illuminated QR code to cast your votes for Best Male Model and Best Female Model.'
               : 'Audience voting will unlock live on this screen during the runway showcase. Watch the stage for the official opening countdown!'}
           </p>
         </div>
 
         {/* ⏱️ Live 10-Minute Countdown Stage Clock */}
         {isVotingLive && remainingTimeText && (
-          <div className="inline-flex items-center gap-3 px-6 py-2.5 rounded-full bg-black/60 backdrop-blur-2xl border-2 border-novera-gold/70 text-white shadow-[0_0_35px_rgba(203,167,95,0.4)] animate-pulse">
-            <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping shrink-0" />
+          <div className="inline-flex items-center gap-3 px-5 py-2 rounded-full bg-black/60 backdrop-blur-2xl border-2 border-novera-gold/70 text-white shadow-[0_0_35px_rgba(203,167,95,0.4)] animate-pulse">
+            <span className="w-2.5 h-2.5 rounded-full bg-novera-gold animate-ping shrink-0" />
             <span className="text-xs sm:text-sm font-mono uppercase tracking-[0.2em] text-novera-gold font-bold">
               Voting Closes In:
             </span>
@@ -197,7 +203,7 @@ export default function QrDisplayPage() {
             transform: `perspective(1000px) rotateX(${tilt.y}deg) rotateY(${tilt.x}deg)`,
             transition: 'transform 0.15s ease-out',
           }}
-          className="relative group p-4 sm:p-8 rounded-3xl bg-black/40 backdrop-blur-2xl border-2 border-novera-foil/40 shadow-[0_25px_90px_rgba(0,0,0,0.85),0_0_60px_rgba(179,146,79,0.3)] hover:border-novera-foil transition-all duration-300 flex flex-col items-center max-w-[94vw] sm:max-w-md w-full overflow-hidden"
+          className="relative group p-4 sm:p-6 rounded-3xl bg-black/40 backdrop-blur-2xl border-2 border-novera-foil/40 shadow-[0_25px_90px_rgba(0,0,0,0.85),0_0_60px_rgba(179,146,79,0.3)] hover:border-novera-foil transition-all duration-300 flex flex-col items-center max-w-[94vw] sm:max-w-md w-full overflow-hidden"
         >
           {/* Subtle Ambient Golden Glow Behind QR */}
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
@@ -211,11 +217,9 @@ export default function QrDisplayPage() {
           <div className="absolute bottom-3 right-3 w-4 h-4 sm:w-5 sm:h-5 border-b-2 border-r-2 border-novera-foil/70" />
 
           {isVotingLive ? (
-            /* High-Contrast Focused QR Code Stage Podium (Unlocked & Active - Clickable to enter directly) */
+            /* High-Contrast Focused QR Code Stage Podium (Unlocked & Active) */
             <div
-              onClick={() => router.push('/vote?entry=qr')}
-              className="p-3 sm:p-5 bg-white rounded-2xl shadow-[0_0_40px_rgba(255,255,255,0.7),0_0_80px_rgba(218,165,32,0.4)] border-2 border-amber-300/80 flex items-center justify-center relative z-10 transition-transform duration-300 hover:scale-[1.03] cursor-pointer group animate-in zoom-in-90 duration-500"
-              title="Click or Tap to open Voting Ballot directly"
+              className="p-3 sm:p-5 bg-white rounded-2xl shadow-[0_0_40px_rgba(255,255,255,0.7),0_0_80px_rgba(218,165,32,0.4)] border-2 border-amber-300/80 flex items-center justify-center relative z-10 transition-transform duration-300 group animate-in zoom-in-90 duration-500"
             >
               {/* Gold Target Reticles */}
               <div className="absolute -top-1.5 -left-1.5 w-3.5 h-3.5 sm:w-4 sm:h-4 border-t-2 border-l-2 border-amber-500" />
@@ -266,13 +270,13 @@ export default function QrDisplayPage() {
           )}
 
           {/* Subtitle Under QR with Live Pulse */}
-          <div className="mt-4 sm:mt-5 flex flex-col items-center gap-2 relative z-10">
+          <div className="mt-3 sm:mt-4 flex flex-col items-center gap-1.5 relative z-10">
             <div className="flex items-center gap-2 text-[10px] sm:text-xs font-bold tracking-[0.15em] sm:tracking-[0.2em] uppercase text-zinc-100">
               {isVotingLive ? (
                 <>
-                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping shrink-0" />
+                  <span className="w-2 h-2 rounded-full bg-novera-gold animate-ping shrink-0" />
                   <Smartphone className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-novera-gold shrink-0" />
-                  <span className="truncate">Open Camera &bull; Scan or Tap to Vote</span>
+                  <span className="truncate">Open Camera &bull; Scan to Vote</span>
                 </>
               ) : (
                 <>
@@ -282,42 +286,24 @@ export default function QrDisplayPage() {
                 </>
               )}
             </div>
-
-            {isVotingLive && (
-              <button
-                type="button"
-                onClick={() => router.push('/vote?entry=qr')}
-                className="mt-1 px-4 py-1.5 rounded-full bg-white/10 hover:bg-white/20 text-novera-gold border border-novera-gold/30 text-[11px] font-mono uppercase tracking-widest transition-all hover:scale-105 active:scale-95 shadow-sm"
-              >
-                Go to Voting Ballot Directly &rarr;
-              </button>
-            )}
           </div>
         </div>
 
-        {/* Action Controls (Responsive flex-col on mobile, flex-row on sm+) */}
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-2.5 sm:gap-4 pt-1 w-full max-w-xs sm:max-w-none px-4">
+        {/* Action Controls (Fullscreen stage view for projector) */}
+        <div className="flex items-center justify-center pt-1 w-full max-w-xs px-4">
           <button
             onClick={toggleFullscreen}
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full bg-white/10 hover:bg-white/20 text-white text-xs font-semibold uppercase tracking-wider transition-all border border-white/20 shadow-md backdrop-blur-md"
+            className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full bg-white/10 hover:bg-white/20 text-white text-xs font-semibold uppercase tracking-wider transition-all border border-white/20 shadow-md backdrop-blur-md hover:border-novera-gold/50"
           >
             {isFullscreen ? <Minimize2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> : <Maximize2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />}
             <span>{isFullscreen ? 'Exit Fullscreen' : 'Stage Fullscreen Mode'}</span>
           </button>
-
-          <a
-            href="/vote"
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full bg-novera-foil text-novera-paper hover:bg-novera-ink text-xs font-semibold uppercase tracking-wider transition-all shadow-md"
-          >
-            <Vote className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-            <span>Open Voting Ballot</span>
-          </a>
         </div>
 
         {/* Rules Reminder */}
         <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-6 text-[10px] sm:text-xs text-zinc-400 pt-2 border-t border-white/10 px-4">
           <div className="flex items-center gap-1.5">
-            <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+            <ShieldCheck className="w-3.5 h-3.5 text-novera-gold" />
             <span>1 Boy Vote + 1 Girl Vote Per Device</span>
           </div>
           <div className="hidden sm:inline">&bull;</div>

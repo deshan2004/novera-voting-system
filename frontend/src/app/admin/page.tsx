@@ -243,6 +243,8 @@ export default function AdminLeaderboardPage() {
           countdownUntil: countdownTarget,
           announcement: `Audience voting is LIVE for ${votingDurationMinutes} minutes!`,
         });
+        // 🚀 Auto-navigate immediately to the Stage QR Screen for the live opening countdown
+        router.push('/qr');
       } finally {
         setIsUpdatingVotingStatus(false);
       }
@@ -617,19 +619,19 @@ export default function AdminLeaderboardPage() {
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
-          {/* Live Voting Toggle Switch */}
+          {/* Live Voting Toggle Switch (Refined NOVERA Noir & Gold Theme) */}
           <button
             type="button"
             onClick={toggleVotingStatus}
             disabled={isUpdatingVotingStatus}
             className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs font-bold uppercase tracking-wider transition-all shadow-md backdrop-blur-md border ${
               votingSettings.isVotingOpen
-                ? 'bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border-emerald-500/40 shadow-[0_0_20px_rgba(16,185,129,0.3)]'
-                : 'bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border-rose-500/40 shadow-[0_0_20px_rgba(239,68,68,0.3)]'
+                ? 'bg-amber-500/20 hover:bg-amber-500/30 text-amber-200 border-amber-500/50 shadow-[0_0_25px_rgba(212,175,55,0.35)]'
+                : 'bg-[#181512]/90 hover:bg-[#221d17] text-zinc-400 border-white/10 shadow-sm'
             }`}
             title="Click to toggle live audience voting on or off"
           >
-            <span className={`w-2.5 h-2.5 rounded-full ${votingSettings.isVotingOpen ? 'bg-emerald-400 animate-ping' : 'bg-rose-400'}`} />
+            <span className={`w-2.5 h-2.5 rounded-full ${votingSettings.isVotingOpen ? 'bg-amber-400 animate-ping' : 'bg-zinc-500'}`} />
             <span>{votingSettings.isVotingOpen ? 'Audience Voting: OPEN' : 'Audience Voting: CLOSED'}</span>
           </button>
 
@@ -661,7 +663,7 @@ export default function AdminLeaderboardPage() {
               </>
             ) : (
               <>
-                <Eye className="w-4 h-4 text-emerald-400" />
+                <Eye className="w-4 h-4 text-amber-400" />
                 <span>Privacy Shield: REVEALED</span>
               </>
             )}
@@ -676,9 +678,9 @@ export default function AdminLeaderboardPage() {
           </button>
           <button
             onClick={handleLogout}
-            className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-2xl text-xs font-semibold text-rose-300 bg-rose-500/20 hover:bg-rose-500/30 border border-rose-500/40 backdrop-blur-md transition-colors shadow-sm"
+            className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-2xl text-xs font-semibold text-zinc-300 bg-white/5 hover:bg-white/10 hover:text-white border border-white/15 backdrop-blur-md transition-colors shadow-sm"
           >
-            <LogOut className="w-4 h-4" />
+            <LogOut className="w-4 h-4 text-zinc-400" />
             <span>Sign Out</span>
           </button>
         </div>
@@ -758,16 +760,16 @@ export default function AdminLeaderboardPage() {
               <div className="flex items-center gap-2">
                 <span className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider border ${
                   votingSettings.isVotingOpen
-                    ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40 shadow-[0_0_20px_rgba(16,185,129,0.3)]'
-                    : 'bg-rose-500/20 text-rose-300 border-rose-500/40'
+                    ? 'bg-amber-500/20 text-amber-300 border-amber-500/40 shadow-[0_0_20px_rgba(212,175,55,0.3)]'
+                    : 'bg-black/60 text-zinc-400 border-white/10'
                 }`}>
-                  <span className={`w-2.5 h-2.5 rounded-full ${votingSettings.isVotingOpen ? 'bg-emerald-400 animate-ping' : 'bg-rose-400'}`} />
+                  <span className={`w-2.5 h-2.5 rounded-full ${votingSettings.isVotingOpen ? 'bg-amber-400 animate-ping' : 'bg-zinc-500'}`} />
                   <span>{votingSettings.isVotingOpen ? 'Stage Status: LIVE' : 'Stage Status: LOCKED'}</span>
                 </span>
               </div>
             </div>
 
-            {/* 🚀 THE GIANT VOTING OPEN / CLOSE BUTTON */}
+            {/* 🚀 THE NOVERA HAUTE COUTURE GOLD & NOIR VOTING LAUNCH BUTTON */}
             <div>
               <button
                 type="button"
@@ -775,42 +777,46 @@ export default function AdminLeaderboardPage() {
                 disabled={isUpdatingVotingStatus}
                 className={`w-full py-8 sm:py-12 px-6 sm:px-10 rounded-3xl transition-all duration-300 flex flex-col items-center justify-center gap-3 relative overflow-hidden group cursor-pointer border-2 shadow-2xl active:scale-[0.99] ${
                   votingSettings.isVotingOpen
-                    ? 'bg-gradient-to-r from-rose-800 via-rose-600 to-red-700 border-rose-400 text-white shadow-[0_0_60px_rgba(244,63,94,0.5)]'
-                    : 'bg-gradient-to-r from-emerald-700 via-emerald-600 to-teal-800 border-emerald-400 text-white shadow-[0_0_60px_rgba(16,185,129,0.4)] hover:brightness-110'
+                    ? 'bg-gradient-to-r from-[#171410] via-[#241d15] to-[#171410] border-amber-400/80 text-amber-100 shadow-[0_0_50px_rgba(212,175,55,0.35)] hover:border-amber-300 hover:shadow-[0_0_65px_rgba(212,175,55,0.5)]'
+                    : 'bg-gradient-to-r from-[#d4af37] via-[#f5e6b8] to-[#aa7c11] border-white/80 text-black shadow-[0_0_60px_rgba(212,175,55,0.45)] hover:brightness-110'
                 }`}
               >
                 {/* Specular animated shine */}
                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/25 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 pointer-events-none" />
 
-                <div className="inline-flex items-center gap-2 px-4 py-1 rounded-full bg-black/40 border border-white/20 text-xs font-mono uppercase tracking-widest text-white shadow-sm">
+                <div className="inline-flex items-center gap-2 px-4 py-1 rounded-full bg-black/60 border border-white/20 text-xs font-mono uppercase tracking-widest text-white shadow-sm">
                   {votingSettings.isVotingOpen ? (
                     <>
-                      <Radio className="w-3.5 h-3.5 text-rose-300 animate-spin" />
-                      <span>Audience Voting Live &bull; Click or Press Space to Lock</span>
+                      <Radio className="w-3.5 h-3.5 text-novera-gold animate-spin" />
+                      <span className="text-amber-200">Audience Voting Live &bull; Click or Press Space to Lock</span>
                     </>
                   ) : (
                     <>
-                      <Zap className="w-3.5 h-3.5 text-emerald-300 animate-pulse" />
-                      <span>Ready &bull; Click or Press Space to Open ({votingDurationMinutes} Mins)</span>
+                      <Zap className="w-3.5 h-3.5 text-black animate-pulse" />
+                      <span className="text-black font-bold">Ready &bull; Click or Press Space to Open ({votingDurationMinutes} Mins)</span>
                     </>
                   )}
                 </div>
 
                 <div className="flex items-center gap-4">
                   {votingSettings.isVotingOpen ? (
-                    <Square className="w-8 h-8 sm:w-10 sm:h-10 text-white fill-white shrink-0 drop-shadow-md" />
+                    <Square className="w-8 h-8 sm:w-10 sm:h-10 text-amber-300 fill-amber-300 shrink-0 drop-shadow-md" />
                   ) : (
-                    <Play className="w-8 h-8 sm:w-10 sm:h-10 text-white fill-white shrink-0 drop-shadow-md animate-pulse" />
+                    <Play className="w-8 h-8 sm:w-10 sm:h-10 text-black fill-black shrink-0 drop-shadow-md animate-pulse" />
                   )}
-                  <span className="font-serif text-2xl sm:text-4xl md:text-5xl font-black uppercase tracking-wide text-white drop-shadow-[0_2px_15px_rgba(0,0,0,0.8)] text-center">
+                  <span className={`font-serif text-2xl sm:text-4xl md:text-5xl font-black uppercase tracking-wide drop-shadow-[0_2px_15px_rgba(0,0,0,0.8)] text-center ${
+                    votingSettings.isVotingOpen
+                      ? 'text-transparent bg-clip-text bg-gradient-to-r from-amber-100 via-white to-amber-300'
+                      : 'text-black'
+                  }`}>
                     {votingSettings.isVotingOpen
                       ? 'Stop Audience Voting'
                       : `Open Audience Voting (${votingDurationMinutes} Mins)`}
                   </span>
                 </div>
 
-                <div className="flex items-center gap-2 text-white/90 text-xs sm:text-sm font-mono tracking-wide pt-1">
-                  <kbd className="px-2.5 py-0.5 rounded-lg bg-black/60 border border-white/40 text-amber-300 font-bold shadow-md">SPACE</kbd>
+                <div className={`flex items-center gap-2 text-xs sm:text-sm font-mono tracking-wide pt-1 ${votingSettings.isVotingOpen ? 'text-zinc-300' : 'text-black/80'}`}>
+                  <kbd className="px-2.5 py-0.5 rounded-lg bg-black/80 border border-white/30 text-amber-300 font-bold shadow-md">SPACE</kbd>
                   <span>Keyboard Shortcut: Press Spacebar Anywhere On This Page</span>
                 </div>
               </button>
@@ -834,7 +840,7 @@ export default function AdminLeaderboardPage() {
 
                 <div className="flex flex-col items-center md:items-end gap-1.5 shrink-0">
                   <div className="px-6 py-2.5 rounded-2xl bg-black/90 border-2 border-novera-gold/80 shadow-[0_0_30px_rgba(251,191,36,0.5)] flex items-center gap-3">
-                    <span className="w-3 h-3 rounded-full bg-emerald-400 animate-ping" />
+                    <span className="w-3 h-3 rounded-full bg-novera-gold animate-ping" />
                     <span className="font-mono text-3xl sm:text-5xl font-black text-amber-300 tracking-widest drop-shadow-[0_0_15px_rgba(251,191,36,0.9)]">
                       {remainingTimeText}
                     </span>
