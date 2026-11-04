@@ -325,78 +325,78 @@ export default function AdminLeaderboardPage() {
       const topModelAvg =
         judgeCount > 0
           ? Math.round(
-              (scores.reduce(
-                (sum, s) =>
-                  sum +
-                  Number(
-                    s.totalModel ??
-                      (Number(s.walking || 0) +
-                        Number(s.confidence || 0) +
-                        Number(s.stage || 0) +
-                        Number(s.posture || 0) +
-                        Number(s.poses || 0) +
-                        Number(s.face || 0))
-                  ),
-                0
-              ) /
-                judgeCount) *
-                10
-            ) / 10
+            (scores.reduce(
+              (sum, s) =>
+                sum +
+                Number(
+                  s.totalModel ??
+                  (Number(s.walking || 0) +
+                    Number(s.confidence || 0) +
+                    Number(s.stage || 0) +
+                    Number(s.posture || 0) +
+                    Number(s.poses || 0) +
+                    Number(s.face || 0))
+                ),
+              0
+            ) /
+              judgeCount) *
+            10
+          ) / 10
           : 0;
 
       // 2. Best Personality (Max 50: Confid 20 + Stage 20 + Face 10)
       const personalityAvg =
         judgeCount > 0
           ? Math.round(
-              (scores.reduce(
-                (sum, s) =>
-                  sum +
-                  Number(
-                    s.personalityScore ??
-                      Number(s.confidence || 0) + Number(s.stage || 0) + Number(s.face || 0)
-                  ),
-                0
-              ) /
-                judgeCount) *
-                10
-            ) / 10
+            (scores.reduce(
+              (sum, s) =>
+                sum +
+                Number(
+                  s.personalityScore ??
+                  Number(s.confidence || 0) + Number(s.stage || 0) + Number(s.face || 0)
+                ),
+              0
+            ) /
+              judgeCount) *
+            10
+          ) / 10
           : 0;
 
       // 3. Best Stage Presence (Max 30: Confid 10 + Stage 20)
       const stagePresenceAvg =
         judgeCount > 0
           ? Math.round(
-              (scores.reduce(
-                (sum, s) =>
-                  sum +
-                  Number(
-                    s.stagePresenceScore ??
-                      Math.min(10, Math.round(Number(s.confidence || 0) / 2)) +
-                        Number(s.stage || 0)
-                  ),
-                0
-              ) /
-                judgeCount) *
-                10
-            ) / 10
+            (scores.reduce(
+              (sum, s) =>
+                sum +
+                Number(
+                  s.stagePresenceScore ??
+                  Math.min(10, Math.round(Number(s.confidence || 0) / 2)) +
+                  Number(s.stage || 0)
+                ),
+              0
+            ) /
+              judgeCount) *
+            10
+          ) / 10
           : 0;
 
       // 4. Most Photogenic Model (Max 40: Posture 15 + Poses 15 + Face 10)
       const photogenicAvg =
         judgeCount > 0
           ? Math.round(
-              (scores.reduce(
-                (sum, s) =>
-                  sum +
-                  Number(
-                    s.photogenicScore ??
-                      Number(s.posture || 0) + Number(s.poses || 0) + Number(s.face || 0)
-                  ),
-                0
-              ) /
-                judgeCount) *
-                10
-            ) / 10
+            (scores.reduce(
+              (sum, s) =>
+                sum +
+                Number(
+                  s.photogenicScore ??
+                  Number(s.posture || 0) + Number(s.poses || 0) + Number(s.face || 0)
+                ),
+              0
+            ) /
+              judgeCount) *
+            10
+          ) / 10
           : 0;
 
       return {
@@ -489,21 +489,21 @@ export default function AdminLeaderboardPage() {
   const chartData = [
     ...(chartCategory === 'both' || chartCategory === 'boy'
       ? boys.map((c) => ({
-          name: c.name.split(' ')[0],
-          fullName: c.name,
-          category: 'Boy',
-          votes: c.votes || 0,
-          color: '#b3924f',
-        }))
+        name: c.name.split(' ')[0],
+        fullName: c.name,
+        category: 'Boy',
+        votes: c.votes || 0,
+        color: '#b3924f',
+      }))
       : []),
     ...(chartCategory === 'both' || chartCategory === 'girl'
       ? girls.map((c) => ({
-          name: c.name.split(' ')[0],
-          fullName: c.name,
-          category: 'Girl',
-          votes: c.votes || 0,
-          color: '#0b0b0b',
-        }))
+        name: c.name.split(' ')[0],
+        fullName: c.name,
+        category: 'Girl',
+        votes: c.votes || 0,
+        color: '#0b0b0b',
+      }))
       : []),
   ];
 
@@ -592,7 +592,7 @@ export default function AdminLeaderboardPage() {
                 ...votingSettings,
                 countdownUntil: null,
               });
-            } catch (e) {}
+            } catch (e) { }
             setVotingSettings((prev) => ({ ...prev, countdownUntil: null }));
             router.push('/qr');
           }}
@@ -605,1277 +605,1256 @@ export default function AdminLeaderboardPage() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10 space-y-8 relative z-10 print:hidden">
-      {/* ================= VIEW 1: ADMIN HOME (STAGE LAUNCHPAD ONLY - NO MARKS EXPOSED) ================= */}
-      {adminMode === 'stage' && (
-        <div className="space-y-6 animate-in fade-in duration-200">
-          {/* Top Stage Header */}
-          <div className="p-6 sm:p-8 rounded-3xl bg-black/40 backdrop-blur-2xl border border-white/15 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 shadow-2xl">
-            <div>
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-black/50 backdrop-blur-xl border border-white/20 text-xs uppercase tracking-widest font-bold text-novera-gold mb-2">
-                <ShieldCheck className="w-4 h-4 text-novera-gold animate-float" />
-                <span>Master Administration Hub</span>
-              </div>
-              <h1 className="font-serif text-2xl sm:text-4xl font-bold text-white">
-                Audience Voting Launchpad
-              </h1>
-              <p className="text-xs sm:text-sm text-zinc-300 mt-1">
-                Official Stage Controller &bull; Privacy Protected
-              </p>
-            </div>
-
-            <div className="flex items-center gap-3">
-              {/* Button to navigate into the secret Tabulation & Results Vault */}
-              <button
-                type="button"
-                onClick={() => setAdminMode('vault')}
-                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs font-bold uppercase tracking-wider bg-white/10 hover:bg-white/20 text-white border border-white/20 hover:border-novera-gold/60 backdrop-blur-md transition-all shadow-md group"
-                title="Open Confidential Marks & Tabulation Vault"
-              >
-                <Lock className="w-4 h-4 text-novera-gold group-hover:scale-110 transition-transform" />
-                <span>Results &amp; Tabulation Vault &rarr;</span>
-              </button>
-
-              <button
-                onClick={handleLogout}
-                className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-2xl text-xs font-semibold text-zinc-300 bg-white/5 hover:bg-white/10 hover:text-white border border-white/15 backdrop-blur-md transition-colors shadow-sm"
-                title="Sign Out of Master Admin Hub"
-              >
-                <LogOut className="w-3.5 h-3.5 text-zinc-400" />
-                <span>Sign Out</span>
-              </button>
-            </div>
-          </div>
-
-          {/* Main Launchpad Card with Big Button and Session Configuration */}
-          <div className="p-6 sm:p-8 rounded-3xl bg-black/50 backdrop-blur-2xl border border-white/15 shadow-2xl space-y-6">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-white/10 pb-5">
+        {/* ================= VIEW 1: ADMIN HOME (STAGE LAUNCHPAD ONLY - NO MARKS EXPOSED) ================= */}
+        {adminMode === 'stage' && (
+          <div className="space-y-6 animate-in fade-in duration-200">
+            {/* Top Stage Header */}
+            <div className="p-6 sm:p-8 rounded-3xl bg-black/40 backdrop-blur-2xl border border-white/15 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 shadow-2xl">
               <div>
-                <span className="text-[10px] font-mono uppercase tracking-[0.25em] text-novera-gold font-bold block mb-1">
-                  Master Stage Controller &bull; Privacy Protected
-                </span>
-                <h2 className="font-serif text-2xl sm:text-3xl font-bold text-white">
-                  Live Voting Control
-                </h2>
-                <p className="text-xs text-zinc-300 mt-1">
-                  Trigger public audience voting for NOVERA ’26 with the master button below.
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-black/50 backdrop-blur-xl border border-white/20 text-xs uppercase tracking-widest font-bold text-novera-gold mb-2">
+                  <ShieldCheck className="w-4 h-4 text-novera-gold animate-float" />
+                  <span>Master Administration Hub</span>
+                </div>
+                <h1 className="font-serif text-2xl sm:text-4xl font-bold text-white">
+                  Audience Voting Launchpad
+                </h1>
+                <p className="text-xs sm:text-sm text-zinc-300 mt-1">
+                  Official Stage Controller &bull; Privacy Protected
                 </p>
               </div>
 
-              <div className="flex items-center gap-2">
-                <span className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider border ${
-                  votingSettings.isVotingOpen
-                    ? 'bg-amber-500/20 text-amber-300 border-amber-500/40 shadow-[0_0_20px_rgba(212,175,55,0.3)]'
-                    : 'bg-black/60 text-zinc-400 border-white/10'
-                }`}>
-                  <span className={`w-2.5 h-2.5 rounded-full ${votingSettings.isVotingOpen ? 'bg-amber-400 animate-ping' : 'bg-zinc-500'}`} />
-                  <span>{votingSettings.isVotingOpen ? 'Stage Status: LIVE' : 'Stage Status: LOCKED'}</span>
-                </span>
-              </div>
-            </div>
-
-            {/* 🚀 THE BIG OPEN / STOP VOTING BUTTON */}
-            <div>
-              <button
-                type="button"
-                onClick={toggleVotingStatus}
-                disabled={isUpdatingVotingStatus}
-                className={`w-full py-10 sm:py-14 px-6 sm:px-10 rounded-3xl transition-all duration-300 flex items-center justify-center gap-4 sm:gap-6 relative overflow-hidden group cursor-pointer border-2 shadow-2xl active:scale-[0.99] ${
-                  votingSettings.isVotingOpen
-                    ? 'bg-gradient-to-r from-[#171410] via-[#241d15] to-[#171410] border-amber-400/80 text-amber-100 shadow-[0_0_50px_rgba(212,175,55,0.35)] hover:border-amber-300 hover:shadow-[0_0_65px_rgba(212,175,55,0.5)]'
-                    : 'bg-gradient-to-r from-[#d4af37] via-[#f5e6b8] to-[#aa7c11] border-white/80 text-black shadow-[0_0_60px_rgba(212,175,55,0.45)] hover:brightness-110'
-                }`}
-              >
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/25 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 pointer-events-none" />
-
-                <div className="flex items-center gap-4 sm:gap-6">
-                  {votingSettings.isVotingOpen ? (
-                    <Square className="w-8 h-8 sm:w-12 sm:h-12 text-amber-300 fill-amber-300 shrink-0 drop-shadow-md" />
-                  ) : (
-                    <Play className="w-8 h-8 sm:w-12 sm:h-12 text-black fill-black shrink-0 drop-shadow-md animate-pulse" />
-                  )}
-                  <span className={`font-serif text-2xl sm:text-4xl md:text-5xl font-black uppercase tracking-wide drop-shadow-[0_2px_15px_rgba(0,0,0,0.8)] text-center ${
-                    votingSettings.isVotingOpen
-                      ? 'text-transparent bg-clip-text bg-gradient-to-r from-amber-100 via-white to-amber-300'
-                      : 'text-black'
-                  }`}>
-                    {votingSettings.isVotingOpen
-                      ? 'Stop Audience Voting'
-                      : `Open Audience Voting (${votingDurationMinutes} Mins)`}
-                  </span>
-                </div>
-              </button>
-            </div>
-
-            {/* ⏱️ LIVE 10-MINUTE COUNTDOWN DISPLAY (WHEN VOTING IS LIVE) */}
-            {votingSettings.isVotingOpen && remainingTimeText && (
-              <div className="p-6 sm:p-7 rounded-2xl bg-gradient-to-r from-amber-500/15 via-black/80 to-amber-500/10 border-2 border-novera-gold/70 shadow-[0_0_35px_rgba(203,167,95,0.3)] flex flex-col md:flex-row items-center justify-between gap-6">
-                <div className="space-y-1 text-center md:text-left">
-                  <div className="inline-flex items-center gap-2 text-xs font-mono uppercase tracking-[0.2em] text-novera-gold font-bold">
-                    <Clock className="w-4 h-4 text-novera-gold animate-spin-slow" />
-                    <span>Official Synchronized Runway Timer</span>
-                  </div>
-                  <h3 className="font-serif text-xl sm:text-2xl font-bold text-white">
-                    Audience Voting Session In Progress
-                  </h3>
-                  <p className="text-xs text-zinc-300">
-                    Stage QR Code is unlocked. When the timer hits 00:00, voting will automatically close and the QR will lock.
-                  </p>
-                </div>
-
-                <div className="flex flex-col items-center md:items-end gap-1.5 shrink-0">
-                  <div className="px-6 py-2.5 rounded-2xl bg-black/90 border-2 border-novera-gold/80 shadow-[0_0_30px_rgba(251,191,36,0.5)] flex items-center gap-3">
-                    <span className="w-3 h-3 rounded-full bg-novera-gold animate-ping" />
-                    <span className="font-mono text-3xl sm:text-5xl font-black text-amber-300 tracking-widest drop-shadow-[0_0_15px_rgba(251,191,36,0.9)]">
-                      {remainingTimeText}
-                    </span>
-                  </div>
-                  <span className="text-[11px] font-mono text-zinc-400">Time Remaining Before Auto-Close</span>
-                </div>
-              </div>
-            )}
-
-            {/* Voting Session Configuration (When voting is closed) */}
-            {!votingSettings.isVotingOpen && (
-              <div className="p-4 sm:p-5 rounded-2xl bg-white/[0.03] border border-white/10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                <div>
-                  <span className="text-xs font-bold text-white block">Session Duration Configuration</span>
-                  <span className="text-[11px] text-zinc-400">Select how long audience voting remains active before auto-closing:</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  {[5, 10, 15, 20].map((mins) => (
-                    <button
-                      key={mins}
-                      type="button"
-                      onClick={() => setVotingDurationMinutes(mins)}
-                      className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all border ${
-                        votingDurationMinutes === mins
-                          ? 'bg-gradient-to-r from-novera-gold to-amber-400 text-black border-amber-300 shadow-md font-extrabold'
-                          : 'bg-white/5 hover:bg-white/15 text-zinc-300 border-white/10'
-                      }`}
-                    >
-                      {mins} Mins{mins === 10 ? ' (Default)' : ''}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* ================= VIEW 2: CONFIDENTIAL RESULTS VAULT (TABULATION & ALL MARKS) ================= */}
-      {adminMode === 'vault' && (
-        <div className="space-y-6 animate-in fade-in duration-200">
-          {/* Top Banner with Return to Stage Controller Button */}
-          <div className="p-6 sm:p-8 rounded-3xl bg-black/40 backdrop-blur-2xl border border-white/15 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 shadow-2xl">
-            <div>
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-black/50 backdrop-blur-xl border border-white/20 text-xs uppercase tracking-widest font-bold text-novera-gold mb-2">
-                <Lock className="w-4 h-4 text-novera-gold animate-pulse" />
-                <span>Confidential Results Vault</span>
-              </div>
-              <h1 className="font-serif text-2xl sm:text-4xl font-bold text-white">
-                Central Tabulation &amp; Surveillance
-              </h1>
-              <p className="text-xs sm:text-sm text-zinc-300 mt-1">
-                Official Award Marking Alignment &bull; 6 Titles (Girl &amp; Boy) &bull; Live Telemetry
-              </p>
-            </div>
-
-            <div className="flex flex-wrap items-center gap-2.5">
-              {/* Prominent Back to Stage Controller Button */}
-              <button
-                type="button"
-                onClick={() => setAdminMode('stage')}
-                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs font-extrabold uppercase tracking-wider bg-gradient-to-r from-novera-gold to-amber-400 text-black shadow-lg hover:brightness-110 transition-all border border-amber-300"
-              >
-                <span>&larr; Back to Stage Controller</span>
-              </button>
-
-              {/* Privacy Shield Toggle (Hides counts & leaders from backstage bystanders) */}
-              <button
-                type="button"
-                onClick={() => setIsPrivacyMasked(!isPrivacyMasked)}
-                className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-2xl text-xs font-bold uppercase tracking-wider transition-all shadow-sm backdrop-blur-md border ${
-                  isPrivacyMasked
-                    ? 'bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border-amber-500/40 shadow-[0_0_15px_rgba(245,158,11,0.2)]'
-                    : 'bg-zinc-800/80 hover:bg-zinc-700/80 text-zinc-300 border-white/20'
-                }`}
-                title={isPrivacyMasked ? 'Privacy Shield is ACTIVE (Results concealed from bystanders)' : 'Privacy Shield is REVEALED'}
-              >
-                {isPrivacyMasked ? (
-                  <>
-                    <EyeOff className="w-3.5 h-3.5 text-amber-400" />
-                    <span>Privacy Shield</span>
-                  </>
-                ) : (
-                  <>
-                    <Eye className="w-3.5 h-3.5 text-amber-400" />
-                    <span>Revealed</span>
-                  </>
-                )}
-              </button>
-
-              <button
-                onClick={() => window.print()}
-                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-2xl text-xs font-semibold bg-white/10 hover:bg-white/20 text-white border border-white/15 backdrop-blur-md transition-all shadow-sm"
-                title="Print MC Summary"
-              >
-                <Printer className="w-3.5 h-3.5" />
-                <span className="hidden sm:inline">Print MC</span>
-              </button>
-              <button
-                onClick={handleLogout}
-                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-2xl text-xs font-semibold text-zinc-300 bg-white/5 hover:bg-white/10 hover:text-white border border-white/15 backdrop-blur-md transition-colors shadow-sm"
-                title="Sign Out of Master Admin Hub"
-              >
-                <LogOut className="w-3.5 h-3.5 text-zinc-400" />
-                <span>Sign Out</span>
-              </button>
-            </div>
-          </div>
-
-          {/* Vault Tabs Navigation */}
-          <div className="flex justify-center my-2">
-            <div className="grid grid-cols-3 gap-2 p-1.5 rounded-full bg-black/50 backdrop-blur-xl border border-white/15 shadow-inner w-full max-w-2xl">
-              <button
-                onClick={() => setVaultTab('audience')}
-                className={`flex items-center justify-center gap-2 py-3 px-4 rounded-full text-xs sm:text-sm font-bold uppercase tracking-wider whitespace-nowrap transition-all duration-200 ${
-                  vaultTab === 'audience'
-                    ? 'bg-gradient-to-r from-novera-gold to-amber-500 text-black shadow-lg font-extrabold'
-                    : 'text-zinc-400 hover:text-white hover:bg-white/10'
-                }`}
-              >
-                <Vote className={`w-4 h-4 shrink-0 ${vaultTab === 'audience' ? 'text-black' : 'text-novera-gold'}`} />
-                <span>Audience Votes</span>
-              </button>
-
-              <button
-                onClick={() => setVaultTab('judges')}
-                className={`flex items-center justify-center gap-2 py-3 px-4 rounded-full text-xs sm:text-sm font-bold uppercase tracking-wider whitespace-nowrap transition-all duration-200 ${
-                  vaultTab === 'judges'
-                    ? 'bg-gradient-to-r from-novera-gold to-amber-500 text-black shadow-lg font-extrabold'
-                    : 'text-zinc-400 hover:text-white hover:bg-white/10'
-                }`}
-              >
-                <Award className={`w-4 h-4 shrink-0 ${vaultTab === 'judges' ? 'text-black' : 'text-novera-gold'}`} />
-                <span>Jury Scores</span>
-              </button>
-
-              <button
-                onClick={() => setVaultTab('summary')}
-                className={`flex items-center justify-center gap-2 py-3 px-4 rounded-full text-xs sm:text-sm font-bold uppercase tracking-wider whitespace-nowrap transition-all duration-200 ${
-                  vaultTab === 'summary'
-                    ? 'bg-gradient-to-r from-novera-gold to-amber-500 text-black shadow-lg font-extrabold'
-                    : 'text-zinc-400 hover:text-white hover:bg-white/10'
-                }`}
-              >
-                <Trophy className={`w-4 h-4 shrink-0 ${vaultTab === 'summary' ? 'text-black' : 'text-novera-gold'}`} />
-                <span>Final 6 Titles</span>
-              </button>
-            </div>
-          </div>
-
-      {/* ================= TAB 1: AUDIENCE VOTES ================= */}
-      {vaultTab === 'audience' && (
-        <div className="space-y-8 animate-in fade-in duration-200">
-          {/* Quick Metrics */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-            <div className="p-6 rounded-2xl bg-black/40 backdrop-blur-2xl border border-white/15 shadow-xl flex items-center justify-between text-white">
-              <div>
-                <span className="text-xs uppercase tracking-wider text-zinc-400 font-semibold">Total Audience Ballots</span>
-                <div className="text-3xl font-serif font-bold text-white mt-1">
-                  {isPrivacyMasked ? (
-                    <span className="font-mono tracking-widest text-novera-gold text-2xl font-bold">••••••</span>
-                  ) : (
-                    totalOverallVotes
-                  )}
-                </div>
-              </div>
-              <div className="w-12 h-12 rounded-xl bg-white/10 border border-white/15 flex items-center justify-center text-novera-gold">
-                <Users className="w-6 h-6 text-novera-gold" />
-              </div>
-            </div>
-
-            <div className="p-6 rounded-2xl bg-black/40 backdrop-blur-2xl border border-white/15 shadow-xl flex items-center justify-between text-white">
-              <div>
-                <span className="text-xs uppercase tracking-wider text-zinc-400 font-semibold">Male Model Votes</span>
-                <div className="text-3xl font-serif font-bold text-white mt-1">
-                  {isPrivacyMasked ? (
-                    <span className="font-mono tracking-widest text-novera-gold text-2xl font-bold">••••</span>
-                  ) : (
-                    totalBoyVotes
-                  )}
-                </div>
-              </div>
-              <div className="w-12 h-12 rounded-xl bg-white/10 border border-white/15 flex items-center justify-center text-novera-gold">
-                <Crown className="w-6 h-6 text-novera-gold" />
-              </div>
-            </div>
-
-            <div className="p-6 rounded-2xl bg-black/40 backdrop-blur-2xl border border-white/15 shadow-xl flex items-center justify-between text-white">
-              <div>
-                <span className="text-xs uppercase tracking-wider text-zinc-400 font-semibold">Female Model Votes</span>
-                <div className="text-3xl font-serif font-bold text-white mt-1">
-                  {isPrivacyMasked ? (
-                    <span className="font-mono tracking-widest text-novera-gold text-2xl font-bold">••••</span>
-                  ) : (
-                    totalGirlVotes
-                  )}
-                </div>
-              </div>
-              <div className="w-12 h-12 rounded-xl bg-white/10 border border-white/15 flex items-center justify-center text-novera-gold">
-                <Crown className="w-6 h-6 text-novera-gold" />
-              </div>
-            </div>
-          </div>
-
-          {/* Leaders Showcase */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 relative">
-            {isPrivacyMasked && (
-              <div className="absolute inset-0 z-30 bg-black/90 backdrop-blur-md rounded-3xl border border-novera-gold/30 p-6 flex flex-col items-center justify-center text-center space-y-3 shadow-2xl">
-                <div className="w-14 h-14 rounded-full bg-novera-gold/20 border border-novera-gold/40 flex items-center justify-center shadow-[0_0_20px_rgba(203,167,95,0.3)]">
-                  <EyeOff className="w-7 h-7 text-novera-gold animate-pulse" />
-                </div>
-                <div className="space-y-1">
-                  <h4 className="font-serif text-lg font-bold text-white uppercase tracking-wider">
-                    Audience Leaders Masked
-                  </h4>
-                  <p className="text-xs text-zinc-400 max-w-md">
-                    Confidential mode is active to prevent bystanders or backstage participants from peeking at the live standings.
-                  </p>
-                </div>
+              <div className="flex items-center gap-3">
+                {/* Button to navigate into the secret Tabulation & Results Vault */}
                 <button
                   type="button"
-                  onClick={() => setIsPrivacyMasked(false)}
-                  className="px-4 py-2 rounded-xl bg-gradient-to-r from-novera-gold to-amber-500 text-black font-extrabold text-xs uppercase tracking-wider hover:brightness-110 shadow-md transition-all flex items-center gap-1.5"
+                  onClick={() => setAdminMode('vault')}
+                  className="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs font-bold uppercase tracking-wider bg-white/10 hover:bg-white/20 text-white border border-white/20 hover:border-novera-gold/60 backdrop-blur-md transition-all shadow-md group"
+                  title="Open Confidential Marks & Tabulation Vault"
                 >
-                  <Eye className="w-3.5 h-3.5" />
-                  <span>Reveal Leaders</span>
+                  <Lock className="w-4 h-4 text-novera-gold group-hover:scale-110 transition-transform" />
+                  <span>Results &amp; Tabulation Vault &rarr;</span>
                 </button>
-              </div>
-            )}
 
-            {/* Leading Boy */}
-            <div className="p-6 rounded-3xl bg-black/40 backdrop-blur-2xl border-2 border-novera-gold/40 shadow-xl flex items-center gap-5 text-white">
-              <div className="relative w-24 h-24 rounded-2xl overflow-hidden shrink-0 shadow-inner border border-white/15">
-                {topBoyAudience && (
-                  <Image src={topBoyAudience.imageUrl} alt={topBoyAudience.name} fill className="object-cover" />
-                )}
-              </div>
-              <div className="flex-grow">
-                <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-novera-gold/20 border border-novera-gold/30 text-[10px] font-bold uppercase tracking-wider text-novera-gold mb-1">
-                  <Crown className="w-3 h-3" />
-                  <span>Leading Boy &bull; People&rsquo;s Choice</span>
-                </div>
-                <h3 className="font-serif text-xl font-bold text-white">{topBoyAudience?.name || 'N/A'}</h3>
-                <div className="text-xs text-zinc-300 mt-1">
-                  <strong className="text-novera-gold text-base font-mono">{topBoyAudience?.votes || 0}</strong> votes (
-                  {totalBoyVotes > 0 ? Math.round(((topBoyAudience?.votes || 0) / totalBoyVotes) * 100) : 0}%)
-                </div>
-              </div>
-            </div>
-
-            {/* Leading Girl */}
-            <div className="p-6 rounded-3xl bg-black/40 backdrop-blur-2xl border-2 border-novera-gold/40 shadow-xl flex items-center gap-5 text-white">
-              <div className="relative w-24 h-24 rounded-2xl overflow-hidden shrink-0 shadow-inner border border-white/15">
-                {topGirlAudience && (
-                  <Image src={topGirlAudience.imageUrl} alt={topGirlAudience.name} fill className="object-cover" />
-                )}
-              </div>
-              <div className="flex-grow">
-                <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-novera-gold/20 border border-novera-gold/30 text-[10px] font-bold uppercase tracking-wider text-novera-gold mb-1">
-                  <Crown className="w-3 h-3" />
-                  <span>Leading Girl &bull; People&rsquo;s Choice</span>
-                </div>
-                <h3 className="font-serif text-xl font-bold text-white">{topGirlAudience?.name || 'N/A'}</h3>
-                <div className="text-xs text-zinc-300 mt-1">
-                  <strong className="text-novera-gold text-base font-mono">{topGirlAudience?.votes || 0}</strong> votes (
-                  {totalGirlVotes > 0 ? Math.round(((topGirlAudience?.votes || 0) / totalGirlVotes) * 100) : 0}%)
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Bar Chart Section */}
-          <div className="p-6 sm:p-8 rounded-3xl bg-black/40 backdrop-blur-2xl border border-white/15 shadow-2xl text-white">
-            <div className="flex flex-col sm:flex-row items-center justify-between pb-6 border-b border-white/10 gap-4">
-              <div>
-                <h2 className="font-serif text-xl sm:text-2xl font-bold text-white">
-                  Live Vote Distribution (Bar Chart)
-                </h2>
-                <p className="text-xs text-zinc-400">Real-time vote comparison across runway models</p>
-              </div>
-
-              <div className="inline-flex p-1 rounded-xl bg-white/10 border border-white/15 text-xs">
                 <button
-                  onClick={() => setChartCategory('both')}
-                  className={`px-3 py-1.5 rounded-lg font-medium transition-all ${
-                    chartCategory === 'both' ? 'bg-gradient-to-r from-novera-gold to-amber-500 text-black font-extrabold shadow' : 'text-zinc-400 hover:text-white'
-                  }`}
+                  onClick={handleLogout}
+                  className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-2xl text-xs font-semibold text-zinc-300 bg-white/5 hover:bg-white/10 hover:text-white border border-white/15 backdrop-blur-md transition-colors shadow-sm"
+                  title="Sign Out of Master Admin Hub"
                 >
-                  All Models
-                </button>
-                <button
-                  onClick={() => setChartCategory('boy')}
-                  className={`px-3 py-1.5 rounded-lg font-medium transition-all ${
-                    chartCategory === 'boy' ? 'bg-gradient-to-r from-novera-gold to-amber-500 text-black font-extrabold shadow' : 'text-zinc-400 hover:text-white'
-                  }`}
-                >
-                  Boys Only
-                </button>
-                <button
-                  onClick={() => setChartCategory('girl')}
-                  className={`px-3 py-1.5 rounded-lg font-medium transition-all ${
-                    chartCategory === 'girl' ? 'bg-gradient-to-r from-novera-gold to-amber-500 text-black font-extrabold shadow' : 'text-zinc-400 hover:text-white'
-                  }`}
-                >
-                  Girls Only
+                  <LogOut className="w-3.5 h-3.5 text-zinc-400" />
+                  <span>Sign Out</span>
                 </button>
               </div>
             </div>
 
-            <div className="mt-8 h-80 w-full relative">
-              {isPrivacyMasked && (
-                <div className="absolute inset-0 z-20 bg-black/85 backdrop-blur-md rounded-2xl flex flex-col items-center justify-center text-center p-4 space-y-3">
-                  <EyeOff className="w-8 h-8 text-novera-gold animate-pulse" />
-                  <span className="font-serif text-sm font-bold uppercase tracking-wider text-white">
-                    Vote Distribution Concealed
+            {/* Main Launchpad Card with Big Button and Session Configuration */}
+            <div className="p-6 sm:p-8 rounded-3xl bg-black/50 backdrop-blur-2xl border border-white/15 shadow-2xl space-y-6">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-white/10 pb-5">
+                <div>
+                  <span className="text-[10px] font-mono uppercase tracking-[0.25em] text-novera-gold font-bold block mb-1">
+                    Master Stage Controller &bull; Privacy Protected
                   </span>
-                  <p className="text-xs text-zinc-400 max-w-sm">
-                    Relative standings are shielded from public view. Unmask to inspect real-time bar graphs.
+                  <h2 className="font-serif text-2xl sm:text-3xl font-bold text-white">
+                    Live Voting Control
+                  </h2>
+                  <p className="text-xs text-zinc-300 mt-1">
+                    Trigger public audience voting for NOVERA ’26 with the master button below.
                   </p>
-                  <button
-                    type="button"
-                    onClick={() => setIsPrivacyMasked(false)}
-                    className="px-3.5 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-novera-gold border border-novera-gold/30 text-xs font-bold uppercase tracking-wider transition-all"
-                  >
-                    Reveal Chart
-                  </button>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <span className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider border ${votingSettings.isVotingOpen
+                      ? 'bg-amber-500/20 text-amber-300 border-amber-500/40 shadow-[0_0_20px_rgba(212,175,55,0.3)]'
+                      : 'bg-black/60 text-zinc-400 border-white/10'
+                    }`}>
+                    <span className={`w-2.5 h-2.5 rounded-full ${votingSettings.isVotingOpen ? 'bg-amber-400 animate-ping' : 'bg-zinc-500'}`} />
+                    <span>{votingSettings.isVotingOpen ? 'Stage Status: LIVE' : 'Stage Status: LOCKED'}</span>
+                  </span>
+                </div>
+              </div>
+
+              {/* 🚀 THE BIG OPEN / STOP VOTING BUTTON */}
+              <div>
+                <button
+                  type="button"
+                  onClick={toggleVotingStatus}
+                  disabled={isUpdatingVotingStatus}
+                  className={`w-full py-10 sm:py-14 px-6 sm:px-10 rounded-3xl transition-all duration-300 flex items-center justify-center gap-4 sm:gap-6 relative overflow-hidden group cursor-pointer border-2 shadow-2xl active:scale-[0.99] ${votingSettings.isVotingOpen
+                      ? 'bg-gradient-to-r from-[#171410] via-[#241d15] to-[#171410] border-amber-400/80 text-amber-100 shadow-[0_0_50px_rgba(212,175,55,0.35)] hover:border-amber-300 hover:shadow-[0_0_65px_rgba(212,175,55,0.5)]'
+                      : 'bg-gradient-to-r from-[#d4af37] via-[#f5e6b8] to-[#aa7c11] border-white/80 text-black shadow-[0_0_60px_rgba(212,175,55,0.45)] hover:brightness-110'
+                    }`}
+                >
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/25 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 pointer-events-none" />
+
+                  <div className="flex items-center gap-4 sm:gap-6">
+                    {votingSettings.isVotingOpen ? (
+                      <Square className="w-8 h-8 sm:w-12 sm:h-12 text-amber-300 fill-amber-300 shrink-0 drop-shadow-md" />
+                    ) : (
+                      <Play className="w-8 h-8 sm:w-12 sm:h-12 text-black fill-black shrink-0 drop-shadow-md animate-pulse" />
+                    )}
+                    <span className={`font-serif text-2xl sm:text-4xl md:text-5xl font-black uppercase tracking-wide drop-shadow-[0_2px_15px_rgba(0,0,0,0.8)] text-center ${votingSettings.isVotingOpen
+                        ? 'text-transparent bg-clip-text bg-gradient-to-r from-amber-100 via-white to-amber-300'
+                        : 'text-black'
+                      }`}>
+                      {votingSettings.isVotingOpen
+                        ? 'Stop Audience Voting'
+                        : `Open Audience Voting (${votingDurationMinutes} Mins)`}
+                    </span>
+                  </div>
+                </button>
+              </div>
+
+              {/* ⏱️ LIVE 10-MINUTE COUNTDOWN DISPLAY (WHEN VOTING IS LIVE) */}
+              {votingSettings.isVotingOpen && remainingTimeText && (
+                <div className="p-6 sm:p-7 rounded-2xl bg-gradient-to-r from-amber-500/15 via-black/80 to-amber-500/10 border-2 border-novera-gold/70 shadow-[0_0_35px_rgba(203,167,95,0.3)] flex flex-col md:flex-row items-center justify-between gap-6">
+                  <div className="space-y-1 text-center md:text-left">
+                    <div className="inline-flex items-center gap-2 text-xs font-mono uppercase tracking-[0.2em] text-novera-gold font-bold">
+                      <Clock className="w-4 h-4 text-novera-gold animate-spin-slow" />
+                      <span>Official Synchronized Runway Timer</span>
+                    </div>
+                    <h3 className="font-serif text-xl sm:text-2xl font-bold text-white">
+                      Audience Voting Session In Progress
+                    </h3>
+                    <p className="text-xs text-zinc-300">
+                      Stage QR Code is unlocked. When the timer hits 00:00, voting will automatically close and the QR will lock.
+                    </p>
+                  </div>
+
+                  <div className="flex flex-col items-center md:items-end gap-1.5 shrink-0">
+                    <div className="px-6 py-2.5 rounded-2xl bg-black/90 border-2 border-novera-gold/80 shadow-[0_0_30px_rgba(251,191,36,0.5)] flex items-center gap-3">
+                      <span className="w-3 h-3 rounded-full bg-novera-gold animate-ping" />
+                      <span className="font-mono text-3xl sm:text-5xl font-black text-amber-300 tracking-widest drop-shadow-[0_0_15px_rgba(251,191,36,0.9)]">
+                        {remainingTimeText}
+                      </span>
+                    </div>
+                    <span className="text-[11px] font-mono text-zinc-400">Time Remaining Before Auto-Close</span>
+                  </div>
                 </div>
               )}
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 25 }}>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255, 255, 255, 0.1)" />
-                  <XAxis dataKey="name" tick={{ fontSize: 11, fill: '#d4d4d8' }} interval={0} angle={-25} textAnchor="end" />
-                  <YAxis tick={{ fontSize: 11, fill: '#d4d4d8' }} allowDecimals={false} />
-                  <Tooltip
-                    content={({ active, payload }) => {
-                      if (active && payload && payload.length) {
-                        const data = payload[0].payload;
-                        return (
-                          <div className="bg-[#0c0a08]/95 backdrop-blur-xl border border-white/20 text-white p-3 rounded-xl shadow-xl text-xs space-y-1">
-                            <div className="font-bold text-novera-gold">{data.fullName}</div>
-                            <div className="text-zinc-400">Category: {data.category}</div>
-                            <div className="font-mono text-sm font-bold text-white">{data.votes} votes</div>
-                          </div>
-                        );
-                      }
-                      return null;
-                    }}
-                  />
-                  <Bar dataKey="votes" radius={[8, 8, 0, 0]}>
-                    {chartData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
+
+              {/* Voting Session Configuration (When voting is closed) */}
+              {!votingSettings.isVotingOpen && (
+                <div className="p-4 sm:p-5 rounded-2xl bg-white/[0.03] border border-white/10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                  <div>
+                    <span className="text-xs font-bold text-white block">Session Duration Configuration</span>
+                    <span className="text-[11px] text-zinc-400">Select how long audience voting remains active before auto-closing:</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {[5, 10, 15, 20].map((mins) => (
+                      <button
+                        key={mins}
+                        type="button"
+                        onClick={() => setVotingDurationMinutes(mins)}
+                        className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all border ${votingDurationMinutes === mins
+                            ? 'bg-gradient-to-r from-novera-gold to-amber-400 text-black border-amber-300 shadow-md font-extrabold'
+                            : 'bg-white/5 hover:bg-white/15 text-zinc-300 border-white/10'
+                          }`}
+                      >
+                        {mins} Mins{mins === 10 ? ' (Default)' : ''}
+                      </button>
                     ))}
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-
-          {/* Admin Tools for Audience Votes */}
-          <div className="p-6 rounded-2xl bg-black/40 backdrop-blur-2xl border border-white/15 shadow-xl flex flex-wrap items-center justify-between gap-4 text-white">
-            <div>
-              <h4 className="font-bold text-sm text-white">Audience Vote Management</h4>
-              <p className="text-xs text-zinc-400">Test or clear public votes before the live session</p>
-            </div>
-            <div className="flex items-center gap-3">
-              <button
-                onClick={handleSimulateVotes}
-                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold bg-white/10 border border-white/15 text-white hover:bg-white/20 transition-all"
-              >
-                <Shuffle className="w-3.5 h-3.5" />
-                <span>Simulate Demo Votes</span>
-              </button>
-              <button
-                onClick={handleResetVotes}
-                disabled={isResetting}
-                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold bg-rose-500/20 text-rose-300 border border-rose-500/40 hover:bg-rose-500/30 transition-all"
-              >
-                <RotateCcw className="w-3.5 h-3.5" />
-                <span>Reset Audience Votes</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ================= TAB 2: JUDGES' SCORES & AWARDS ================= */}
-      {vaultTab === 'judges' && (
-        <div className="space-y-8 animate-in fade-in duration-200">
-          {/* 6 Official Judges Roster & Real-time Evaluation Status */}
-          <div className="p-6 rounded-3xl bg-black/40 backdrop-blur-2xl border border-white/15 shadow-xl space-y-4 text-white">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-white/10 gap-2">
-              <div>
-                <div className="flex items-center gap-2.5">
-                  <ShieldCheck className="w-5 h-5 text-novera-gold" />
-                  <h3 className="font-serif text-lg font-bold text-white">
-                    6 Official Judges &bull; Live Telemetry &amp; Evaluation Audit
-                  </h3>
+                  </div>
                 </div>
-                <p className="text-[11px] text-zinc-300 mt-0.5">
-                  Click any judge card below to view their individual scores, criteria breakdown, and remarks.
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* ================= VIEW 2: CONFIDENTIAL RESULTS VAULT (TABULATION & ALL MARKS) ================= */}
+        {adminMode === 'vault' && (
+          <div className="space-y-6 animate-in fade-in duration-200">
+            {/* Top Banner with Return to Stage Controller Button */}
+            <div className="p-6 sm:p-8 rounded-3xl bg-black/40 backdrop-blur-2xl border border-white/15 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 shadow-2xl">
+              <div>
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-black/50 backdrop-blur-xl border border-white/20 text-xs uppercase tracking-widest font-bold text-novera-gold mb-2">
+                  <Lock className="w-4 h-4 text-novera-gold animate-pulse" />
+                  <span>Confidential Results Vault</span>
+                </div>
+                <h1 className="font-serif text-2xl sm:text-4xl font-bold text-white">
+                  Central Tabulation &amp; Surveillance
+                </h1>
+                <p className="text-xs sm:text-sm text-zinc-300 mt-1">
+                  Official Award Marking Alignment &bull; 6 Titles (Girl &amp; Boy) &bull; Live Telemetry
                 </p>
               </div>
-              <div className="inline-flex items-center gap-1.5 text-xs text-emerald-300 font-mono font-bold bg-emerald-950/60 px-2.5 py-1 rounded-full border border-emerald-500/40 self-start sm:self-auto">
-                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
-                <span>LIVE TELEMETRY ACTIVE</span>
+
+              <div className="flex flex-wrap items-center gap-2.5">
+                {/* Prominent Back to Stage Controller Button */}
+                <button
+                  type="button"
+                  onClick={() => setAdminMode('stage')}
+                  className="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs font-extrabold uppercase tracking-wider bg-gradient-to-r from-novera-gold to-amber-400 text-black shadow-lg hover:brightness-110 transition-all border border-amber-300"
+                >
+                  <span>&larr; Back to Stage Controller</span>
+                </button>
+
+                {/* Privacy Shield Toggle (Hides counts & leaders from backstage bystanders) */}
+                <button
+                  type="button"
+                  onClick={() => setIsPrivacyMasked(!isPrivacyMasked)}
+                  className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-2xl text-xs font-bold uppercase tracking-wider transition-all shadow-sm backdrop-blur-md border ${isPrivacyMasked
+                      ? 'bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border-amber-500/40 shadow-[0_0_15px_rgba(245,158,11,0.2)]'
+                      : 'bg-zinc-800/80 hover:bg-zinc-700/80 text-zinc-300 border-white/20'
+                    }`}
+                  title={isPrivacyMasked ? 'Privacy Shield is ACTIVE (Results concealed from bystanders)' : 'Privacy Shield is REVEALED'}
+                >
+                  {isPrivacyMasked ? (
+                    <>
+                      <EyeOff className="w-3.5 h-3.5 text-amber-400" />
+                      <span>Privacy Shield</span>
+                    </>
+                  ) : (
+                    <>
+                      <Eye className="w-3.5 h-3.5 text-amber-400" />
+                      <span>Revealed</span>
+                    </>
+                  )}
+                </button>
+
+                <button
+                  onClick={() => window.print()}
+                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-2xl text-xs font-semibold bg-white/10 hover:bg-white/20 text-white border border-white/15 backdrop-blur-md transition-all shadow-sm"
+                  title="Print MC Summary"
+                >
+                  <Printer className="w-3.5 h-3.5" />
+                  <span className="hidden sm:inline">Print MC</span>
+                </button>
+                <button
+                  onClick={handleLogout}
+                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-2xl text-xs font-semibold text-zinc-300 bg-white/5 hover:bg-white/10 hover:text-white border border-white/15 backdrop-blur-md transition-colors shadow-sm"
+                  title="Sign Out of Master Admin Hub"
+                >
+                  <LogOut className="w-3.5 h-3.5 text-zinc-400" />
+                  <span>Sign Out</span>
+                </button>
               </div>
             </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-              {OFFICIAL_JUDGE_ROSTER.map((judge) => {
-                const count = judgeScores.filter((s) => s.judgeId === judge.id).length;
-                return (
-                  <button
-                    key={judge.id}
-                    type="button"
-                    onClick={() => {
-                      setSelectedAuditJudge(judge);
-                      setAuditCategoryFilter('all');
-                    }}
-                    className={`p-3 rounded-2xl border text-center transition-all cursor-pointer hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] group relative overflow-hidden flex flex-col justify-between ${
-                      count > 0
-                        ? 'bg-emerald-950/30 border-emerald-500/40 hover:border-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.15)]'
-                        : 'bg-white/5 border-white/10 hover:border-white/25'
+            {/* Vault Tabs Navigation */}
+            <div className="flex justify-center my-2">
+              <div className="grid grid-cols-3 gap-2 p-1.5 rounded-full bg-black/50 backdrop-blur-xl border border-white/15 shadow-inner w-full max-w-2xl">
+                <button
+                  onClick={() => setVaultTab('audience')}
+                  className={`flex items-center justify-center gap-2 py-3 px-4 rounded-full text-xs sm:text-sm font-bold uppercase tracking-wider whitespace-nowrap transition-all duration-200 ${vaultTab === 'audience'
+                      ? 'bg-gradient-to-r from-novera-gold to-amber-500 text-black shadow-lg font-extrabold'
+                      : 'text-zinc-400 hover:text-white hover:bg-white/10'
                     }`}
-                  >
+                >
+                  <Vote className={`w-4 h-4 shrink-0 ${vaultTab === 'audience' ? 'text-black' : 'text-novera-gold'}`} />
+                  <span>Audience Votes</span>
+                </button>
+
+                <button
+                  onClick={() => setVaultTab('judges')}
+                  className={`flex items-center justify-center gap-2 py-3 px-4 rounded-full text-xs sm:text-sm font-bold uppercase tracking-wider whitespace-nowrap transition-all duration-200 ${vaultTab === 'judges'
+                      ? 'bg-gradient-to-r from-novera-gold to-amber-500 text-black shadow-lg font-extrabold'
+                      : 'text-zinc-400 hover:text-white hover:bg-white/10'
+                    }`}
+                >
+                  <Award className={`w-4 h-4 shrink-0 ${vaultTab === 'judges' ? 'text-black' : 'text-novera-gold'}`} />
+                  <span>Jury Scores</span>
+                </button>
+
+                <button
+                  onClick={() => setVaultTab('summary')}
+                  className={`flex items-center justify-center gap-2 py-3 px-4 rounded-full text-xs sm:text-sm font-bold uppercase tracking-wider whitespace-nowrap transition-all duration-200 ${vaultTab === 'summary'
+                      ? 'bg-gradient-to-r from-novera-gold to-amber-500 text-black shadow-lg font-extrabold'
+                      : 'text-zinc-400 hover:text-white hover:bg-white/10'
+                    }`}
+                >
+                  <Trophy className={`w-4 h-4 shrink-0 ${vaultTab === 'summary' ? 'text-black' : 'text-novera-gold'}`} />
+                  <span>Final 6 Titles</span>
+                </button>
+              </div>
+            </div>
+
+            {/* ================= TAB 1: AUDIENCE VOTES ================= */}
+            {vaultTab === 'audience' && (
+              <div className="space-y-8 animate-in fade-in duration-200">
+                {/* Quick Metrics */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                  <div className="p-6 rounded-2xl bg-black/40 backdrop-blur-2xl border border-white/15 shadow-xl flex items-center justify-between text-white">
                     <div>
-                      <div className="w-8 h-8 rounded-full bg-novera-gold/20 text-novera-gold border border-novera-gold/30 text-xs font-bold mx-auto flex items-center justify-center mb-1.5 shadow-sm group-hover:bg-novera-gold group-hover:text-black transition-colors">
-                        {judge.name[0]}
+                      <span className="text-xs uppercase tracking-wider text-zinc-400 font-semibold">Total Audience Ballots</span>
+                      <div className="text-3xl font-serif font-bold text-white mt-1">
+                        {isPrivacyMasked ? (
+                          <span className="font-mono tracking-widest text-novera-gold text-2xl font-bold">••••••</span>
+                        ) : (
+                          totalOverallVotes
+                        )}
                       </div>
-                      <div className="font-serif font-bold text-xs text-white truncate">
-                        Judge {judge.name}
+                    </div>
+                    <div className="w-12 h-12 rounded-xl bg-white/10 border border-white/15 flex items-center justify-center text-novera-gold">
+                      <Users className="w-6 h-6 text-novera-gold" />
+                    </div>
+                  </div>
+
+                  <div className="p-6 rounded-2xl bg-black/40 backdrop-blur-2xl border border-white/15 shadow-xl flex items-center justify-between text-white">
+                    <div>
+                      <span className="text-xs uppercase tracking-wider text-zinc-400 font-semibold">Male Model Votes</span>
+                      <div className="text-3xl font-serif font-bold text-white mt-1">
+                        {isPrivacyMasked ? (
+                          <span className="font-mono tracking-widest text-novera-gold text-2xl font-bold">••••</span>
+                        ) : (
+                          totalBoyVotes
+                        )}
                       </div>
-                      <div className="text-[10px] font-mono mt-1 font-semibold text-zinc-300">
-                        {count} / {candidates.length} Scored
+                    </div>
+                    <div className="w-12 h-12 rounded-xl bg-white/10 border border-white/15 flex items-center justify-center text-novera-gold">
+                      <Crown className="w-6 h-6 text-novera-gold" />
+                    </div>
+                  </div>
+
+                  <div className="p-6 rounded-2xl bg-black/40 backdrop-blur-2xl border border-white/15 shadow-xl flex items-center justify-between text-white">
+                    <div>
+                      <span className="text-xs uppercase tracking-wider text-zinc-400 font-semibold">Female Model Votes</span>
+                      <div className="text-3xl font-serif font-bold text-white mt-1">
+                        {isPrivacyMasked ? (
+                          <span className="font-mono tracking-widest text-novera-gold text-2xl font-bold">••••</span>
+                        ) : (
+                          totalGirlVotes
+                        )}
                       </div>
-                      <div className="mt-1.5 flex items-center justify-center gap-1 text-[9px] font-bold uppercase tracking-wider">
-                        <span
-                          className={`w-1.5 h-1.5 rounded-full ${
-                            count > 0 ? 'bg-emerald-400 animate-pulse' : 'bg-zinc-500'
+                    </div>
+                    <div className="w-12 h-12 rounded-xl bg-white/10 border border-white/15 flex items-center justify-center text-novera-gold">
+                      <Crown className="w-6 h-6 text-novera-gold" />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Leaders Showcase */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 relative">
+                  {isPrivacyMasked && (
+                    <div className="absolute inset-0 z-30 bg-black/90 backdrop-blur-md rounded-3xl border border-novera-gold/30 p-6 flex flex-col items-center justify-center text-center space-y-3 shadow-2xl">
+                      <div className="w-14 h-14 rounded-full bg-novera-gold/20 border border-novera-gold/40 flex items-center justify-center shadow-[0_0_20px_rgba(203,167,95,0.3)]">
+                        <EyeOff className="w-7 h-7 text-novera-gold animate-pulse" />
+                      </div>
+                      <div className="space-y-1">
+                        <h4 className="font-serif text-lg font-bold text-white uppercase tracking-wider">
+                          Audience Leaders Masked
+                        </h4>
+                        <p className="text-xs text-zinc-400 max-w-md">
+                          Confidential mode is active to prevent bystanders or backstage participants from peeking at the live standings.
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setIsPrivacyMasked(false)}
+                        className="px-4 py-2 rounded-xl bg-gradient-to-r from-novera-gold to-amber-500 text-black font-extrabold text-xs uppercase tracking-wider hover:brightness-110 shadow-md transition-all flex items-center gap-1.5"
+                      >
+                        <Eye className="w-3.5 h-3.5" />
+                        <span>Reveal Leaders</span>
+                      </button>
+                    </div>
+                  )}
+
+                  {/* Leading Boy */}
+                  <div className="p-6 rounded-3xl bg-black/40 backdrop-blur-2xl border-2 border-novera-gold/40 shadow-xl flex items-center gap-5 text-white">
+                    <div className="relative w-24 h-24 rounded-2xl overflow-hidden shrink-0 shadow-inner border border-white/15">
+                      {topBoyAudience && (
+                        <Image src={topBoyAudience.imageUrl} alt={topBoyAudience.name} fill className="object-cover" />
+                      )}
+                    </div>
+                    <div className="flex-grow">
+                      <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-novera-gold/20 border border-novera-gold/30 text-[10px] font-bold uppercase tracking-wider text-novera-gold mb-1">
+                        <Crown className="w-3 h-3" />
+                        <span>Leading Boy &bull; People&rsquo;s Choice</span>
+                      </div>
+                      <h3 className="font-serif text-xl font-bold text-white">{topBoyAudience?.name || 'N/A'}</h3>
+                      <div className="text-xs text-zinc-300 mt-1">
+                        <strong className="text-novera-gold text-base font-mono">{topBoyAudience?.votes || 0}</strong> votes (
+                        {totalBoyVotes > 0 ? Math.round(((topBoyAudience?.votes || 0) / totalBoyVotes) * 100) : 0}%)
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Leading Girl */}
+                  <div className="p-6 rounded-3xl bg-black/40 backdrop-blur-2xl border-2 border-novera-gold/40 shadow-xl flex items-center gap-5 text-white">
+                    <div className="relative w-24 h-24 rounded-2xl overflow-hidden shrink-0 shadow-inner border border-white/15">
+                      {topGirlAudience && (
+                        <Image src={topGirlAudience.imageUrl} alt={topGirlAudience.name} fill className="object-cover" />
+                      )}
+                    </div>
+                    <div className="flex-grow">
+                      <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-novera-gold/20 border border-novera-gold/30 text-[10px] font-bold uppercase tracking-wider text-novera-gold mb-1">
+                        <Crown className="w-3 h-3" />
+                        <span>Leading Girl &bull; People&rsquo;s Choice</span>
+                      </div>
+                      <h3 className="font-serif text-xl font-bold text-white">{topGirlAudience?.name || 'N/A'}</h3>
+                      <div className="text-xs text-zinc-300 mt-1">
+                        <strong className="text-novera-gold text-base font-mono">{topGirlAudience?.votes || 0}</strong> votes (
+                        {totalGirlVotes > 0 ? Math.round(((topGirlAudience?.votes || 0) / totalGirlVotes) * 100) : 0}%)
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Bar Chart Section */}
+                <div className="p-6 sm:p-8 rounded-3xl bg-black/40 backdrop-blur-2xl border border-white/15 shadow-2xl text-white">
+                  <div className="flex flex-col sm:flex-row items-center justify-between pb-6 border-b border-white/10 gap-4">
+                    <div>
+                      <h2 className="font-serif text-xl sm:text-2xl font-bold text-white">
+                        Live Vote Distribution (Bar Chart)
+                      </h2>
+                      <p className="text-xs text-zinc-400">Real-time vote comparison across runway models</p>
+                    </div>
+
+                    <div className="inline-flex p-1 rounded-xl bg-white/10 border border-white/15 text-xs">
+                      <button
+                        onClick={() => setChartCategory('both')}
+                        className={`px-3 py-1.5 rounded-lg font-medium transition-all ${chartCategory === 'both' ? 'bg-gradient-to-r from-novera-gold to-amber-500 text-black font-extrabold shadow' : 'text-zinc-400 hover:text-white'
                           }`}
-                        />
-                        <span className={count > 0 ? 'text-emerald-300' : 'text-zinc-400'}>
-                          {count > 0 ? 'Active' : 'Pending'}
+                      >
+                        All Models
+                      </button>
+                      <button
+                        onClick={() => setChartCategory('boy')}
+                        className={`px-3 py-1.5 rounded-lg font-medium transition-all ${chartCategory === 'boy' ? 'bg-gradient-to-r from-novera-gold to-amber-500 text-black font-extrabold shadow' : 'text-zinc-400 hover:text-white'
+                          }`}
+                      >
+                        Boys Only
+                      </button>
+                      <button
+                        onClick={() => setChartCategory('girl')}
+                        className={`px-3 py-1.5 rounded-lg font-medium transition-all ${chartCategory === 'girl' ? 'bg-gradient-to-r from-novera-gold to-amber-500 text-black font-extrabold shadow' : 'text-zinc-400 hover:text-white'
+                          }`}
+                      >
+                        Girls Only
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="mt-8 h-80 w-full relative">
+                    {isPrivacyMasked && (
+                      <div className="absolute inset-0 z-20 bg-black/85 backdrop-blur-md rounded-2xl flex flex-col items-center justify-center text-center p-4 space-y-3">
+                        <EyeOff className="w-8 h-8 text-novera-gold animate-pulse" />
+                        <span className="font-serif text-sm font-bold uppercase tracking-wider text-white">
+                          Vote Distribution Concealed
                         </span>
-                      </div>
-                    </div>
-
-                    <div className="mt-2.5 pt-1.5 border-t border-white/10 flex items-center justify-center gap-1 text-[9px] font-bold uppercase tracking-wider text-novera-gold group-hover:text-white transition-colors">
-                      <Eye className="w-2.5 h-2.5" />
-                      <span>View Scores</span>
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Sub-Tabs: 5 Jury Award Categories Alignment */}
-          <div className="space-y-4">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-              <div>
-                <span className="text-[10px] uppercase font-bold tracking-widest text-novera-gold">
-                  Official Award Marking Alignment
-                </span>
-                <h3 className="font-serif text-xl font-bold text-white">
-                  Select Award Title Leaderboard
-                </h3>
-              </div>
-              <div className="text-xs text-zinc-300 font-medium">
-                {activeAwardDef.criteriaText}
-              </div>
-            </div>
-
-            {/* Award Selection Pills */}
-            <div className="flex flex-wrap gap-2">
-              {AWARD_DEFINITIONS.filter((a) => a.source === 'jury').map((award) => {
-                const Icon = award.icon;
-                const isSelected = selectedJuryAward === award.key;
-                return (
-                  <button
-                    key={award.key}
-                    onClick={() => setSelectedJuryAward(award.key)}
-                    className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs font-bold transition-all ${
-                      isSelected
-                        ? 'bg-gradient-to-r from-novera-gold to-amber-500 text-black shadow-lg font-extrabold'
-                        : 'bg-white/10 text-zinc-300 border border-white/15 hover:bg-white/20 hover:text-white'
-                    }`}
-                  >
-                    <Icon className={`w-4 h-4 ${isSelected ? 'text-black' : 'text-novera-gold'}`} />
-                    <span>{award.title}</span>
-                    <span
-                      className={`text-[10px] px-2 py-0.5 rounded-full ${
-                        isSelected ? 'bg-black/20 text-black font-mono' : 'bg-white/10 text-zinc-300'
-                      }`}
-                    >
-                      /{award.maxScore}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Top Boy & Girl Leaders for Selected Award */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 relative">
-            {isPrivacyMasked && (
-              <div className="absolute inset-0 z-30 bg-black/90 backdrop-blur-md rounded-3xl border border-novera-gold/30 p-6 flex flex-col items-center justify-center text-center space-y-3 shadow-2xl">
-                <div className="w-14 h-14 rounded-full bg-novera-gold/20 border border-novera-gold/40 flex items-center justify-center shadow-[0_0_20px_rgba(203,167,95,0.3)]">
-                  <EyeOff className="w-7 h-7 text-novera-gold animate-pulse" />
-                </div>
-                <div className="space-y-1">
-                  <h4 className="font-serif text-lg font-bold text-white uppercase tracking-wider">
-                    Jury Category Leaders Masked
-                  </h4>
-                  <p className="text-xs text-zinc-400 max-w-md">
-                    Live average scores and leading candidates are confidential until revealed by the Admin.
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setIsPrivacyMasked(false)}
-                  className="px-4 py-2 rounded-xl bg-gradient-to-r from-novera-gold to-amber-500 text-black font-extrabold text-xs uppercase tracking-wider hover:brightness-110 shadow-md transition-all flex items-center gap-1.5"
-                >
-                  <Eye className="w-3.5 h-3.5" />
-                  <span>Reveal Category Leaders</span>
-                </button>
-              </div>
-            )}
-
-            {/* Leading Boy */}
-            <div className="p-6 rounded-3xl bg-black/40 backdrop-blur-2xl border-2 border-novera-gold/40 shadow-xl flex items-center gap-5 text-white">
-              <div className="relative w-24 h-24 rounded-2xl overflow-hidden shrink-0 shadow-inner border border-white/15">
-                {leadingBoyForAward && (
-                  <Image
-                    src={leadingBoyForAward.candidate.imageUrl}
-                    alt={leadingBoyForAward.candidate.name}
-                    fill
-                    className="object-cover"
-                  />
-                )}
-              </div>
-              <div className="flex-grow">
-                <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-novera-gold/20 border border-novera-gold/30 text-[10px] font-bold uppercase tracking-wider text-novera-gold mb-1">
-                  <Crown className="w-3 h-3" />
-                  <span>Leading Boy &bull; {activeAwardDef.title}</span>
-                </div>
-                <h3 className="font-serif text-xl font-bold text-white">
-                  {leadingBoyForAward?.candidate.name || 'N/A'}
-                </h3>
-                <div className="text-xs text-zinc-300 mt-1">
-                  Average Score:{' '}
-                  <strong className="text-novera-gold text-lg font-mono">
-                    {leadingBoyForAward
-                      ? getScoreValueForAward(leadingBoyForAward, selectedJuryAward).score
-                      : 0}
-                  </strong>{' '}
-                  / {activeAwardDef.maxScore} ({leadingBoyForAward?.judgeCount || 0} judges scored)
-                </div>
-              </div>
-            </div>
-
-            {/* Leading Girl */}
-            <div className="p-6 rounded-3xl bg-black/40 backdrop-blur-2xl border-2 border-novera-gold/40 shadow-xl flex items-center gap-5 text-white">
-              <div className="relative w-24 h-24 rounded-2xl overflow-hidden shrink-0 shadow-inner border border-white/15">
-                {leadingGirlForAward && (
-                  <Image
-                    src={leadingGirlForAward.candidate.imageUrl}
-                    alt={leadingGirlForAward.candidate.name}
-                    fill
-                    className="object-cover"
-                  />
-                )}
-              </div>
-              <div className="flex-grow">
-                <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-novera-gold/20 border border-novera-gold/30 text-[10px] font-bold uppercase tracking-wider text-novera-gold mb-1">
-                  <Crown className="w-3 h-3" />
-                  <span>Leading Girl &bull; {activeAwardDef.title}</span>
-                </div>
-                <h3 className="font-serif text-xl font-bold text-white">
-                  {leadingGirlForAward?.candidate.name || 'N/A'}
-                </h3>
-                <div className="text-xs text-zinc-300 mt-1">
-                  Average Score:{' '}
-                  <strong className="text-novera-gold text-lg font-mono">
-                    {leadingGirlForAward
-                      ? getScoreValueForAward(leadingGirlForAward, selectedJuryAward).score
-                      : 0}
-                  </strong>{' '}
-                  / {activeAwardDef.maxScore} ({leadingGirlForAward?.judgeCount || 0} judges scored)
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Detailed Ranked Table: Boys & Girls */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {/* Boys Leaderboard */}
-            <div className="p-6 rounded-3xl bg-black/40 backdrop-blur-2xl border border-white/15 shadow-xl space-y-4 text-white">
-              <div className="flex items-center justify-between pb-3 border-b border-white/10">
-                <h3 className="font-serif text-lg font-bold text-white flex items-center gap-2">
-                  <Crown className="w-4 h-4 text-novera-gold" />
-                  <span>Male Contenders &bull; {activeAwardDef.title}</span>
-                </h3>
-                <span className="text-xs text-zinc-400">
-                  Ranked by Score (Max {activeAwardDef.maxScore})
-                </span>
-              </div>
-
-              <div className="space-y-3">
-                {rankedBoysForAward.map((stat, idx) => {
-                  const scoreObj = getScoreValueForAward(stat, selectedJuryAward);
-                  return (
-                    <div
-                      key={stat.candidate.id}
-                      className="p-3.5 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-between gap-3 text-white"
-                    >
-                      <div className="flex items-center gap-3">
-                        <div
-                          className={`w-7 h-7 rounded-full text-xs font-bold flex items-center justify-center shrink-0 ${
-                            idx === 0
-                              ? 'bg-gradient-to-r from-novera-gold to-amber-500 text-black font-extrabold'
-                              : 'bg-white/15 text-white'
-                          }`}
+                        <p className="text-xs text-zinc-400 max-w-sm">
+                          Relative standings are shielded from public view. Unmask to inspect real-time bar graphs.
+                        </p>
+                        <button
+                          type="button"
+                          onClick={() => setIsPrivacyMasked(false)}
+                          className="px-3.5 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-novera-gold border border-novera-gold/30 text-xs font-bold uppercase tracking-wider transition-all"
                         >
-                          #{idx + 1}
-                        </div>
-                        <div className="relative w-10 h-10 rounded-xl overflow-hidden shrink-0 border border-white/10">
-                          <Image
-                            src={stat.candidate.imageUrl}
-                            alt={stat.candidate.name}
-                            fill
-                            className="object-cover"
-                          />
-                        </div>
-                        <div>
-                          <div className="font-serif font-bold text-sm text-white">
-                            {stat.candidate.name}
-                          </div>
-                          <div className="text-[11px] text-zinc-400">
-                            {stat.candidate.candidateNumber} &bull; {stat.judgeCount} judge(s)
-                          </div>
-                        </div>
+                          Reveal Chart
+                        </button>
                       </div>
-
-                      <div className="text-right">
-                        <div className="font-mono text-base font-bold text-novera-gold">
-                          {scoreObj.score}{' '}
-                          <span className="text-xs text-zinc-400 font-sans">
-                            / {activeAwardDef.maxScore}
-                          </span>
-                        </div>
-                        <div className="text-[10px] text-zinc-400">
-                          {stat.judgeCount > 0 ? 'Verified' : 'No marks yet'}
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Girls Leaderboard */}
-            <div className="p-6 rounded-3xl bg-black/40 backdrop-blur-2xl border border-white/15 shadow-xl space-y-4 text-white">
-              <div className="flex items-center justify-between pb-3 border-b border-white/10">
-                <h3 className="font-serif text-lg font-bold text-white flex items-center gap-2">
-                  <Crown className="w-4 h-4 text-novera-gold" />
-                  <span>Female Contenders &bull; {activeAwardDef.title}</span>
-                </h3>
-                <span className="text-xs text-zinc-400">
-                  Ranked by Score (Max {activeAwardDef.maxScore})
-                </span>
-              </div>
-
-              <div className="space-y-3">
-                {rankedGirlsForAward.map((stat, idx) => {
-                  const scoreObj = getScoreValueForAward(stat, selectedJuryAward);
-                  return (
-                    <div
-                      key={stat.candidate.id}
-                      className="p-3.5 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-between gap-3 text-white"
-                    >
-                      <div className="flex items-center gap-3">
-                        <div
-                          className={`w-7 h-7 rounded-full text-xs font-bold flex items-center justify-center shrink-0 ${
-                            idx === 0
-                              ? 'bg-gradient-to-r from-novera-gold to-amber-500 text-black font-extrabold'
-                              : 'bg-white/15 text-white'
-                          }`}
-                        >
-                          #{idx + 1}
-                        </div>
-                        <div className="relative w-10 h-10 rounded-xl overflow-hidden shrink-0 border border-white/10">
-                          <Image
-                            src={stat.candidate.imageUrl}
-                            alt={stat.candidate.name}
-                            fill
-                            className="object-cover"
-                          />
-                        </div>
-                        <div>
-                          <div className="font-serif font-bold text-sm text-white">
-                            {stat.candidate.name}
-                          </div>
-                          <div className="text-[11px] text-zinc-400">
-                            {stat.candidate.candidateNumber} &bull; {stat.judgeCount} judge(s)
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="text-right">
-                        <div className="font-mono text-base font-bold text-novera-gold">
-                          {scoreObj.score}{' '}
-                          <span className="text-xs text-zinc-400 font-sans">
-                            / {activeAwardDef.maxScore}
-                          </span>
-                        </div>
-                        <div className="text-[10px] text-zinc-400">
-                          {stat.judgeCount > 0 ? 'Verified' : 'No marks yet'}
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
-
-          {/* Reset Judges Scores */}
-          <div className="p-6 rounded-2xl bg-black/40 backdrop-blur-2xl border border-white/15 shadow-xl flex items-center justify-between text-white">
-            <div>
-              <h4 className="font-bold text-sm text-white">Reset Judge Scoring Data</h4>
-              <p className="text-xs text-zinc-400">
-                Clear all scorecards submitted by judges to begin a fresh round
-              </p>
-            </div>
-            <button
-              onClick={handleResetJudges}
-              className="px-4 py-2 rounded-xl text-xs font-semibold bg-rose-500/20 text-rose-300 border border-rose-500/40 hover:bg-rose-500/30 transition-all"
-            >
-              Reset All Judge Scores
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* ================= TAB 3: FINAL 6 TITLES SUMMARY ================= */}
-      {vaultTab === 'summary' && (
-        <div className="space-y-8 animate-in fade-in duration-200">
-          <div className="text-center max-w-2xl mx-auto space-y-2">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-novera-gold/20 border border-novera-gold/30 text-xs uppercase tracking-widest font-bold text-novera-gold">
-              <Trophy className="w-4 h-4 text-novera-gold" />
-              <span>Official Runway Award Announcement</span>
-            </div>
-            <h2 className="font-serif text-3xl sm:text-4xl font-bold text-white">
-              NOVERA &rsquo;26 Winners Podium
-            </h2>
-            <p className="text-xs sm:text-sm text-zinc-300">
-              Consolidated announcement sheet for MCs and Organizing Committee (Girl &amp; Boy ranked separately)
-            </p>
-          </div>
-
-          {/* The 6 Official Award Titles Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 relative">
-            {isPrivacyMasked && (
-              <div className="absolute inset-0 z-30 bg-black/90 backdrop-blur-md rounded-3xl border border-novera-gold/30 p-8 flex flex-col items-center justify-center text-center space-y-4 shadow-2xl">
-                <div className="w-16 h-16 rounded-full bg-novera-gold/20 border border-novera-gold/40 flex items-center justify-center shadow-[0_0_25px_rgba(203,167,95,0.4)]">
-                  <EyeOff className="w-8 h-8 text-novera-gold animate-pulse" />
+                    )}
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 25 }}>
+                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255, 255, 255, 0.1)" />
+                        <XAxis dataKey="name" tick={{ fontSize: 11, fill: '#d4d4d8' }} interval={0} angle={-25} textAnchor="end" />
+                        <YAxis tick={{ fontSize: 11, fill: '#d4d4d8' }} allowDecimals={false} />
+                        <Tooltip
+                          content={({ active, payload }) => {
+                            if (active && payload && payload.length) {
+                              const data = payload[0].payload;
+                              return (
+                                <div className="bg-[#0c0a08]/95 backdrop-blur-xl border border-white/20 text-white p-3 rounded-xl shadow-xl text-xs space-y-1">
+                                  <div className="font-bold text-novera-gold">{data.fullName}</div>
+                                  <div className="text-zinc-400">Category: {data.category}</div>
+                                  <div className="font-mono text-sm font-bold text-white">{data.votes} votes</div>
+                                </div>
+                              );
+                            }
+                            return null;
+                          }}
+                        />
+                        <Bar dataKey="votes" radius={[8, 8, 0, 0]}>
+                          {chartData.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={entry.color} />
+                          ))}
+                        </Bar>
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
                 </div>
-                <div className="space-y-1.5 max-w-md">
-                  <h4 className="font-serif text-xl font-bold text-white uppercase tracking-wider">
-                    Official Award Winners Shielded
-                  </h4>
-                  <p className="text-xs text-zinc-400">
-                    Winners for all 6 titles are hidden for stage confidentiality. Unmask when ready to announce or certify.
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setIsPrivacyMasked(false)}
-                  className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-novera-gold to-amber-500 text-black font-extrabold text-xs uppercase tracking-wider hover:brightness-110 shadow-lg transition-all flex items-center gap-2"
-                >
-                  <Eye className="w-4 h-4" />
-                  <span>Reveal Winners Podium</span>
-                </button>
-              </div>
-            )}
-            {AWARD_DEFINITIONS.map((award, index) => {
-              const Icon = award.icon;
-              const rankedBoys = getRankedStats('boy', award.key);
-              const rankedGirls = getRankedStats('girl', award.key);
-              const winnerBoy = rankedBoys[0];
-              const winnerGirl = rankedGirls[0];
 
-              const boyScore = winnerBoy ? getScoreValueForAward(winnerBoy, award.key).score : 0;
-              const girlScore = winnerGirl ? getScoreValueForAward(winnerGirl, award.key).score : 0;
-
-              return (
-                <div
-                  key={award.key}
-                  className="p-6 sm:p-8 rounded-3xl bg-black/40 backdrop-blur-2xl border-2 border-white/15 hover:border-novera-gold/50 shadow-2xl space-y-6 flex flex-col justify-between text-white transition-all duration-300"
-                >
-                  {/* Card Header */}
+                {/* Admin Tools for Audience Votes */}
+                <div className="p-6 rounded-2xl bg-black/40 backdrop-blur-2xl border border-white/15 shadow-xl flex flex-wrap items-center justify-between gap-4 text-white">
                   <div>
-                    <div className="flex items-center justify-between pb-4 border-b border-white/10 mb-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 rounded-2xl bg-novera-gold/20 border border-novera-gold/30 text-novera-gold flex items-center justify-center shrink-0 shadow-md">
-                          <Icon className="w-6 h-6" />
-                        </div>
-                        <div>
-                          <span className="text-[10px] font-bold uppercase tracking-widest text-novera-gold">
-                            Title #{index + 1} &bull; {award.source === 'jury' ? 'Official Jury Evaluation' : 'Public Web Ballot'}
-                          </span>
-                          <h3 className="font-serif text-xl sm:text-2xl font-bold text-white">
-                            {award.title}
-                          </h3>
-                        </div>
+                    <h4 className="font-bold text-sm text-white">Audience Vote Management</h4>
+                    <p className="text-xs text-zinc-400">Test or clear public votes before the live session</p>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <button
+                      onClick={handleSimulateVotes}
+                      className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold bg-white/10 border border-white/15 text-white hover:bg-white/20 transition-all"
+                    >
+                      <Shuffle className="w-3.5 h-3.5" />
+                      <span>Simulate Demo Votes</span>
+                    </button>
+                    <button
+                      onClick={handleResetVotes}
+                      disabled={isResetting}
+                      className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold bg-rose-500/20 text-rose-300 border border-rose-500/40 hover:bg-rose-500/30 transition-all"
+                    >
+                      <RotateCcw className="w-3.5 h-3.5" />
+                      <span>Reset Audience Votes</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* ================= TAB 2: JUDGES' SCORES & AWARDS ================= */}
+            {vaultTab === 'judges' && (
+              <div className="space-y-8 animate-in fade-in duration-200">
+                {/* 6 Official Judges Roster & Real-time Evaluation Status */}
+                <div className="p-6 rounded-3xl bg-black/40 backdrop-blur-2xl border border-white/15 shadow-xl space-y-4 text-white">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-white/10 gap-2">
+                    <div>
+                      <div className="flex items-center gap-2.5">
+                        <ShieldCheck className="w-5 h-5 text-novera-gold" />
+                        <h3 className="font-serif text-lg font-bold text-white">
+                          6 Official Judges &bull; Live Telemetry &amp; Evaluation Audit
+                        </h3>
                       </div>
-                      <span className="text-xs font-mono font-bold text-zinc-300 bg-white/10 px-2.5 py-1 rounded-full border border-white/15">
-                        {award.source === 'jury' ? `Max ${award.maxScore}` : 'Public Votes'}
+                      <p className="text-[11px] text-zinc-300 mt-0.5">
+                        Click any judge card below to view their individual scores, criteria breakdown, and remarks.
+                      </p>
+                    </div>
+                    <div className="inline-flex items-center gap-1.5 text-xs text-emerald-300 font-mono font-bold bg-emerald-950/60 px-2.5 py-1 rounded-full border border-emerald-500/40 self-start sm:self-auto">
+                      <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+                      <span>LIVE TELEMETRY ACTIVE</span>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+                    {OFFICIAL_JUDGE_ROSTER.map((judge) => {
+                      const count = judgeScores.filter((s) => s.judgeId === judge.id).length;
+                      return (
+                        <button
+                          key={judge.id}
+                          type="button"
+                          onClick={() => {
+                            setSelectedAuditJudge(judge);
+                            setAuditCategoryFilter('all');
+                          }}
+                          className={`p-3 rounded-2xl border text-center transition-all cursor-pointer hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] group relative overflow-hidden flex flex-col justify-between ${count > 0
+                              ? 'bg-emerald-950/30 border-emerald-500/40 hover:border-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.15)]'
+                              : 'bg-white/5 border-white/10 hover:border-white/25'
+                            }`}
+                        >
+                          <div>
+                            <div className="w-8 h-8 rounded-full bg-novera-gold/20 text-novera-gold border border-novera-gold/30 text-xs font-bold mx-auto flex items-center justify-center mb-1.5 shadow-sm group-hover:bg-novera-gold group-hover:text-black transition-colors">
+                              {judge.name[0]}
+                            </div>
+                            <div className="font-serif font-bold text-xs text-white truncate">
+                              Judge {judge.name}
+                            </div>
+                            <div className="text-[10px] font-mono mt-1 font-semibold text-zinc-300">
+                              {count} / {candidates.length} Scored
+                            </div>
+                            <div className="mt-1.5 flex items-center justify-center gap-1 text-[9px] font-bold uppercase tracking-wider">
+                              <span
+                                className={`w-1.5 h-1.5 rounded-full ${count > 0 ? 'bg-emerald-400 animate-pulse' : 'bg-zinc-500'
+                                  }`}
+                              />
+                              <span className={count > 0 ? 'text-emerald-300' : 'text-zinc-400'}>
+                                {count > 0 ? 'Active' : 'Pending'}
+                              </span>
+                            </div>
+                          </div>
+
+                          <div className="mt-2.5 pt-1.5 border-t border-white/10 flex items-center justify-center gap-1 text-[9px] font-bold uppercase tracking-wider text-novera-gold group-hover:text-white transition-colors">
+                            <Eye className="w-2.5 h-2.5" />
+                            <span>View Scores</span>
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Sub-Tabs: 5 Jury Award Categories Alignment */}
+                <div className="space-y-4">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <div>
+                      <span className="text-[10px] uppercase font-bold tracking-widest text-novera-gold">
+                        Official Award Marking Alignment
+                      </span>
+                      <h3 className="font-serif text-xl font-bold text-white">
+                        Select Award Title Leaderboard
+                      </h3>
+                    </div>
+                    <div className="text-xs text-zinc-300 font-medium">
+                      {activeAwardDef.criteriaText}
+                    </div>
+                  </div>
+
+                  {/* Award Selection Pills */}
+                  <div className="flex flex-wrap gap-2">
+                    {AWARD_DEFINITIONS.filter((a) => a.source === 'jury').map((award) => {
+                      const Icon = award.icon;
+                      const isSelected = selectedJuryAward === award.key;
+                      return (
+                        <button
+                          key={award.key}
+                          onClick={() => setSelectedJuryAward(award.key)}
+                          className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs font-bold transition-all ${isSelected
+                              ? 'bg-gradient-to-r from-novera-gold to-amber-500 text-black shadow-lg font-extrabold'
+                              : 'bg-white/10 text-zinc-300 border border-white/15 hover:bg-white/20 hover:text-white'
+                            }`}
+                        >
+                          <Icon className={`w-4 h-4 ${isSelected ? 'text-black' : 'text-novera-gold'}`} />
+                          <span>{award.title}</span>
+                          <span
+                            className={`text-[10px] px-2 py-0.5 rounded-full ${isSelected ? 'bg-black/20 text-black font-mono' : 'bg-white/10 text-zinc-300'
+                              }`}
+                          >
+                            /{award.maxScore}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Top Boy & Girl Leaders for Selected Award */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 relative">
+                  {isPrivacyMasked && (
+                    <div className="absolute inset-0 z-30 bg-black/90 backdrop-blur-md rounded-3xl border border-novera-gold/30 p-6 flex flex-col items-center justify-center text-center space-y-3 shadow-2xl">
+                      <div className="w-14 h-14 rounded-full bg-novera-gold/20 border border-novera-gold/40 flex items-center justify-center shadow-[0_0_20px_rgba(203,167,95,0.3)]">
+                        <EyeOff className="w-7 h-7 text-novera-gold animate-pulse" />
+                      </div>
+                      <div className="space-y-1">
+                        <h4 className="font-serif text-lg font-bold text-white uppercase tracking-wider">
+                          Jury Category Leaders Masked
+                        </h4>
+                        <p className="text-xs text-zinc-400 max-w-md">
+                          Live average scores and leading candidates are confidential until revealed by the Admin.
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setIsPrivacyMasked(false)}
+                        className="px-4 py-2 rounded-xl bg-gradient-to-r from-novera-gold to-amber-500 text-black font-extrabold text-xs uppercase tracking-wider hover:brightness-110 shadow-md transition-all flex items-center gap-1.5"
+                      >
+                        <Eye className="w-3.5 h-3.5" />
+                        <span>Reveal Category Leaders</span>
+                      </button>
+                    </div>
+                  )}
+
+                  {/* Leading Boy */}
+                  <div className="p-6 rounded-3xl bg-black/40 backdrop-blur-2xl border-2 border-novera-gold/40 shadow-xl flex items-center gap-5 text-white">
+                    <div className="relative w-24 h-24 rounded-2xl overflow-hidden shrink-0 shadow-inner border border-white/15">
+                      {leadingBoyForAward && (
+                        <Image
+                          src={leadingBoyForAward.candidate.imageUrl}
+                          alt={leadingBoyForAward.candidate.name}
+                          fill
+                          className="object-cover"
+                        />
+                      )}
+                    </div>
+                    <div className="flex-grow">
+                      <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-novera-gold/20 border border-novera-gold/30 text-[10px] font-bold uppercase tracking-wider text-novera-gold mb-1">
+                        <Crown className="w-3 h-3" />
+                        <span>Leading Boy &bull; {activeAwardDef.title}</span>
+                      </div>
+                      <h3 className="font-serif text-xl font-bold text-white">
+                        {leadingBoyForAward?.candidate.name || 'N/A'}
+                      </h3>
+                      <div className="text-xs text-zinc-300 mt-1">
+                        Average Score:{' '}
+                        <strong className="text-novera-gold text-lg font-mono">
+                          {leadingBoyForAward
+                            ? getScoreValueForAward(leadingBoyForAward, selectedJuryAward).score
+                            : 0}
+                        </strong>{' '}
+                        / {activeAwardDef.maxScore} ({leadingBoyForAward?.judgeCount || 0} judges scored)
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Leading Girl */}
+                  <div className="p-6 rounded-3xl bg-black/40 backdrop-blur-2xl border-2 border-novera-gold/40 shadow-xl flex items-center gap-5 text-white">
+                    <div className="relative w-24 h-24 rounded-2xl overflow-hidden shrink-0 shadow-inner border border-white/15">
+                      {leadingGirlForAward && (
+                        <Image
+                          src={leadingGirlForAward.candidate.imageUrl}
+                          alt={leadingGirlForAward.candidate.name}
+                          fill
+                          className="object-cover"
+                        />
+                      )}
+                    </div>
+                    <div className="flex-grow">
+                      <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-novera-gold/20 border border-novera-gold/30 text-[10px] font-bold uppercase tracking-wider text-novera-gold mb-1">
+                        <Crown className="w-3 h-3" />
+                        <span>Leading Girl &bull; {activeAwardDef.title}</span>
+                      </div>
+                      <h3 className="font-serif text-xl font-bold text-white">
+                        {leadingGirlForAward?.candidate.name || 'N/A'}
+                      </h3>
+                      <div className="text-xs text-zinc-300 mt-1">
+                        Average Score:{' '}
+                        <strong className="text-novera-gold text-lg font-mono">
+                          {leadingGirlForAward
+                            ? getScoreValueForAward(leadingGirlForAward, selectedJuryAward).score
+                            : 0}
+                        </strong>{' '}
+                        / {activeAwardDef.maxScore} ({leadingGirlForAward?.judgeCount || 0} judges scored)
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Detailed Ranked Table: Boys & Girls */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                  {/* Boys Leaderboard */}
+                  <div className="p-6 rounded-3xl bg-black/40 backdrop-blur-2xl border border-white/15 shadow-xl space-y-4 text-white">
+                    <div className="flex items-center justify-between pb-3 border-b border-white/10">
+                      <h3 className="font-serif text-lg font-bold text-white flex items-center gap-2">
+                        <Crown className="w-4 h-4 text-novera-gold" />
+                        <span>Male Contenders &bull; {activeAwardDef.title}</span>
+                      </h3>
+                      <span className="text-xs text-zinc-400">
+                        Ranked by Score (Max {activeAwardDef.maxScore})
                       </span>
                     </div>
 
-                    <p className="text-xs text-zinc-300 mb-5">
-                      {award.criteriaText}
-                    </p>
-
-                    {/* Boy & Girl Winner Cards */}
-                    <div className="space-y-4">
-                      {/* Boy Winner */}
-                      <div className="p-4 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-between gap-4 text-white">
-                        <div className="flex items-center gap-3">
-                          <div className="relative w-14 h-14 rounded-xl overflow-hidden shrink-0 shadow-inner border border-white/10">
-                            {winnerBoy && (
-                              <Image
-                                src={winnerBoy.candidate.imageUrl}
-                                alt={winnerBoy.candidate.name}
-                                fill
-                                className="object-cover"
-                              />
-                            )}
-                          </div>
-                          <div>
-                            <span className="text-[10px] uppercase font-bold text-novera-gold tracking-wider flex items-center gap-1">
-                              <Crown className="w-3 h-3" />
-                              <span>Male Winner (Boy)</span>
-                            </span>
-                            <h4 className="font-serif text-base font-bold text-white">
-                              {winnerBoy?.candidate.name || 'To Be Announced'}
-                            </h4>
-                            <span className="text-[11px] text-zinc-400">
-                              Candidate No: {winnerBoy?.candidate.candidateNumber || 'N/A'}
-                            </span>
-                          </div>
-                        </div>
-
-                        <div className="text-right">
-                          <div className="font-mono text-lg font-bold text-novera-gold">
-                            {boyScore}
-                            {award.maxScore > 0 && (
-                              <span className="text-xs text-zinc-400 font-sans">
-                                /{award.maxScore}
-                              </span>
-                            )}
-                          </div>
-                          <div className="text-[10px] text-zinc-400">
-                            {award.source === 'jury'
-                              ? `${winnerBoy?.judgeCount || 0} judges`
-                              : 'audience votes'}
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Girl Winner */}
-                      <div className="p-4 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-between gap-4 text-white">
-                        <div className="flex items-center gap-3">
-                          <div className="relative w-14 h-14 rounded-xl overflow-hidden shrink-0 shadow-inner border border-white/10">
-                            {winnerGirl && (
-                              <Image
-                                src={winnerGirl.candidate.imageUrl}
-                                alt={winnerGirl.candidate.name}
-                                fill
-                                className="object-cover"
-                              />
-                            )}
-                          </div>
-                          <div>
-                            <span className="text-[10px] uppercase font-bold text-novera-gold tracking-wider flex items-center gap-1">
-                              <Crown className="w-3 h-3" />
-                              <span>Female Winner (Girl)</span>
-                            </span>
-                            <h4 className="font-serif text-base font-bold text-white">
-                              {winnerGirl?.candidate.name || 'To Be Announced'}
-                            </h4>
-                            <span className="text-[11px] text-zinc-400">
-                              Candidate No: {winnerGirl?.candidate.candidateNumber || 'N/A'}
-                            </span>
-                          </div>
-                        </div>
-
-                        <div className="text-right">
-                          <div className="font-mono text-lg font-bold text-novera-gold">
-                            {girlScore}
-                            {award.maxScore > 0 && (
-                              <span className="text-xs text-zinc-400 font-sans">
-                                /{award.maxScore}
-                              </span>
-                            )}
-                          </div>
-                          <div className="text-[10px] text-zinc-400">
-                            {award.source === 'jury'
-                              ? `${winnerGirl?.judgeCount || 0} judges`
-                              : 'audience votes'}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="pt-2 text-[11px] text-zinc-400 flex items-center justify-between border-t border-white/10">
-                    <span>Ranked separately for Girl and Boy</span>
-                    <span className="font-bold text-novera-gold uppercase">NOVERA &rsquo;26 OFFICIAL</span>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      )}
-        </div>
-      )}
-
-      {/* ================= JUDGE SCORECARD AUDIT MODAL ================= */}
-      {selectedAuditJudge && (
-        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-2xl flex items-center justify-center p-3 sm:p-6 animate-in fade-in duration-200">
-          <div className="max-w-3xl w-full bg-[#0c0a08]/95 backdrop-blur-3xl rounded-3xl p-5 sm:p-7 border border-white/20 shadow-2xl relative animate-in zoom-in-95 duration-200 max-h-[90vh] flex flex-col overflow-hidden text-left text-white">
-            {/* Modal Header */}
-            <div className="flex items-start justify-between pb-4 border-b border-white/10 shrink-0">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-2xl bg-novera-gold/20 text-novera-gold border border-novera-gold/30 text-lg font-serif font-bold flex items-center justify-center shadow-md">
-                  {selectedAuditJudge.name[0]}
-                </div>
-                <div>
-                  <div className="text-[10px] font-mono uppercase tracking-widest text-novera-gold font-bold">
-                    Official Jury Evaluation Audit
-                  </div>
-                  <h3 className="font-serif text-xl sm:text-2xl font-bold text-white">
-                    Judge {selectedAuditJudge.name}
-                  </h3>
-                  <div className="text-xs text-zinc-300 font-medium">
-                    {selectedAuditJudge.title}
-                  </div>
-                </div>
-              </div>
-              <button
-                onClick={() => setSelectedAuditJudge(null)}
-                className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-zinc-300 flex items-center justify-center transition-colors text-base font-bold shadow-sm"
-              >
-                &times;
-              </button>
-            </div>
-
-            {/* Filter & Progress Summary Bar */}
-            <div className="py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shrink-0">
-              <div className="flex items-center gap-2">
-                <span className="text-xs font-semibold text-zinc-300">Filter:</span>
-                <div className="flex p-1 rounded-xl bg-white/10 border border-white/10">
-                  <button
-                    onClick={() => setAuditCategoryFilter('all')}
-                    className={`px-3 py-1 rounded-lg text-xs font-bold uppercase transition-all ${
-                      auditCategoryFilter === 'all'
-                        ? 'bg-gradient-to-r from-novera-gold to-amber-500 text-black font-extrabold shadow-sm'
-                        : 'text-zinc-400 hover:text-white'
-                    }`}
-                  >
-                    All ({candidates.length})
-                  </button>
-                  <button
-                    onClick={() => setAuditCategoryFilter('boy')}
-                    className={`px-3 py-1 rounded-lg text-xs font-bold uppercase transition-all ${
-                      auditCategoryFilter === 'boy'
-                        ? 'bg-gradient-to-r from-novera-gold to-amber-500 text-black font-extrabold shadow-sm'
-                        : 'text-zinc-400 hover:text-white'
-                    }`}
-                  >
-                    Boys ({candidates.filter((c) => c.category === 'boy').length})
-                  </button>
-                  <button
-                    onClick={() => setAuditCategoryFilter('girl')}
-                    className={`px-3 py-1 rounded-lg text-xs font-bold uppercase transition-all ${
-                      auditCategoryFilter === 'girl'
-                        ? 'bg-gradient-to-r from-novera-gold to-amber-500 text-black font-extrabold shadow-sm'
-                        : 'text-zinc-400 hover:text-white'
-                    }`}
-                  >
-                    Girls ({candidates.filter((c) => c.category === 'girl').length})
-                  </button>
-                </div>
-              </div>
-
-              {/* Completion Tag */}
-              <div className="text-xs font-mono font-semibold text-zinc-300 flex items-center gap-2">
-                <span>Completed:</span>
-                <span className="px-2.5 py-0.5 rounded-full bg-emerald-950/60 text-emerald-300 font-bold border border-emerald-500/40">
-                  {judgeScores.filter((s) => s.judgeId === selectedAuditJudge.id).length} / {candidates.length} Scored
-                </span>
-              </div>
-            </div>
-
-            {/* Scrollable Candidates Score Cards List */}
-            <div className="overflow-y-auto space-y-3.5 pr-1 flex-grow">
-              {candidates
-                .filter((c) => auditCategoryFilter === 'all' || c.category === auditCategoryFilter)
-                .map((candidate) => {
-                  const score = judgeScores.find(
-                    (s) => s.judgeId === selectedAuditJudge.id && s.candidateId === candidate.id
-                  );
-
-                  return (
-                    <div
-                      key={candidate.id}
-                      className={`p-4 rounded-2xl border transition-all ${
-                        score
-                          ? 'bg-emerald-950/20 border-emerald-500/40 shadow-sm text-white'
-                          : 'bg-white/5 border-white/10 opacity-70 text-zinc-300'
-                      }`}
-                    >
-                      {/* Candidate Row Header */}
-                      <div className="flex items-center justify-between gap-3 pb-3 border-b border-white/10">
-                        <div className="flex items-center gap-3">
-                          <div className="relative w-12 h-12 rounded-xl overflow-hidden shrink-0 shadow-sm border border-white/20">
-                            <Image
-                              src={candidate.imageUrl}
-                              alt={candidate.name}
-                              fill
-                              className="object-cover"
-                            />
-                          </div>
-                          <div>
-                            <div className="flex items-center gap-2">
-                              <span className="px-2 py-0.5 rounded-md bg-white/10 text-novera-gold font-mono font-bold text-xs border border-white/15">
-                                {candidate.candidateNumber}
-                              </span>
-                              <span className="text-[10px] uppercase font-bold text-novera-gold">
-                                {candidate.category === 'boy' ? 'Male Model' : 'Female Model'}
-                              </span>
-                            </div>
-                            <h4 className="font-serif font-bold text-base text-white pt-0.5">
-                              {candidate.name}
-                            </h4>
-                          </div>
-                        </div>
-
-                        {/* Overall Score Badge */}
-                        <div className="text-right shrink-0">
-                          {score ? (
-                            <div>
-                              <div className="text-[10px] uppercase tracking-wider text-emerald-400 font-bold">
-                                Total Score
+                    <div className="space-y-3">
+                      {rankedBoysForAward.map((stat, idx) => {
+                        const scoreObj = getScoreValueForAward(stat, selectedJuryAward);
+                        return (
+                          <div
+                            key={stat.candidate.id}
+                            className="p-3.5 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-between gap-3 text-white"
+                          >
+                            <div className="flex items-center gap-3">
+                              <div
+                                className={`w-7 h-7 rounded-full text-xs font-bold flex items-center justify-center shrink-0 ${idx === 0
+                                    ? 'bg-gradient-to-r from-novera-gold to-amber-500 text-black font-extrabold'
+                                    : 'bg-white/15 text-white'
+                                  }`}
+                              >
+                                #{idx + 1}
                               </div>
-                              <div className="font-mono text-2xl font-bold text-novera-gold">
-                                {score.totalModel} <span className="text-xs text-zinc-400 font-sans">/ 100</span>
+                              <div className="relative w-10 h-10 rounded-xl overflow-hidden shrink-0 border border-white/10">
+                                <Image
+                                  src={stat.candidate.imageUrl}
+                                  alt={stat.candidate.name}
+                                  fill
+                                  className="object-cover"
+                                />
                               </div>
-                            </div>
-                          ) : (
-                            <span className="px-3 py-1 rounded-full bg-white/10 text-zinc-400 text-xs font-mono font-semibold border border-white/10">
-                              Pending Evaluation
-                            </span>
-                          )}
-                        </div>
-                      </div>
-
-                      {/* Criteria Score Breakdown (If Scored) */}
-                      {score && (
-                        <div className="pt-3 space-y-2.5">
-                          {/* 6 Official Runway Criteria Chips */}
-                          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 text-center text-xs">
-                            <div className="p-2 rounded-xl bg-white/5 border border-white/10 shadow-xs">
-                              <span className="text-[10px] text-zinc-400 font-semibold block">Walking</span>
-                              <strong className="font-mono text-sm text-white">{score.walking} / 20</strong>
-                            </div>
-                            <div className="p-2 rounded-xl bg-white/5 border border-white/10 shadow-xs">
-                              <span className="text-[10px] text-zinc-400 font-semibold block">Confidence</span>
-                              <strong className="font-mono text-sm text-white">{score.confidence} / 20</strong>
-                            </div>
-                            <div className="p-2 rounded-xl bg-white/5 border border-white/10 shadow-xs">
-                              <span className="text-[10px] text-zinc-400 font-semibold block">Stage Pres.</span>
-                              <strong className="font-mono text-sm text-white">{score.stage} / 20</strong>
-                            </div>
-                            <div className="p-2 rounded-xl bg-white/5 border border-white/10 shadow-xs">
-                              <span className="text-[10px] text-zinc-400 font-semibold block">Posture</span>
-                              <strong className="font-mono text-sm text-white">{score.posture} / 15</strong>
-                            </div>
-                            <div className="p-2 rounded-xl bg-white/5 border border-white/10 shadow-xs">
-                              <span className="text-[10px] text-zinc-400 font-semibold block">Poses</span>
-                              <strong className="font-mono text-sm text-white">{score.poses} / 15</strong>
-                            </div>
-                            <div className="p-2 rounded-xl bg-white/5 border border-white/10 shadow-xs">
-                              <span className="text-[10px] text-zinc-400 font-semibold block">Face</span>
-                              <strong className="font-mono text-sm text-white">{score.face} / 10</strong>
-                            </div>
-                          </div>
-
-                          {/* Sub-award totals summary */}
-                          <div className="flex flex-wrap items-center justify-between gap-2 p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-xs">
-                            <div className="flex items-center gap-1.5">
-                              <Star className="w-3.5 h-3.5 text-amber-400" />
-                              <span className="text-zinc-300">Personality:</span>
-                              <strong className="font-mono text-white">{score.personalityScore}/50</strong>
-                            </div>
-                            <div className="flex items-center gap-1.5">
-                              <Zap className="w-3.5 h-3.5 text-amber-400" />
-                              <span className="text-zinc-300">Stage Impact:</span>
-                              <strong className="font-mono text-white">{score.stagePresenceScore}/30</strong>
-                            </div>
-                            <div className="flex items-center gap-1.5">
-                              <Camera className="w-3.5 h-3.5 text-amber-400" />
-                              <span className="text-zinc-300">Photogenic:</span>
-                              <strong className="font-mono text-white">{score.photogenicScore}/40</strong>
-                            </div>
-                          </div>
-
-                          {/* Confidential Notes */}
-                          {score.notes && (
-                            <div className="p-2.5 rounded-xl bg-white/5 border border-white/10 text-xs text-zinc-300 italic flex items-start gap-2">
-                              <MessageSquare className="w-3.5 h-3.5 text-novera-gold shrink-0 mt-0.5" />
                               <div>
-                                <span className="font-semibold text-white not-italic">Judge Remark: </span>
-                                &ldquo;{score.notes}&rdquo;
+                                <div className="font-serif font-bold text-sm text-white">
+                                  {stat.candidate.name}
+                                </div>
+                                <div className="text-[11px] text-zinc-400">
+                                  {stat.candidate.candidateNumber} &bull; {stat.judgeCount} judge(s)
+                                </div>
                               </div>
                             </div>
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
-            </div>
 
-            {/* Modal Footer */}
-            <div className="pt-3 border-t border-white/10 flex justify-end shrink-0">
-              <button
-                type="button"
-                onClick={() => setSelectedAuditJudge(null)}
-                className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-novera-gold to-amber-500 text-black font-extrabold hover:brightness-110 text-xs uppercase tracking-wider transition-all shadow-sm"
-              >
-                Close Audit View
-              </button>
+                            <div className="text-right">
+                              <div className="font-mono text-base font-bold text-novera-gold">
+                                {scoreObj.score}{' '}
+                                <span className="text-xs text-zinc-400 font-sans">
+                                  / {activeAwardDef.maxScore}
+                                </span>
+                              </div>
+                              <div className="text-[10px] text-zinc-400">
+                                {stat.judgeCount > 0 ? 'Verified' : 'No marks yet'}
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Girls Leaderboard */}
+                  <div className="p-6 rounded-3xl bg-black/40 backdrop-blur-2xl border border-white/15 shadow-xl space-y-4 text-white">
+                    <div className="flex items-center justify-between pb-3 border-b border-white/10">
+                      <h3 className="font-serif text-lg font-bold text-white flex items-center gap-2">
+                        <Crown className="w-4 h-4 text-novera-gold" />
+                        <span>Female Contenders &bull; {activeAwardDef.title}</span>
+                      </h3>
+                      <span className="text-xs text-zinc-400">
+                        Ranked by Score (Max {activeAwardDef.maxScore})
+                      </span>
+                    </div>
+
+                    <div className="space-y-3">
+                      {rankedGirlsForAward.map((stat, idx) => {
+                        const scoreObj = getScoreValueForAward(stat, selectedJuryAward);
+                        return (
+                          <div
+                            key={stat.candidate.id}
+                            className="p-3.5 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-between gap-3 text-white"
+                          >
+                            <div className="flex items-center gap-3">
+                              <div
+                                className={`w-7 h-7 rounded-full text-xs font-bold flex items-center justify-center shrink-0 ${idx === 0
+                                    ? 'bg-gradient-to-r from-novera-gold to-amber-500 text-black font-extrabold'
+                                    : 'bg-white/15 text-white'
+                                  }`}
+                              >
+                                #{idx + 1}
+                              </div>
+                              <div className="relative w-10 h-10 rounded-xl overflow-hidden shrink-0 border border-white/10">
+                                <Image
+                                  src={stat.candidate.imageUrl}
+                                  alt={stat.candidate.name}
+                                  fill
+                                  className="object-cover"
+                                />
+                              </div>
+                              <div>
+                                <div className="font-serif font-bold text-sm text-white">
+                                  {stat.candidate.name}
+                                </div>
+                                <div className="text-[11px] text-zinc-400">
+                                  {stat.candidate.candidateNumber} &bull; {stat.judgeCount} judge(s)
+                                </div>
+                              </div>
+                            </div>
+
+                            <div className="text-right">
+                              <div className="font-mono text-base font-bold text-novera-gold">
+                                {scoreObj.score}{' '}
+                                <span className="text-xs text-zinc-400 font-sans">
+                                  / {activeAwardDef.maxScore}
+                                </span>
+                              </div>
+                              <div className="text-[10px] text-zinc-400">
+                                {stat.judgeCount > 0 ? 'Verified' : 'No marks yet'}
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Reset Judges Scores */}
+                <div className="p-6 rounded-2xl bg-black/40 backdrop-blur-2xl border border-white/15 shadow-xl flex items-center justify-between text-white">
+                  <div>
+                    <h4 className="font-bold text-sm text-white">Reset Judge Scoring Data</h4>
+                    <p className="text-xs text-zinc-400">
+                      Clear all scorecards submitted by judges to begin a fresh round
+                    </p>
+                  </div>
+                  <button
+                    onClick={handleResetJudges}
+                    className="px-4 py-2 rounded-xl text-xs font-semibold bg-rose-500/20 text-rose-300 border border-rose-500/40 hover:bg-rose-500/30 transition-all"
+                  >
+                    Reset All Judge Scores
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* ================= TAB 3: FINAL 6 TITLES SUMMARY ================= */}
+            {vaultTab === 'summary' && (
+              <div className="space-y-8 animate-in fade-in duration-200">
+                <div className="text-center max-w-2xl mx-auto space-y-2">
+                  <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-novera-gold/20 border border-novera-gold/30 text-xs uppercase tracking-widest font-bold text-novera-gold">
+                    <Trophy className="w-4 h-4 text-novera-gold" />
+                    <span>Official Runway Award Announcement</span>
+                  </div>
+                  <h2 className="font-serif text-3xl sm:text-4xl font-bold text-white">
+                    NOVERA &rsquo;26 Winners Podium
+                  </h2>
+                  <p className="text-xs sm:text-sm text-zinc-300">
+                    Consolidated announcement sheet for MCs and Organizing Committee (Girl &amp; Boy ranked separately)
+                  </p>
+                </div>
+
+                {/* The 6 Official Award Titles Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 relative">
+                  {isPrivacyMasked && (
+                    <div className="absolute inset-0 z-30 bg-black/90 backdrop-blur-md rounded-3xl border border-novera-gold/30 p-8 flex flex-col items-center justify-center text-center space-y-4 shadow-2xl">
+                      <div className="w-16 h-16 rounded-full bg-novera-gold/20 border border-novera-gold/40 flex items-center justify-center shadow-[0_0_25px_rgba(203,167,95,0.4)]">
+                        <EyeOff className="w-8 h-8 text-novera-gold animate-pulse" />
+                      </div>
+                      <div className="space-y-1.5 max-w-md">
+                        <h4 className="font-serif text-xl font-bold text-white uppercase tracking-wider">
+                          Official Award Winners Shielded
+                        </h4>
+                        <p className="text-xs text-zinc-400">
+                          Winners for all 6 titles are hidden for stage confidentiality. Unmask when ready to announce or certify.
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setIsPrivacyMasked(false)}
+                        className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-novera-gold to-amber-500 text-black font-extrabold text-xs uppercase tracking-wider hover:brightness-110 shadow-lg transition-all flex items-center gap-2"
+                      >
+                        <Eye className="w-4 h-4" />
+                        <span>Reveal Winners Podium</span>
+                      </button>
+                    </div>
+                  )}
+                  {AWARD_DEFINITIONS.map((award, index) => {
+                    const Icon = award.icon;
+                    const rankedBoys = getRankedStats('boy', award.key);
+                    const rankedGirls = getRankedStats('girl', award.key);
+                    const winnerBoy = rankedBoys[0];
+                    const winnerGirl = rankedGirls[0];
+
+                    const boyScore = winnerBoy ? getScoreValueForAward(winnerBoy, award.key).score : 0;
+                    const girlScore = winnerGirl ? getScoreValueForAward(winnerGirl, award.key).score : 0;
+
+                    return (
+                      <div
+                        key={award.key}
+                        className="p-6 sm:p-8 rounded-3xl bg-black/40 backdrop-blur-2xl border-2 border-white/15 hover:border-novera-gold/50 shadow-2xl space-y-6 flex flex-col justify-between text-white transition-all duration-300"
+                      >
+                        {/* Card Header */}
+                        <div>
+                          <div className="flex items-center justify-between pb-4 border-b border-white/10 mb-4">
+                            <div className="flex items-center gap-3">
+                              <div className="w-12 h-12 rounded-2xl bg-novera-gold/20 border border-novera-gold/30 text-novera-gold flex items-center justify-center shrink-0 shadow-md">
+                                <Icon className="w-6 h-6" />
+                              </div>
+                              <div>
+                                <span className="text-[10px] font-bold uppercase tracking-widest text-novera-gold">
+                                  Title #{index + 1} &bull; {award.source === 'jury' ? 'Official Jury Evaluation' : 'Public Web Ballot'}
+                                </span>
+                                <h3 className="font-serif text-xl sm:text-2xl font-bold text-white">
+                                  {award.title}
+                                </h3>
+                              </div>
+                            </div>
+                            <span className="text-xs font-mono font-bold text-zinc-300 bg-white/10 px-2.5 py-1 rounded-full border border-white/15">
+                              {award.source === 'jury' ? `Max ${award.maxScore}` : 'Public Votes'}
+                            </span>
+                          </div>
+
+                          <p className="text-xs text-zinc-300 mb-5">
+                            {award.criteriaText}
+                          </p>
+
+                          {/* Boy & Girl Winner Cards */}
+                          <div className="space-y-4">
+                            {/* Boy Winner */}
+                            <div className="p-4 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-between gap-4 text-white">
+                              <div className="flex items-center gap-3">
+                                <div className="relative w-14 h-14 rounded-xl overflow-hidden shrink-0 shadow-inner border border-white/10">
+                                  {winnerBoy && (
+                                    <Image
+                                      src={winnerBoy.candidate.imageUrl}
+                                      alt={winnerBoy.candidate.name}
+                                      fill
+                                      className="object-cover"
+                                    />
+                                  )}
+                                </div>
+                                <div>
+                                  <span className="text-[10px] uppercase font-bold text-novera-gold tracking-wider flex items-center gap-1">
+                                    <Crown className="w-3 h-3" />
+                                    <span>Male Winner (Boy)</span>
+                                  </span>
+                                  <h4 className="font-serif text-base font-bold text-white">
+                                    {winnerBoy?.candidate.name || 'To Be Announced'}
+                                  </h4>
+                                  <span className="text-[11px] text-zinc-400">
+                                    Candidate No: {winnerBoy?.candidate.candidateNumber || 'N/A'}
+                                  </span>
+                                </div>
+                              </div>
+
+                              <div className="text-right">
+                                <div className="font-mono text-lg font-bold text-novera-gold">
+                                  {boyScore}
+                                  {award.maxScore > 0 && (
+                                    <span className="text-xs text-zinc-400 font-sans">
+                                      /{award.maxScore}
+                                    </span>
+                                  )}
+                                </div>
+                                <div className="text-[10px] text-zinc-400">
+                                  {award.source === 'jury'
+                                    ? `${winnerBoy?.judgeCount || 0} judges`
+                                    : 'audience votes'}
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Girl Winner */}
+                            <div className="p-4 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-between gap-4 text-white">
+                              <div className="flex items-center gap-3">
+                                <div className="relative w-14 h-14 rounded-xl overflow-hidden shrink-0 shadow-inner border border-white/10">
+                                  {winnerGirl && (
+                                    <Image
+                                      src={winnerGirl.candidate.imageUrl}
+                                      alt={winnerGirl.candidate.name}
+                                      fill
+                                      className="object-cover"
+                                    />
+                                  )}
+                                </div>
+                                <div>
+                                  <span className="text-[10px] uppercase font-bold text-novera-gold tracking-wider flex items-center gap-1">
+                                    <Crown className="w-3 h-3" />
+                                    <span>Female Winner (Girl)</span>
+                                  </span>
+                                  <h4 className="font-serif text-base font-bold text-white">
+                                    {winnerGirl?.candidate.name || 'To Be Announced'}
+                                  </h4>
+                                  <span className="text-[11px] text-zinc-400">
+                                    Candidate No: {winnerGirl?.candidate.candidateNumber || 'N/A'}
+                                  </span>
+                                </div>
+                              </div>
+
+                              <div className="text-right">
+                                <div className="font-mono text-lg font-bold text-novera-gold">
+                                  {girlScore}
+                                  {award.maxScore > 0 && (
+                                    <span className="text-xs text-zinc-400 font-sans">
+                                      /{award.maxScore}
+                                    </span>
+                                  )}
+                                </div>
+                                <div className="text-[10px] text-zinc-400">
+                                  {award.source === 'jury'
+                                    ? `${winnerGirl?.judgeCount || 0} judges`
+                                    : 'audience votes'}
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="pt-2 text-[11px] text-zinc-400 flex items-center justify-between border-t border-white/10">
+                          <span>Ranked separately for Girl and Boy</span>
+                          <span className="font-bold text-novera-gold uppercase">NOVERA &rsquo;26 OFFICIAL</span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ================= JUDGE SCORECARD AUDIT MODAL ================= */}
+        {selectedAuditJudge && (
+          <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-2xl flex items-center justify-center p-3 sm:p-6 animate-in fade-in duration-200">
+            <div className="max-w-3xl w-full bg-[#0c0a08]/95 backdrop-blur-3xl rounded-3xl p-5 sm:p-7 border border-white/20 shadow-2xl relative animate-in zoom-in-95 duration-200 max-h-[90vh] flex flex-col overflow-hidden text-left text-white">
+              {/* Modal Header */}
+              <div className="flex items-start justify-between pb-4 border-b border-white/10 shrink-0">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-2xl bg-novera-gold/20 text-novera-gold border border-novera-gold/30 text-lg font-serif font-bold flex items-center justify-center shadow-md">
+                    {selectedAuditJudge.name[0]}
+                  </div>
+                  <div>
+                    <div className="text-[10px] font-mono uppercase tracking-widest text-novera-gold font-bold">
+                      Official Jury Evaluation Audit
+                    </div>
+                    <h3 className="font-serif text-xl sm:text-2xl font-bold text-white">
+                      Judge {selectedAuditJudge.name}
+                    </h3>
+                    <div className="text-xs text-zinc-300 font-medium">
+                      {selectedAuditJudge.title}
+                    </div>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setSelectedAuditJudge(null)}
+                  className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-zinc-300 flex items-center justify-center transition-colors text-base font-bold shadow-sm"
+                >
+                  &times;
+                </button>
+              </div>
+
+              {/* Filter & Progress Summary Bar */}
+              <div className="py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shrink-0">
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-semibold text-zinc-300">Filter:</span>
+                  <div className="flex p-1 rounded-xl bg-white/10 border border-white/10">
+                    <button
+                      onClick={() => setAuditCategoryFilter('all')}
+                      className={`px-3 py-1 rounded-lg text-xs font-bold uppercase transition-all ${auditCategoryFilter === 'all'
+                          ? 'bg-gradient-to-r from-novera-gold to-amber-500 text-black font-extrabold shadow-sm'
+                          : 'text-zinc-400 hover:text-white'
+                        }`}
+                    >
+                      All ({candidates.length})
+                    </button>
+                    <button
+                      onClick={() => setAuditCategoryFilter('boy')}
+                      className={`px-3 py-1 rounded-lg text-xs font-bold uppercase transition-all ${auditCategoryFilter === 'boy'
+                          ? 'bg-gradient-to-r from-novera-gold to-amber-500 text-black font-extrabold shadow-sm'
+                          : 'text-zinc-400 hover:text-white'
+                        }`}
+                    >
+                      Boys ({candidates.filter((c) => c.category === 'boy').length})
+                    </button>
+                    <button
+                      onClick={() => setAuditCategoryFilter('girl')}
+                      className={`px-3 py-1 rounded-lg text-xs font-bold uppercase transition-all ${auditCategoryFilter === 'girl'
+                          ? 'bg-gradient-to-r from-novera-gold to-amber-500 text-black font-extrabold shadow-sm'
+                          : 'text-zinc-400 hover:text-white'
+                        }`}
+                    >
+                      Girls ({candidates.filter((c) => c.category === 'girl').length})
+                    </button>
+                  </div>
+                </div>
+
+                {/* Completion Tag */}
+                <div className="text-xs font-mono font-semibold text-zinc-300 flex items-center gap-2">
+                  <span>Completed:</span>
+                  <span className="px-2.5 py-0.5 rounded-full bg-emerald-950/60 text-emerald-300 font-bold border border-emerald-500/40">
+                    {judgeScores.filter((s) => s.judgeId === selectedAuditJudge.id).length} / {candidates.length} Scored
+                  </span>
+                </div>
+              </div>
+
+              {/* Scrollable Candidates Score Cards List */}
+              <div className="overflow-y-auto space-y-3.5 pr-1 flex-grow">
+                {candidates
+                  .filter((c) => auditCategoryFilter === 'all' || c.category === auditCategoryFilter)
+                  .map((candidate) => {
+                    const score = judgeScores.find(
+                      (s) => s.judgeId === selectedAuditJudge.id && s.candidateId === candidate.id
+                    );
+
+                    return (
+                      <div
+                        key={candidate.id}
+                        className={`p-4 rounded-2xl border transition-all ${score
+                            ? 'bg-emerald-950/20 border-emerald-500/40 shadow-sm text-white'
+                            : 'bg-white/5 border-white/10 opacity-70 text-zinc-300'
+                          }`}
+                      >
+                        {/* Candidate Row Header */}
+                        <div className="flex items-center justify-between gap-3 pb-3 border-b border-white/10">
+                          <div className="flex items-center gap-3">
+                            <div className="relative w-12 h-12 rounded-xl overflow-hidden shrink-0 shadow-sm border border-white/20">
+                              <Image
+                                src={candidate.imageUrl}
+                                alt={candidate.name}
+                                fill
+                                className="object-cover"
+                              />
+                            </div>
+                            <div>
+                              <div className="flex items-center gap-2">
+                                <span className="px-2 py-0.5 rounded-md bg-white/10 text-novera-gold font-mono font-bold text-xs border border-white/15">
+                                  {candidate.candidateNumber}
+                                </span>
+                                <span className="text-[10px] uppercase font-bold text-novera-gold">
+                                  {candidate.category === 'boy' ? 'Male Model' : 'Female Model'}
+                                </span>
+                              </div>
+                              <h4 className="font-serif font-bold text-base text-white pt-0.5">
+                                {candidate.name}
+                              </h4>
+                            </div>
+                          </div>
+
+                          {/* Overall Score Badge */}
+                          <div className="text-right shrink-0">
+                            {score ? (
+                              <div>
+                                <div className="text-[10px] uppercase tracking-wider text-emerald-400 font-bold">
+                                  Total Score
+                                </div>
+                                <div className="font-mono text-2xl font-bold text-novera-gold">
+                                  {score.totalModel} <span className="text-xs text-zinc-400 font-sans">/ 100</span>
+                                </div>
+                              </div>
+                            ) : (
+                              <span className="px-3 py-1 rounded-full bg-white/10 text-zinc-400 text-xs font-mono font-semibold border border-white/10">
+                                Pending Evaluation
+                              </span>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Criteria Score Breakdown (If Scored) */}
+                        {score && (
+                          <div className="pt-3 space-y-2.5">
+                            {/* 6 Official Runway Criteria Chips */}
+                            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 text-center text-xs">
+                              <div className="p-2 rounded-xl bg-white/5 border border-white/10 shadow-xs">
+                                <span className="text-[10px] text-zinc-400 font-semibold block">Walking</span>
+                                <strong className="font-mono text-sm text-white">{score.walking} / 20</strong>
+                              </div>
+                              <div className="p-2 rounded-xl bg-white/5 border border-white/10 shadow-xs">
+                                <span className="text-[10px] text-zinc-400 font-semibold block">Confidence</span>
+                                <strong className="font-mono text-sm text-white">{score.confidence} / 20</strong>
+                              </div>
+                              <div className="p-2 rounded-xl bg-white/5 border border-white/10 shadow-xs">
+                                <span className="text-[10px] text-zinc-400 font-semibold block">Stage Pres.</span>
+                                <strong className="font-mono text-sm text-white">{score.stage} / 20</strong>
+                              </div>
+                              <div className="p-2 rounded-xl bg-white/5 border border-white/10 shadow-xs">
+                                <span className="text-[10px] text-zinc-400 font-semibold block">Posture</span>
+                                <strong className="font-mono text-sm text-white">{score.posture} / 15</strong>
+                              </div>
+                              <div className="p-2 rounded-xl bg-white/5 border border-white/10 shadow-xs">
+                                <span className="text-[10px] text-zinc-400 font-semibold block">Poses</span>
+                                <strong className="font-mono text-sm text-white">{score.poses} / 15</strong>
+                              </div>
+                              <div className="p-2 rounded-xl bg-white/5 border border-white/10 shadow-xs">
+                                <span className="text-[10px] text-zinc-400 font-semibold block">Face</span>
+                                <strong className="font-mono text-sm text-white">{score.face} / 10</strong>
+                              </div>
+                            </div>
+
+                            {/* Sub-award totals summary */}
+                            <div className="flex flex-wrap items-center justify-between gap-2 p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-xs">
+                              <div className="flex items-center gap-1.5">
+                                <Star className="w-3.5 h-3.5 text-amber-400" />
+                                <span className="text-zinc-300">Personality:</span>
+                                <strong className="font-mono text-white">{score.personalityScore}/50</strong>
+                              </div>
+                              <div className="flex items-center gap-1.5">
+                                <Zap className="w-3.5 h-3.5 text-amber-400" />
+                                <span className="text-zinc-300">Stage Impact:</span>
+                                <strong className="font-mono text-white">{score.stagePresenceScore}/30</strong>
+                              </div>
+                              <div className="flex items-center gap-1.5">
+                                <Camera className="w-3.5 h-3.5 text-amber-400" />
+                                <span className="text-zinc-300">Photogenic:</span>
+                                <strong className="font-mono text-white">{score.photogenicScore}/40</strong>
+                              </div>
+                            </div>
+
+                            {/* Confidential Notes */}
+                            {score.notes && (
+                              <div className="p-2.5 rounded-xl bg-white/5 border border-white/10 text-xs text-zinc-300 italic flex items-start gap-2">
+                                <MessageSquare className="w-3.5 h-3.5 text-novera-gold shrink-0 mt-0.5" />
+                                <div>
+                                  <span className="font-semibold text-white not-italic">Judge Remark: </span>
+                                  &ldquo;{score.notes}&rdquo;
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+              </div>
+
+              {/* Modal Footer */}
+              <div className="pt-3 border-t border-white/10 flex justify-end shrink-0">
+                <button
+                  type="button"
+                  onClick={() => setSelectedAuditJudge(null)}
+                  className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-novera-gold to-amber-500 text-black font-extrabold hover:brightness-110 text-xs uppercase tracking-wider transition-all shadow-sm"
+                >
+                  Close Audit View
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
       </div>
 
       {/* ================= DEDICATED PRINT-ONLY MC ANNOUNCEMENT CUE SHEET ================= */}
