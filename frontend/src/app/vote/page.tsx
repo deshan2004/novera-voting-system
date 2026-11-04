@@ -46,6 +46,29 @@ export default function VotePage() {
   const [votingSettings, setVotingSettings] = useState<VotingSettings>({ isVotingOpen: true });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+  const [remainingTimeText, setRemainingTimeText] = useState<string>('');
+
+  useEffect(() => {
+    if (!votingSettings.isVotingOpen || !votingSettings.votingClosesAt) {
+      setRemainingTimeText('');
+      return;
+    }
+
+    const update = () => {
+      const diffMs = (votingSettings.votingClosesAt || 0) - Date.now();
+      const totalSec = Math.max(0, Math.ceil(diffMs / 1000));
+      if (totalSec <= 0) {
+        setRemainingTimeText('00:00');
+        return;
+      }
+      const mins = Math.floor(totalSec / 60);
+      const secs = totalSec % 60;
+      setRemainingTimeText(`${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`);
+    };
+    update();
+    const interval = setInterval(update, 500);
+    return () => clearInterval(interval);
+  }, [votingSettings.isVotingOpen, votingSettings.votingClosesAt]);
 
   const handleDismissIntro = () => {
     setIntroStage('exit');
@@ -435,6 +458,17 @@ export default function VotePage() {
               <p className="text-xs text-zinc-300 max-w-md mx-auto">
                 Audience voting is currently paused or concluded by the NOVERA &rsquo;26 Central Committee for final tabulation.
               </p>
+            </div>
+          )}
+
+          {/* ⏱️ Live 10-Minute Countdown Indicator */}
+          {votingSettings.isVotingOpen && remainingTimeText && (
+            <div className="flex justify-center">
+              <div className="inline-flex items-center gap-2.5 px-5 py-2 rounded-full bg-black/60 backdrop-blur-xl border-2 border-novera-gold/70 text-amber-300 font-mono text-xs font-bold shadow-[0_0_25px_rgba(251,191,36,0.3)] animate-pulse">
+                <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping" />
+                <span className="text-novera-gold uppercase tracking-widest font-bold">VOTING CLOSES IN:</span>
+                <span className="font-extrabold text-white text-base tracking-widest">{remainingTimeText}</span>
+              </div>
             </div>
           )}
 

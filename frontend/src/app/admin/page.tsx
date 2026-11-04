@@ -45,6 +45,11 @@ import {
   QrCode,
   MessageSquare,
   CheckCircle2,
+  Clock,
+  Play,
+  Square,
+  Radio,
+  Timer,
 } from 'lucide-react';
 import Image from 'next/image';
 import RunwayStageBackground from '@/app/components/RunwayStageBackground';
@@ -132,7 +137,7 @@ export default function AdminLeaderboardPage() {
   const [passcode, setPasscode] = useState<string>('');
   const [passcodeError, setPasscodeError] = useState<string>('');
 
-  const [activeTab, setActiveTab] = useState<'audience' | 'judges' | 'summary'>('audience');
+  const [activeTab, setActiveTab] = useState<'command' | 'audience' | 'judges' | 'summary'>('command');
   const [selectedJuryAward, setSelectedJuryAward] = useState<AwardKey>('topModel');
   const [selectedAuditJudge, setSelectedAuditJudge] = useState<typeof OFFICIAL_JUDGE_ROSTER[0] | null>(null);
   const [auditCategoryFilter, setAuditCategoryFilter] = useState<'all' | 'boy' | 'girl'>('all');
@@ -141,9 +146,12 @@ export default function AdminLeaderboardPage() {
   const [judgeScores, setJudgeScores] = useState<JudgeScore[]>([]);
   const [isResetting, setIsResetting] = useState<boolean>(false);
   const [chartCategory, setChartCategory] = useState<'both' | 'boy' | 'girl'>('both');
-  const [votingSettings, setVotingSettings] = useState<VotingSettings>({ isVotingOpen: true });
+  const [votingSettings, setVotingSettings] = useState<VotingSettings>({ isVotingOpen: false });
   const [isUpdatingVotingStatus, setIsUpdatingVotingStatus] = useState<boolean>(false);
   const [isPrivacyMasked, setIsPrivacyMasked] = useState<boolean>(true);
+  const [votingDurationMinutes, setVotingDurationMinutes] = useState<number>(10);
+  const [remainingTimeText, setRemainingTimeText] = useState<string>('');
+  const [remainingSeconds, setRemainingSeconds] = useState<number>(0);
 
   const loadData = () => {
     fetchCandidates().then((list) => {
@@ -184,19 +192,57 @@ export default function AdminLeaderboardPage() {
     };
   }, []);
 
+  // Live 10-Minute Countdown & Auto-Close Timer for Admin
+  useEffect(() => {
+    if (!votingSettings.isVotingOpen || !votingSettings.votingClosesAt) {
+      setRemainingTimeText('');
+      setRemainingSeconds(0);
+      return;
+    }
+
+    const updateTimer = () => {
+      const now = Date.now();
+      const diffMs = (votingSettings.votingClosesAt || 0) - now;
+      const totalSec = Math.max(0, Math.ceil(diffMs / 1000));
+      setRemainingSeconds(totalSec);
+
+      if (totalSec <= 0) {
+        // Automatically close voting when timer expires
+        saveVotingSettings({
+          isVotingOpen: false,
+          votingClosesAt: null,
+          countdownUntil: null,
+          announcement: 'Audience voting has concluded for NOVERA ’26.',
+        });
+        setRemainingTimeText('00:00');
+        return;
+      }
+
+      const mins = Math.floor(totalSec / 60);
+      const secs = totalSec % 60;
+      setRemainingTimeText(`${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`);
+    };
+
+    updateTimer();
+    const interval = setInterval(updateTimer, 500);
+    return () => clearInterval(interval);
+  }, [votingSettings.isVotingOpen, votingSettings.votingClosesAt]);
+
   const toggleVotingStatus = async () => {
     if (!votingSettings.isVotingOpen) {
-      // Opening voting: initiate a cinematic 5-second synchronized countdown
-      const countdownTarget = Date.now() + 5200;
+      // Opening voting: 10 minutes session (or configured duration)
+      const durationMs = votingDurationMinutes * 60 * 1000;
+      const votingClosesAt = Date.now() + durationMs;
+      const countdownTarget = Date.now() + 5200; // 5s opening countdown
       setIsUpdatingVotingStatus(true);
       try {
         await saveVotingSettings({
           isVotingOpen: true,
+          votingClosesAt,
+          votingDurationSeconds: votingDurationMinutes * 60,
           countdownUntil: countdownTarget,
-          announcement: 'Audience voting is LIVE!',
+          announcement: `Audience voting is LIVE for ${votingDurationMinutes} minutes!`,
         });
-        // Immediately navigate to the Stage QR Screen (/qr)
-        router.push('/qr');
       } finally {
         setIsUpdatingVotingStatus(false);
       }
@@ -206,6 +252,7 @@ export default function AdminLeaderboardPage() {
       try {
         await saveVotingSettings({
           isVotingOpen: false,
+          votingClosesAt: null,
           countdownUntil: null,
           announcement: 'Audience voting is currently PAUSED / CONCLUDED by the Central Committee.',
         });
@@ -214,6 +261,23 @@ export default function AdminLeaderboardPage() {
       }
     }
   };
+
+  // ⚡ Spacebar Keyboard Shortcut to Toggle Voting
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const tag = (e.target as HTMLElement)?.tagName?.toLowerCase();
+      if (tag === 'input' || tag === 'textarea' || (e.target as HTMLElement)?.isContentEditable) {
+        return;
+      }
+      if (e.code === 'Space') {
+        e.preventDefault();
+        toggleVotingStatus();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isAuthenticated, votingSettings.isVotingOpen, votingDurationMinutes]);
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
@@ -520,12 +584,13 @@ export default function AdminLeaderboardPage() {
       {votingSettings.countdownUntil && votingSettings.countdownUntil > Date.now() && (
         <VotingCountdownOverlay
           countdownUntil={votingSettings.countdownUntil}
-          onComplete={() => {
-            saveVotingSettings({
-              isVotingOpen: true,
-              countdownUntil: null,
-              announcement: 'Audience voting is LIVE!',
-            });
+          onComplete={async () => {
+            try {
+              await saveVotingSettings({
+                ...votingSettings,
+                countdownUntil: null,
+              });
+            } catch (e) {}
           }}
         />
       )}
@@ -621,10 +686,22 @@ export default function AdminLeaderboardPage() {
 
       {/* Main Tabs Navigation */}
       <div className="flex justify-center my-2">
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 p-1.5 rounded-2xl sm:rounded-full bg-black/50 backdrop-blur-xl border border-white/15 shadow-inner w-full max-w-3xl">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 p-1.5 rounded-2xl sm:rounded-full bg-black/50 backdrop-blur-xl border border-white/15 shadow-inner w-full max-w-4xl">
+          <button
+            onClick={() => setActiveTab('command')}
+            className={`flex items-center justify-center gap-2 py-3 px-3 sm:px-4 rounded-xl sm:rounded-full text-xs sm:text-sm font-bold uppercase tracking-wider whitespace-nowrap transition-all duration-200 ${
+              activeTab === 'command'
+                ? 'bg-gradient-to-r from-novera-gold to-amber-500 text-black shadow-lg font-extrabold'
+                : 'text-zinc-400 hover:text-white hover:bg-white/10'
+            }`}
+          >
+            <Zap className={`w-4 h-4 shrink-0 ${activeTab === 'command' ? 'text-black' : 'text-novera-gold'}`} />
+            <span>Stage Command</span>
+          </button>
+
           <button
             onClick={() => setActiveTab('audience')}
-            className={`flex items-center justify-center gap-2 py-3 px-4 rounded-xl sm:rounded-full text-xs sm:text-sm font-bold uppercase tracking-wider whitespace-nowrap transition-all duration-200 ${
+            className={`flex items-center justify-center gap-2 py-3 px-3 sm:px-4 rounded-xl sm:rounded-full text-xs sm:text-sm font-bold uppercase tracking-wider whitespace-nowrap transition-all duration-200 ${
               activeTab === 'audience'
                 ? 'bg-gradient-to-r from-novera-gold to-amber-500 text-black shadow-lg font-extrabold'
                 : 'text-zinc-400 hover:text-white hover:bg-white/10'
@@ -636,7 +713,7 @@ export default function AdminLeaderboardPage() {
 
           <button
             onClick={() => setActiveTab('judges')}
-            className={`flex items-center justify-center gap-2 py-3 px-4 rounded-xl sm:rounded-full text-xs sm:text-sm font-bold uppercase tracking-wider whitespace-nowrap transition-all duration-200 ${
+            className={`flex items-center justify-center gap-2 py-3 px-3 sm:px-4 rounded-xl sm:rounded-full text-xs sm:text-sm font-bold uppercase tracking-wider whitespace-nowrap transition-all duration-200 ${
               activeTab === 'judges'
                 ? 'bg-gradient-to-r from-novera-gold to-amber-500 text-black shadow-lg font-extrabold'
                 : 'text-zinc-400 hover:text-white hover:bg-white/10'
@@ -648,7 +725,7 @@ export default function AdminLeaderboardPage() {
 
           <button
             onClick={() => setActiveTab('summary')}
-            className={`flex items-center justify-center gap-2 py-3 px-4 rounded-xl sm:rounded-full text-xs sm:text-sm font-bold uppercase tracking-wider whitespace-nowrap transition-all duration-200 ${
+            className={`flex items-center justify-center gap-2 py-3 px-3 sm:px-4 rounded-xl sm:rounded-full text-xs sm:text-sm font-bold uppercase tracking-wider whitespace-nowrap transition-all duration-200 ${
               activeTab === 'summary'
                 ? 'bg-gradient-to-r from-novera-gold to-amber-500 text-black shadow-lg font-extrabold'
                 : 'text-zinc-400 hover:text-white hover:bg-white/10'
@@ -659,6 +736,184 @@ export default function AdminLeaderboardPage() {
           </button>
         </div>
       </div>
+
+      {/* ================= TAB 0: STAGE COMMAND (DEFAULT SECURE VIEW - NO MARKS EXPOSED) ================= */}
+      {activeTab === 'command' && (
+        <div className="space-y-6 animate-in fade-in duration-200">
+          {/* Top Status & Spacebar Command Banner */}
+          <div className="p-6 sm:p-8 rounded-3xl bg-black/50 backdrop-blur-2xl border border-white/15 shadow-2xl space-y-6">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-white/10 pb-5">
+              <div>
+                <span className="text-[10px] font-mono uppercase tracking-[0.25em] text-novera-gold font-bold block mb-1">
+                  Master Stage Controller &bull; Privacy Protected
+                </span>
+                <h2 className="font-serif text-2xl sm:text-3xl font-bold text-white">
+                  Audience Voting Launchpad
+                </h2>
+                <p className="text-xs text-zinc-300 mt-1">
+                  Live scores and marks are concealed on this command hub. Toggle live voting on stage using the button below or press <kbd className="px-1.5 py-0.5 rounded bg-white/10 border border-white/20 text-novera-gold font-mono font-bold">SPACEBAR</kbd>.
+                </p>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <span className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider border ${
+                  votingSettings.isVotingOpen
+                    ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40 shadow-[0_0_20px_rgba(16,185,129,0.3)]'
+                    : 'bg-rose-500/20 text-rose-300 border-rose-500/40'
+                }`}>
+                  <span className={`w-2.5 h-2.5 rounded-full ${votingSettings.isVotingOpen ? 'bg-emerald-400 animate-ping' : 'bg-rose-400'}`} />
+                  <span>{votingSettings.isVotingOpen ? 'Stage Status: LIVE' : 'Stage Status: LOCKED'}</span>
+                </span>
+              </div>
+            </div>
+
+            {/* 🚀 THE GIANT VOTING OPEN / CLOSE BUTTON */}
+            <div>
+              <button
+                type="button"
+                onClick={toggleVotingStatus}
+                disabled={isUpdatingVotingStatus}
+                className={`w-full py-8 sm:py-12 px-6 sm:px-10 rounded-3xl transition-all duration-300 flex flex-col items-center justify-center gap-3 relative overflow-hidden group cursor-pointer border-2 shadow-2xl active:scale-[0.99] ${
+                  votingSettings.isVotingOpen
+                    ? 'bg-gradient-to-r from-rose-800 via-rose-600 to-red-700 border-rose-400 text-white shadow-[0_0_60px_rgba(244,63,94,0.5)]'
+                    : 'bg-gradient-to-r from-emerald-700 via-emerald-600 to-teal-800 border-emerald-400 text-white shadow-[0_0_60px_rgba(16,185,129,0.4)] hover:brightness-110'
+                }`}
+              >
+                {/* Specular animated shine */}
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/25 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 pointer-events-none" />
+
+                <div className="inline-flex items-center gap-2 px-4 py-1 rounded-full bg-black/40 border border-white/20 text-xs font-mono uppercase tracking-widest text-white shadow-sm">
+                  {votingSettings.isVotingOpen ? (
+                    <>
+                      <Radio className="w-3.5 h-3.5 text-rose-300 animate-spin" />
+                      <span>Audience Voting Live &bull; Click or Press Space to Lock</span>
+                    </>
+                  ) : (
+                    <>
+                      <Zap className="w-3.5 h-3.5 text-emerald-300 animate-pulse" />
+                      <span>Ready &bull; Click or Press Space to Open ({votingDurationMinutes} Mins)</span>
+                    </>
+                  )}
+                </div>
+
+                <div className="flex items-center gap-4">
+                  {votingSettings.isVotingOpen ? (
+                    <Square className="w-8 h-8 sm:w-10 sm:h-10 text-white fill-white shrink-0 drop-shadow-md" />
+                  ) : (
+                    <Play className="w-8 h-8 sm:w-10 sm:h-10 text-white fill-white shrink-0 drop-shadow-md animate-pulse" />
+                  )}
+                  <span className="font-serif text-2xl sm:text-4xl md:text-5xl font-black uppercase tracking-wide text-white drop-shadow-[0_2px_15px_rgba(0,0,0,0.8)] text-center">
+                    {votingSettings.isVotingOpen
+                      ? 'Stop Audience Voting'
+                      : `Open Audience Voting (${votingDurationMinutes} Mins)`}
+                  </span>
+                </div>
+
+                <div className="flex items-center gap-2 text-white/90 text-xs sm:text-sm font-mono tracking-wide pt-1">
+                  <kbd className="px-2.5 py-0.5 rounded-lg bg-black/60 border border-white/40 text-amber-300 font-bold shadow-md">SPACE</kbd>
+                  <span>Keyboard Shortcut: Press Spacebar Anywhere On This Page</span>
+                </div>
+              </button>
+            </div>
+
+            {/* ⏱️ LIVE 10-MINUTE COUNTDOWN DISPLAY (WHEN VOTING IS LIVE) */}
+            {votingSettings.isVotingOpen && remainingTimeText && (
+              <div className="p-6 sm:p-7 rounded-2xl bg-gradient-to-r from-amber-500/15 via-black/80 to-amber-500/10 border-2 border-novera-gold/70 shadow-[0_0_35px_rgba(203,167,95,0.3)] flex flex-col md:flex-row items-center justify-between gap-6">
+                <div className="space-y-1 text-center md:text-left">
+                  <div className="inline-flex items-center gap-2 text-xs font-mono uppercase tracking-[0.2em] text-novera-gold font-bold">
+                    <Clock className="w-4 h-4 text-novera-gold animate-spin-slow" />
+                    <span>Official Synchronized Runway Timer</span>
+                  </div>
+                  <h3 className="font-serif text-xl sm:text-2xl font-bold text-white">
+                    Audience Voting Session In Progress
+                  </h3>
+                  <p className="text-xs text-zinc-300">
+                    Stage QR Code is unlocked. When the timer hits 00:00, voting will automatically close and the QR will lock.
+                  </p>
+                </div>
+
+                <div className="flex flex-col items-center md:items-end gap-1.5 shrink-0">
+                  <div className="px-6 py-2.5 rounded-2xl bg-black/90 border-2 border-novera-gold/80 shadow-[0_0_30px_rgba(251,191,36,0.5)] flex items-center gap-3">
+                    <span className="w-3 h-3 rounded-full bg-emerald-400 animate-ping" />
+                    <span className="font-mono text-3xl sm:text-5xl font-black text-amber-300 tracking-widest drop-shadow-[0_0_15px_rgba(251,191,36,0.9)]">
+                      {remainingTimeText}
+                    </span>
+                  </div>
+                  <span className="text-[11px] font-mono text-zinc-400">Time Remaining Before Auto-Close</span>
+                </div>
+              </div>
+            )}
+
+            {/* Voting Session Configuration (When voting is closed) */}
+            {!votingSettings.isVotingOpen && (
+              <div className="p-4 sm:p-5 rounded-2xl bg-white/[0.03] border border-white/10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div>
+                  <span className="text-xs font-bold text-white block">Session Duration Configuration</span>
+                  <span className="text-[11px] text-zinc-400">Select how long audience voting remains active before auto-closing:</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  {[5, 10, 15, 20].map((mins) => (
+                    <button
+                      key={mins}
+                      type="button"
+                      onClick={() => setVotingDurationMinutes(mins)}
+                      className={`px-3 py-1.5 rounded-xl text-xs font-mono font-bold transition-all ${
+                        votingDurationMinutes === mins
+                          ? 'bg-novera-gold text-black shadow-md scale-105'
+                          : 'bg-white/10 text-zinc-300 hover:bg-white/20 border border-white/10'
+                      }`}
+                    >
+                      {mins} Mins{mins === 10 ? ' (Default)' : ''}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Stage Quick Launcher & Inspection Cards */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
+              <Link
+                href="/qr"
+                target="_blank"
+                className="p-5 rounded-2xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/15 hover:border-novera-gold/50 transition-all flex items-center justify-between group shadow-sm"
+              >
+                <div className="space-y-1">
+                  <div className="text-xs font-mono uppercase tracking-wider text-novera-gold font-bold">Stage Display</div>
+                  <div className="text-sm font-bold text-white group-hover:text-novera-gold transition-colors">Open Stage QR Screen &rarr;</div>
+                  <div className="text-[11px] text-zinc-400">Open on stage projector or second screen</div>
+                </div>
+                <QrCode className="w-8 h-8 text-novera-gold group-hover:scale-110 transition-transform shrink-0" />
+              </Link>
+
+              <button
+                type="button"
+                onClick={() => setActiveTab('audience')}
+                className="p-5 rounded-2xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/15 hover:border-novera-gold/50 transition-all text-left group shadow-sm flex items-center justify-between"
+              >
+                <div className="space-y-1">
+                  <div className="text-xs font-mono uppercase tracking-wider text-novera-gold font-bold">Confidential Tallies</div>
+                  <div className="text-sm font-bold text-white group-hover:text-novera-gold transition-colors">Inspect Audience Votes &rarr;</div>
+                  <div className="text-[11px] text-zinc-400">View live candidate rank &amp; leaderboard</div>
+                </div>
+                <Vote className="w-8 h-8 text-novera-gold group-hover:scale-110 transition-transform shrink-0" />
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setActiveTab('judges')}
+                className="p-5 rounded-2xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/15 hover:border-novera-gold/50 transition-all text-left group shadow-sm flex items-center justify-between"
+              >
+                <div className="space-y-1">
+                  <div className="text-xs font-mono uppercase tracking-wider text-novera-gold font-bold">Jury Tabulation</div>
+                  <div className="text-sm font-bold text-white group-hover:text-novera-gold transition-colors">Inspect Jury Scorecards &rarr;</div>
+                  <div className="text-[11px] text-zinc-400">Audit all 6 criteria by judge</div>
+                </div>
+                <Award className="w-8 h-8 text-novera-gold group-hover:scale-110 transition-transform shrink-0" />
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ================= TAB 1: AUDIENCE VOTES ================= */}
       {activeTab === 'audience' && (

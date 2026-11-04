@@ -17,9 +17,10 @@ export default function VotingCountdownOverlay({
     return Math.max(0, Math.ceil((countdownUntil - Date.now()) / 1000));
   });
   const [isFinished, setIsFinished] = useState<boolean>(false);
-  const [isVisible, setIsVisible] = useState<boolean>(true);
+  const [isVisible, setIsVisible] = useState<boolean>(() => countdownUntil > Date.now());
   const audioContextRef = useRef<AudioContext | null>(null);
   const lastSecondRef = useRef<number>(remainingSeconds);
+  const completedRef = useRef<boolean>(false);
 
   // Gentle high-fashion chime using Web Audio API
   const playChime = (freq = 520, duration = 0.15) => {
@@ -50,6 +51,11 @@ export default function VotingCountdownOverlay({
   };
 
   useEffect(() => {
+    if (countdownUntil <= Date.now()) {
+      setIsVisible(false);
+      return;
+    }
+
     const timer = setInterval(() => {
       const now = Date.now();
       const diff = Math.max(0, Math.ceil((countdownUntil - now) / 1000));
@@ -62,6 +68,8 @@ export default function VotingCountdownOverlay({
 
       if (diff <= 0) {
         clearInterval(timer);
+        if (completedRef.current) return;
+        completedRef.current = true;
         setIsFinished(true);
         playChime(880, 0.4);
 

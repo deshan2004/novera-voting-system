@@ -23,6 +23,8 @@ export interface VotingSettings {
   announcement?: string;
   updatedAt?: number;
   countdownUntil?: number | null;
+  votingClosesAt?: number | null;
+  votingDurationSeconds?: number;
 }
 
 export interface VoterStatus {

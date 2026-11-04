@@ -16,7 +16,7 @@ import {
 } from 'lucide-react';
 import StageQrInteractiveBackground from '@/app/components/StageQrInteractiveBackground';
 import VotingCountdownOverlay from '@/app/components/VotingCountdownOverlay';
-import { subscribeToVotingSettings } from '@/lib/api';
+import { subscribeToVotingSettings, saveVotingSettings } from '@/lib/api';
 import { VotingSettings } from '@/lib/types';
 
 export default function QrDisplayPage() {
@@ -26,6 +26,44 @@ export default function QrDisplayPage() {
   const [tilt, setTilt] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const [qrSize, setQrSize] = useState<number>(230);
   const [votingSettings, setVotingSettings] = useState<VotingSettings>({ isVotingOpen: true });
+  const [remainingTimeText, setRemainingTimeText] = useState<string>('');
+  const [remainingSeconds, setRemainingSeconds] = useState<number>(0);
+
+  // Live 10-Minute Countdown & Auto-Close Timer
+  useEffect(() => {
+    if (!votingSettings.isVotingOpen || !votingSettings.votingClosesAt) {
+      setRemainingTimeText('');
+      setRemainingSeconds(0);
+      return;
+    }
+
+    const updateTimer = () => {
+      const now = Date.now();
+      const diffMs = (votingSettings.votingClosesAt || 0) - now;
+      const totalSec = Math.max(0, Math.ceil(diffMs / 1000));
+      setRemainingSeconds(totalSec);
+
+      if (totalSec <= 0) {
+        // Automatically close voting when timer reaches 0
+        saveVotingSettings({
+          isVotingOpen: false,
+          votingClosesAt: null,
+          countdownUntil: null,
+          announcement: 'Audience voting has concluded for NOVERA ’26.',
+        });
+        setRemainingTimeText('00:00');
+        return;
+      }
+
+      const mins = Math.floor(totalSec / 60);
+      const secs = totalSec % 60;
+      setRemainingTimeText(`${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`);
+    };
+
+    updateTimer();
+    const interval = setInterval(updateTimer, 500);
+    return () => clearInterval(interval);
+  }, [votingSettings.isVotingOpen, votingSettings.votingClosesAt]);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -107,7 +145,13 @@ export default function QrDisplayPage() {
       {isCountingDown && (
         <VotingCountdownOverlay
           countdownUntil={votingSettings.countdownUntil!}
-          onComplete={() => {
+          onComplete={async () => {
+            try {
+              await saveVotingSettings({
+                ...votingSettings,
+                countdownUntil: null,
+              });
+            } catch (e) {}
             setVotingSettings((prev) => ({ ...prev, countdownUntil: null }));
           }}
         />
@@ -133,6 +177,19 @@ export default function QrDisplayPage() {
               : 'Audience voting will unlock live on this screen during the runway showcase. Watch the stage for the official opening countdown!'}
           </p>
         </div>
+
+        {/* ⏱️ Live 10-Minute Countdown Stage Clock */}
+        {isVotingLive && remainingTimeText && (
+          <div className="inline-flex items-center gap-3 px-6 py-2.5 rounded-full bg-black/60 backdrop-blur-2xl border-2 border-novera-gold/70 text-white shadow-[0_0_35px_rgba(203,167,95,0.4)] animate-pulse">
+            <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping shrink-0" />
+            <span className="text-xs sm:text-sm font-mono uppercase tracking-[0.2em] text-novera-gold font-bold">
+              Voting Closes In:
+            </span>
+            <span className="font-mono text-xl sm:text-2xl font-black text-amber-300 tracking-widest drop-shadow-[0_0_12px_rgba(251,191,36,0.9)]">
+              {remainingTimeText}
+            </span>
+          </div>
+        )}
 
         {/* Transparent Frosted Glass Card with Interactive 3D Tilt */}
         <div
