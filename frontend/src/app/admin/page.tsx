@@ -445,9 +445,6 @@ export default function AdminLeaderboardPage() {
           </div>
 
           <div className="space-y-1.5">
-            <span className="text-[11px] font-bold tracking-[0.25em] uppercase text-amber-300 block">
-              Restricted Area &bull; Organizing Committee
-            </span>
             <h1 className="font-serif text-2xl sm:text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-[#FFF5D6] via-[#ECD599] to-[#B3924F] tracking-tight pt-1">
               NOVERA &rsquo;26 Admin
             </h1>
@@ -480,10 +477,10 @@ export default function AdminLeaderboardPage() {
 
             <button
               type="submit"
-              className="w-full py-4 rounded-2xl bg-gradient-to-r from-amber-600 via-amber-400 to-amber-200 text-black font-extrabold text-xs uppercase tracking-wider shadow-[0_4px_25px_rgba(203,167,95,0.45)] hover:brightness-110 active:scale-[0.99] transition-all flex items-center justify-center gap-2 group relative overflow-hidden"
+              className="w-full py-3.5 rounded-full bg-novera-foil text-novera-paper hover:bg-novera-ink transition-all text-xs sm:text-sm font-semibold tracking-wider uppercase shadow-md flex items-center justify-center gap-2 group relative overflow-hidden"
             >
-              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 pointer-events-none" />
-              <Lock className="w-4 h-4 text-black" />
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 pointer-events-none" />
+              <Lock className="w-4 h-4" />
               <span>Unlock Admin Dashboard</span>
             </button>
           </form>

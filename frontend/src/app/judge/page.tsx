@@ -276,10 +276,6 @@ export default function JudgePortalPage() {
           </div>
 
           <div className="space-y-1.5">
-            <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-red-500/20 text-red-300 text-[10px] font-bold uppercase tracking-widest border border-red-500/40 shadow-sm backdrop-blur-md">
-              <span className="w-2 h-2 rounded-full bg-red-400 animate-ping" />
-              <span>Official Jury Authentication</span>
-            </div>
             <h1 className="font-serif text-2xl sm:text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-[#FFF5D6] via-[#ECD599] to-[#B3924F] tracking-tight pt-1">
               Judges Scoring Portal
             </h1>
@@ -313,10 +309,10 @@ export default function JudgePortalPage() {
 
             <button
               type="submit"
-              className="w-full py-4 rounded-2xl bg-gradient-to-r from-amber-600 via-amber-400 to-amber-200 text-black font-extrabold text-xs uppercase tracking-wider shadow-[0_4px_25px_rgba(203,167,95,0.45)] hover:brightness-110 active:scale-[0.99] transition-all flex items-center justify-center gap-2 group relative overflow-hidden"
+              className="w-full py-3.5 rounded-full bg-novera-foil text-novera-paper hover:bg-novera-ink transition-all text-xs sm:text-sm font-semibold tracking-wider uppercase shadow-md flex items-center justify-center gap-2 group relative overflow-hidden"
             >
-              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 pointer-events-none" />
-              <Lock className="w-4 h-4 text-black" />
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 pointer-events-none" />
+              <Lock className="w-4 h-4" />
               <span>Unlock Jury Scorecard</span>
             </button>
           </form>
