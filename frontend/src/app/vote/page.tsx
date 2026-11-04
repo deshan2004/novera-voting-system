@@ -109,10 +109,6 @@ export default function VotePage() {
       setCandidates(list);
     });
 
-    const unsubscribeFirebase = subscribeToCandidates((list) => {
-      setCandidates(list);
-    });
-
     // Real-time listener for voter status resets from admin
     const unsubscribeVoter = subscribeToVoterStatus(voterId, (updatedStatus) => {
       setVoterStatus(updatedStatus);
@@ -142,7 +138,6 @@ export default function VotePage() {
 
     window.addEventListener('novera_vote_updated', handleSync);
     return () => {
-      unsubscribeFirebase();
       unsubscribeVoter();
       unsubscribeSettings();
       window.removeEventListener('novera_vote_updated', handleSync);

@@ -22,6 +22,13 @@ const STORAGE_KEY_VOTING_SETTINGS = 'novera_voting_settings';
 
 const SPRING_BOOT_API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api';
 
+function shouldCallSpringBoot(): boolean {
+  if (typeof window === 'undefined') return true;
+  if (process.env.NEXT_PUBLIC_API_URL) return true;
+  const host = window.location.hostname;
+  return host === 'localhost' || host === '127.0.0.1';
+}
+
 /**
  * Returns or generates a resilient device voter identifier using hardware/browser entropy + persistent cookie backup
  */
@@ -264,17 +271,22 @@ export async function fetchCandidates(): Promise<Candidate[]> {
     }
   }
 
-  // 2. Try Spring Boot
-  try {
-    const res = await fetch(`${SPRING_BOOT_API_URL}/candidates`);
-    if (res.ok) {
-      const data = await res.json();
-      if (Array.isArray(data) && data.length > 0) {
-        saveLocalCandidates(data);
-        return data;
+  // 2. Try Spring Boot (Guarded against unreachable localhost on mobile)
+  if (shouldCallSpringBoot()) {
+    try {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 1500);
+      const res = await fetch(`${SPRING_BOOT_API_URL}/candidates`, { signal: controller.signal });
+      clearTimeout(timer);
+      if (res.ok) {
+        const data = await res.json();
+        if (Array.isArray(data) && data.length > 0) {
+          saveLocalCandidates(data);
+          return data;
+        }
       }
-    }
-  } catch (err) {}
+    } catch (err) {}
+  }
 
   return getLocalCandidates();
 }
@@ -319,45 +331,57 @@ export async function submitVote(submission: VoteSubmission): Promise<{
     };
   }
 
-  // 1. Record in Firebase Firestore
+  // 1. Record in Firebase Firestore (Parallel writes for instant sub-second response)
   if (isFirebaseConfigured() && db) {
     try {
+      const writeOps: Promise<any>[] = [];
+
       if (submission.boyCandidateId) {
         const boyRef = doc(db, 'candidates', submission.boyCandidateId);
-        await updateDoc(boyRef, { votes: increment(1) });
+        writeOps.push(updateDoc(boyRef, { votes: increment(1) }));
       }
       if (submission.girlCandidateId) {
         const girlRef = doc(db, 'candidates', submission.girlCandidateId);
-        await updateDoc(girlRef, { votes: increment(1) });
+        writeOps.push(updateDoc(girlRef, { votes: increment(1) }));
       }
 
       // Record voter lock
       const voterRef = doc(db, 'voters', voterId);
-      await setDoc(
-        voterRef,
-        {
-          voterId,
-          hasVotedBoy: currentStatus.hasVotedBoy || !!submission.boyCandidateId,
-          hasVotedGirl: currentStatus.hasVotedGirl || !!submission.girlCandidateId,
-          boyVotedFor: submission.boyCandidateId || currentStatus.boyVotedFor,
-          girlVotedFor: submission.girlCandidateId || currentStatus.girlVotedFor,
-          updatedAt: Date.now(),
-        },
-        { merge: true }
+      writeOps.push(
+        setDoc(
+          voterRef,
+          {
+            voterId,
+            hasVotedBoy: currentStatus.hasVotedBoy || !!submission.boyCandidateId,
+            hasVotedGirl: currentStatus.hasVotedGirl || !!submission.girlCandidateId,
+            boyVotedFor: submission.boyCandidateId || currentStatus.boyVotedFor,
+            girlVotedFor: submission.girlCandidateId || currentStatus.girlVotedFor,
+            updatedAt: Date.now(),
+          },
+          { merge: true }
+        )
       );
+
+      await Promise.all(writeOps);
     } catch (err) {
       console.warn('Firebase vote recording note:', err);
     }
   }
 
-  // 2. Record in Spring Boot backend
-  try {
-    await fetch(`${SPRING_BOOT_API_URL}/votes/submit`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(submission),
-    });
-  } catch (e) {}
+  // 2. Record in Spring Boot backend (Guarded with timeout to prevent mobile stalls)
+  if (shouldCallSpringBoot()) {
+    try {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 1500);
+      await fetch(`${SPRING_BOOT_API_URL}/votes/submit`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(submission),
+        signal: controller.signal,
+      });
+      clearTimeout(timer);
+    } catch (e) {}
+  }
 
   // 3. Update local state
   const candidates = getLocalCandidates();
@@ -523,9 +547,14 @@ export async function resetAllVotes(): Promise<void> {
   }
 
   // 2. Spring Boot reset
-  try {
-    await fetch(`${SPRING_BOOT_API_URL}/admin/reset`, { method: 'POST' });
-  } catch (e) {}
+  if (shouldCallSpringBoot()) {
+    try {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 1500);
+      await fetch(`${SPRING_BOOT_API_URL}/admin/reset`, { method: 'POST', signal: controller.signal });
+      clearTimeout(timer);
+    } catch (e) {}
+  }
 
   // 3. Local candidates reset
   const candidates = getLocalCandidates().map((c) => ({ ...c, votes: 0 }));
