@@ -261,36 +261,36 @@ export default function JudgePortalPage() {
   if (!isAuthenticated) {
     return (
       <div className="min-h-[85vh] flex items-center justify-center p-4 relative overflow-hidden">
-        {/* Haute Couture Fashion Runway Stage Animation & Looping Video Background */}
+        {/* Haute Couture Fashion Runway Stage Animation */}
         <RunwayStageBackground />
 
-        <div className="max-w-md w-full glass-panel rounded-3xl p-6 sm:p-8 text-center space-y-6 relative overflow-hidden shadow-[0_30px_90px_rgba(0,0,0,0.65)] bg-white/95 backdrop-blur-2xl border border-white/60 animate-in zoom-in-95 duration-500">
-          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-novera-foil to-transparent animate-scan-sweep" />
+        <div className="max-w-md w-full bg-black/40 backdrop-blur-2xl rounded-3xl p-6 sm:p-8 border border-white/20 shadow-[0_30px_90px_rgba(0,0,0,0.8),inset_0_1px_1px_rgba(255,255,255,0.2)] text-center space-y-6 relative overflow-hidden animate-in zoom-in-95 duration-500">
+          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-amber-300 to-transparent animate-scan-sweep" />
 
           {/* Luxury Monogram Floating Badge */}
           <div className="relative mx-auto w-20 h-20 flex items-center justify-center">
-            <div className="absolute inset-0 rounded-2xl bg-amber-400/20 blur-xl animate-luxury-glow pointer-events-none" />
-            <div className="w-16 h-16 rounded-2xl glass-dark text-novera-gold flex items-center justify-center shadow-2xl border border-novera-foil/50 animate-float relative z-10">
-              <Lock className="w-8 h-8 text-novera-gold drop-shadow-[0_0_12px_rgba(236,213,153,0.8)]" />
+            <div className="absolute inset-0 rounded-2xl bg-amber-400/25 blur-xl animate-luxury-glow pointer-events-none" />
+            <div className="w-16 h-16 rounded-2xl bg-white/10 backdrop-blur-xl text-novera-gold flex items-center justify-center shadow-2xl border border-amber-400/40 animate-float relative z-10">
+              <Lock className="w-8 h-8 text-amber-300 drop-shadow-[0_0_12px_rgba(236,213,153,0.9)]" />
             </div>
           </div>
 
           <div className="space-y-1.5">
-            <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full glass-pill text-red-700 text-[10px] font-bold uppercase tracking-widest border border-red-200/60 shadow-sm">
-              <span className="w-2 h-2 rounded-full bg-red-600 animate-ping" />
+            <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-red-500/20 text-red-300 text-[10px] font-bold uppercase tracking-widest border border-red-500/40 shadow-sm backdrop-blur-md">
+              <span className="w-2 h-2 rounded-full bg-red-400 animate-ping" />
               <span>Official Jury Authentication</span>
             </div>
-            <h1 className="font-serif text-2xl sm:text-3xl font-extrabold text-novera-ink tracking-tight pt-1">
+            <h1 className="font-serif text-2xl sm:text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-[#FFF5D6] via-[#ECD599] to-[#B3924F] tracking-tight pt-1">
               Judges Scoring Portal
             </h1>
-            <p className="text-xs text-novera-charcoal font-medium">
+            <p className="text-xs text-zinc-300 font-medium">
               Enter your confidential judge passcode to evaluate contestants
             </p>
           </div>
 
           <form onSubmit={handleLogin} className="space-y-4 text-left">
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-novera-charcoal mb-1.5">
+              <label className="block text-xs font-semibold uppercase tracking-wider text-amber-200/90 mb-1.5">
                 Judge Passcode
               </label>
               <input
@@ -298,14 +298,14 @@ export default function JudgePortalPage() {
                 placeholder="Enter passcode"
                 value={passcode}
                 onChange={(e) => setPasscode(e.target.value)}
-                className="w-full px-4 py-3.5 rounded-2xl glass-input text-xs sm:text-sm text-novera-ink outline-none focus:border-novera-foil font-mono text-center tracking-widest text-base shadow-inner border border-novera-ink/15 transition-all focus:bg-white"
+                className="w-full px-4 py-3.5 rounded-2xl bg-white/10 text-xs sm:text-sm text-white placeholder-zinc-400 outline-none focus:border-amber-400 focus:bg-white/15 font-mono text-center tracking-widest text-base shadow-inner border border-white/20 transition-all backdrop-blur-md"
                 required
                 autoFocus
               />
             </div>
 
             {passcodeError && (
-              <div className="p-3 rounded-2xl bg-rose-50/90 backdrop-blur-md border border-rose-200 text-rose-800 text-xs flex items-center gap-2 shadow-sm animate-in fade-in duration-200">
+              <div className="p-3 rounded-2xl bg-rose-500/20 border border-rose-500/40 text-rose-200 text-xs flex items-center gap-2 shadow-sm animate-in fade-in duration-200 backdrop-blur-md">
                 <AlertCircle className="w-4 h-4 shrink-0" />
                 <span>{passcodeError}</span>
               </div>
@@ -313,15 +313,15 @@ export default function JudgePortalPage() {
 
             <button
               type="submit"
-              className="w-full py-4 rounded-2xl bg-novera-ink text-novera-paper hover:bg-novera-foil transition-all text-xs font-bold uppercase tracking-wider shadow-xl flex items-center justify-center gap-2 group relative overflow-hidden"
+              className="w-full py-4 rounded-2xl bg-gradient-to-r from-amber-600 via-amber-400 to-amber-200 text-black font-extrabold text-xs uppercase tracking-wider shadow-[0_4px_25px_rgba(203,167,95,0.45)] hover:brightness-110 active:scale-[0.99] transition-all flex items-center justify-center gap-2 group relative overflow-hidden"
             >
-              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 pointer-events-none" />
-              <Lock className="w-4 h-4 text-novera-gold" />
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 pointer-events-none" />
+              <Lock className="w-4 h-4 text-black" />
               <span>Unlock Jury Scorecard</span>
             </button>
           </form>
 
-          <p className="text-[11px] text-novera-charcoal/80 font-mono">
+          <p className="text-[11px] text-zinc-400 font-mono">
             Authorized by NOVERA &rsquo;26 Organizing Committee &bull; AIESEC in CINEC
           </p>
         </div>
