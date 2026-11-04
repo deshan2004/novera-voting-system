@@ -7,6 +7,7 @@ import { Vote, ShieldCheck, Sparkles, Lock } from 'lucide-react';
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const isStageMode = pathname === '/qr';
+  const isDarkTheme = pathname.startsWith('/judge') || pathname.startsWith('/admin');
 
   // If on /qr (Stage Screen), hide the website navigation header, top marquee, and footer!
   if (isStageMode) {
@@ -16,7 +17,13 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   return (
     <>
       {/* Editorial Top Marquee / Banner */}
-      <div className="bg-novera-ink text-novera-paper text-xs uppercase tracking-widest py-2 px-4 flex justify-between items-center border-b border-novera-charcoal/30">
+      <div
+        className={`text-xs uppercase tracking-widest py-2 px-4 flex justify-between items-center transition-colors border-b ${
+          isDarkTheme
+            ? 'bg-black/40 backdrop-blur-md border-white/10 text-zinc-300'
+            : 'bg-novera-ink/90 backdrop-blur-md border-novera-charcoal/30 text-novera-paper'
+        }`}
+      >
         <div className="flex items-center gap-2">
           <Sparkles className="w-3.5 h-3.5 text-novera-gold animate-pulse" />
           <span>AIESEC in CINEC Presents &middot; NOVERA &rsquo;26</span>
@@ -28,14 +35,28 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         </div>
       </div>
 
-      {/* Main Navigation - Audience Focused */}
-      <header className="sticky top-0 z-50 bg-novera-paper/95 backdrop-blur-md border-b border-novera-ink/10">
+      {/* Main Navigation - Audience Focused (Frosted Glass Translucent) */}
+      <header
+        className={`sticky top-0 z-50 transition-colors duration-300 backdrop-blur-xl border-b ${
+          isDarkTheme
+            ? 'bg-black/25 border-white/10 text-white'
+            : 'bg-novera-paper/40 border-novera-ink/10 text-novera-ink'
+        }`}
+      >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
           <Link href="/" className="group flex flex-col">
-            <span className="font-serif text-2xl sm:text-3xl font-bold tracking-tight text-novera-ink group-hover:text-novera-foil transition-colors">
+            <span
+              className={`font-serif text-2xl sm:text-3xl font-bold tracking-tight transition-colors ${
+                isDarkTheme ? 'text-white group-hover:text-novera-foil' : 'text-novera-ink group-hover:text-novera-foil'
+              }`}
+            >
               NOVERA <span className="text-novera-foil">&rsquo;26</span>
             </span>
-            <span className="text-[10px] tracking-[0.25em] text-novera-charcoal uppercase">
+            <span
+              className={`text-[10px] tracking-[0.25em] uppercase ${
+                isDarkTheme ? 'text-zinc-400' : 'text-novera-charcoal'
+              }`}
+            >
               Official Runway Ballot
             </span>
           </Link>
