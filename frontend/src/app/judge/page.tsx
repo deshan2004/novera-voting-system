@@ -94,6 +94,18 @@ export default function JudgePortalPage() {
     };
   }, []);
 
+  // Prevent background page scrolling on mobile when scoring modal is open
+  useEffect(() => {
+    if (scoringCandidate) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [scoringCandidate]);
+
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     const inputClean = passcode.trim().toLowerCase();
@@ -605,11 +617,19 @@ export default function JudgePortalPage() {
         ];
 
         return (
-          <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-2xl flex items-end sm:items-center justify-center p-0 sm:p-4 animate-in fade-in duration-200">
-            <div className="max-w-xl w-full bg-[#0c0a08] rounded-t-3xl sm:rounded-3xl border border-white/20 shadow-[0_25px_80px_rgba(0,0,0,0.95)] relative animate-in zoom-in-95 duration-200 max-h-[92vh] flex flex-col overflow-hidden text-white">
-              
-              {/* 📌 PERMANENT STICKY HEADER (NEVER SCROLLS OUT OF VIEW) */}
-              <div className="sticky top-0 z-30 bg-[#120f0c] border-b border-white/15 px-4 sm:px-6 py-3.5 flex items-center justify-between shrink-0 shadow-lg">
+          <div
+            className="fixed inset-0 z-[100] bg-black/90 backdrop-blur-2xl flex flex-col justify-end sm:justify-center items-center p-0 sm:p-4 pt-14 sm:pt-4 overflow-hidden animate-in fade-in duration-200"
+            onClick={() => setScoringCandidate(null)}
+          >
+            <div
+              className="max-w-xl w-full bg-[#0c0a08] rounded-t-3xl sm:rounded-3xl border border-white/20 shadow-[0_25px_80px_rgba(0,0,0,0.95)] relative animate-in slide-in-from-bottom-8 duration-200 h-[84dvh] max-h-[84dvh] sm:h-auto sm:max-h-[88vh] flex flex-col overflow-hidden text-white"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Mobile Drawer Grab Bar Indicator */}
+              <div className="w-12 h-1 rounded-full bg-white/25 mx-auto mt-2.5 mb-1 sm:hidden shrink-0" />
+
+              {/* 📌 PERMANENT HEADER (NEVER SCROLLS OUT OF VIEW) */}
+              <div className="bg-[#120f0c] border-b border-white/15 px-4 sm:px-6 py-3 sm:py-3.5 flex items-center justify-between shrink-0 shadow-lg">
                 <div className="flex items-center gap-3 min-w-0">
                   <div className="relative w-11 h-11 sm:w-12 sm:h-12 rounded-2xl overflow-hidden shrink-0 shadow-md border border-novera-gold/40">
                     <Image
