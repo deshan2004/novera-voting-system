@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 interface RunwayStageBackgroundProps {
   className?: string;
@@ -8,6 +8,8 @@ interface RunwayStageBackgroundProps {
 
 export default function RunwayStageBackground({ className = '' }: RunwayStageBackgroundProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const [videoLoaded, setVideoLoaded] = useState(false);
+  const [videoError, setVideoError] = useState(false);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -168,7 +170,23 @@ export default function RunwayStageBackground({ className = '' }: RunwayStageBac
       className={`fixed inset-0 pointer-events-none -z-20 overflow-hidden bg-[#070605] ${className}`}
       aria-hidden="true"
     >
-      {/* 1. Volumetric Sweeping Theatrical Spotlights */}
+      {/* 1. High-Fashion Runway Looping Video */}
+      {!videoError && (
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          onLoadedData={() => setVideoLoaded(true)}
+          onError={() => setVideoError(true)}
+          className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 mix-blend-screen ${
+            videoLoaded ? 'opacity-40' : 'opacity-0'
+          }`}
+          src="https://assets.mixkit.co/videos/preview/mixkit-fashion-cold-looking-woman-concept-video-39874-large.mp4"
+        />
+      )}
+
+      {/* 2. Volumetric Sweeping Theatrical Spotlights */}
       {/* Left Golden Stage Beam */}
       <div
         className="absolute -top-32 -left-32 w-[750px] h-[1100px] bg-gradient-to-br from-amber-300/30 via-amber-500/15 to-transparent blur-3xl animate-spotlight-left"

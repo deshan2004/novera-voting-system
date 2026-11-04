@@ -244,8 +244,7 @@ export default function AdminLeaderboardPage() {
           countdownUntil: countdownTarget,
           announcement: `Audience voting is LIVE for ${votingDurationMinutes} minutes!`,
         });
-        // 🚀 Auto-navigate immediately to the Stage QR Screen for the live opening countdown
-        router.push('/qr');
+        // Countdown overlay will play smoothly on this screen, then onComplete will navigate to /qr
       } finally {
         setIsUpdatingVotingStatus(false);
       }
@@ -594,6 +593,8 @@ export default function AdminLeaderboardPage() {
                 countdownUntil: null,
               });
             } catch (e) {}
+            setVotingSettings((prev) => ({ ...prev, countdownUntil: null }));
+            router.push('/qr');
           }}
         />
       )}

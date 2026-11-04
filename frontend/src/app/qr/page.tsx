@@ -15,7 +15,6 @@ import {
   Sparkles,
 } from 'lucide-react';
 import StageQrInteractiveBackground from '@/app/components/StageQrInteractiveBackground';
-import VotingCountdownOverlay from '@/app/components/VotingCountdownOverlay';
 import { subscribeToVotingSettings, saveVotingSettings } from '@/lib/api';
 import { VotingSettings } from '@/lib/types';
 
@@ -133,10 +132,9 @@ export default function QrDisplayPage() {
   };
 
   const isVotingLive = !!votingSettings.isVotingOpen;
-  const isCountingDown = !!(isVotingLive && votingSettings.countdownUntil && votingSettings.countdownUntil > Date.now());
 
   return (
-    <div className="relative min-h-screen w-full bg-[#050505] text-novera-paper flex flex-col items-center justify-between p-3 sm:py-5 sm:px-8 select-none overflow-y-auto overflow-x-hidden">
+    <div className="relative min-h-screen w-full bg-[#050505] text-novera-paper flex flex-col items-center justify-between p-3 sm:py-4 sm:px-6 select-none overflow-y-auto overflow-x-hidden">
       {/* 🔒 Quick Return to Master Admin Hub */}
       <Link
         href="/admin"
@@ -146,22 +144,6 @@ export default function QrDisplayPage() {
         <Lock className="w-3.5 h-3.5 text-novera-gold" />
         <span>Admin Hub</span>
       </Link>
-
-      {/* 🌟 SYNCHRONIZED RUNWAY OPENING COUNTDOWN OVERLAY ON STAGE SCREEN */}
-      {isCountingDown && (
-        <VotingCountdownOverlay
-          countdownUntil={votingSettings.countdownUntil!}
-          onComplete={async () => {
-            try {
-              await saveVotingSettings({
-                ...votingSettings,
-                countdownUntil: null,
-              });
-            } catch (e) {}
-            setVotingSettings((prev) => ({ ...prev, countdownUntil: null }));
-          }}
-        />
-      )}
 
       {/* Interactive Cinematic Stage Canvas Background */}
       <StageQrInteractiveBackground onPointerMoveCoords={handlePointerCoords} />

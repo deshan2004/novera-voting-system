@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import confetti from 'canvas-confetti';
-import { Sparkles, Crown, Zap } from 'lucide-react';
+import { Sparkles, Crown } from 'lucide-react';
 
 interface VotingCountdownOverlayProps {
   countdownUntil: number; // target epoch timestamp (ms)
@@ -13,16 +13,19 @@ export default function VotingCountdownOverlay({
   countdownUntil,
   onComplete,
 }: VotingCountdownOverlayProps) {
+  const onCompleteRef = useRef(onComplete);
+  onCompleteRef.current = onComplete;
+
   const [remainingSeconds, setRemainingSeconds] = useState<number>(() => {
     return Math.max(0, Math.ceil((countdownUntil - Date.now()) / 1000));
   });
   const [isFinished, setIsFinished] = useState<boolean>(false);
-  const [isVisible, setIsVisible] = useState<boolean>(() => countdownUntil > Date.now());
+  const [isVisible, setIsVisible] = useState<boolean>(true);
   const audioContextRef = useRef<AudioContext | null>(null);
   const lastSecondRef = useRef<number>(remainingSeconds);
   const completedRef = useRef<boolean>(false);
 
-  // Gentle high-fashion chime using Web Audio API
+  // High-fashion gentle audio tone
   const playChime = (freq = 520, duration = 0.15) => {
     try {
       if (typeof window === 'undefined') return;
@@ -50,9 +53,33 @@ export default function VotingCountdownOverlay({
     }
   };
 
-  useEffect(() => {
-    if (countdownUntil <= Date.now()) {
+  const handleFinish = () => {
+    if (completedRef.current) return;
+    completedRef.current = true;
+    setIsFinished(true);
+    playChime(880, 0.35);
+
+    try {
+      confetti({
+        particleCount: 100,
+        spread: 80,
+        origin: { y: 0.5 },
+        colors: ['#b3924f', '#ecd599', '#ffffff', '#eab308'],
+      });
+    } catch (e) {}
+
+    setTimeout(() => {
       setIsVisible(false);
+      if (onCompleteRef.current) {
+        onCompleteRef.current();
+      }
+    }, 1300);
+  };
+
+  useEffect(() => {
+    // If the target timestamp is already expired on mount
+    if (countdownUntil <= Date.now()) {
+      handleFinish();
       return;
     }
 
@@ -68,57 +95,28 @@ export default function VotingCountdownOverlay({
 
       if (diff <= 0) {
         clearInterval(timer);
-        if (completedRef.current) return;
-        completedRef.current = true;
-        setIsFinished(true);
-        playChime(880, 0.4);
-
-        // Grand confetti celebration blast
-        try {
-          confetti({
-            particleCount: 120,
-            spread: 90,
-            origin: { y: 0.5 },
-            colors: ['#b3924f', '#ecd599', '#ffffff', '#10b981'],
-          });
-          setTimeout(() => {
-            confetti({
-              particleCount: 80,
-              angle: 60,
-              spread: 60,
-              origin: { x: 0 },
-              colors: ['#b3924f', '#ffd700'],
-            });
-            confetti({
-              particleCount: 80,
-              angle: 120,
-              spread: 60,
-              origin: { x: 1 },
-              colors: ['#b3924f', '#ffd700'],
-            });
-          }, 250);
-        } catch (e) {}
-
-        // Allow 1.6s for "VOTING IS LIVE!" to shine before dissolving
-        const dismissTimeout = setTimeout(() => {
-          setIsVisible(false);
-          if (onComplete) onComplete();
-        }, 1600);
-
-        return () => clearTimeout(dismissTimeout);
+        handleFinish();
       }
     }, 100);
 
-    return () => clearInterval(timer);
-  }, [countdownUntil, onComplete]);
+    // Fallback safety timeout so it NEVER stays stuck under any condition
+    const maxSafetyDuration = Math.max(1000, countdownUntil - Date.now() + 2500);
+    const safetyTimeout = setTimeout(() => {
+      clearInterval(timer);
+      handleFinish();
+    }, maxSafetyDuration);
+
+    return () => {
+      clearInterval(timer);
+      clearTimeout(safetyTimeout);
+    };
+  }, [countdownUntil]);
 
   if (!isVisible) return null;
 
   return (
     <div
-      className={`fixed inset-0 z-[200] flex flex-col items-center justify-center p-4 select-none transition-all duration-500 ease-out bg-[#070605]/95 backdrop-blur-3xl ${
-        isFinished ? 'opacity-100 scale-100' : 'opacity-100 scale-100'
-      }`}
+      className="fixed inset-0 z-[200] flex flex-col items-center justify-center p-4 select-none transition-all duration-500 ease-out bg-[#070605]/95 backdrop-blur-3xl"
     >
       {/* Volumetric Stage Spotlight Backlight */}
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-amber-600/20 via-[#0b0906] to-[#040302] pointer-events-none" />
@@ -181,7 +179,7 @@ export default function VotingCountdownOverlay({
 
         <h2 className="font-serif text-2xl sm:text-4xl font-extrabold tracking-tight text-white drop-shadow-md">
           {isFinished ? (
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-300 via-white to-novera-gold">
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-white to-novera-gold">
               AUDIENCE VOTING IS NOW LIVE!
             </span>
           ) : (
@@ -191,7 +189,7 @@ export default function VotingCountdownOverlay({
 
         <p className="text-xs sm:text-sm text-zinc-300 font-mono tracking-wider uppercase">
           {isFinished
-            ? 'Ballots Unlocked • Vote for 1 Boy & 1 Girl Model'
+            ? 'Ballots Unlocked • Opening QR Display...'
             : remainingSeconds > 3
             ? 'Synchronizing Master Tabulation Ledger...'
             : remainingSeconds === 3
@@ -210,8 +208,18 @@ export default function VotingCountdownOverlay({
             }}
           />
         </div>
+
+        {/* Quick Skip Button for instant stage bypass */}
+        <div className="pt-2">
+          <button
+            type="button"
+            onClick={handleFinish}
+            className="text-[11px] font-mono text-zinc-400 hover:text-amber-200 underline underline-offset-4 transition-colors"
+          >
+            Skip countdown &rarr;
+          </button>
+        </div>
       </div>
     </div>
   );
 }
-
