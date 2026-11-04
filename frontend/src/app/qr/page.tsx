@@ -5,7 +5,6 @@ import { QRCodeSVG } from 'qrcode.react';
 import {
   Maximize2,
   Minimize2,
-  Sparkles,
   Smartphone,
   Vote,
   ShieldCheck,
@@ -61,12 +60,6 @@ export default function QrDisplayPage() {
 
       {/* Main Content (Elevated above interactive canvas) */}
       <div className="relative z-10 max-w-4xl w-full flex flex-col items-center text-center space-y-6 sm:space-y-7 my-auto">
-        {/* Header Badge */}
-        <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-black/50 backdrop-blur-xl border border-novera-foil/50 text-xs sm:text-sm uppercase tracking-[0.25em] font-semibold text-novera-gold shadow-[0_0_20px_rgba(203,167,95,0.25)]">
-          <Sparkles className="w-4 h-4 text-novera-gold animate-spin" style={{ animationDuration: '6s' }} />
-          <span>Stage 01 &bull; Official Audience QR Code</span>
-        </div>
-
         {/* Title */}
         <div className="space-y-2">
           <h1 className="font-serif text-3xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-white drop-shadow-md">
