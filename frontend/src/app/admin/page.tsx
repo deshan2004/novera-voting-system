@@ -137,7 +137,8 @@ export default function AdminLeaderboardPage() {
   const [passcode, setPasscode] = useState<string>('');
   const [passcodeError, setPasscodeError] = useState<string>('');
 
-  const [activeTab, setActiveTab] = useState<'command' | 'audience' | 'judges' | 'summary'>('command');
+  const [adminMode, setAdminMode] = useState<'stage' | 'vault'>('stage');
+  const [vaultTab, setVaultTab] = useState<'audience' | 'judges' | 'summary'>('audience');
   const [selectedJuryAward, setSelectedJuryAward] = useState<AwardKey>('topModel');
   const [selectedAuditJudge, setSelectedAuditJudge] = useState<typeof OFFICIAL_JUDGE_ROSTER[0] | null>(null);
   const [auditCategoryFilter, setAuditCategoryFilter] = useState<'all' | 'boy' | 'girl'>('all');
@@ -603,122 +604,48 @@ export default function AdminLeaderboardPage() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10 space-y-8 relative z-10 print:hidden">
-      {/* Top Banner & Navigation */}
-      <div className="p-6 sm:p-8 rounded-3xl bg-black/40 backdrop-blur-2xl border border-white/15 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 shadow-2xl">
-        <div>
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-black/50 backdrop-blur-xl border border-white/20 text-xs uppercase tracking-widest font-bold text-novera-gold mb-2">
-            <ShieldCheck className="w-4 h-4 text-novera-gold animate-float" />
-            <span>Master Administration Hub</span>
-          </div>
-          <h1 className="font-serif text-2xl sm:text-4xl font-bold text-white">
-            Central Tabulation &amp; Surveillance
-          </h1>
-          <p className="text-xs sm:text-sm text-zinc-300 mt-1">
-            Official Award Marking Alignment &bull; 6 Titles (Girl &amp; Boy) &bull; Live Telemetry
-          </p>
-        </div>
-
-        <div className="flex items-center gap-2.5">
-          {/* Privacy Shield Toggle (Hides counts & leaders from backstage bystanders) */}
-          <button
-            type="button"
-            onClick={() => setIsPrivacyMasked(!isPrivacyMasked)}
-            className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-2xl text-xs font-bold uppercase tracking-wider transition-all shadow-sm backdrop-blur-md border ${
-              isPrivacyMasked
-                ? 'bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border-amber-500/40 shadow-[0_0_15px_rgba(245,158,11,0.2)]'
-                : 'bg-zinc-800/80 hover:bg-zinc-700/80 text-zinc-300 border-white/20'
-            }`}
-            title={isPrivacyMasked ? 'Privacy Shield is ACTIVE (Results concealed from bystanders)' : 'Privacy Shield is REVEALED'}
-          >
-            {isPrivacyMasked ? (
-              <>
-                <EyeOff className="w-3.5 h-3.5 text-amber-400" />
-                <span>Privacy Shield</span>
-              </>
-            ) : (
-              <>
-                <Eye className="w-3.5 h-3.5 text-amber-400" />
-                <span>Revealed</span>
-              </>
-            )}
-          </button>
-
-          <button
-            onClick={() => window.print()}
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-2xl text-xs font-semibold bg-white/10 hover:bg-white/20 text-white border border-white/15 backdrop-blur-md transition-all shadow-sm"
-            title="Print MC Summary"
-          >
-            <Printer className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Print MC</span>
-          </button>
-          <button
-            onClick={handleLogout}
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-2xl text-xs font-semibold text-zinc-300 bg-white/5 hover:bg-white/10 hover:text-white border border-white/15 backdrop-blur-md transition-colors shadow-sm"
-            title="Sign Out of Master Admin Hub"
-          >
-            <LogOut className="w-3.5 h-3.5 text-zinc-400" />
-            <span>Sign Out</span>
-          </button>
-        </div>
-      </div>
-
-      {/* Main Tabs Navigation */}
-      <div className="flex justify-center my-2">
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 p-1.5 rounded-2xl sm:rounded-full bg-black/50 backdrop-blur-xl border border-white/15 shadow-inner w-full max-w-4xl">
-          <button
-            onClick={() => setActiveTab('command')}
-            className={`flex items-center justify-center gap-2 py-3 px-3 sm:px-4 rounded-xl sm:rounded-full text-xs sm:text-sm font-bold uppercase tracking-wider whitespace-nowrap transition-all duration-200 ${
-              activeTab === 'command'
-                ? 'bg-gradient-to-r from-novera-gold to-amber-500 text-black shadow-lg font-extrabold'
-                : 'text-zinc-400 hover:text-white hover:bg-white/10'
-            }`}
-          >
-            <Zap className={`w-4 h-4 shrink-0 ${activeTab === 'command' ? 'text-black' : 'text-novera-gold'}`} />
-            <span>Stage Command</span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('audience')}
-            className={`flex items-center justify-center gap-2 py-3 px-3 sm:px-4 rounded-xl sm:rounded-full text-xs sm:text-sm font-bold uppercase tracking-wider whitespace-nowrap transition-all duration-200 ${
-              activeTab === 'audience'
-                ? 'bg-gradient-to-r from-novera-gold to-amber-500 text-black shadow-lg font-extrabold'
-                : 'text-zinc-400 hover:text-white hover:bg-white/10'
-            }`}
-          >
-            <Vote className={`w-4 h-4 shrink-0 ${activeTab === 'audience' ? 'text-black' : 'text-novera-gold'}`} />
-            <span>Audience Votes</span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('judges')}
-            className={`flex items-center justify-center gap-2 py-3 px-3 sm:px-4 rounded-xl sm:rounded-full text-xs sm:text-sm font-bold uppercase tracking-wider whitespace-nowrap transition-all duration-200 ${
-              activeTab === 'judges'
-                ? 'bg-gradient-to-r from-novera-gold to-amber-500 text-black shadow-lg font-extrabold'
-                : 'text-zinc-400 hover:text-white hover:bg-white/10'
-            }`}
-          >
-            <Award className={`w-4 h-4 shrink-0 ${activeTab === 'judges' ? 'text-black' : 'text-novera-gold'}`} />
-            <span>Jury Scores</span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('summary')}
-            className={`flex items-center justify-center gap-2 py-3 px-3 sm:px-4 rounded-xl sm:rounded-full text-xs sm:text-sm font-bold uppercase tracking-wider whitespace-nowrap transition-all duration-200 ${
-              activeTab === 'summary'
-                ? 'bg-gradient-to-r from-novera-gold to-amber-500 text-black shadow-lg font-extrabold'
-                : 'text-zinc-400 hover:text-white hover:bg-white/10'
-            }`}
-          >
-            <Trophy className={`w-4 h-4 shrink-0 ${activeTab === 'summary' ? 'text-black' : 'text-novera-gold'}`} />
-            <span>Final 6 Titles</span>
-          </button>
-        </div>
-      </div>
-
-      {/* ================= TAB 0: STAGE COMMAND (DEFAULT SECURE VIEW - NO MARKS EXPOSED) ================= */}
-      {activeTab === 'command' && (
+      {/* ================= VIEW 1: ADMIN HOME (STAGE LAUNCHPAD ONLY - NO MARKS EXPOSED) ================= */}
+      {adminMode === 'stage' && (
         <div className="space-y-6 animate-in fade-in duration-200">
-          {/* Top Status & Spacebar Command Banner */}
+          {/* Top Stage Header */}
+          <div className="p-6 sm:p-8 rounded-3xl bg-black/40 backdrop-blur-2xl border border-white/15 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 shadow-2xl">
+            <div>
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-black/50 backdrop-blur-xl border border-white/20 text-xs uppercase tracking-widest font-bold text-novera-gold mb-2">
+                <ShieldCheck className="w-4 h-4 text-novera-gold animate-float" />
+                <span>Master Administration Hub</span>
+              </div>
+              <h1 className="font-serif text-2xl sm:text-4xl font-bold text-white">
+                Audience Voting Launchpad
+              </h1>
+              <p className="text-xs sm:text-sm text-zinc-300 mt-1">
+                Official Stage Controller &bull; Privacy Protected
+              </p>
+            </div>
+
+            <div className="flex items-center gap-3">
+              {/* Button to navigate into the secret Tabulation & Results Vault */}
+              <button
+                type="button"
+                onClick={() => setAdminMode('vault')}
+                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs font-bold uppercase tracking-wider bg-white/10 hover:bg-white/20 text-white border border-white/20 hover:border-novera-gold/60 backdrop-blur-md transition-all shadow-md group"
+                title="Open Confidential Marks & Tabulation Vault"
+              >
+                <Lock className="w-4 h-4 text-novera-gold group-hover:scale-110 transition-transform" />
+                <span>Results &amp; Tabulation Vault &rarr;</span>
+              </button>
+
+              <button
+                onClick={handleLogout}
+                className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-2xl text-xs font-semibold text-zinc-300 bg-white/5 hover:bg-white/10 hover:text-white border border-white/15 backdrop-blur-md transition-colors shadow-sm"
+                title="Sign Out of Master Admin Hub"
+              >
+                <LogOut className="w-3.5 h-3.5 text-zinc-400" />
+                <span>Sign Out</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Main Launchpad Card with Big Button and Session Configuration */}
           <div className="p-6 sm:p-8 rounded-3xl bg-black/50 backdrop-blur-2xl border border-white/15 shadow-2xl space-y-6">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-white/10 pb-5">
               <div>
@@ -726,10 +653,10 @@ export default function AdminLeaderboardPage() {
                   Master Stage Controller &bull; Privacy Protected
                 </span>
                 <h2 className="font-serif text-2xl sm:text-3xl font-bold text-white">
-                  Audience Voting Launchpad
+                  Live Voting Control
                 </h2>
                 <p className="text-xs text-zinc-300 mt-1">
-                  Master runway stage controller. Trigger public audience voting with the button below.
+                  Trigger public audience voting for NOVERA ’26 with the master button below.
                 </p>
               </div>
 
@@ -745,7 +672,7 @@ export default function AdminLeaderboardPage() {
               </div>
             </div>
 
-            {/* 🚀 THE NOVERA HAUTE COUTURE GOLD & NOIR VOTING LAUNCH BUTTON */}
+            {/* 🚀 THE BIG OPEN / STOP VOTING BUTTON */}
             <div>
               <button
                 type="button"
@@ -757,7 +684,6 @@ export default function AdminLeaderboardPage() {
                     : 'bg-gradient-to-r from-[#d4af37] via-[#f5e6b8] to-[#aa7c11] border-white/80 text-black shadow-[0_0_60px_rgba(212,175,55,0.45)] hover:brightness-110'
                 }`}
               >
-                {/* Specular animated shine */}
                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/25 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 pointer-events-none" />
 
                 <div className="flex items-center gap-4 sm:gap-6">
@@ -820,10 +746,10 @@ export default function AdminLeaderboardPage() {
                       key={mins}
                       type="button"
                       onClick={() => setVotingDurationMinutes(mins)}
-                      className={`px-3 py-1.5 rounded-xl text-xs font-mono font-bold transition-all ${
+                      className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all border ${
                         votingDurationMinutes === mins
-                          ? 'bg-novera-gold text-black shadow-md scale-105'
-                          : 'bg-white/10 text-zinc-300 hover:bg-white/20 border border-white/10'
+                          ? 'bg-gradient-to-r from-novera-gold to-amber-400 text-black border-amber-300 shadow-md font-extrabold'
+                          : 'bg-white/5 hover:bg-white/15 text-zinc-300 border-white/10'
                       }`}
                     >
                       {mins} Mins{mins === 10 ? ' (Default)' : ''}
@@ -832,54 +758,124 @@ export default function AdminLeaderboardPage() {
                 </div>
               </div>
             )}
-
-            {/* Stage Quick Launcher & Inspection Cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
-              <Link
-                href="/qr"
-                target="_blank"
-                className="p-5 rounded-2xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/15 hover:border-novera-gold/50 transition-all flex items-center justify-between group shadow-sm"
-              >
-                <div className="space-y-1">
-                  <div className="text-xs font-mono uppercase tracking-wider text-novera-gold font-bold">Stage Display</div>
-                  <div className="text-sm font-bold text-white group-hover:text-novera-gold transition-colors">Open Stage QR Screen &rarr;</div>
-                  <div className="text-[11px] text-zinc-400">Open on stage projector or second screen</div>
-                </div>
-                <QrCode className="w-8 h-8 text-novera-gold group-hover:scale-110 transition-transform shrink-0" />
-              </Link>
-
-              <button
-                type="button"
-                onClick={() => setActiveTab('audience')}
-                className="p-5 rounded-2xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/15 hover:border-novera-gold/50 transition-all text-left group shadow-sm flex items-center justify-between"
-              >
-                <div className="space-y-1">
-                  <div className="text-xs font-mono uppercase tracking-wider text-novera-gold font-bold">Confidential Tallies</div>
-                  <div className="text-sm font-bold text-white group-hover:text-novera-gold transition-colors">Inspect Audience Votes &rarr;</div>
-                  <div className="text-[11px] text-zinc-400">View live candidate rank &amp; leaderboard</div>
-                </div>
-                <Vote className="w-8 h-8 text-novera-gold group-hover:scale-110 transition-transform shrink-0" />
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setActiveTab('judges')}
-                className="p-5 rounded-2xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/15 hover:border-novera-gold/50 transition-all text-left group shadow-sm flex items-center justify-between"
-              >
-                <div className="space-y-1">
-                  <div className="text-xs font-mono uppercase tracking-wider text-novera-gold font-bold">Jury Tabulation</div>
-                  <div className="text-sm font-bold text-white group-hover:text-novera-gold transition-colors">Inspect Jury Scorecards &rarr;</div>
-                  <div className="text-[11px] text-zinc-400">Audit all 6 criteria by judge</div>
-                </div>
-                <Award className="w-8 h-8 text-novera-gold group-hover:scale-110 transition-transform shrink-0" />
-              </button>
-            </div>
           </div>
         </div>
       )}
 
+      {/* ================= VIEW 2: CONFIDENTIAL RESULTS VAULT (TABULATION & ALL MARKS) ================= */}
+      {adminMode === 'vault' && (
+        <div className="space-y-6 animate-in fade-in duration-200">
+          {/* Top Banner with Return to Stage Controller Button */}
+          <div className="p-6 sm:p-8 rounded-3xl bg-black/40 backdrop-blur-2xl border border-white/15 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 shadow-2xl">
+            <div>
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-black/50 backdrop-blur-xl border border-white/20 text-xs uppercase tracking-widest font-bold text-novera-gold mb-2">
+                <Lock className="w-4 h-4 text-novera-gold animate-pulse" />
+                <span>Confidential Results Vault</span>
+              </div>
+              <h1 className="font-serif text-2xl sm:text-4xl font-bold text-white">
+                Central Tabulation &amp; Surveillance
+              </h1>
+              <p className="text-xs sm:text-sm text-zinc-300 mt-1">
+                Official Award Marking Alignment &bull; 6 Titles (Girl &amp; Boy) &bull; Live Telemetry
+              </p>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2.5">
+              {/* Prominent Back to Stage Controller Button */}
+              <button
+                type="button"
+                onClick={() => setAdminMode('stage')}
+                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs font-extrabold uppercase tracking-wider bg-gradient-to-r from-novera-gold to-amber-400 text-black shadow-lg hover:brightness-110 transition-all border border-amber-300"
+              >
+                <span>&larr; Back to Stage Controller</span>
+              </button>
+
+              {/* Privacy Shield Toggle (Hides counts & leaders from backstage bystanders) */}
+              <button
+                type="button"
+                onClick={() => setIsPrivacyMasked(!isPrivacyMasked)}
+                className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-2xl text-xs font-bold uppercase tracking-wider transition-all shadow-sm backdrop-blur-md border ${
+                  isPrivacyMasked
+                    ? 'bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border-amber-500/40 shadow-[0_0_15px_rgba(245,158,11,0.2)]'
+                    : 'bg-zinc-800/80 hover:bg-zinc-700/80 text-zinc-300 border-white/20'
+                }`}
+                title={isPrivacyMasked ? 'Privacy Shield is ACTIVE (Results concealed from bystanders)' : 'Privacy Shield is REVEALED'}
+              >
+                {isPrivacyMasked ? (
+                  <>
+                    <EyeOff className="w-3.5 h-3.5 text-amber-400" />
+                    <span>Privacy Shield</span>
+                  </>
+                ) : (
+                  <>
+                    <Eye className="w-3.5 h-3.5 text-amber-400" />
+                    <span>Revealed</span>
+                  </>
+                )}
+              </button>
+
+              <button
+                onClick={() => window.print()}
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-2xl text-xs font-semibold bg-white/10 hover:bg-white/20 text-white border border-white/15 backdrop-blur-md transition-all shadow-sm"
+                title="Print MC Summary"
+              >
+                <Printer className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Print MC</span>
+              </button>
+              <button
+                onClick={handleLogout}
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-2xl text-xs font-semibold text-zinc-300 bg-white/5 hover:bg-white/10 hover:text-white border border-white/15 backdrop-blur-md transition-colors shadow-sm"
+                title="Sign Out of Master Admin Hub"
+              >
+                <LogOut className="w-3.5 h-3.5 text-zinc-400" />
+                <span>Sign Out</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Vault Tabs Navigation */}
+          <div className="flex justify-center my-2">
+            <div className="grid grid-cols-3 gap-2 p-1.5 rounded-full bg-black/50 backdrop-blur-xl border border-white/15 shadow-inner w-full max-w-2xl">
+              <button
+                onClick={() => setVaultTab('audience')}
+                className={`flex items-center justify-center gap-2 py-3 px-4 rounded-full text-xs sm:text-sm font-bold uppercase tracking-wider whitespace-nowrap transition-all duration-200 ${
+                  vaultTab === 'audience'
+                    ? 'bg-gradient-to-r from-novera-gold to-amber-500 text-black shadow-lg font-extrabold'
+                    : 'text-zinc-400 hover:text-white hover:bg-white/10'
+                }`}
+              >
+                <Vote className={`w-4 h-4 shrink-0 ${vaultTab === 'audience' ? 'text-black' : 'text-novera-gold'}`} />
+                <span>Audience Votes</span>
+              </button>
+
+              <button
+                onClick={() => setVaultTab('judges')}
+                className={`flex items-center justify-center gap-2 py-3 px-4 rounded-full text-xs sm:text-sm font-bold uppercase tracking-wider whitespace-nowrap transition-all duration-200 ${
+                  vaultTab === 'judges'
+                    ? 'bg-gradient-to-r from-novera-gold to-amber-500 text-black shadow-lg font-extrabold'
+                    : 'text-zinc-400 hover:text-white hover:bg-white/10'
+                }`}
+              >
+                <Award className={`w-4 h-4 shrink-0 ${vaultTab === 'judges' ? 'text-black' : 'text-novera-gold'}`} />
+                <span>Jury Scores</span>
+              </button>
+
+              <button
+                onClick={() => setVaultTab('summary')}
+                className={`flex items-center justify-center gap-2 py-3 px-4 rounded-full text-xs sm:text-sm font-bold uppercase tracking-wider whitespace-nowrap transition-all duration-200 ${
+                  vaultTab === 'summary'
+                    ? 'bg-gradient-to-r from-novera-gold to-amber-500 text-black shadow-lg font-extrabold'
+                    : 'text-zinc-400 hover:text-white hover:bg-white/10'
+                }`}
+              >
+                <Trophy className={`w-4 h-4 shrink-0 ${vaultTab === 'summary' ? 'text-black' : 'text-novera-gold'}`} />
+                <span>Final 6 Titles</span>
+              </button>
+            </div>
+          </div>
+
       {/* ================= TAB 1: AUDIENCE VOTES ================= */}
-      {activeTab === 'audience' && (
+      {vaultTab === 'audience' && (
         <div className="space-y-8 animate-in fade-in duration-200">
           {/* Quick Metrics */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
@@ -1114,7 +1110,7 @@ export default function AdminLeaderboardPage() {
       )}
 
       {/* ================= TAB 2: JUDGES' SCORES & AWARDS ================= */}
-      {activeTab === 'judges' && (
+      {vaultTab === 'judges' && (
         <div className="space-y-8 animate-in fade-in duration-200">
           {/* 6 Official Judges Roster & Real-time Evaluation Status */}
           <div className="p-6 rounded-3xl bg-black/40 backdrop-blur-2xl border border-white/15 shadow-xl space-y-4 text-white">
@@ -1474,7 +1470,7 @@ export default function AdminLeaderboardPage() {
       )}
 
       {/* ================= TAB 3: FINAL 6 TITLES SUMMARY ================= */}
-      {activeTab === 'summary' && (
+      {vaultTab === 'summary' && (
         <div className="space-y-8 animate-in fade-in duration-200">
           <div className="text-center max-w-2xl mx-auto space-y-2">
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-novera-gold/20 border border-novera-gold/30 text-xs uppercase tracking-widest font-bold text-novera-gold">
@@ -1656,6 +1652,9 @@ export default function AdminLeaderboardPage() {
           </div>
         </div>
       )}
+        </div>
+      )}
+
       {/* ================= JUDGE SCORECARD AUDIT MODAL ================= */}
       {selectedAuditJudge && (
         <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-2xl flex items-center justify-center p-3 sm:p-6 animate-in fade-in duration-200">
