@@ -354,3 +354,28 @@ input[type='range'].glass-slider::-webkit-slider-thumb:hover {
 .animate-runway-pulse {
   animation: runwayTrackPulse 4s ease-in-out infinite;
 }
+
+/* ================= PRINT STYLES FOR MC ANNOUNCEMENT SUMMARY ================= */
+@media print {
+  body, html {
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+
+  header, footer, nav, canvas, .no-print, button {
+    display: none !important;
+  }
+
+  * {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    text-shadow: none !important;
+    box-shadow: none !important;
+  }
+
+  .print-clean {
+    background: #ffffff !important;
+    color: #000000 !important;
+    border: 1px solid #d1d5db !important;
+  }
+}

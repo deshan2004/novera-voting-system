@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Candidate, VoterStatus } from '@/lib/types';
+import { Candidate, VoterStatus, VotingSettings } from '@/lib/types';
 import {
   fetchCandidates,
   getOrCreateVoterId,
@@ -10,6 +10,7 @@ import {
   subscribeToCandidates,
   syncVoterStatus,
   subscribeToVoterStatus,
+  subscribeToVotingSettings,
 } from '@/lib/api';
 import confetti from 'canvas-confetti';
 import {
@@ -41,6 +42,7 @@ export default function VotePage() {
   // Category view filter (Boys vs Girls)
   const [categoryFilter, setCategoryFilter] = useState<'boy' | 'girl'>('boy');
 
+  const [votingSettings, setVotingSettings] = useState<VotingSettings>({ isVotingOpen: true });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
@@ -120,6 +122,11 @@ export default function VotePage() {
       }
     });
 
+    // Real-time listener for voting open/closed status from admin
+    const unsubscribeSettings = subscribeToVotingSettings((settings) => {
+      setVotingSettings(settings);
+    });
+
     const handleSync = () => {
       syncVoterStatus(voterId).then((refreshed) => {
         setVoterStatus(refreshed);
@@ -136,6 +143,7 @@ export default function VotePage() {
     return () => {
       unsubscribeFirebase();
       unsubscribeVoter();
+      unsubscribeSettings();
       window.removeEventListener('novera_vote_updated', handleSync);
     };
   }, []);
@@ -155,6 +163,10 @@ export default function VotePage() {
   // Vote for Male Model
   const handleVoteBoy = async () => {
     if (!voterStatus || !selectedBoyId) return;
+    if (!votingSettings.isVotingOpen) {
+      setFeedback({ type: 'error', message: 'Voting is currently closed by the organizing committee.' });
+      return;
+    }
     setIsSubmitting(true);
     setFeedback(null);
     const result = await submitVote({
@@ -186,6 +198,10 @@ export default function VotePage() {
   // Vote for Female Model
   const handleVoteGirl = async () => {
     if (!voterStatus || !selectedGirlId) return;
+    if (!votingSettings.isVotingOpen) {
+      setFeedback({ type: 'error', message: 'Voting is currently closed by the organizing committee.' });
+      return;
+    }
     setIsSubmitting(true);
     setFeedback(null);
     const result = await submitVote({
@@ -406,6 +422,19 @@ export default function VotePage() {
       ) : (
         /* FAST TWO-SECTION BALLOT (Single Screen, Compact Chips, No giant photos) */
         <div className="space-y-6">
+          {/* Voting Closed Notice if disabled by Admin */}
+          {!votingSettings.isVotingOpen && (
+            <div className="p-4 rounded-3xl bg-rose-950/40 border border-rose-500/40 text-center space-y-2 backdrop-blur-xl shadow-2xl animate-pulse">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-rose-500/20 text-rose-300 text-xs font-mono uppercase tracking-wider font-bold">
+                <Lock className="w-3.5 h-3.5" />
+                <span>Audience Voting Concluded / Paused</span>
+              </div>
+              <p className="text-xs text-zinc-300 max-w-md mx-auto">
+                Audience voting is currently paused or concluded by the NOVERA &rsquo;26 Central Committee for final tabulation.
+              </p>
+            </div>
+          )}
+
           {/* Category Switch Tabs (Boys vs Girls only - NO All tab) */}
           <div className="flex justify-center">
             <div className="grid grid-cols-2 gap-1.5 w-full max-w-xs p-1.5 rounded-2xl bg-black/50 backdrop-blur-xl border border-white/15 shadow-inner">
@@ -542,9 +571,9 @@ export default function VotePage() {
                   <button
                     type="button"
                     onClick={handleVoteBoy}
-                    disabled={isSubmitting || !selectedBoyId}
+                    disabled={isSubmitting || !selectedBoyId || !votingSettings.isVotingOpen}
                     className={`w-full py-4 rounded-2xl font-bold uppercase tracking-wider text-xs sm:text-sm flex items-center justify-center gap-2 transition-all shadow-xl group relative overflow-hidden ${
-                      selectedBoyId
+                      selectedBoyId && votingSettings.isVotingOpen
                         ? 'bg-gradient-to-r from-[#d4af37] via-[#f3e5ab] to-[#aa7c11] text-[#0a0a0a] hover:brightness-110 font-extrabold shadow-[0_0_25px_rgba(212,175,55,0.4)]'
                         : 'bg-white/5 text-zinc-500 cursor-not-allowed opacity-50 border border-white/10'
                     }`}
@@ -559,7 +588,9 @@ export default function VotePage() {
                       <>
                         <Send className="w-4 h-4" />
                         <span>
-                          {selectedBoy
+                          {!votingSettings.isVotingOpen
+                            ? 'Voting Currently Closed · Locked'
+                            : selectedBoy
                             ? `Submit Vote for ${selectedBoy.name} (${selectedBoy.candidateNumber})`
                             : 'Select a Male Model to Vote'}
                         </span>
@@ -680,9 +711,9 @@ export default function VotePage() {
                   <button
                     type="button"
                     onClick={handleVoteGirl}
-                    disabled={isSubmitting || !selectedGirlId}
+                    disabled={isSubmitting || !selectedGirlId || !votingSettings.isVotingOpen}
                     className={`w-full py-4 rounded-2xl font-bold uppercase tracking-wider text-xs sm:text-sm flex items-center justify-center gap-2 transition-all shadow-xl group relative overflow-hidden ${
-                      selectedGirlId
+                      selectedGirlId && votingSettings.isVotingOpen
                         ? 'bg-gradient-to-r from-[#d4af37] via-[#f3e5ab] to-[#aa7c11] text-[#0a0a0a] hover:brightness-110 font-extrabold shadow-[0_0_25px_rgba(212,175,55,0.4)]'
                         : 'bg-white/5 text-zinc-500 cursor-not-allowed opacity-50 border border-white/10'
                     }`}
@@ -697,7 +728,9 @@ export default function VotePage() {
                       <>
                         <Send className="w-4 h-4" />
                         <span>
-                          {selectedGirl
+                          {!votingSettings.isVotingOpen
+                            ? 'Voting Currently Closed · Locked'
+                            : selectedGirl
                             ? `Submit Vote for ${selectedGirl.name} (${selectedGirl.candidateNumber})`
                             : 'Select a Female Model to Vote'}
                         </span>

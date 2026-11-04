@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
-import { Candidate, JudgeScore } from '@/lib/types';
+import { Candidate, JudgeScore, VotingSettings } from '@/lib/types';
 import {
   fetchCandidates,
   resetAllVotes,
@@ -9,6 +9,8 @@ import {
   subscribeToCandidates,
   subscribeToJudgeScores,
   resetAllJudgeScores,
+  subscribeToVotingSettings,
+  saveVotingSettings,
 } from '@/lib/api';
 import {
   BarChart,
@@ -133,6 +135,8 @@ export default function AdminLeaderboardPage() {
   const [judgeScores, setJudgeScores] = useState<JudgeScore[]>([]);
   const [isResetting, setIsResetting] = useState<boolean>(false);
   const [chartCategory, setChartCategory] = useState<'both' | 'boy' | 'girl'>('both');
+  const [votingSettings, setVotingSettings] = useState<VotingSettings>({ isVotingOpen: true });
+  const [isUpdatingVotingStatus, setIsUpdatingVotingStatus] = useState<boolean>(false);
 
   const loadData = () => {
     fetchCandidates().then((list) => {
@@ -156,6 +160,10 @@ export default function AdminLeaderboardPage() {
       setJudgeScores(scores);
     });
 
+    const unsubscribeVotingSettings = subscribeToVotingSettings((settings) => {
+      setVotingSettings(settings);
+    });
+
     const interval = setInterval(loadData, 3000);
     const handleVoteSync = () => loadData();
     window.addEventListener('novera_vote_updated', handleVoteSync);
@@ -163,10 +171,26 @@ export default function AdminLeaderboardPage() {
     return () => {
       unsubscribeCandidates();
       unsubscribeJudgeScores();
+      unsubscribeVotingSettings();
       clearInterval(interval);
       window.removeEventListener('novera_vote_updated', handleVoteSync);
     };
   }, []);
+
+  const toggleVotingStatus = async () => {
+    const nextStatus = !votingSettings.isVotingOpen;
+    setIsUpdatingVotingStatus(true);
+    try {
+      await saveVotingSettings({
+        isVotingOpen: nextStatus,
+        announcement: nextStatus
+          ? 'Audience voting is LIVE!'
+          : 'Audience voting is currently PAUSED / CONCLUDED by the Central Committee.',
+      });
+    } finally {
+      setIsUpdatingVotingStatus(false);
+    }
+  };
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
@@ -468,11 +492,13 @@ export default function AdminLeaderboardPage() {
   const leadingGirlForAward = rankedGirlsForAward[0];
 
   return (
-    <div className="min-h-screen relative bg-[#070605] text-white overflow-x-hidden">
+    <div className="min-h-screen relative bg-[#070605] text-white overflow-x-hidden print:bg-white print:text-black print:min-h-0">
       {/* Haute Couture Fashion Runway Stage Animation */}
-      <RunwayStageBackground />
+      <div className="print:hidden">
+        <RunwayStageBackground />
+      </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10 space-y-8 relative z-10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10 space-y-8 relative z-10 print:hidden">
       {/* Top Banner & Navigation */}
       <div className="p-6 sm:p-8 rounded-3xl bg-black/40 backdrop-blur-2xl border border-white/15 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 shadow-2xl">
         <div>
@@ -489,6 +515,22 @@ export default function AdminLeaderboardPage() {
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
+          {/* Live Voting Toggle Switch */}
+          <button
+            type="button"
+            onClick={toggleVotingStatus}
+            disabled={isUpdatingVotingStatus}
+            className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs font-bold uppercase tracking-wider transition-all shadow-md backdrop-blur-md border ${
+              votingSettings.isVotingOpen
+                ? 'bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border-emerald-500/40 shadow-[0_0_20px_rgba(16,185,129,0.3)]'
+                : 'bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border-rose-500/40 shadow-[0_0_20px_rgba(239,68,68,0.3)]'
+            }`}
+            title="Click to toggle live audience voting on or off"
+          >
+            <span className={`w-2.5 h-2.5 rounded-full ${votingSettings.isVotingOpen ? 'bg-emerald-400 animate-ping' : 'bg-rose-400'}`} />
+            <span>{votingSettings.isVotingOpen ? 'Audience Voting: OPEN' : 'Audience Voting: CLOSED'}</span>
+          </button>
+
           <button
             onClick={() => window.print()}
             className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-2xl text-xs font-semibold bg-white/10 hover:bg-white/20 text-white border border-white/15 backdrop-blur-md transition-all shadow-sm"
@@ -1438,6 +1480,71 @@ export default function AdminLeaderboardPage() {
           </div>
         </div>
       )}
+      </div>
+
+      {/* ================= DEDICATED PRINT-ONLY MC ANNOUNCEMENT CUE SHEET ================= */}
+      <div className="hidden print:block p-8 bg-white text-black font-sans space-y-6">
+        <div className="border-b-2 border-black pb-4 text-center space-y-1">
+          <div className="text-xs uppercase tracking-widest font-bold text-gray-600">
+            AIESEC in CINEC Presents
+          </div>
+          <h1 className="text-3xl font-serif font-extrabold uppercase tracking-tight">
+            NOVERA &rsquo;26 &bull; OFFICIAL AWARDS CUE SHEET
+          </h1>
+          <p className="text-xs text-gray-500 font-mono">
+            Certified by Central Tabulation &bull; Live Telemetry Ledger &bull; {new Date().toLocaleDateString()}
+          </p>
+        </div>
+
+        <div className="space-y-4">
+          {AWARD_DEFINITIONS.map((award, idx) => {
+            const rankedBoys = getRankedStats('boy', award.key);
+            const rankedGirls = getRankedStats('girl', award.key);
+            const winnerBoy = rankedBoys[0];
+            const winnerGirl = rankedGirls[0];
+            const boyScore = winnerBoy ? getScoreValueForAward(winnerBoy, award.key).score : 0;
+            const girlScore = winnerGirl ? getScoreValueForAward(winnerGirl, award.key).score : 0;
+
+            return (
+              <div key={award.key} className="border border-gray-400 rounded-lg p-4 space-y-2 break-inside-avoid">
+                <div className="flex justify-between items-center border-b border-gray-300 pb-2">
+                  <div>
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-gray-600">
+                      Title #{idx + 1}
+                    </span>
+                    <h2 className="text-lg font-bold uppercase">{award.title}</h2>
+                  </div>
+                  <span className="text-xs font-mono font-bold bg-gray-100 px-2.5 py-1 rounded border border-gray-300">
+                    {award.source === 'jury' ? `Max Score: ${award.maxScore}` : 'Public Votes'}
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4 pt-1">
+                  <div className="p-3 bg-gray-50 rounded border border-gray-200">
+                    <span className="text-[10px] font-bold uppercase text-gray-600 block">Male Winner (Boy)</span>
+                    <div className="text-base font-bold">{winnerBoy?.candidate.name || 'To Be Announced'}</div>
+                    <div className="text-xs text-gray-600 font-mono">
+                      Candidate No: {winnerBoy?.candidate.candidateNumber || 'N/A'} &bull; Final Score: {boyScore}
+                    </div>
+                  </div>
+
+                  <div className="p-3 bg-gray-50 rounded border border-gray-200">
+                    <span className="text-[10px] font-bold uppercase text-gray-600 block">Female Winner (Girl)</span>
+                    <div className="text-base font-bold">{winnerGirl?.candidate.name || 'To Be Announced'}</div>
+                    <div className="text-xs text-gray-600 font-mono">
+                      Candidate No: {winnerGirl?.candidate.candidateNumber || 'N/A'} &bull; Final Score: {girlScore}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        <div className="border-t-2 border-black pt-6 flex justify-between text-xs text-gray-700 font-mono">
+          <div>Official Seal: AIESEC in CINEC</div>
+          <div>Organizing Committee Sign-off: _______________________</div>
+        </div>
       </div>
     </div>
   );

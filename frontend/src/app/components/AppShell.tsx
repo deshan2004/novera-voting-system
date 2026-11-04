@@ -7,7 +7,8 @@ import { Vote, ShieldCheck, Sparkles, Lock } from 'lucide-react';
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const isStageMode = pathname === '/qr';
-  const isDarkTheme = pathname.startsWith('/judge') || pathname.startsWith('/admin') || pathname.startsWith('/vote');
+  // All pages across NOVERA '26 now share the dark luxury runway stage glass theme
+  const isDarkTheme = true;
 
   // If on /qr (Stage Screen), hide the website navigation header, top marquee, and footer!
   if (isStageMode) {

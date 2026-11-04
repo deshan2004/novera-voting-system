@@ -18,6 +18,12 @@ export interface VoteSubmission {
   timestamp?: number;
 }
 
+export interface VotingSettings {
+  isVotingOpen: boolean;
+  announcement?: string;
+  updatedAt?: number;
+}
+
 export interface VoterStatus {
   voterId: string;
   hasVotedBoy: boolean;

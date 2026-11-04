@@ -1,4 +1,4 @@
-import { Candidate, VoterStatus, VoteSubmission, JudgeScore } from './types';
+import { Candidate, VoterStatus, VoteSubmission, JudgeScore, VotingSettings } from './types';
 import { INITIAL_CANDIDATES } from './candidates-data';
 import { db, isFirebaseConfigured } from './firebase';
 import {
@@ -18,20 +18,126 @@ const STORAGE_KEY_VOTER_ID = 'novera_voter_uuid';
 const STORAGE_KEY_CANDIDATES = 'novera_candidates_cache';
 const STORAGE_KEY_VOTER_STATUS = 'novera_voter_status';
 const STORAGE_KEY_JUDGE_SCORES = 'novera_judge_scores';
+const STORAGE_KEY_VOTING_SETTINGS = 'novera_voting_settings';
 
 const SPRING_BOOT_API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api';
 
 /**
- * Returns or generates a unique persistent voter ID for this device/browser
+ * Returns or generates a resilient device voter identifier using hardware/browser entropy + persistent cookie backup
  */
 export function getOrCreateVoterId(): string {
   if (typeof window === 'undefined') return 'server-voter-id';
-  let voterId = localStorage.getItem(STORAGE_KEY_VOTER_ID);
+
+  // Check cookie backup
+  const cookieMatch = document.cookie.match(/novera_vid=([^;]+)/);
+  let voterId = localStorage.getItem(STORAGE_KEY_VOTER_ID) || (cookieMatch ? cookieMatch[1] : null);
+
   if (!voterId) {
-    voterId = 'voter_' + Math.random().toString(36).substring(2, 9) + '_' + Date.now().toString(36);
-    localStorage.setItem(STORAGE_KEY_VOTER_ID, voterId);
+    const screenInfo = `${window.screen.width}x${window.screen.height}_${window.screen.colorDepth}`;
+    const lang = navigator.language || 'en';
+    const cores = navigator.hardwareConcurrency || 4;
+    const entropy = `${screenInfo}_${lang}_${cores}_${Date.now().toString(36)}_${Math.random().toString(36).substring(2, 9)}`;
+    voterId = 'voter_' + entropy.replace(/[^a-zA-Z0-9_]/g, '');
   }
+
+  try {
+    localStorage.setItem(STORAGE_KEY_VOTER_ID, voterId);
+    // Persist 30-day cookie to deter simple incognito/session wipe bypass
+    document.cookie = `novera_vid=${voterId}; max-age=${30 * 24 * 60 * 60}; path=/; SameSite=Lax`;
+  } catch (e) {}
+
   return voterId;
+}
+
+/**
+ * Get voting open/close configuration
+ */
+export function getLocalVotingSettings(): VotingSettings {
+  if (typeof window === 'undefined') return { isVotingOpen: true };
+  const raw = localStorage.getItem(STORAGE_KEY_VOTING_SETTINGS);
+  if (raw) {
+    try {
+      return JSON.parse(raw);
+    } catch (e) {}
+  }
+  return { isVotingOpen: true };
+}
+
+export function saveLocalVotingSettings(settings: VotingSettings): void {
+  if (typeof window === 'undefined') return;
+  localStorage.setItem(STORAGE_KEY_VOTING_SETTINGS, JSON.stringify(settings));
+}
+
+export async function fetchVotingSettings(): Promise<VotingSettings> {
+  if (isFirebaseConfigured() && db) {
+    try {
+      const docRef = doc(db, 'settings', 'voting');
+      const snap = await getDoc(docRef);
+      if (snap.exists()) {
+        const data = snap.data() as VotingSettings;
+        saveLocalVotingSettings(data);
+        return data;
+      }
+    } catch (err) {
+      console.warn('Firebase voting settings fetch warning:', err);
+    }
+  }
+  return getLocalVotingSettings();
+}
+
+export async function saveVotingSettings(settings: VotingSettings): Promise<void> {
+  saveLocalVotingSettings(settings);
+
+  if (isFirebaseConfigured() && db) {
+    try {
+      const docRef = doc(db, 'settings', 'voting');
+      await setDoc(docRef, { ...settings, updatedAt: Date.now() }, { merge: true });
+    } catch (err) {
+      console.warn('Firebase voting settings save warning:', err);
+    }
+  }
+
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent('novera_voting_settings_updated', { detail: settings }));
+  }
+}
+
+export function subscribeToVotingSettings(callback: (settings: VotingSettings) => void): () => void {
+  if (!isFirebaseConfigured() || !db) {
+    callback(getLocalVotingSettings());
+    const handler = (e: any) => {
+      callback(e.detail || getLocalVotingSettings());
+    };
+    if (typeof window !== 'undefined') {
+      window.addEventListener('novera_voting_settings_updated', handler);
+      return () => window.removeEventListener('novera_voting_settings_updated', handler);
+    }
+    return () => {};
+  }
+
+  try {
+    const docRef = doc(db, 'settings', 'voting');
+    const unsubscribe = onSnapshot(
+      docRef,
+      (snap) => {
+        if (snap.exists()) {
+          const data = snap.data() as VotingSettings;
+          saveLocalVotingSettings(data);
+          callback(data);
+        } else {
+          callback(getLocalVotingSettings());
+        }
+      },
+      (error) => {
+        console.warn('Firestore voting settings onSnapshot error:', error);
+        callback(getLocalVotingSettings());
+      }
+    );
+    return unsubscribe;
+  } catch (e) {
+    callback(getLocalVotingSettings());
+    return () => {};
+  }
 }
 
 /**
