@@ -2,12 +2,13 @@
 
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
-import { Vote, ShieldCheck, Sparkles, Lock } from 'lucide-react';
+import { Vote, ShieldCheck, Sparkles, Lock, QrCode } from 'lucide-react';
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const isStageMode = pathname === '/qr';
   const isJudgeMode = pathname === '/judge';
+  const isAdminMode = pathname === '/admin';
   // All pages across NOVERA '26 now share the dark luxury runway stage glass theme
   const isDarkTheme = true;
 
@@ -64,13 +65,23 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           </Link>
 
           <nav className="flex items-center gap-2 sm:gap-3">
-            <Link
-              href="/vote"
-              className="flex items-center gap-1.5 px-3.5 py-2 sm:px-5 sm:py-2.5 rounded-full text-xs sm:text-sm font-semibold tracking-wider uppercase bg-novera-foil text-novera-paper hover:bg-novera-ink transition-all shadow-sm"
-            >
-              <Vote className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-              <span>Cast Vote</span>
-            </Link>
+            {isAdminMode ? (
+              <Link
+                href="/qr"
+                className="flex items-center gap-1.5 px-4 py-2 sm:px-5 sm:py-2.5 rounded-full text-xs sm:text-sm font-bold tracking-wider uppercase bg-white/10 hover:bg-white/20 text-white border border-white/20 hover:border-novera-gold/50 transition-all shadow-sm"
+              >
+                <QrCode className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-novera-gold" />
+                <span>Stage QR Screen</span>
+              </Link>
+            ) : (
+              <Link
+                href="/vote"
+                className="flex items-center gap-1.5 px-3.5 py-2 sm:px-5 sm:py-2.5 rounded-full text-xs sm:text-sm font-semibold tracking-wider uppercase bg-novera-foil text-novera-paper hover:bg-novera-ink transition-all shadow-sm"
+              >
+                <Vote className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                <span>Cast Vote</span>
+              </Link>
+            )}
           </nav>
         </div>
       </header>
