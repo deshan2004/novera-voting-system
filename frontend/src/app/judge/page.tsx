@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Candidate, GenderCategory, JudgeScore } from '@/lib/types';
 import { fetchCandidates, saveJudgeScore, getLocalJudgeScores, subscribeToJudgeScores } from '@/lib/api';
 import Image from 'next/image';
@@ -24,6 +24,7 @@ import {
   CheckCheck,
   Compass,
   X,
+  Search,
 } from 'lucide-react';
 import RunwayStageBackground from '@/app/components/RunwayStageBackground';
 
@@ -45,6 +46,8 @@ export default function JudgePortalPage() {
   const [candidates, setCandidates] = useState<Candidate[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<GenderCategory>('boy');
   const [judgeScores, setJudgeScores] = useState<JudgeScore[]>([]);
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [scoreFilter, setScoreFilter] = useState<'all' | 'unscored' | 'scored'>('all');
 
   // Active scoring candidate
   const [scoringCandidate, setScoringCandidate] = useState<Candidate | null>(null);
@@ -239,12 +242,67 @@ export default function JudgePortalPage() {
     }, 3800);
   };
 
-  const currentCategoryCandidates = candidates.filter((c) => c.category === selectedCategory);
+  const currentCategoryCandidates = useMemo(
+    () => candidates.filter((c) => c.category === selectedCategory),
+    [candidates, selectedCategory]
+  );
+
   const getScoreForCandidate = (candidateId: string) => {
     return judgeScores.find((s) => s.judgeId === selectedJudgeId && s.candidateId === candidateId);
   };
+
   const scoredCount = currentCategoryCandidates.filter((c) => !!getScoreForCandidate(c.id)).length;
   const progressPercent = currentCategoryCandidates.length > 0 ? Math.round((scoredCount / currentCategoryCandidates.length) * 100) : 0;
+
+  const filteredCandidates = useMemo(() => {
+    return currentCategoryCandidates.filter((c) => {
+      const isScored = !!getScoreForCandidate(c.id);
+      if (scoreFilter === 'unscored' && isScored) return false;
+      if (scoreFilter === 'scored' && !isScored) return false;
+
+      if (!searchQuery.trim()) return true;
+      const q = searchQuery.toLowerCase().trim();
+      const numClean = c.candidateNumber ? c.candidateNumber.toLowerCase() : '';
+      const nameClean = c.name.toLowerCase();
+      return numClean.includes(q) || nameClean.includes(q);
+    });
+  }, [currentCategoryCandidates, scoreFilter, searchQuery, judgeScores, selectedJudgeId]);
+
+  const applyPresetProfile = (tier: 'outstanding' | 'excellent' | 'veryGood' | 'fair') => {
+    if (tier === 'outstanding') {
+      // 94 Total
+      setWalking(19);
+      setConfidence(19);
+      setStage(19);
+      setPosture(14);
+      setPoses(14);
+      setFace(9);
+    } else if (tier === 'excellent') {
+      // 84 Total
+      setWalking(17);
+      setConfidence(17);
+      setStage(17);
+      setPosture(13);
+      setPoses(13);
+      setFace(7);
+    } else if (tier === 'veryGood') {
+      // 74 Total
+      setWalking(15);
+      setConfidence(15);
+      setStage(15);
+      setPosture(11);
+      setPoses(11);
+      setFace(7);
+    } else if (tier === 'fair') {
+      // 60 Total
+      setWalking(12);
+      setConfidence(12);
+      setStage(12);
+      setPosture(9);
+      setPoses(9);
+      setFace(6);
+    }
+  };
 
   if (!isAuthenticated) {
     return (
@@ -429,103 +487,206 @@ export default function JudgePortalPage() {
         </div>
       </div>
 
-      {/* 📸 CANDIDATE GRID WITH FROSTED GLASS CARDS & HOVER EFFECTS */}
-      <div key={selectedCategory} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
-        {currentCategoryCandidates.map((candidate) => {
-          const score = getScoreForCandidate(candidate.id);
-          const isScored = !!score;
+      {/* 🔍 QUICK SEARCH & RUNWAY CANDIDATE QUICK-JUMP BAR */}
+      <div className="bg-black/40 backdrop-blur-xl border border-white/15 rounded-3xl p-3 sm:p-4 space-y-3">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+          {/* Search Input */}
+          <div className="relative flex-1">
+            <Search className="w-4 h-4 text-zinc-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Quick search by candidate # (e.g. 01) or model name..."
+              className="w-full pl-10 pr-9 py-2.5 rounded-2xl bg-white/5 border border-white/15 text-xs sm:text-sm text-white placeholder-zinc-500 outline-none focus:border-novera-gold focus:bg-white/10 transition-all font-mono"
+            />
+            {searchQuery && (
+              <button
+                type="button"
+                onClick={() => setSearchQuery('')}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-white"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            )}
+          </div>
 
-          return (
-            <div
-              key={candidate.id}
-              className={`group rounded-3xl p-5 flex flex-col justify-between transition-all duration-300 hover:-translate-y-2 ${
-                isScored
-                  ? 'bg-emerald-950/20 backdrop-blur-xl border border-emerald-500/40 shadow-[0_0_25px_rgba(16,185,129,0.15)] text-white'
-                  : 'bg-black/40 backdrop-blur-xl border border-white/15 hover:border-novera-gold/60 hover:shadow-2xl text-white'
+          {/* Filter Chips: All / Unscored / Scored */}
+          <div className="flex items-center gap-1.5 shrink-0 bg-white/5 p-1 rounded-2xl border border-white/10">
+            <button
+              type="button"
+              onClick={() => setScoreFilter('all')}
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                scoreFilter === 'all'
+                  ? 'bg-novera-gold text-black shadow-sm'
+                  : 'text-zinc-400 hover:text-white'
               }`}
             >
-              <div>
-                {/* Image Card with Glass Badges and Hover Zoom */}
-                <div className="relative aspect-[3/4] w-full rounded-2xl overflow-hidden mb-4 bg-black/40 shadow-inner">
-                  <Image
-                    src={candidate.imageUrl}
-                    alt={candidate.name}
-                    fill
-                    className="object-cover group-hover:scale-108 transition-transform duration-700 ease-out"
-                    sizes="(max-width: 768px) 100vw, 25vw"
-                  />
+              All ({currentCategoryCandidates.length})
+            </button>
+            <button
+              type="button"
+              onClick={() => setScoreFilter('unscored')}
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                scoreFilter === 'unscored'
+                  ? 'bg-amber-400 text-black shadow-sm'
+                  : 'text-zinc-400 hover:text-white'
+              }`}
+            >
+              Pending ({currentCategoryCandidates.length - scoredCount})
+            </button>
+            <button
+              type="button"
+              onClick={() => setScoreFilter('scored')}
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                scoreFilter === 'scored'
+                  ? 'bg-emerald-500 text-black shadow-sm'
+                  : 'text-zinc-400 hover:text-white'
+              }`}
+            >
+              Scored ({scoredCount})
+            </button>
+          </div>
+        </div>
 
-                  {/* Dark Vignette Overlay on Bottom */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/30 pointer-events-none" />
-
-                  {/* Candidate No Glass Badge */}
-                  <div className="absolute top-3 left-3 px-3 py-1 rounded-xl bg-black/60 border border-white/20 backdrop-blur-md text-white font-mono text-xs font-bold tracking-wider shadow-md">
-                    {candidate.candidateNumber}
-                  </div>
-
-                  {/* Scored Status Glass Badge */}
-                  {isScored && (
-                    <div className="absolute top-3 right-3 px-2.5 py-1 rounded-xl bg-emerald-600/90 text-white text-[10px] font-bold flex items-center gap-1 shadow-lg backdrop-blur-md border border-emerald-300/40 animate-in zoom-in-75 duration-200">
-                      <CheckCheck className="w-3.5 h-3.5 text-emerald-200" />
-                      <span>{score.totalModel}/100</span>
-                    </div>
-                  )}
-
-                  {/* Name Overlay on Photo */}
-                  <div className="absolute bottom-3 left-3 right-3">
-                    <h3 className="font-serif text-lg font-bold text-white drop-shadow-md truncate">
-                      {candidate.name}
-                    </h3>
-                  </div>
-                </div>
-
-                <p className="text-xs text-zinc-300 line-clamp-2 mb-4 font-normal">
-                  {candidate.bio || 'Official Runway Contender representing elegance, poise, and personality.'}
-                </p>
-
-                {/* Score Summary Box with Frosted Emerald Glass */}
-                {isScored && (
-                  <div className="p-3.5 rounded-2xl bg-emerald-950/40 border border-emerald-500/30 text-[11px] space-y-1.5 mb-4 shadow-sm text-white">
-                    <div className="flex justify-between text-emerald-300 font-bold">
-                      <span className="flex items-center gap-1">
-                        <Crown className="w-3 h-3 text-emerald-400" />
-                        <span>Top Model:</span>
-                      </span>
-                      <span className="font-mono text-emerald-200">{score.totalModel}/100</span>
-                    </div>
-                    <div className="flex justify-between text-zinc-300">
-                      <span>Best Personality:</span>
-                      <span className="font-mono text-white">{score.personalityScore}/50</span>
-                    </div>
-                    <div className="flex justify-between text-zinc-300">
-                      <span>Stage Presence:</span>
-                      <span className="font-mono text-white">{score.stagePresenceScore}/30</span>
-                    </div>
-                    <div className="flex justify-between text-zinc-300">
-                      <span>Most Photogenic:</span>
-                      <span className="font-mono text-white">{score.photogenicScore}/40</span>
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* Action Button with Specular Shine */}
+        {/* ⚡ Quick Runway Number Ribbon (Click any number to immediately open scoring for that model) */}
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 pt-1 scrollbar-thin">
+          <span className="text-[10px] font-mono uppercase tracking-wider text-novera-gold font-bold shrink-0 mr-1 flex items-center gap-1">
+            <Zap className="w-3.5 h-3.5 text-novera-gold" />
+            <span>Ramp Jumper:</span>
+          </span>
+          {currentCategoryCandidates.map((candidate) => {
+            const isScored = !!getScoreForCandidate(candidate.id);
+            return (
               <button
+                key={candidate.id}
+                type="button"
                 onClick={() => openScoringModal(candidate)}
-                className={`w-full py-3 rounded-2xl text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-all relative overflow-hidden group/btn shadow-md ${
+                className={`px-2.5 py-1 rounded-xl text-xs font-mono font-bold shrink-0 transition-all border ${
                   isScored
-                    ? 'bg-white/10 hover:bg-white/20 text-white border border-white/20 backdrop-blur-md'
-                    : 'bg-gradient-to-r from-[#d4af37] via-[#f3e5ab] to-[#aa7c11] text-black font-extrabold hover:brightness-110 shadow-lg'
+                    ? 'bg-emerald-950/60 border-emerald-500/50 text-emerald-300 hover:border-emerald-400 shadow-sm'
+                    : 'bg-white/5 border-white/15 text-zinc-200 hover:bg-novera-gold hover:text-black hover:border-novera-gold'
+                }`}
+                title={`Open scorecard for #${candidate.candidateNumber} ${candidate.name}`}
+              >
+                {candidate.candidateNumber}
+                {isScored && ' ✓'}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* 📸 CANDIDATE GRID WITH FROSTED GLASS CARDS & HOVER EFFECTS */}
+      {filteredCandidates.length === 0 ? (
+        <div className="text-center py-12 bg-black/40 rounded-3xl border border-white/10 p-6 space-y-2">
+          <p className="text-zinc-300 text-sm">No models found matching &ldquo;{searchQuery}&rdquo;</p>
+          <button
+            type="button"
+            onClick={() => { setSearchQuery(''); setScoreFilter('all'); }}
+            className="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-xs font-bold text-novera-gold border border-novera-gold/30"
+          >
+            Clear Search &amp; Show All Models
+          </button>
+        </div>
+      ) : (
+        <div key={`${selectedCategory}_${scoreFilter}`} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
+          {filteredCandidates.map((candidate) => {
+            const score = getScoreForCandidate(candidate.id);
+            const isScored = !!score;
+
+            return (
+              <div
+                key={candidate.id}
+                className={`group rounded-3xl p-5 flex flex-col justify-between transition-all duration-300 hover:-translate-y-2 ${
+                  isScored
+                    ? 'bg-emerald-950/20 backdrop-blur-xl border border-emerald-500/40 shadow-[0_0_25px_rgba(16,185,129,0.15)] text-white'
+                    : 'bg-black/40 backdrop-blur-xl border border-white/15 hover:border-novera-gold/60 hover:shadow-2xl text-white'
                 }`}
               >
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover/btn:translate-x-full transition-transform duration-700 pointer-events-none" />
-                <Sliders className="w-3.5 h-3.5 group-hover/btn:rotate-45 transition-transform" />
-                <span>{isScored ? 'Update Marks' : 'Evaluate & Score'}</span>
-              </button>
-            </div>
-          );
-        })}
-      </div>
+                <div>
+                  {/* Image Card with Glass Badges and Hover Zoom */}
+                  <div className="relative aspect-[3/4] w-full rounded-2xl overflow-hidden mb-4 bg-black/40 shadow-inner">
+                    <Image
+                      src={candidate.imageUrl}
+                      alt={candidate.name}
+                      fill
+                      className="object-cover group-hover:scale-108 transition-transform duration-700 ease-out"
+                      sizes="(max-width: 768px) 100vw, 25vw"
+                    />
+
+                    {/* Dark Vignette Overlay on Bottom */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/30 pointer-events-none" />
+
+                    {/* Candidate No Glass Badge */}
+                    <div className="absolute top-3 left-3 px-3 py-1.5 rounded-xl bg-black/75 border-2 border-novera-gold/60 backdrop-blur-md text-novera-gold font-mono text-sm font-extrabold tracking-wider shadow-lg">
+                      {candidate.candidateNumber}
+                    </div>
+
+                    {/* Scored Status Glass Badge */}
+                    {isScored && (
+                      <div className="absolute top-3 right-3 px-2.5 py-1 rounded-xl bg-emerald-600/90 text-white text-[10px] font-bold flex items-center gap-1 shadow-lg backdrop-blur-md border border-emerald-300/40 animate-in zoom-in-75 duration-200">
+                        <CheckCheck className="w-3.5 h-3.5 text-emerald-200" />
+                        <span>{score.totalModel}/100</span>
+                      </div>
+                    )}
+
+                    {/* Name Overlay on Photo */}
+                    <div className="absolute bottom-3 left-3 right-3">
+                      <h3 className="font-serif text-lg font-bold text-white drop-shadow-md truncate">
+                        {candidate.name}
+                      </h3>
+                    </div>
+                  </div>
+
+                  <p className="text-xs text-zinc-300 line-clamp-2 mb-4 font-normal">
+                    {candidate.bio || 'Official Runway Contender representing elegance, poise, and personality.'}
+                  </p>
+
+                  {/* Score Summary Box with Frosted Emerald Glass */}
+                  {isScored && (
+                    <div className="p-3.5 rounded-2xl bg-emerald-950/40 border border-emerald-500/30 text-[11px] space-y-1.5 mb-4 shadow-sm text-white">
+                      <div className="flex justify-between text-emerald-300 font-bold">
+                        <span className="flex items-center gap-1">
+                          <Crown className="w-3 h-3 text-emerald-400" />
+                          <span>Top Model:</span>
+                        </span>
+                        <span className="font-mono text-emerald-200">{score.totalModel}/100</span>
+                      </div>
+                      <div className="flex justify-between text-zinc-300">
+                        <span>Best Personality:</span>
+                        <span className="font-mono text-white">{score.personalityScore}/50</span>
+                      </div>
+                      <div className="flex justify-between text-zinc-300">
+                        <span>Stage Presence:</span>
+                        <span className="font-mono text-white">{score.stagePresenceScore}/30</span>
+                      </div>
+                      <div className="flex justify-between text-zinc-300">
+                        <span>Most Photogenic:</span>
+                        <span className="font-mono text-white">{score.photogenicScore}/40</span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Action Button with Specular Shine */}
+                <button
+                  onClick={() => openScoringModal(candidate)}
+                  className={`w-full py-3 rounded-2xl text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-all relative overflow-hidden group/btn shadow-md ${
+                    isScored
+                      ? 'bg-white/10 hover:bg-white/20 text-white border border-white/20 backdrop-blur-md'
+                      : 'bg-gradient-to-r from-[#d4af37] via-[#f3e5ab] to-[#aa7c11] text-black font-extrabold hover:brightness-110 shadow-lg'
+                  }`}
+                >
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover/btn:translate-x-full transition-transform duration-700 pointer-events-none" />
+                  <Sliders className="w-3.5 h-3.5 group-hover/btn:rotate-45 transition-transform" />
+                  <span>{isScored ? 'Update Marks' : 'Evaluate & Score'}</span>
+                </button>
+              </div>
+            );
+          })}
+        </div>
+      )}
 
       {/* 🚀 ULTRA-MODERN GLASS SCORING MODAL DRAWER */}
       {scoringCandidate && (() => {
@@ -618,20 +779,17 @@ export default function JudgePortalPage() {
 
         return (
           <div
-            className="fixed inset-0 z-[100] bg-black/90 backdrop-blur-2xl flex flex-col justify-end sm:justify-center items-center p-0 sm:p-4 pt-14 sm:pt-4 overflow-hidden animate-in fade-in duration-200"
+            className="fixed inset-0 z-[100] bg-black/90 backdrop-blur-2xl flex items-center justify-center p-2 sm:p-4 overflow-y-auto animate-in fade-in duration-200"
             onClick={() => setScoringCandidate(null)}
           >
             <div
-              className="max-w-xl w-full bg-[#0c0a08] rounded-t-3xl sm:rounded-3xl border border-white/20 shadow-[0_25px_80px_rgba(0,0,0,0.95)] relative animate-in slide-in-from-bottom-8 duration-200 h-[84dvh] max-h-[84dvh] sm:h-auto sm:max-h-[88vh] flex flex-col overflow-hidden text-white"
+              className="max-w-xl w-full bg-[#0d0b09] rounded-3xl border border-novera-gold/40 shadow-[0_0_80px_rgba(0,0,0,0.95)] relative animate-in zoom-in-95 duration-200 max-h-[92vh] sm:max-h-[90vh] flex flex-col overflow-hidden text-white"
               onClick={(e) => e.stopPropagation()}
             >
-              {/* Mobile Drawer Grab Bar Indicator */}
-              <div className="w-12 h-1 rounded-full bg-white/25 mx-auto mt-2.5 mb-1 sm:hidden shrink-0" />
-
-              {/* 📌 PERMANENT HEADER (NEVER SCROLLS OUT OF VIEW) */}
-              <div className="bg-[#120f0c] border-b border-white/15 px-4 sm:px-6 py-3 sm:py-3.5 flex items-center justify-between shrink-0 shadow-lg">
+              {/* 📌 PERMANENT HEADER (NEVER SCROLLS OUT OF VIEW - 100% VISIBLE WITH SAFE PADDING) */}
+              <div className="bg-[#14110d] border-b border-white/15 px-4 sm:px-6 py-3.5 flex items-center justify-between shrink-0 shadow-md">
                 <div className="flex items-center gap-3 min-w-0">
-                  <div className="relative w-11 h-11 sm:w-12 sm:h-12 rounded-2xl overflow-hidden shrink-0 shadow-md border border-novera-gold/40">
+                  <div className="relative w-12 h-12 rounded-2xl overflow-hidden shrink-0 shadow-md border-2 border-novera-gold/60">
                     <Image
                       src={scoringCandidate.imageUrl}
                       alt={scoringCandidate.name}
@@ -640,10 +798,10 @@ export default function JudgePortalPage() {
                     />
                   </div>
                   <div className="min-w-0">
-                    <div className="text-[10px] font-mono uppercase tracking-widest text-novera-gold font-bold truncate">
-                      {scoringCandidate.candidateNumber} &bull; {scoringCandidate.category === 'boy' ? 'Male Model' : 'Female Model'}
+                    <div className="text-[11px] font-mono uppercase tracking-widest text-novera-gold font-bold truncate">
+                      #{scoringCandidate.candidateNumber} &bull; {scoringCandidate.category === 'boy' ? 'Male Model' : 'Female Model'}
                     </div>
-                    <h3 className="font-serif text-base sm:text-lg font-bold text-white truncate">
+                    <h3 className="font-serif text-lg sm:text-xl font-bold text-white truncate">
                       {scoringCandidate.name}
                     </h3>
                   </div>
@@ -653,16 +811,16 @@ export default function JudgePortalPage() {
                 <button
                   type="button"
                   onClick={() => setScoringCandidate(null)}
-                  className="px-3.5 py-1.5 rounded-full bg-white/10 hover:bg-rose-500/25 active:scale-95 text-zinc-200 hover:text-white border border-white/20 hover:border-rose-400 flex items-center gap-1.5 text-xs font-bold transition-all shadow-md shrink-0 cursor-pointer"
+                  className="px-3.5 py-2 rounded-full bg-white/10 hover:bg-white/20 active:scale-95 text-zinc-200 hover:text-white border border-white/20 flex items-center gap-1.5 text-xs font-bold transition-all shadow-md shrink-0 cursor-pointer"
                   title="Close Scorecard"
                 >
-                  <X className="w-4 h-4 text-rose-400" />
+                  <X className="w-4 h-4 text-amber-300" />
                   <span>Close</span>
                 </button>
               </div>
 
               {/* 📜 SCROLLABLE BODY CONTENT */}
-              <div className="p-4 sm:p-6 space-y-3.5 overflow-y-auto flex-grow overscroll-contain">
+              <div className="p-4 sm:p-6 space-y-4 overflow-y-auto flex-grow overscroll-contain">
                 {/* Master Model Total Score Display */}
                 <div className="p-4 rounded-2xl bg-gradient-to-r from-amber-500/15 via-black/80 to-amber-500/10 border-2 border-novera-gold/60 shadow-[0_0_25px_rgba(203,167,95,0.2)] flex items-center justify-between gap-4">
                   <div>
@@ -692,12 +850,73 @@ export default function JudgePortalPage() {
                   </div>
                 </div>
 
+                {/* ⚡ ONE-TOUCH QUICK SCORE PROFILES (EASIEST WAY TO MARK MODELS ON RUNWAY) */}
+                <div className="p-3 rounded-2xl bg-white/[0.03] border border-white/10 space-y-1.5">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-mono uppercase tracking-wider text-novera-gold font-bold flex items-center gap-1">
+                      <Zap className="w-3.5 h-3.5 text-amber-400" />
+                      <span>One-Touch Mark Presets (Auto-Fills Criteria):</span>
+                    </span>
+                    <span className="text-[10px] text-zinc-400 font-mono">Fine-tune with &plus;/&minus; below</span>
+                  </div>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-0.5">
+                    <button
+                      type="button"
+                      onClick={() => applyPresetProfile('outstanding')}
+                      className={`px-2 py-2 rounded-xl border text-xs font-bold transition-all text-center flex flex-col items-center ${
+                        totalModel >= 90
+                          ? 'bg-gradient-to-r from-novera-gold to-amber-400 text-black border-amber-300 shadow-md font-extrabold'
+                          : 'bg-white/5 hover:bg-white/15 text-zinc-200 border-white/15'
+                      }`}
+                    >
+                      <span className="text-xs">★ 94 Marks</span>
+                      <span className="text-[10px] font-normal opacity-80">Outstanding</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => applyPresetProfile('excellent')}
+                      className={`px-2 py-2 rounded-xl border text-xs font-bold transition-all text-center flex flex-col items-center ${
+                        totalModel >= 80 && totalModel < 90
+                          ? 'bg-gradient-to-r from-novera-gold to-amber-400 text-black border-amber-300 shadow-md font-extrabold'
+                          : 'bg-white/5 hover:bg-white/15 text-zinc-200 border-white/15'
+                      }`}
+                    >
+                      <span className="text-xs">★ 84 Marks</span>
+                      <span className="text-[10px] font-normal opacity-80">Excellent</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => applyPresetProfile('veryGood')}
+                      className={`px-2 py-2 rounded-xl border text-xs font-bold transition-all text-center flex flex-col items-center ${
+                        totalModel >= 70 && totalModel < 80
+                          ? 'bg-gradient-to-r from-novera-gold to-amber-400 text-black border-amber-300 shadow-md font-extrabold'
+                          : 'bg-white/5 hover:bg-white/15 text-zinc-200 border-white/15'
+                      }`}
+                    >
+                      <span className="text-xs">★ 74 Marks</span>
+                      <span className="text-[10px] font-normal opacity-80">Very Good</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => applyPresetProfile('fair')}
+                      className={`px-2 py-2 rounded-xl border text-xs font-bold transition-all text-center flex flex-col items-center ${
+                        totalModel < 70
+                          ? 'bg-gradient-to-r from-novera-gold to-amber-400 text-black border-amber-300 shadow-md font-extrabold'
+                          : 'bg-white/5 hover:bg-white/15 text-zinc-200 border-white/15'
+                      }`}
+                    >
+                      <span className="text-xs">60 Marks</span>
+                      <span className="text-[10px] font-normal opacity-80">Fair Standard</span>
+                    </button>
+                  </div>
+                </div>
+
                 {/* 6 Official Model Criteria Cards */}
                 <div className="space-y-3 pt-1">
                   {criteriaList.map((crit) => (
                     <div
                       key={crit.id}
-                      className="p-3 sm:p-3.5 rounded-2xl bg-white/[0.04] border border-white/10 hover:border-novera-gold/40 transition-colors space-y-2"
+                      className="p-3 sm:p-3.5 rounded-2xl bg-white/[0.04] border border-white/10 hover:border-novera-gold/40 transition-colors space-y-2.5"
                     >
                       <div className="flex justify-between items-center text-xs">
                         <div>
@@ -718,7 +937,7 @@ export default function JudgePortalPage() {
                         <button
                           type="button"
                           onClick={() => crit.set(Math.max(0, crit.val - 1))}
-                          className="w-8 h-8 rounded-xl bg-white/10 hover:bg-white/20 active:scale-90 text-white font-bold text-base flex items-center justify-center border border-white/20 shrink-0 select-none shadow-sm cursor-pointer"
+                          className="w-10 h-10 sm:w-9 sm:h-9 rounded-xl bg-white/10 hover:bg-white/20 active:scale-90 text-white font-bold text-lg flex items-center justify-center border border-white/20 shrink-0 select-none shadow-sm cursor-pointer"
                           title="Decrease 1 mark"
                         >
                           &minus;
@@ -729,12 +948,12 @@ export default function JudgePortalPage() {
                           max={crit.max}
                           value={crit.val}
                           onChange={(e) => crit.set(Number(e.target.value))}
-                          className="w-full glass-slider cursor-pointer"
+                          className="w-full glass-slider cursor-pointer h-2"
                         />
                         <button
                           type="button"
                           onClick={() => crit.set(Math.min(crit.max, crit.val + 1))}
-                          className="w-8 h-8 rounded-xl bg-white/10 hover:bg-white/20 active:scale-90 text-white font-bold text-base flex items-center justify-center border border-white/20 shrink-0 select-none shadow-sm cursor-pointer"
+                          className="w-10 h-10 sm:w-9 sm:h-9 rounded-xl bg-white/10 hover:bg-white/20 active:scale-90 text-white font-bold text-lg flex items-center justify-center border border-white/20 shrink-0 select-none shadow-sm cursor-pointer"
                           title="Increase 1 mark"
                         >
                           +
@@ -748,9 +967,9 @@ export default function JudgePortalPage() {
                             key={preset.val}
                             type="button"
                             onClick={() => crit.set(preset.val)}
-                            className={`py-1 rounded-lg text-[10px] sm:text-[11px] font-semibold transition-all text-center cursor-pointer ${
+                            className={`py-1.5 rounded-xl text-xs font-semibold transition-all text-center cursor-pointer ${
                               crit.val === preset.val
-                                ? 'bg-novera-gold text-black font-extrabold shadow-md scale-[1.02]'
+                                ? 'bg-gradient-to-r from-novera-gold to-amber-400 text-black font-extrabold shadow-md scale-[1.02]'
                                 : 'bg-white/5 hover:bg-white/15 text-zinc-300 border border-white/10'
                             }`}
                           >
