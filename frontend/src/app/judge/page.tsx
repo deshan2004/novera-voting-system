@@ -546,128 +546,422 @@ export default function JudgePortalPage() {
               </button>
             </div>
 
-            {/* Live Awards Alignment Badge Bar in Frosted Glass */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 p-3 rounded-2xl bg-white/5 border border-white/10 text-center mb-4">
-              <div className="p-1.5 rounded-xl bg-white/5 border border-white/10 shadow-sm">
-                <span className="text-[9px] uppercase tracking-wider text-zinc-400 font-bold block">Top Model</span>
-                <strong className="text-base font-mono text-novera-gold">{totalModel}/100</strong>
+            {/* Master Model Total Score Display (Intuitive & Crystal Clear for Judges) */}
+            <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-amber-500/15 via-black/80 to-amber-500/10 border-2 border-novera-gold/60 shadow-[0_0_30px_rgba(203,167,95,0.25)] flex items-center justify-between gap-4 mb-4">
+              <div>
+                <span className="text-[10px] font-mono uppercase tracking-[0.2em] text-novera-gold font-bold block mb-0.5">
+                  Official Scorecard
+                </span>
+                <div className="flex items-baseline gap-2">
+                  <span className="font-serif text-3xl sm:text-4xl font-extrabold text-white">
+                    {totalModel}
+                  </span>
+                  <span className="text-zinc-400 font-mono text-xs sm:text-sm">/ 100 Total Marks</span>
+                </div>
               </div>
-              <div className="p-1.5 rounded-xl bg-white/5 border border-white/10 shadow-sm">
-                <span className="text-[9px] uppercase tracking-wider text-zinc-400 font-bold block">Personality</span>
-                <strong className="text-base font-mono text-white">{personalityScore}/50</strong>
-              </div>
-              <div className="p-1.5 rounded-xl bg-white/5 border border-white/10 shadow-sm">
-                <span className="text-[9px] uppercase tracking-wider text-zinc-400 font-bold block">Stage Pres.</span>
-                <strong className="text-base font-mono text-white">{stagePresenceScore}/30</strong>
-              </div>
-              <div className="p-1.5 rounded-xl bg-white/5 border border-white/10 shadow-sm">
-                <span className="text-[9px] uppercase tracking-wider text-zinc-400 font-bold block">Photogenic</span>
-                <strong className="text-base font-mono text-white">{photogenicScore}/40</strong>
+              <div className="text-right">
+                <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider border ${
+                  totalModel >= 90
+                    ? 'bg-amber-400/20 text-amber-300 border-amber-400/50 shadow-[0_0_15px_rgba(251,191,36,0.3)]'
+                    : totalModel >= 80
+                    ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/50'
+                    : totalModel >= 70
+                    ? 'bg-sky-500/20 text-sky-300 border-sky-500/50'
+                    : 'bg-zinc-800 text-zinc-300 border-white/20'
+                }`}>
+                  {totalModel >= 90 ? '★ Outstanding' : totalModel >= 80 ? '★ Excellent' : totalModel >= 70 ? '★ Very Good' : 'Good'}
+                </span>
+                <span className="text-[10px] text-zinc-400 block mt-1">Sum of 6 criteria below</span>
               </div>
             </div>
 
-            {/* 6 Official Model Criteria Sliders with Glass styling */}
-            <div className="space-y-4 pt-1">
-              <div>
-                <div className="flex justify-between items-center text-xs mb-1.5">
-                  <span className="font-semibold text-zinc-200">Walking (Ramp walk cadence &amp; gait)</span>
-                  <span className="px-2.5 py-0.5 rounded-full bg-novera-gold/20 text-novera-gold font-mono font-bold text-xs border border-novera-gold/40">
-                    {walking} / 20
-                  </span>
+            {/* 6 Official Model Criteria - Touch Friendly for Phones & Tablets */}
+            <div className="space-y-3.5 pt-1">
+              {/* 1. Walking */}
+              <div className="p-3.5 rounded-2xl bg-white/[0.04] border border-white/10 hover:border-novera-gold/40 transition-colors space-y-2.5">
+                <div className="flex justify-between items-center text-xs">
+                  <div>
+                    <span className="font-bold text-white text-sm block">1. Walking &amp; Runway Gait</span>
+                    <span className="text-[11px] text-zinc-400">Ramp walk rhythm, pace, and smooth cadence</span>
+                  </div>
+                  <div className="font-mono font-bold text-sm text-novera-gold px-3 py-1 rounded-full bg-novera-gold/15 border border-novera-gold/40">
+                    {walking} <span className="text-zinc-400 text-xs font-normal">/ 20</span>
+                  </div>
                 </div>
-                <input
-                  type="range"
-                  min="0"
-                  max="20"
-                  value={walking}
-                  onChange={(e) => setWalking(Number(e.target.value))}
-                  className="w-full glass-slider cursor-pointer accent-[#b3924f]"
-                />
+
+                <div className="flex items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setWalking(Math.max(0, walking - 1))}
+                    className="w-9 h-9 rounded-xl bg-white/10 hover:bg-white/20 active:scale-95 text-white font-bold text-lg flex items-center justify-center border border-white/20 shrink-0 select-none shadow-sm"
+                    title="Decrease 1 mark"
+                  >
+                    &minus;
+                  </button>
+                  <input
+                    type="range"
+                    min="0"
+                    max="20"
+                    value={walking}
+                    onChange={(e) => setWalking(Number(e.target.value))}
+                    className="w-full glass-slider cursor-pointer"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setWalking(Math.min(20, walking + 1))}
+                    className="w-9 h-9 rounded-xl bg-white/10 hover:bg-white/20 active:scale-95 text-white font-bold text-lg flex items-center justify-center border border-white/20 shrink-0 select-none shadow-sm"
+                    title="Increase 1 mark"
+                  >
+                    +
+                  </button>
+                </div>
+
+                <div className="flex items-center gap-1.5 pt-0.5">
+                  <span className="text-[10px] text-zinc-500 font-mono uppercase mr-1">Presets:</span>
+                  {[
+                    { label: 'Fair (12)', val: 12 },
+                    { label: 'Good (15)', val: 15 },
+                    { label: 'Great (18)', val: 18 },
+                    { label: 'Top (20)', val: 20 },
+                  ].map((preset) => (
+                    <button
+                      key={preset.val}
+                      type="button"
+                      onClick={() => setWalking(preset.val)}
+                      className={`px-2.5 py-1 rounded-lg text-[10px] font-semibold transition-all ${
+                        walking === preset.val
+                          ? 'bg-novera-gold text-black font-extrabold shadow-sm'
+                          : 'bg-white/5 hover:bg-white/15 text-zinc-300 border border-white/10'
+                      }`}
+                    >
+                      {preset.label}
+                    </button>
+                  ))}
+                </div>
               </div>
 
-              <div>
-                <div className="flex justify-between items-center text-xs mb-1.5">
-                  <span className="font-semibold text-zinc-200">Confidence (Attitude &amp; character)</span>
-                  <span className="px-2.5 py-0.5 rounded-full bg-novera-gold/20 text-novera-gold font-mono font-bold text-xs border border-novera-gold/40">
-                    {confidence} / 20
-                  </span>
+              {/* 2. Confidence */}
+              <div className="p-3.5 rounded-2xl bg-white/[0.04] border border-white/10 hover:border-novera-gold/40 transition-colors space-y-2.5">
+                <div className="flex justify-between items-center text-xs">
+                  <div>
+                    <span className="font-bold text-white text-sm block">2. Confidence &amp; Attitude</span>
+                    <span className="text-[11px] text-zinc-400">Eye focus, stage fearlessness, and character projection</span>
+                  </div>
+                  <div className="font-mono font-bold text-sm text-novera-gold px-3 py-1 rounded-full bg-novera-gold/15 border border-novera-gold/40">
+                    {confidence} <span className="text-zinc-400 text-xs font-normal">/ 20</span>
+                  </div>
                 </div>
-                <input
-                  type="range"
-                  min="0"
-                  max="20"
-                  value={confidence}
-                  onChange={(e) => setConfidence(Number(e.target.value))}
-                  className="w-full glass-slider cursor-pointer accent-[#b3924f]"
-                />
+
+                <div className="flex items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setConfidence(Math.max(0, confidence - 1))}
+                    className="w-9 h-9 rounded-xl bg-white/10 hover:bg-white/20 active:scale-95 text-white font-bold text-lg flex items-center justify-center border border-white/20 shrink-0 select-none shadow-sm"
+                    title="Decrease 1 mark"
+                  >
+                    &minus;
+                  </button>
+                  <input
+                    type="range"
+                    min="0"
+                    max="20"
+                    value={confidence}
+                    onChange={(e) => setConfidence(Number(e.target.value))}
+                    className="w-full glass-slider cursor-pointer"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setConfidence(Math.min(20, confidence + 1))}
+                    className="w-9 h-9 rounded-xl bg-white/10 hover:bg-white/20 active:scale-95 text-white font-bold text-lg flex items-center justify-center border border-white/20 shrink-0 select-none shadow-sm"
+                    title="Increase 1 mark"
+                  >
+                    +
+                  </button>
+                </div>
+
+                <div className="flex items-center gap-1.5 pt-0.5">
+                  <span className="text-[10px] text-zinc-500 font-mono uppercase mr-1">Presets:</span>
+                  {[
+                    { label: 'Fair (12)', val: 12 },
+                    { label: 'Good (15)', val: 15 },
+                    { label: 'Great (18)', val: 18 },
+                    { label: 'Top (20)', val: 20 },
+                  ].map((preset) => (
+                    <button
+                      key={preset.val}
+                      type="button"
+                      onClick={() => setConfidence(preset.val)}
+                      className={`px-2.5 py-1 rounded-lg text-[10px] font-semibold transition-all ${
+                        confidence === preset.val
+                          ? 'bg-novera-gold text-black font-extrabold shadow-sm'
+                          : 'bg-white/5 hover:bg-white/15 text-zinc-300 border border-white/10'
+                      }`}
+                    >
+                      {preset.label}
+                    </button>
+                  ))}
+                </div>
               </div>
 
-              <div>
-                <div className="flex justify-between items-center text-xs mb-1.5">
-                  <span className="font-semibold text-zinc-200">Stage Presence (Audience impact)</span>
-                  <span className="px-2.5 py-0.5 rounded-full bg-novera-gold/20 text-novera-gold font-mono font-bold text-xs border border-novera-gold/40">
-                    {stage} / 20
-                  </span>
+              {/* 3. Stage Presence */}
+              <div className="p-3.5 rounded-2xl bg-white/[0.04] border border-white/10 hover:border-novera-gold/40 transition-colors space-y-2.5">
+                <div className="flex justify-between items-center text-xs">
+                  <div>
+                    <span className="font-bold text-white text-sm block">3. Stage Presence &amp; Impact</span>
+                    <span className="text-[11px] text-zinc-400">Crowd connection and commanding runway aura</span>
+                  </div>
+                  <div className="font-mono font-bold text-sm text-novera-gold px-3 py-1 rounded-full bg-novera-gold/15 border border-novera-gold/40">
+                    {stage} <span className="text-zinc-400 text-xs font-normal">/ 20</span>
+                  </div>
                 </div>
-                <input
-                  type="range"
-                  min="0"
-                  max="20"
-                  value={stage}
-                  onChange={(e) => setStage(Number(e.target.value))}
-                  className="w-full glass-slider cursor-pointer accent-[#b3924f]"
-                />
+
+                <div className="flex items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setStage(Math.max(0, stage - 1))}
+                    className="w-9 h-9 rounded-xl bg-white/10 hover:bg-white/20 active:scale-95 text-white font-bold text-lg flex items-center justify-center border border-white/20 shrink-0 select-none shadow-sm"
+                    title="Decrease 1 mark"
+                  >
+                    &minus;
+                  </button>
+                  <input
+                    type="range"
+                    min="0"
+                    max="20"
+                    value={stage}
+                    onChange={(e) => setStage(Number(e.target.value))}
+                    className="w-full glass-slider cursor-pointer"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setStage(Math.min(20, stage + 1))}
+                    className="w-9 h-9 rounded-xl bg-white/10 hover:bg-white/20 active:scale-95 text-white font-bold text-lg flex items-center justify-center border border-white/20 shrink-0 select-none shadow-sm"
+                    title="Increase 1 mark"
+                  >
+                    +
+                  </button>
+                </div>
+
+                <div className="flex items-center gap-1.5 pt-0.5">
+                  <span className="text-[10px] text-zinc-500 font-mono uppercase mr-1">Presets:</span>
+                  {[
+                    { label: 'Fair (12)', val: 12 },
+                    { label: 'Good (15)', val: 15 },
+                    { label: 'Great (18)', val: 18 },
+                    { label: 'Top (20)', val: 20 },
+                  ].map((preset) => (
+                    <button
+                      key={preset.val}
+                      type="button"
+                      onClick={() => setStage(preset.val)}
+                      className={`px-2.5 py-1 rounded-lg text-[10px] font-semibold transition-all ${
+                        stage === preset.val
+                          ? 'bg-novera-gold text-black font-extrabold shadow-sm'
+                          : 'bg-white/5 hover:bg-white/15 text-zinc-300 border border-white/10'
+                      }`}
+                    >
+                      {preset.label}
+                    </button>
+                  ))}
+                </div>
               </div>
 
-              <div>
-                <div className="flex justify-between items-center text-xs mb-1.5">
-                  <span className="font-semibold text-zinc-200">Posture (Spine alignment &amp; poise)</span>
-                  <span className="px-2.5 py-0.5 rounded-full bg-novera-gold/20 text-novera-gold font-mono font-bold text-xs border border-novera-gold/40">
-                    {posture} / 15
-                  </span>
+              {/* 4. Posture */}
+              <div className="p-3.5 rounded-2xl bg-white/[0.04] border border-white/10 hover:border-novera-gold/40 transition-colors space-y-2.5">
+                <div className="flex justify-between items-center text-xs">
+                  <div>
+                    <span className="font-bold text-white text-sm block">4. Posture &amp; Poise</span>
+                    <span className="text-[11px] text-zinc-400">Head position, spine alignment, and body symmetry</span>
+                  </div>
+                  <div className="font-mono font-bold text-sm text-novera-gold px-3 py-1 rounded-full bg-novera-gold/15 border border-novera-gold/40">
+                    {posture} <span className="text-zinc-400 text-xs font-normal">/ 15</span>
+                  </div>
                 </div>
-                <input
-                  type="range"
-                  min="0"
-                  max="15"
-                  value={posture}
-                  onChange={(e) => setPosture(Number(e.target.value))}
-                  className="w-full glass-slider cursor-pointer accent-[#b3924f]"
-                />
+
+                <div className="flex items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setPosture(Math.max(0, posture - 1))}
+                    className="w-9 h-9 rounded-xl bg-white/10 hover:bg-white/20 active:scale-95 text-white font-bold text-lg flex items-center justify-center border border-white/20 shrink-0 select-none shadow-sm"
+                    title="Decrease 1 mark"
+                  >
+                    &minus;
+                  </button>
+                  <input
+                    type="range"
+                    min="0"
+                    max="15"
+                    value={posture}
+                    onChange={(e) => setPosture(Number(e.target.value))}
+                    className="w-full glass-slider cursor-pointer"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setPosture(Math.min(15, posture + 1))}
+                    className="w-9 h-9 rounded-xl bg-white/10 hover:bg-white/20 active:scale-95 text-white font-bold text-lg flex items-center justify-center border border-white/20 shrink-0 select-none shadow-sm"
+                    title="Increase 1 mark"
+                  >
+                    +
+                  </button>
+                </div>
+
+                <div className="flex items-center gap-1.5 pt-0.5">
+                  <span className="text-[10px] text-zinc-500 font-mono uppercase mr-1">Presets:</span>
+                  {[
+                    { label: 'Fair (9)', val: 9 },
+                    { label: 'Good (12)', val: 12 },
+                    { label: 'Great (14)', val: 14 },
+                    { label: 'Top (15)', val: 15 },
+                  ].map((preset) => (
+                    <button
+                      key={preset.val}
+                      type="button"
+                      onClick={() => setPosture(preset.val)}
+                      className={`px-2.5 py-1 rounded-lg text-[10px] font-semibold transition-all ${
+                        posture === preset.val
+                          ? 'bg-novera-gold text-black font-extrabold shadow-sm'
+                          : 'bg-white/5 hover:bg-white/15 text-zinc-300 border border-white/10'
+                      }`}
+                    >
+                      {preset.label}
+                    </button>
+                  ))}
+                </div>
               </div>
 
-              <div>
-                <div className="flex justify-between items-center text-xs mb-1.5">
-                  <span className="font-semibold text-zinc-200">Poses (Runway turns &amp; pauses)</span>
-                  <span className="px-2.5 py-0.5 rounded-full bg-novera-gold/20 text-novera-gold font-mono font-bold text-xs border border-novera-gold/40">
-                    {poses} / 15
-                  </span>
+              {/* 5. Poses */}
+              <div className="p-3.5 rounded-2xl bg-white/[0.04] border border-white/10 hover:border-novera-gold/40 transition-colors space-y-2.5">
+                <div className="flex justify-between items-center text-xs">
+                  <div>
+                    <span className="font-bold text-white text-sm block">5. Poses &amp; Runway Turns</span>
+                    <span className="text-[11px] text-zinc-400">Halts at runway tip, 360-degree pivot, and garment showcase</span>
+                  </div>
+                  <div className="font-mono font-bold text-sm text-novera-gold px-3 py-1 rounded-full bg-novera-gold/15 border border-novera-gold/40">
+                    {poses} <span className="text-zinc-400 text-xs font-normal">/ 15</span>
+                  </div>
                 </div>
-                <input
-                  type="range"
-                  min="0"
-                  max="15"
-                  value={poses}
-                  onChange={(e) => setPoses(Number(e.target.value))}
-                  className="w-full glass-slider cursor-pointer accent-[#b3924f]"
-                />
+
+                <div className="flex items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setPoses(Math.max(0, poses - 1))}
+                    className="w-9 h-9 rounded-xl bg-white/10 hover:bg-white/20 active:scale-95 text-white font-bold text-lg flex items-center justify-center border border-white/20 shrink-0 select-none shadow-sm"
+                    title="Decrease 1 mark"
+                  >
+                    &minus;
+                  </button>
+                  <input
+                    type="range"
+                    min="0"
+                    max="15"
+                    value={poses}
+                    onChange={(e) => setPoses(Number(e.target.value))}
+                    className="w-full glass-slider cursor-pointer"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setPoses(Math.min(15, poses + 1))}
+                    className="w-9 h-9 rounded-xl bg-white/10 hover:bg-white/20 active:scale-95 text-white font-bold text-lg flex items-center justify-center border border-white/20 shrink-0 select-none shadow-sm"
+                    title="Increase 1 mark"
+                  >
+                    +
+                  </button>
+                </div>
+
+                <div className="flex items-center gap-1.5 pt-0.5">
+                  <span className="text-[10px] text-zinc-500 font-mono uppercase mr-1">Presets:</span>
+                  {[
+                    { label: 'Fair (9)', val: 9 },
+                    { label: 'Good (12)', val: 12 },
+                    { label: 'Great (14)', val: 14 },
+                    { label: 'Top (15)', val: 15 },
+                  ].map((preset) => (
+                    <button
+                      key={preset.val}
+                      type="button"
+                      onClick={() => setPoses(preset.val)}
+                      className={`px-2.5 py-1 rounded-lg text-[10px] font-semibold transition-all ${
+                        poses === preset.val
+                          ? 'bg-novera-gold text-black font-extrabold shadow-sm'
+                          : 'bg-white/5 hover:bg-white/15 text-zinc-300 border border-white/10'
+                      }`}
+                    >
+                      {preset.label}
+                    </button>
+                  ))}
+                </div>
               </div>
 
-              <div>
-                <div className="flex justify-between items-center text-xs mb-1.5">
-                  <span className="font-semibold text-zinc-200">Face (Facial expression &amp; camera-ready)</span>
-                  <span className="px-2.5 py-0.5 rounded-full bg-novera-gold/20 text-novera-gold font-mono font-bold text-xs border border-novera-gold/40">
-                    {face} / 10
-                  </span>
+              {/* 6. Face */}
+              <div className="p-3.5 rounded-2xl bg-white/[0.04] border border-white/10 hover:border-novera-gold/40 transition-colors space-y-2.5">
+                <div className="flex justify-between items-center text-xs">
+                  <div>
+                    <span className="font-bold text-white text-sm block">6. Facial Expression &amp; Eye Contact</span>
+                    <span className="text-[11px] text-zinc-400">Camera-ready look, expression control, and charisma</span>
+                  </div>
+                  <div className="font-mono font-bold text-sm text-novera-gold px-3 py-1 rounded-full bg-novera-gold/15 border border-novera-gold/40">
+                    {face} <span className="text-zinc-400 text-xs font-normal">/ 10</span>
+                  </div>
                 </div>
-                <input
-                  type="range"
-                  min="0"
-                  max="10"
-                  value={face}
-                  onChange={(e) => setFace(Number(e.target.value))}
-                  className="w-full glass-slider cursor-pointer accent-[#b3924f]"
-                />
+
+                <div className="flex items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setFace(Math.max(0, face - 1))}
+                    className="w-9 h-9 rounded-xl bg-white/10 hover:bg-white/20 active:scale-95 text-white font-bold text-lg flex items-center justify-center border border-white/20 shrink-0 select-none shadow-sm"
+                    title="Decrease 1 mark"
+                  >
+                    &minus;
+                  </button>
+                  <input
+                    type="range"
+                    min="0"
+                    max="10"
+                    value={face}
+                    onChange={(e) => setFace(Number(e.target.value))}
+                    className="w-full glass-slider cursor-pointer"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setFace(Math.min(10, face + 1))}
+                    className="w-9 h-9 rounded-xl bg-white/10 hover:bg-white/20 active:scale-95 text-white font-bold text-lg flex items-center justify-center border border-white/20 shrink-0 select-none shadow-sm"
+                    title="Increase 1 mark"
+                  >
+                    +
+                  </button>
+                </div>
+
+                <div className="flex items-center gap-1.5 pt-0.5">
+                  <span className="text-[10px] text-zinc-500 font-mono uppercase mr-1">Presets:</span>
+                  {[
+                    { label: 'Fair (6)', val: 6 },
+                    { label: 'Good (8)', val: 8 },
+                    { label: 'Great (9)', val: 9 },
+                    { label: 'Top (10)', val: 10 },
+                  ].map((preset) => (
+                    <button
+                      key={preset.val}
+                      type="button"
+                      onClick={() => setFace(preset.val)}
+                      className={`px-2.5 py-1 rounded-lg text-[10px] font-semibold transition-all ${
+                        face === preset.val
+                          ? 'bg-novera-gold text-black font-extrabold shadow-sm'
+                          : 'bg-white/5 hover:bg-white/15 text-zinc-300 border border-white/10'
+                      }`}
+                    >
+                      {preset.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Sub-award Alignment Footnote */}
+            <div className="my-4 p-3 rounded-2xl bg-amber-500/10 border border-amber-500/25 flex items-start gap-2.5 text-xs text-zinc-300">
+              <Sparkles className="w-4 h-4 text-novera-gold shrink-0 mt-0.5" />
+              <div>
+                <span className="font-bold text-white block mb-0.5">Automated Special Titles Tracking</span>
+                <span>Your markings automatically contribute to <strong>Best Personality ({personalityScore}/50)</strong>, <strong>Stage Presence ({stagePresenceScore}/30)</strong>, and <strong>Photogenic ({photogenicScore}/40)</strong> for the grand awards ceremony.</span>
               </div>
             </div>
 
