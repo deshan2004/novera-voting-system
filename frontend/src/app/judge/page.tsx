@@ -25,6 +25,17 @@ import {
   Compass,
   X,
   Search,
+  Minus,
+  Plus,
+  Star,
+  SlidersHorizontal,
+  Palette,
+  Footprints,
+  Flame,
+  Shirt,
+  Lightbulb,
+  Scissors,
+  Layers,
 } from 'lucide-react';
 import RunwayStageBackground from '@/app/components/RunwayStageBackground';
 
@@ -756,6 +767,7 @@ export default function JudgePortalPage() {
         const criteriaList = [
           {
             id: 'walking',
+            icon: Footprints,
             title: '1. Walking & Runway Gait',
             subtitle: 'Ramp walk rhythm, pace & smooth cadence',
             max: 20,
@@ -770,6 +782,7 @@ export default function JudgePortalPage() {
           },
           {
             id: 'confidence',
+            icon: Flame,
             title: '2. Confidence & Attitude',
             subtitle: 'Eye focus, fearlessness & character',
             max: 20,
@@ -784,6 +797,7 @@ export default function JudgePortalPage() {
           },
           {
             id: 'stage',
+            icon: Sparkles,
             title: '3. Stage Presence & Impact',
             subtitle: 'Crowd connection & runway aura',
             max: 20,
@@ -798,6 +812,7 @@ export default function JudgePortalPage() {
           },
           {
             id: 'posture',
+            icon: Compass,
             title: '4. Posture & Poise',
             subtitle: 'Head position, spine alignment & symmetry',
             max: 15,
@@ -812,6 +827,7 @@ export default function JudgePortalPage() {
           },
           {
             id: 'poses',
+            icon: Shirt,
             title: '5. Poses & Runway Turns',
             subtitle: 'Runway halts, 360° pivot & garment showcase',
             max: 15,
@@ -826,6 +842,7 @@ export default function JudgePortalPage() {
           },
           {
             id: 'face',
+            icon: Eye,
             title: '6. Facial Expression & Eye Contact',
             subtitle: 'Camera-ready look & expression control',
             max: 10,
@@ -843,6 +860,7 @@ export default function JudgePortalPage() {
         const designCriteriaList = [
           {
             id: 'designCreativity',
+            icon: Lightbulb,
             title: '1. Creativity & Originality',
             subtitle: 'Fresh concept and unique ideas',
             max: 30,
@@ -857,6 +875,7 @@ export default function JudgePortalPage() {
           },
           {
             id: 'designCraftsmanship',
+            icon: Scissors,
             title: '2. Craftsmanship & Finish',
             subtitle: 'Stitching, fabric handling and detailing',
             max: 25,
@@ -871,6 +890,7 @@ export default function JudgePortalPage() {
           },
           {
             id: 'designTheme',
+            icon: Layers,
             title: '3. Theme Relevance',
             subtitle: 'How well the design fits the event theme',
             max: 20,
@@ -885,6 +905,7 @@ export default function JudgePortalPage() {
           },
           {
             id: 'designFit',
+            icon: Shirt,
             title: '4. Fit & Styling',
             subtitle: 'How the outfit sits on the model and works in motion',
             max: 15,
@@ -899,6 +920,7 @@ export default function JudgePortalPage() {
           },
           {
             id: 'designImpact',
+            icon: Sparkles,
             title: '5. Overall Impact',
             subtitle: 'Visual effect when shown on stage',
             max: 10,
@@ -915,18 +937,18 @@ export default function JudgePortalPage() {
 
         return (
           <div
-            className="fixed inset-0 z-[100] bg-black/85 backdrop-blur-xl flex items-center justify-center p-3 sm:p-6 overflow-y-auto animate-in fade-in duration-200"
+            className="fixed inset-0 z-[100] bg-black/85 backdrop-blur-xl flex items-center justify-center p-2 sm:p-4 md:p-6 animate-in fade-in duration-200"
             onClick={() => setScoringCandidate(null)}
           >
             {/* 🌟 Cinematic Fashion Runway Stage Video Animation in Scorecard Backdrop */}
             <RunwayStageBackground contained className="opacity-90" />
 
             <div
-              className="max-w-xl w-full bg-[#0d0b09]/95 backdrop-blur-3xl rounded-3xl border border-novera-gold/40 shadow-[0_0_80px_rgba(0,0,0,0.95)] relative z-10 animate-in zoom-in-95 duration-200 max-h-[90vh] flex flex-col overflow-hidden text-white my-auto"
+              className="max-w-xl w-full h-[92vh] sm:h-[88vh] max-h-[860px] bg-[#0d0b09]/95 backdrop-blur-3xl rounded-3xl border border-novera-gold/40 shadow-[0_0_80px_rgba(0,0,0,0.95)] relative z-10 animate-in zoom-in-95 duration-200 flex flex-col overflow-hidden text-white"
               onClick={(e) => e.stopPropagation()}
             >
               {/* 📌 PERMANENT HEADER (NEVER SCROLLS OUT OF VIEW - 100% VISIBLE WITH SAFE PADDING) */}
-              <div className="bg-[#14110d] border-b border-white/15 px-4 sm:px-6 py-3.5 flex items-center justify-between shrink-0 shadow-md">
+              <div className="bg-[#14110d] border-b border-white/15 px-4 sm:px-6 py-3.5 flex items-center justify-between shrink-0 shadow-md z-20">
                 <div className="flex items-center gap-3 min-w-0">
                   <div className="relative w-12 h-12 rounded-2xl overflow-hidden shrink-0 shadow-md border-2 border-novera-gold/60">
                     <Image
@@ -946,20 +968,20 @@ export default function JudgePortalPage() {
                   </div>
                 </div>
 
-                {/* 🔴 PROMINENT, HIGH-CONTRAST CLOSE BUTTON */}
+                {/* 🔴 MODERN LUXURY GLASS CLOSE BUTTON */}
                 <button
                   type="button"
                   onClick={() => setScoringCandidate(null)}
-                  className="px-4 py-2 rounded-full bg-rose-500/20 hover:bg-rose-500/40 active:scale-95 text-rose-200 hover:text-white border border-rose-400/50 flex items-center gap-1.5 text-xs font-extrabold uppercase tracking-wider transition-all shadow-md shrink-0 cursor-pointer"
+                  className="px-3.5 py-1.5 rounded-full bg-white/10 hover:bg-rose-500/20 active:scale-95 text-zinc-300 hover:text-rose-200 border border-white/20 hover:border-rose-400/40 flex items-center gap-1.5 text-xs font-semibold tracking-wide transition-all shadow-sm shrink-0 cursor-pointer group"
                   title="Close Scorecard"
                 >
-                  <X className="w-4 h-4 text-rose-300" />
-                  <span>Close &times;</span>
+                  <X className="w-3.5 h-3.5 text-zinc-400 group-hover:text-rose-300 transition-colors" strokeWidth={2.5} />
+                  <span>Close</span>
                 </button>
               </div>
 
               {/* 🎚️ DUAL SCORECARD CATEGORY SWITCHER (MODEL RUNWAY vs STUDENT DESIGN) */}
-              <div className="bg-[#181410] border-b border-white/10 px-4 sm:px-6 py-2.5 shrink-0">
+              <div className="bg-[#181410] border-b border-white/10 px-4 sm:px-6 py-2.5 shrink-0 z-10">
                 <div className="grid grid-cols-2 p-1 rounded-2xl bg-black/60 border border-white/15 gap-1.5 shadow-inner">
                   <button
                     type="button"
@@ -970,7 +992,8 @@ export default function JudgePortalPage() {
                         : 'text-zinc-300 hover:text-white hover:bg-white/5'
                     }`}
                   >
-                    <span>👠 Model Runway</span>
+                    <Crown className={`w-3.5 h-3.5 ${scorecardTab === 'model' ? 'text-black fill-black/20' : 'text-amber-400'}`} />
+                    <span>Model Runway</span>
                     <span className={`px-2 py-0.5 rounded-full text-[10px] font-mono font-bold ${
                       scorecardTab === 'model' ? 'bg-black/30 text-black' : 'bg-white/10 text-amber-300'
                     }`}>
@@ -987,7 +1010,8 @@ export default function JudgePortalPage() {
                         : 'text-zinc-300 hover:text-white hover:bg-white/5'
                     }`}
                   >
-                    <span>👗 Student Design</span>
+                    <Palette className={`w-3.5 h-3.5 ${scorecardTab === 'design' ? 'text-black fill-black/20' : 'text-amber-400'}`} />
+                    <span>Student Design</span>
                     <span className={`px-2 py-0.5 rounded-full text-[10px] font-mono font-bold ${
                       scorecardTab === 'design' ? 'bg-black/30 text-black' : 'bg-white/10 text-amber-300'
                     }`}>
@@ -997,8 +1021,8 @@ export default function JudgePortalPage() {
                 </div>
               </div>
 
-              {/* 📜 SCROLLABLE BODY CONTENT */}
-              <div className="p-4 sm:p-6 space-y-4 overflow-y-auto flex-grow overscroll-contain">
+              {/* 📜 SCROLLABLE BODY CONTENT - FIXED SCROLLING CONTAINER */}
+              <div className="flex-1 min-h-0 overflow-y-auto novera-scrollbar p-4 sm:p-6 space-y-4 overscroll-contain">
                 {scorecardTab === 'model' ? (
                   <>
                     {/* Master Model Total Score Display */}
@@ -1024,7 +1048,8 @@ export default function JudgePortalPage() {
                             ? 'bg-sky-500/20 text-sky-300 border-sky-500/50'
                             : 'bg-zinc-800 text-zinc-300 border-white/20'
                         }`}>
-                          {totalModel >= 90 ? '★ Outstanding' : totalModel >= 80 ? '★ Excellent' : totalModel >= 70 ? '★ Very Good' : 'Good'}
+                          <Star className="w-3.5 h-3.5 fill-current" />
+                          <span>{totalModel >= 90 ? 'Outstanding' : totalModel >= 80 ? 'Excellent' : totalModel >= 70 ? 'Very Good' : 'Good'}</span>
                         </span>
                         <span className="text-[10px] text-zinc-400 block mt-1">Sum of 6 model criteria below</span>
                       </div>
@@ -1033,11 +1058,11 @@ export default function JudgePortalPage() {
                     {/* ⚡ ONE-TOUCH QUICK SCORE PROFILES (MODEL) */}
                     <div className="p-3 rounded-2xl bg-white/[0.03] border border-white/10 space-y-1.5">
                       <div className="flex items-center justify-between">
-                        <span className="text-[10px] font-mono uppercase tracking-wider text-novera-gold font-bold flex items-center gap-1">
-                          <Zap className="w-3.5 h-3.5 text-amber-400" />
+                        <span className="text-[10px] font-mono uppercase tracking-wider text-novera-gold font-bold flex items-center gap-1.5">
+                          <SlidersHorizontal className="w-3.5 h-3.5 text-amber-400" />
                           <span>One-Touch Model Presets:</span>
                         </span>
-                        <span className="text-[10px] text-zinc-400 font-mono">Fine-tune with &plus;/&minus; below</span>
+                        <span className="text-[10px] text-zinc-400 font-mono">Fine-tune with sliders below</span>
                       </div>
                       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-0.5">
                         <button
@@ -1049,7 +1074,10 @@ export default function JudgePortalPage() {
                               : 'bg-white/5 hover:bg-white/15 text-zinc-200 border-white/15'
                           }`}
                         >
-                          <span className="text-xs">★ 94 Marks</span>
+                          <span className="text-xs flex items-center gap-1">
+                            <Star className={`w-3 h-3 ${totalModel >= 90 ? 'fill-black text-black' : 'fill-amber-400 text-amber-400'}`} />
+                            <span>94 Marks</span>
+                          </span>
                           <span className="text-[10px] font-normal opacity-80">Outstanding</span>
                         </button>
                         <button
@@ -1061,7 +1089,10 @@ export default function JudgePortalPage() {
                               : 'bg-white/5 hover:bg-white/15 text-zinc-200 border-white/15'
                           }`}
                         >
-                          <span className="text-xs">★ 84 Marks</span>
+                          <span className="text-xs flex items-center gap-1">
+                            <Star className={`w-3 h-3 ${totalModel >= 80 && totalModel < 90 ? 'fill-black text-black' : 'fill-amber-400 text-amber-400'}`} />
+                            <span>84 Marks</span>
+                          </span>
                           <span className="text-[10px] font-normal opacity-80">Excellent</span>
                         </button>
                         <button
@@ -1073,7 +1104,10 @@ export default function JudgePortalPage() {
                               : 'bg-white/5 hover:bg-white/15 text-zinc-200 border-white/15'
                           }`}
                         >
-                          <span className="text-xs">★ 74 Marks</span>
+                          <span className="text-xs flex items-center gap-1">
+                            <Star className={`w-3 h-3 ${totalModel >= 70 && totalModel < 80 ? 'fill-black text-black' : 'fill-amber-400 text-amber-400'}`} />
+                            <span>74 Marks</span>
+                          </span>
                           <span className="text-[10px] font-normal opacity-80">Very Good</span>
                         </button>
                         <button
@@ -1093,72 +1127,80 @@ export default function JudgePortalPage() {
 
                     {/* 6 Official Model Criteria Cards */}
                     <div className="space-y-3 pt-1">
-                      {criteriaList.map((crit) => (
-                        <div
-                          key={crit.id}
-                          className="p-3 sm:p-3.5 rounded-2xl bg-white/[0.04] border border-white/10 hover:border-novera-gold/40 transition-colors space-y-2.5"
-                        >
-                          <div className="flex justify-between items-center text-xs">
-                            <div>
-                              <span className="font-bold text-white text-xs sm:text-sm block">
-                                {crit.title}
-                              </span>
-                              <span className="text-[10px] sm:text-[11px] text-zinc-400">
-                                {crit.subtitle}
-                              </span>
+                      {criteriaList.map((crit) => {
+                        const IconComponent = crit.icon;
+                        return (
+                          <div
+                            key={crit.id}
+                            className="p-3 sm:p-3.5 rounded-2xl bg-white/[0.04] border border-white/10 hover:border-novera-gold/40 transition-colors space-y-2.5"
+                          >
+                            <div className="flex justify-between items-center text-xs">
+                              <div className="flex items-center gap-2.5 min-w-0">
+                                <div className="w-7 h-7 rounded-xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center shrink-0 shadow-sm">
+                                  <IconComponent className="w-3.5 h-3.5 text-amber-300" />
+                                </div>
+                                <div className="min-w-0">
+                                  <span className="font-bold text-white text-xs sm:text-sm block truncate">
+                                    {crit.title}
+                                  </span>
+                                  <span className="text-[10px] sm:text-[11px] text-zinc-400 block truncate">
+                                    {crit.subtitle}
+                                  </span>
+                                </div>
+                              </div>
+                              <div className="font-mono font-bold text-xs sm:text-sm text-novera-gold px-2.5 py-0.5 rounded-full bg-novera-gold/15 border border-novera-gold/40 shrink-0">
+                                {crit.val} <span className="text-zinc-400 text-[10px] sm:text-xs font-normal">/ {crit.max}</span>
+                              </div>
                             </div>
-                            <div className="font-mono font-bold text-xs sm:text-sm text-novera-gold px-2.5 py-0.5 rounded-full bg-novera-gold/15 border border-novera-gold/40 shrink-0">
-                              {crit.val} <span className="text-zinc-400 text-[10px] sm:text-xs font-normal">/ {crit.max}</span>
-                            </div>
-                          </div>
 
-                          {/* Touch Stepper + Range Slider */}
-                          <div className="flex items-center gap-2.5">
-                            <button
-                              type="button"
-                              onClick={() => crit.set(Math.max(0, crit.val - 1))}
-                              className="w-10 h-10 sm:w-9 sm:h-9 rounded-xl bg-white/10 hover:bg-white/20 active:scale-90 text-white font-bold text-lg flex items-center justify-center border border-white/20 shrink-0 select-none shadow-sm cursor-pointer"
-                              title="Decrease 1 mark"
-                            >
-                              &minus;
-                            </button>
-                            <input
-                              type="range"
-                              min="0"
-                              max={crit.max}
-                              value={crit.val}
-                              onChange={(e) => crit.set(Number(e.target.value))}
-                              className="w-full glass-slider cursor-pointer h-2"
-                            />
-                            <button
-                              type="button"
-                              onClick={() => crit.set(Math.min(crit.max, crit.val + 1))}
-                              className="w-10 h-10 sm:w-9 sm:h-9 rounded-xl bg-white/10 hover:bg-white/20 active:scale-90 text-white font-bold text-lg flex items-center justify-center border border-white/20 shrink-0 select-none shadow-sm cursor-pointer"
-                              title="Increase 1 mark"
-                            >
-                              +
-                            </button>
-                          </div>
-
-                          {/* 4 Quick Presets */}
-                          <div className="grid grid-cols-4 gap-1.5 pt-0.5">
-                            {crit.presets.map((preset) => (
+                            {/* Touch Stepper + Range Slider */}
+                            <div className="flex items-center gap-2.5">
                               <button
-                                key={preset.val}
                                 type="button"
-                                onClick={() => crit.set(preset.val)}
-                                className={`py-1.5 rounded-xl text-xs font-semibold transition-all text-center cursor-pointer ${
-                                  crit.val === preset.val
-                                    ? 'bg-gradient-to-r from-novera-gold to-amber-400 text-black font-extrabold shadow-md scale-[1.02]'
-                                    : 'bg-white/5 hover:bg-white/15 text-zinc-300 border border-white/10'
-                                }`}
+                                onClick={() => crit.set(Math.max(0, crit.val - 1))}
+                                className="w-10 h-10 sm:w-9 sm:h-9 rounded-xl bg-white/10 hover:bg-white/20 active:scale-90 text-white flex items-center justify-center border border-white/20 shrink-0 select-none shadow-sm cursor-pointer transition-transform"
+                                title="Decrease 1 mark"
                               >
-                                {preset.label}
+                                <Minus className="w-4 h-4 text-zinc-200" strokeWidth={2.5} />
                               </button>
-                            ))}
+                              <input
+                                type="range"
+                                min="0"
+                                max={crit.max}
+                                value={crit.val}
+                                onChange={(e) => crit.set(Number(e.target.value))}
+                                className="w-full glass-slider cursor-pointer h-2"
+                              />
+                              <button
+                                type="button"
+                                onClick={() => crit.set(Math.min(crit.max, crit.val + 1))}
+                                className="w-10 h-10 sm:w-9 sm:h-9 rounded-xl bg-white/10 hover:bg-white/20 active:scale-90 text-white flex items-center justify-center border border-white/20 shrink-0 select-none shadow-sm cursor-pointer transition-transform"
+                                title="Increase 1 mark"
+                              >
+                                <Plus className="w-4 h-4 text-zinc-200" strokeWidth={2.5} />
+                              </button>
+                            </div>
+
+                            {/* 4 Quick Presets */}
+                            <div className="grid grid-cols-4 gap-1.5 pt-0.5">
+                              {crit.presets.map((preset) => (
+                                <button
+                                  key={preset.val}
+                                  type="button"
+                                  onClick={() => crit.set(preset.val)}
+                                  className={`py-1.5 rounded-xl text-xs font-semibold transition-all text-center cursor-pointer ${
+                                    crit.val === preset.val
+                                      ? 'bg-gradient-to-r from-novera-gold to-amber-400 text-black font-extrabold shadow-md scale-[1.02]'
+                                      : 'bg-white/5 hover:bg-white/15 text-zinc-300 border border-white/10'
+                                  }`}
+                                >
+                                  {preset.label}
+                                </button>
+                              ))}
+                            </div>
                           </div>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
 
                     {/* Sub-award Alignment Footnote */}
@@ -1195,7 +1237,8 @@ export default function JudgePortalPage() {
                             ? 'bg-sky-500/20 text-sky-300 border-sky-500/50'
                             : 'bg-zinc-800 text-zinc-300 border-white/20'
                         }`}>
-                          {totalDesign >= 90 ? '★ Outstanding' : totalDesign >= 80 ? '★ Excellent' : totalDesign >= 70 ? '★ Very Good' : 'Good'}
+                          <Star className="w-3.5 h-3.5 fill-current" />
+                          <span>{totalDesign >= 90 ? 'Outstanding' : totalDesign >= 80 ? 'Excellent' : totalDesign >= 70 ? 'Very Good' : 'Good'}</span>
                         </span>
                         <span className="text-[10px] text-zinc-400 block mt-1">Sum of 5 design criteria below</span>
                       </div>
@@ -1204,11 +1247,11 @@ export default function JudgePortalPage() {
                     {/* ⚡ ONE-TOUCH QUICK SCORE PROFILES (DESIGN) */}
                     <div className="p-3 rounded-2xl bg-white/[0.03] border border-white/10 space-y-1.5">
                       <div className="flex items-center justify-between">
-                        <span className="text-[10px] font-mono uppercase tracking-wider text-novera-gold font-bold flex items-center gap-1">
-                          <Zap className="w-3.5 h-3.5 text-amber-400" />
+                        <span className="text-[10px] font-mono uppercase tracking-wider text-novera-gold font-bold flex items-center gap-1.5">
+                          <SlidersHorizontal className="w-3.5 h-3.5 text-amber-400" />
                           <span>One-Touch Design Presets:</span>
                         </span>
-                        <span className="text-[10px] text-zinc-400 font-mono">Fine-tune with &plus;/&minus; below</span>
+                        <span className="text-[10px] text-zinc-400 font-mono">Fine-tune with sliders below</span>
                       </div>
                       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-0.5">
                         <button
@@ -1220,7 +1263,10 @@ export default function JudgePortalPage() {
                               : 'bg-white/5 hover:bg-white/15 text-zinc-200 border-white/15'
                           }`}
                         >
-                          <span className="text-xs">★ 92 Marks</span>
+                          <span className="text-xs flex items-center gap-1">
+                            <Star className={`w-3 h-3 ${totalDesign >= 90 ? 'fill-black text-black' : 'fill-amber-400 text-amber-400'}`} />
+                            <span>92 Marks</span>
+                          </span>
                           <span className="text-[10px] font-normal opacity-80">Outstanding</span>
                         </button>
                         <button
@@ -1232,7 +1278,10 @@ export default function JudgePortalPage() {
                               : 'bg-white/5 hover:bg-white/15 text-zinc-200 border-white/15'
                           }`}
                         >
-                          <span className="text-xs">★ 82 Marks</span>
+                          <span className="text-xs flex items-center gap-1">
+                            <Star className={`w-3 h-3 ${totalDesign >= 80 && totalDesign < 90 ? 'fill-black text-black' : 'fill-amber-400 text-amber-400'}`} />
+                            <span>82 Marks</span>
+                          </span>
                           <span className="text-[10px] font-normal opacity-80">Excellent</span>
                         </button>
                         <button
@@ -1244,7 +1293,10 @@ export default function JudgePortalPage() {
                               : 'bg-white/5 hover:bg-white/15 text-zinc-200 border-white/15'
                           }`}
                         >
-                          <span className="text-xs">★ 72 Marks</span>
+                          <span className="text-xs flex items-center gap-1">
+                            <Star className={`w-3 h-3 ${totalDesign >= 70 && totalDesign < 80 ? 'fill-black text-black' : 'fill-amber-400 text-amber-400'}`} />
+                            <span>72 Marks</span>
+                          </span>
                           <span className="text-[10px] font-normal opacity-80">Very Good</span>
                         </button>
                         <button
@@ -1264,72 +1316,80 @@ export default function JudgePortalPage() {
 
                     {/* 5 Official Student Design Criteria Cards */}
                     <div className="space-y-3 pt-1">
-                      {designCriteriaList.map((crit) => (
-                        <div
-                          key={crit.id}
-                          className="p-3 sm:p-3.5 rounded-2xl bg-white/[0.04] border border-white/10 hover:border-novera-gold/40 transition-colors space-y-2.5"
-                        >
-                          <div className="flex justify-between items-center text-xs">
-                            <div>
-                              <span className="font-bold text-white text-xs sm:text-sm block">
-                                {crit.title}
-                              </span>
-                              <span className="text-[10px] sm:text-[11px] text-zinc-400">
-                                {crit.subtitle}
-                              </span>
+                      {designCriteriaList.map((crit) => {
+                        const IconComponent = crit.icon;
+                        return (
+                          <div
+                            key={crit.id}
+                            className="p-3 sm:p-3.5 rounded-2xl bg-white/[0.04] border border-white/10 hover:border-novera-gold/40 transition-colors space-y-2.5"
+                          >
+                            <div className="flex justify-between items-center text-xs">
+                              <div className="flex items-center gap-2.5 min-w-0">
+                                <div className="w-7 h-7 rounded-xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center shrink-0 shadow-sm">
+                                  <IconComponent className="w-3.5 h-3.5 text-amber-300" />
+                                </div>
+                                <div className="min-w-0">
+                                  <span className="font-bold text-white text-xs sm:text-sm block truncate">
+                                    {crit.title}
+                                  </span>
+                                  <span className="text-[10px] sm:text-[11px] text-zinc-400 block truncate">
+                                    {crit.subtitle}
+                                  </span>
+                                </div>
+                              </div>
+                              <div className="font-mono font-bold text-xs sm:text-sm text-novera-gold px-2.5 py-0.5 rounded-full bg-novera-gold/15 border border-novera-gold/40 shrink-0">
+                                {crit.val} <span className="text-zinc-400 text-[10px] sm:text-xs font-normal">/ {crit.max}</span>
+                              </div>
                             </div>
-                            <div className="font-mono font-bold text-xs sm:text-sm text-novera-gold px-2.5 py-0.5 rounded-full bg-novera-gold/15 border border-novera-gold/40 shrink-0">
-                              {crit.val} <span className="text-zinc-400 text-[10px] sm:text-xs font-normal">/ {crit.max}</span>
-                            </div>
-                          </div>
 
-                          {/* Touch Stepper + Range Slider */}
-                          <div className="flex items-center gap-2.5">
-                            <button
-                              type="button"
-                              onClick={() => crit.set(Math.max(0, crit.val - 1))}
-                              className="w-10 h-10 sm:w-9 sm:h-9 rounded-xl bg-white/10 hover:bg-white/20 active:scale-90 text-white font-bold text-lg flex items-center justify-center border border-white/20 shrink-0 select-none shadow-sm cursor-pointer"
-                              title="Decrease 1 mark"
-                            >
-                              &minus;
-                            </button>
-                            <input
-                              type="range"
-                              min="0"
-                              max={crit.max}
-                              value={crit.val}
-                              onChange={(e) => crit.set(Number(e.target.value))}
-                              className="w-full glass-slider cursor-pointer h-2"
-                            />
-                            <button
-                              type="button"
-                              onClick={() => crit.set(Math.min(crit.max, crit.val + 1))}
-                              className="w-10 h-10 sm:w-9 sm:h-9 rounded-xl bg-white/10 hover:bg-white/20 active:scale-90 text-white font-bold text-lg flex items-center justify-center border border-white/20 shrink-0 select-none shadow-sm cursor-pointer"
-                              title="Increase 1 mark"
-                            >
-                              +
-                            </button>
-                          </div>
-
-                          {/* 4 Quick Presets */}
-                          <div className="grid grid-cols-4 gap-1.5 pt-0.5">
-                            {crit.presets.map((preset) => (
+                            {/* Touch Stepper + Range Slider */}
+                            <div className="flex items-center gap-2.5">
                               <button
-                                key={preset.val}
                                 type="button"
-                                onClick={() => crit.set(preset.val)}
-                                className={`py-1.5 rounded-xl text-xs font-semibold transition-all text-center cursor-pointer ${
-                                  crit.val === preset.val
-                                    ? 'bg-gradient-to-r from-novera-gold to-amber-400 text-black font-extrabold shadow-md scale-[1.02]'
-                                    : 'bg-white/5 hover:bg-white/15 text-zinc-300 border border-white/10'
-                                }`}
+                                onClick={() => crit.set(Math.max(0, crit.val - 1))}
+                                className="w-10 h-10 sm:w-9 sm:h-9 rounded-xl bg-white/10 hover:bg-white/20 active:scale-90 text-white flex items-center justify-center border border-white/20 shrink-0 select-none shadow-sm cursor-pointer transition-transform"
+                                title="Decrease 1 mark"
                               >
-                                {preset.label}
+                                <Minus className="w-4 h-4 text-zinc-200" strokeWidth={2.5} />
                               </button>
-                            ))}
+                              <input
+                                type="range"
+                                min="0"
+                                max={crit.max}
+                                value={crit.val}
+                                onChange={(e) => crit.set(Number(e.target.value))}
+                                className="w-full glass-slider cursor-pointer h-2"
+                              />
+                              <button
+                                type="button"
+                                onClick={() => crit.set(Math.min(crit.max, crit.val + 1))}
+                                className="w-10 h-10 sm:w-9 sm:h-9 rounded-xl bg-white/10 hover:bg-white/20 active:scale-90 text-white flex items-center justify-center border border-white/20 shrink-0 select-none shadow-sm cursor-pointer transition-transform"
+                                title="Increase 1 mark"
+                              >
+                                <Plus className="w-4 h-4 text-zinc-200" strokeWidth={2.5} />
+                              </button>
+                            </div>
+
+                            {/* 4 Quick Presets */}
+                            <div className="grid grid-cols-4 gap-1.5 pt-0.5">
+                              {crit.presets.map((preset) => (
+                                <button
+                                  key={preset.val}
+                                  type="button"
+                                  onClick={() => crit.set(preset.val)}
+                                  className={`py-1.5 rounded-xl text-xs font-semibold transition-all text-center cursor-pointer ${
+                                    crit.val === preset.val
+                                      ? 'bg-gradient-to-r from-novera-gold to-amber-400 text-black font-extrabold shadow-md scale-[1.02]'
+                                      : 'bg-white/5 hover:bg-white/15 text-zinc-300 border border-white/10'
+                                  }`}
+                                >
+                                  {preset.label}
+                                </button>
+                              ))}
+                            </div>
                           </div>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
 
                     {/* Official Award Alignment Footnote */}
@@ -1358,8 +1418,8 @@ export default function JudgePortalPage() {
                 </div>
               </div>
 
-              {/* 📌 PERMANENT STICKY FOOTER (ALWAYS VISIBLE SUBMIT) */}
-              <div className="sticky bottom-0 z-30 bg-[#120f0c] border-t border-white/15 px-4 sm:px-6 py-3 flex items-center gap-3 shrink-0 shadow-[0_-10px_30px_rgba(0,0,0,0.6)]">
+              {/* 📌 PERMANENT FOOTER (ALWAYS VISIBLE SUBMIT) */}
+              <div className="bg-[#120f0c] border-t border-white/15 px-4 sm:px-6 py-3.5 flex items-center gap-3 shrink-0 shadow-[0_-10px_30px_rgba(0,0,0,0.6)] z-20">
                 <button
                   type="button"
                   onClick={() => setScoringCandidate(null)}
@@ -1374,7 +1434,7 @@ export default function JudgePortalPage() {
                   className="flex-1 py-3 rounded-2xl bg-gradient-to-r from-[#d4af37] via-[#f3e5ab] to-[#aa7c11] text-black font-extrabold hover:brightness-110 active:scale-[0.99] text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-xl disabled:opacity-50 group relative overflow-hidden cursor-pointer"
                 >
                   <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 pointer-events-none" />
-                  <Save className="w-4 h-4 text-black" />
+                  <CheckCircle2 className="w-4 h-4 text-black" strokeWidth={2.5} />
                   <span>{isSaving ? 'Submitting...' : `Submit Both Scores (Model: ${totalModel} • Design: ${totalDesign})`}</span>
                 </button>
               </div>

@@ -194,6 +194,26 @@ input[type='range'].glass-slider::-moz-range-thumb {
   scrollbar-width: none;
 }
 
+/* Sleek dark gold custom scrollbar for luxury modals */
+.novera-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(203, 167, 95, 0.4) rgba(255, 255, 255, 0.03);
+}
+.novera-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+.novera-scrollbar::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 9999px;
+}
+.novera-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(203, 167, 95, 0.4);
+  border-radius: 9999px;
+}
+.novera-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(203, 167, 95, 0.7);
+}
+
 /* ================= CUSTOM ANIMATIONS ================= */
 
 @keyframes sweepScan {
