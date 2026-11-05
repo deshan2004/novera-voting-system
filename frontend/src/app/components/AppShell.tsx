@@ -12,8 +12,8 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   // All pages across NOVERA '26 now share the dark luxury runway stage glass theme
   const isDarkTheme = true;
 
-  // If on /qr (Stage Screen) or /judge (Jury Portal), hide public audience navigation and banners!
-  if (isStageMode || isJudgeMode) {
+  // If on /qr (Stage Screen), hide public audience navigation and banners for dedicated projector display!
+  if (isStageMode) {
     return <main className="min-h-screen text-white flex flex-col bg-transparent">{children}</main>;
   }
 
@@ -32,9 +32,9 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           <span className="truncate">AIESEC in CINEC Presents &middot; NOVERA &rsquo;26</span>
         </div>
         <div className="hidden sm:flex items-center gap-4 text-[11px] text-novera-silver shrink-0">
-          <span>MODELING &amp; PERSONALITY DEVELOPMENT</span>
+          <span>{isJudgeMode ? 'OFFICIAL RUNWAY JURY' : isAdminMode ? 'CENTRAL TABULATION & TELEMETRY' : 'MODELING & PERSONALITY DEVELOPMENT'}</span>
           <span>&bull;</span>
-          <span className="text-novera-gold">STRICT 1 BOY + 1 GIRL BALLOT</span>
+          <span className="text-novera-gold">{isJudgeMode ? 'CONFIDENTIAL SCORECARD' : isAdminMode ? 'MASTER CONTROL HUB' : 'STRICT 1 BOY + 1 GIRL BALLOT'}</span>
         </div>
       </div>
 
@@ -60,7 +60,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
                 isDarkTheme ? 'text-zinc-400' : 'text-novera-charcoal'
               }`}
             >
-              Official Runway Ballot
+              {isJudgeMode ? 'Official Runway Jury' : isAdminMode ? 'Master Administration Hub' : 'Official Runway Ballot'}
             </span>
           </Link>
 
@@ -73,6 +73,11 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
                 <QrCode className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-novera-gold" />
                 <span>Stage QR Screen</span>
               </Link>
+            ) : isJudgeMode ? (
+              <div className="flex items-center gap-1.5 px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-full text-xs font-mono font-bold tracking-wider uppercase bg-white/10 text-amber-300 border border-amber-400/30 backdrop-blur-md shadow-sm">
+                <Sparkles className="w-3.5 h-3.5 text-novera-gold animate-spin" style={{ animationDuration: '6s' }} />
+                <span>Jury Portal Active</span>
+              </div>
             ) : (
               <Link
                 href="/vote"
@@ -90,22 +95,30 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
       <main className="flex-grow">{children}</main>
 
       {/* Footer */}
-      <footer className="bg-novera-ink text-novera-paper-dim border-t border-novera-foil/30 py-8 px-4 text-center text-xs tracking-wider">
+      <footer className="bg-black/60 backdrop-blur-xl text-novera-paper-dim border-t border-white/10 py-8 px-4 text-center text-xs tracking-wider">
         <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2 text-novera-silver">
             <ShieldCheck className="w-4 h-4 text-novera-foil" />
             <span>Verified Single-Vote Integrity System &bull; NOVERA &rsquo;26</span>
           </div>
-          <div className="flex items-center gap-4 text-novera-charcoal text-[11px]">
+          <div className="flex items-center gap-4 text-zinc-400 text-[11px]">
             <p>&copy; 2026 AIESEC in CINEC. All rights reserved.</p>
-            <span className="text-novera-charcoal/40">&bull;</span>
+            <span>&bull;</span>
+            <Link
+              href="/judge"
+              className="hover:text-novera-gold transition-colors"
+              title="Official Jury Portal"
+            >
+              Jury Portal
+            </Link>
+            <span>&bull;</span>
             <Link
               href="/admin"
-              className="text-novera-charcoal/60 hover:text-novera-foil flex items-center gap-1 transition-colors"
+              className="hover:text-novera-gold flex items-center gap-1 transition-colors"
               title="Organizer Portal"
             >
               <Lock className="w-3 h-3" />
-              <span>Portal</span>
+              <span>Admin Hub</span>
             </Link>
           </div>
         </div>
