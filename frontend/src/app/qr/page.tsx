@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { QRCodeSVG } from 'qrcode.react';
@@ -27,6 +27,19 @@ export default function QrDisplayPage() {
   const [votingSettings, setVotingSettings] = useState<VotingSettings>({ isVotingOpen: true });
   const [remainingTimeText, setRemainingTimeText] = useState<string>('');
   const [remainingSeconds, setRemainingSeconds] = useState<number>(0);
+  const wasVotingOpenRef = useRef<boolean>(false);
+
+  // Auto-redirect back to /admin when voting concludes or closes
+  useEffect(() => {
+    if (votingSettings.isVotingOpen) {
+      wasVotingOpenRef.current = true;
+    } else if (wasVotingOpenRef.current && !votingSettings.isVotingOpen) {
+      if (typeof document !== 'undefined' && document.fullscreenElement) {
+        document.exitFullscreen().catch(() => {});
+      }
+      router.push('/admin');
+    }
+  }, [votingSettings.isVotingOpen, router]);
 
   // Live 10-Minute Countdown & Auto-Close Timer
   useEffect(() => {
@@ -43,7 +56,7 @@ export default function QrDisplayPage() {
       setRemainingSeconds(totalSec);
 
       if (totalSec <= 0) {
-        // Automatically close voting when timer reaches 0
+        // Automatically close voting when timer reaches 0 & auto-return to admin hub
         saveVotingSettings({
           isVotingOpen: false,
           votingClosesAt: null,
@@ -51,6 +64,10 @@ export default function QrDisplayPage() {
           announcement: 'Audience voting has concluded for NOVERA ’26.',
         });
         setRemainingTimeText('00:00');
+        if (typeof document !== 'undefined' && document.fullscreenElement) {
+          document.exitFullscreen().catch(() => {});
+        }
+        router.push('/admin');
         return;
       }
 
@@ -62,7 +79,7 @@ export default function QrDisplayPage() {
     updateTimer();
     const interval = setInterval(updateTimer, 500);
     return () => clearInterval(interval);
-  }, [votingSettings.isVotingOpen, votingSettings.votingClosesAt]);
+  }, [votingSettings.isVotingOpen, votingSettings.votingClosesAt, router]);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -120,7 +137,7 @@ export default function QrDisplayPage() {
         console.error('Fullscreen request error:', err);
       });
     } else {
-      document.exitFullscreen().catch(() => {});
+      document.exitFullscreen().catch(() => { });
     }
   };
 
