@@ -51,6 +51,9 @@ import {
   Square,
   Radio,
   Timer,
+  AlertTriangle,
+  X,
+  RefreshCw,
 } from 'lucide-react';
 import Image from 'next/image';
 import RunwayStageBackground from '@/app/components/RunwayStageBackground';
@@ -157,6 +160,23 @@ export default function AdminLeaderboardPage() {
   const [candidates, setCandidates] = useState<Candidate[]>([]);
   const [judgeScores, setJudgeScores] = useState<JudgeScore[]>([]);
   const [isResetting, setIsResetting] = useState<boolean>(false);
+  const [confirmModal, setConfirmModal] = useState<{
+    isOpen: boolean;
+    title: string;
+    subtitle: string;
+    description: string;
+    confirmLabel: string;
+    warningNote?: string;
+    onConfirm: () => void | Promise<void>;
+  } | null>(null);
+  const [toastMessage, setToastMessage] = useState<{ text: string; type: 'success' | 'info' } | null>(null);
+
+  const showToast = (text: string, type: 'success' | 'info' = 'success') => {
+    setToastMessage({ text, type });
+    setTimeout(() => {
+      setToastMessage((cur) => (cur?.text === text ? null : cur));
+    }, 3500);
+  };
   const [chartCategory, setChartCategory] = useState<'both' | 'boy' | 'girl'>('both');
   const [votingSettings, setVotingSettings] = useState<VotingSettings>({ isVotingOpen: false });
   const [isUpdatingVotingStatus, setIsUpdatingVotingStatus] = useState<boolean>(false);
@@ -487,31 +507,55 @@ export default function AdminLeaderboardPage() {
     }
   };
 
-  const handleResetVotes = async () => {
-    if (!window.confirm('Are you sure you want to reset all AUDIENCE votes to 0?')) return;
-    setIsResetting(true);
-    try {
-      await resetAllVotes();
-      setCandidates((prev) => prev.map((c) => ({ ...c, votes: 0 })));
-      loadData();
-    } catch (err) {
-      console.error('Reset error:', err);
-    } finally {
-      setIsResetting(false);
-    }
+  const handleResetVotes = () => {
+    setConfirmModal({
+      isOpen: true,
+      title: 'Reset All Audience Votes?',
+      subtitle: 'PERMANENT RESET ACTION',
+      description: 'Are you sure you want to reset all AUDIENCE votes to 0? This will clear all public ballot counts across all Male & Female contenders and unlock devices for a fresh voting session.',
+      confirmLabel: 'Yes, Reset Votes to 0',
+      warningNote: 'Voter devices, local caches, and ballot tokens will be refreshed. This action cannot be undone.',
+      onConfirm: async () => {
+        setIsResetting(true);
+        try {
+          await resetAllVotes();
+          setCandidates((prev) => prev.map((c) => ({ ...c, votes: 0 })));
+          loadData();
+          showToast('All audience votes successfully reset to 0.', 'success');
+        } catch (err) {
+          console.error('Reset error:', err);
+          showToast('Failed to reset votes. Please try again.', 'info');
+        } finally {
+          setIsResetting(false);
+          setConfirmModal(null);
+        }
+      },
+    });
   };
 
-  const handleResetJudges = async () => {
-    if (!window.confirm('Are you sure you want to reset all JUDGES scores to 0?')) return;
-    setIsResetting(true);
-    try {
-      await resetAllJudgeScores();
-      setJudgeScores([]);
-    } catch (err) {
-      console.error('Reset judges error:', err);
-    } finally {
-      setIsResetting(false);
-    }
+  const handleResetJudges = () => {
+    setConfirmModal({
+      isOpen: true,
+      title: 'Reset All Judge Scores?',
+      subtitle: 'CLEAR ALL ROUND EVALUATIONS',
+      description: 'Are you sure you want to reset all JUDGES scores to 0? This will permanently wipe all scoring marks and submitted scorecards across all 6 official judges.',
+      confirmLabel: 'Yes, Reset Judge Scores',
+      warningNote: 'All 6 judge accounts will have their submitted marksheets unlocked and reset to 0.',
+      onConfirm: async () => {
+        setIsResetting(true);
+        try {
+          await resetAllJudgeScores();
+          setJudgeScores([]);
+          showToast('All judge scorecards successfully cleared.', 'success');
+        } catch (err) {
+          console.error('Reset judges error:', err);
+          showToast('Failed to reset judge scores. Please try again.', 'info');
+        } finally {
+          setIsResetting(false);
+          setConfirmModal(null);
+        }
+      },
+    });
   };
 
   const handleSimulateVotes = () => {
@@ -1890,6 +1934,93 @@ export default function AdminLeaderboardPage() {
                   Close Audit View
                 </button>
               </div>
+            </div>
+          </div>
+        )}
+
+        {/* ================= HAUTE COUTURE CONFIRMATION MODAL (USER-FRIENDLY REPLACEMENT FOR BROWSER ALERTS) ================= */}
+        {confirmModal && confirmModal.isOpen && (
+          <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-xl flex items-center justify-center p-4 animate-in fade-in duration-200">
+            <div className="relative w-full max-w-md bg-[#0e0c0a] border border-amber-500/30 rounded-3xl p-6 sm:p-7 shadow-[0_0_60px_rgba(0,0,0,0.95),0_0_30px_rgba(203,167,95,0.15)] text-center text-white space-y-5 animate-in zoom-in-95 duration-200 overflow-hidden">
+              {/* Subtle Ambient Radial Glow */}
+              <div className="absolute -top-10 left-1/2 -translate-x-1/2 w-48 h-28 bg-rose-500/20 rounded-full blur-3xl pointer-events-none" />
+
+              {/* Close (X) button */}
+              <button
+                type="button"
+                onClick={() => setConfirmModal(null)}
+                disabled={isResetting}
+                className="absolute top-4 right-4 text-zinc-400 hover:text-white p-1.5 rounded-full hover:bg-white/10 transition-colors disabled:opacity-40"
+              >
+                <X className="w-4 h-4" />
+              </button>
+
+              {/* Glowing Alert Emblem */}
+              <div className="relative w-16 h-16 mx-auto rounded-2xl bg-rose-500/10 border border-rose-500/30 flex items-center justify-center shadow-[0_0_25px_rgba(244,63,94,0.25)]">
+                <AlertTriangle className="w-8 h-8 text-rose-400 animate-pulse" />
+              </div>
+
+              {/* Header Texts */}
+              <div className="space-y-1.5">
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-rose-500/15 border border-rose-500/30 text-[10px] font-mono uppercase tracking-widest text-rose-300 font-bold">
+                  <ShieldCheck className="w-3 h-3 text-rose-400" />
+                  <span>{confirmModal.subtitle}</span>
+                </div>
+                <h3 className="font-serif text-2xl font-bold text-white pt-1">
+                  {confirmModal.title}
+                </h3>
+                <p className="text-xs sm:text-sm text-zinc-300 leading-relaxed pt-1">
+                  {confirmModal.description}
+                </p>
+              </div>
+
+              {/* Safety warning badge */}
+              {confirmModal.warningNote && (
+                <div className="p-3 rounded-2xl bg-white/5 border border-white/10 text-left text-[11px] text-zinc-400 flex items-center gap-2.5">
+                  <RotateCcw className="w-4 h-4 text-amber-400 shrink-0" />
+                  <span>{confirmModal.warningNote}</span>
+                </div>
+              )}
+
+              {/* Action Buttons */}
+              <div className="grid grid-cols-2 gap-3 pt-2">
+                <button
+                  type="button"
+                  disabled={isResetting}
+                  onClick={() => setConfirmModal(null)}
+                  className="py-3 px-4 rounded-xl text-xs sm:text-sm font-semibold bg-white/5 border border-white/15 text-zinc-300 hover:text-white hover:bg-white/10 transition-all active:scale-95 disabled:opacity-40"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  disabled={isResetting}
+                  onClick={confirmModal.onConfirm}
+                  className="py-3 px-4 rounded-xl text-xs sm:text-sm font-bold bg-gradient-to-r from-rose-600 via-rose-500 to-rose-700 hover:brightness-110 text-white shadow-[0_0_25px_rgba(225,29,72,0.45)] transition-all flex items-center justify-center gap-2 active:scale-95 disabled:opacity-60"
+                >
+                  {isResetting ? (
+                    <>
+                      <RefreshCw className="w-4 h-4 animate-spin" />
+                      <span>Resetting...</span>
+                    </>
+                  ) : (
+                    <>
+                      <RotateCcw className="w-4 h-4" />
+                      <span>{confirmModal.confirmLabel}</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ================= ELEGANT FLOATING TOAST FEEDBACK ================= */}
+        {toastMessage && (
+          <div className="fixed bottom-6 right-6 z-50 animate-in fade-in slide-in-from-bottom-4 duration-300">
+            <div className="px-5 py-3 rounded-2xl bg-[#0f0d0b]/95 backdrop-blur-2xl border border-amber-500/40 text-white shadow-[0_0_30px_rgba(203,167,95,0.25)] flex items-center gap-3 text-xs sm:text-sm">
+              <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+              <span className="font-medium text-zinc-100">{toastMessage.text}</span>
             </div>
           </div>
         )}
