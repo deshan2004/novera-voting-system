@@ -15,6 +15,7 @@ import {
   Sparkles,
 } from 'lucide-react';
 import StageQrInteractiveBackground from '@/app/components/StageQrInteractiveBackground';
+import RunwayStageBackground from '@/app/components/RunwayStageBackground';
 import { subscribeToVotingSettings, saveVotingSettings } from '@/lib/api';
 import { VotingSettings } from '@/lib/types';
 
@@ -151,7 +152,10 @@ export default function QrDisplayPage() {
   const isVotingLive = !!votingSettings.isVotingOpen;
 
   return (
-    <div className="relative min-h-screen w-full bg-[#050505] text-novera-paper flex flex-col items-center justify-between p-3 sm:py-4 sm:px-6 select-none overflow-y-auto overflow-x-hidden">
+    <div className="relative min-h-screen w-full text-novera-paper flex flex-col items-center justify-between p-3 sm:py-4 sm:px-6 select-none overflow-y-auto overflow-x-hidden">
+      {/* 🌟 Cinematic Fashion Runway Stage Video Background */}
+      <RunwayStageBackground />
+
       {/* 🔒 Quick Return to Master Admin Hub */}
       <Link
         href="/admin"

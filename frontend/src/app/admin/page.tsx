@@ -663,7 +663,7 @@ export default function AdminLeaderboardPage() {
   const leadingGirlForAward = rankedGirlsForAward[0];
 
   return (
-    <div className="min-h-screen relative bg-[#070605] text-white overflow-x-hidden print:bg-white print:text-black print:min-h-0">
+    <div className="min-h-screen relative text-white overflow-x-hidden print:bg-white print:text-black print:min-h-0">
       {/* 🌟 CINEMATIC RUNWAY OPENING COUNTDOWN OVERLAY */}
       {votingSettings.countdownUntil && votingSettings.countdownUntil > Date.now() && (
         <VotingCountdownOverlay
@@ -1723,8 +1723,9 @@ export default function AdminLeaderboardPage() {
 
         {/* ================= JUDGE SCORECARD AUDIT MODAL ================= */}
         {selectedAuditJudge && (
-          <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-2xl flex items-center justify-center p-3 sm:p-6 animate-in fade-in duration-200">
-            <div className="max-w-3xl w-full bg-[#0c0a08]/95 backdrop-blur-3xl rounded-3xl p-5 sm:p-7 border border-white/20 shadow-2xl relative animate-in zoom-in-95 duration-200 max-h-[90vh] flex flex-col overflow-hidden text-left text-white">
+          <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-xl flex items-center justify-center p-3 sm:p-6 animate-in fade-in duration-200 relative">
+            <RunwayStageBackground contained className="opacity-90" />
+            <div className="max-w-3xl w-full bg-[#0c0a08]/95 backdrop-blur-3xl rounded-3xl p-5 sm:p-7 border border-white/20 shadow-2xl relative z-10 animate-in zoom-in-95 duration-200 max-h-[90vh] flex flex-col overflow-hidden text-left text-white">
               {/* Modal Header */}
               <div className="flex items-start justify-between pb-4 border-b border-white/10 shrink-0">
                 <div className="flex items-center gap-3">
@@ -1940,8 +1941,9 @@ export default function AdminLeaderboardPage() {
 
         {/* ================= HAUTE COUTURE CONFIRMATION MODAL (USER-FRIENDLY REPLACEMENT FOR BROWSER ALERTS) ================= */}
         {confirmModal && confirmModal.isOpen && (
-          <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-xl flex items-center justify-center p-4 animate-in fade-in duration-200">
-            <div className="relative w-full max-w-md bg-[#0e0c0a] border border-amber-500/30 rounded-3xl p-6 sm:p-7 shadow-[0_0_60px_rgba(0,0,0,0.95),0_0_30px_rgba(203,167,95,0.15)] text-center text-white space-y-5 animate-in zoom-in-95 duration-200 overflow-hidden">
+          <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-xl flex items-center justify-center p-4 animate-in fade-in duration-200 relative">
+            <RunwayStageBackground contained className="opacity-75" />
+            <div className="relative z-10 w-full max-w-md bg-[#0e0c0a]/95 border border-amber-500/30 rounded-3xl p-6 sm:p-7 shadow-[0_0_60px_rgba(0,0,0,0.95),0_0_30px_rgba(203,167,95,0.15)] text-center text-white space-y-5 animate-in zoom-in-95 duration-200 overflow-hidden">
               {/* Subtle Ambient Radial Glow */}
               <div className="absolute -top-10 left-1/2 -translate-x-1/2 w-48 h-28 bg-rose-500/20 rounded-full blur-3xl pointer-events-none" />
 

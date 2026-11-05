@@ -264,7 +264,7 @@ export default function VotePage() {
   const girlVotedCandidate = getCandidateById(voterStatus?.girlVotedFor);
 
   return (
-    <div className="min-h-screen relative bg-[#070605] text-white overflow-x-hidden">
+    <div className="min-h-screen relative text-white overflow-x-hidden">
       {/* 🌟 SYNCHRONIZED RUNWAY OPENING COUNTDOWN OVERLAY */}
       {votingSettings.countdownUntil && votingSettings.countdownUntil > Date.now() && (
         <VotingCountdownOverlay
@@ -975,8 +975,9 @@ export default function VotePage() {
 
       {/* ================= CANDIDATE PROFILE DETAILS MODAL (VIEW ANYTIME, EVEN WHEN LOCKED) ================= */}
       {profileCandidate && (
-        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-2xl flex items-center justify-center p-3 sm:p-4 animate-in fade-in duration-200">
-          <div className="relative w-full max-w-md bg-[#0d0b08] border border-novera-gold/40 rounded-3xl overflow-hidden shadow-[0_0_60px_rgba(0,0,0,0.95),0_0_35px_rgba(203,167,95,0.25)] text-white animate-in zoom-in-95 duration-200 flex flex-col max-h-[92vh]">
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-xl flex items-center justify-center p-3 sm:p-4 animate-in fade-in duration-200 relative">
+          <RunwayStageBackground contained className="opacity-80" />
+          <div className="relative z-10 w-full max-w-md bg-[#0d0b08]/95 border border-novera-gold/40 rounded-3xl overflow-hidden shadow-[0_0_60px_rgba(0,0,0,0.95),0_0_35px_rgba(203,167,95,0.25)] text-white animate-in zoom-in-95 duration-200 flex flex-col max-h-[92vh]">
             {/* Hero Image Container */}
             <div className="relative w-full h-72 sm:h-80 bg-zinc-950 shrink-0 overflow-hidden">
               <Image

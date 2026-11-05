@@ -4,9 +4,13 @@ import { useEffect, useRef, useState } from 'react';
 
 interface RunwayStageBackgroundProps {
   className?: string;
+  contained?: boolean;
 }
 
-export default function RunwayStageBackground({ className = '' }: RunwayStageBackgroundProps) {
+export default function RunwayStageBackground({
+  className = '',
+  contained = false,
+}: RunwayStageBackgroundProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [videoLoaded, setVideoLoaded] = useState(false);
   const [videoError, setVideoError] = useState(false);
@@ -18,13 +22,15 @@ export default function RunwayStageBackground({ className = '' }: RunwayStageBac
     if (!ctx) return;
 
     let animationFrameId: number;
-    let width = (canvas.width = window.innerWidth);
-    let height = (canvas.height = window.innerHeight);
+    const container = canvas.parentElement;
+    let width = (canvas.width = contained && container ? container.clientWidth : window.innerWidth);
+    let height = (canvas.height = contained && container ? container.clientHeight : window.innerHeight);
 
     const handleResize = () => {
       if (!canvas) return;
-      width = canvas.width = window.innerWidth;
-      height = canvas.height = window.innerHeight;
+      const c = canvas.parentElement;
+      width = canvas.width = contained && c ? c.clientWidth : window.innerWidth;
+      height = canvas.height = contained && c ? c.clientHeight : window.innerHeight;
     };
     window.addEventListener('resize', handleResize);
 
@@ -167,7 +173,9 @@ export default function RunwayStageBackground({ className = '' }: RunwayStageBac
 
   return (
     <div
-      className={`fixed inset-0 pointer-events-none -z-20 overflow-hidden bg-[#070605] ${className}`}
+      className={`${
+        contained ? 'absolute inset-0' : 'fixed inset-0 -z-20'
+      } pointer-events-none overflow-hidden bg-[#070605] ${className}`}
       aria-hidden="true"
     >
       {/* 1. High-Fashion Runway Looping Video */}
