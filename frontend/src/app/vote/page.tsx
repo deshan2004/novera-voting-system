@@ -116,6 +116,8 @@ export default function VotePage() {
     setVoterStatus(status);
     if (status.hasVotedBoy && !status.hasVotedGirl) {
       setCategoryFilter('girl');
+    } else if (status.hasVotedGirl && !status.hasVotedBoy) {
+      setCategoryFilter('boy');
     }
 
     // Check remote Firestore voter state and system reset signal
@@ -123,7 +125,7 @@ export default function VotePage() {
       setVoterStatus(synced);
       if (synced.hasVotedBoy && !synced.hasVotedGirl) {
         setCategoryFilter('girl');
-      } else if (!synced.hasVotedBoy) {
+      } else if (synced.hasVotedGirl && !synced.hasVotedBoy) {
         setCategoryFilter('boy');
       }
     });
@@ -181,7 +183,7 @@ export default function VotePage() {
 
   // Vote for Male Model
   const handleVoteBoy = async () => {
-    if (!voterStatus || !selectedBoyId) return;
+    if (!voterStatus || !selectedBoyId || voterStatus.hasVotedBoy) return;
     if (!votingSettings.isVotingOpen) {
       setFeedback({ type: 'error', message: 'Voting is currently closed by the organizing committee.' });
       return;
@@ -216,7 +218,7 @@ export default function VotePage() {
 
   // Vote for Female Model
   const handleVoteGirl = async () => {
-    if (!voterStatus || !selectedGirlId) return;
+    if (!voterStatus || !selectedGirlId || voterStatus.hasVotedGirl) return;
     if (!votingSettings.isVotingOpen) {
       setFeedback({ type: 'error', message: 'Voting is currently closed by the organizing committee.' });
       return;

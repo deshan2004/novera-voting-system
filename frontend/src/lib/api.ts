@@ -195,28 +195,82 @@ export function subscribeToVotingSettings(callback: (settings: VotingSettings) =
 }
 
 /**
- * Get voter status from localStorage
+ * Get voter status from localStorage & resilient persistent cookies
  */
 export function getLocalVoterStatus(voterId: string): VoterStatus {
   if (typeof window === 'undefined') {
     return { voterId, hasVotedBoy: false, hasVotedGirl: false };
   }
-  const raw = localStorage.getItem(`${STORAGE_KEY_VOTER_STATUS}_${voterId}`);
-  if (raw) {
-    try {
-      return JSON.parse(raw);
-    } catch (e) {}
-  }
-  return {
+
+  let result: VoterStatus = {
     voterId,
     hasVotedBoy: false,
     hasVotedGirl: false,
   };
+
+  // 1. Primary device voter record
+  const raw = localStorage.getItem(`${STORAGE_KEY_VOTER_STATUS}_${voterId}`);
+  if (raw) {
+    try {
+      const parsed = JSON.parse(raw);
+      result = { ...result, ...parsed, voterId };
+    } catch (e) {}
+  }
+
+  // 2. Generic device backup in case voterId had entropy mismatch
+  const genericRaw = localStorage.getItem(STORAGE_KEY_VOTER_STATUS);
+  if (genericRaw) {
+    try {
+      const parsed = JSON.parse(genericRaw);
+      result.hasVotedBoy = result.hasVotedBoy || !!parsed.hasVotedBoy;
+      result.hasVotedGirl = result.hasVotedGirl || !!parsed.hasVotedGirl;
+      result.boyVotedFor = result.boyVotedFor || parsed.boyVotedFor;
+      result.girlVotedFor = result.girlVotedFor || parsed.girlVotedFor;
+      result.votedAt = result.votedAt || parsed.votedAt;
+    } catch (e) {}
+  }
+
+  // 3. Resilient cookie check (persists even if localStorage is purged on mobile safari refresh)
+  if (typeof document !== 'undefined') {
+    if (document.cookie.includes('novera_voted_b=1')) {
+      result.hasVotedBoy = true;
+    }
+    if (document.cookie.includes('novera_voted_g=1')) {
+      result.hasVotedGirl = true;
+    }
+    const bMatch = document.cookie.match(/novera_b_for=([^;]+)/);
+    if (bMatch && !result.boyVotedFor) {
+      result.boyVotedFor = decodeURIComponent(bMatch[1]);
+    }
+    const gMatch = document.cookie.match(/novera_g_for=([^;]+)/);
+    if (gMatch && !result.girlVotedFor) {
+      result.girlVotedFor = decodeURIComponent(gMatch[1]);
+    }
+  }
+
+  return result;
 }
 
 export function saveLocalVoterStatus(status: VoterStatus): void {
   if (typeof window === 'undefined') return;
-  localStorage.setItem(`${STORAGE_KEY_VOTER_STATUS}_${status.voterId}`, JSON.stringify(status));
+  try {
+    localStorage.setItem(`${STORAGE_KEY_VOTER_STATUS}_${status.voterId}`, JSON.stringify(status));
+    localStorage.setItem(STORAGE_KEY_VOTER_STATUS, JSON.stringify(status));
+
+    // Multi-layer cookie backup (30-day max-age)
+    if (status.hasVotedBoy) {
+      document.cookie = `novera_voted_b=1; max-age=${30 * 24 * 60 * 60}; path=/; SameSite=Lax`;
+      if (status.boyVotedFor) {
+        document.cookie = `novera_b_for=${encodeURIComponent(status.boyVotedFor)}; max-age=${30 * 24 * 60 * 60}; path=/; SameSite=Lax`;
+      }
+    }
+    if (status.hasVotedGirl) {
+      document.cookie = `novera_voted_g=1; max-age=${30 * 24 * 60 * 60}; path=/; SameSite=Lax`;
+      if (status.girlVotedFor) {
+        document.cookie = `novera_g_for=${encodeURIComponent(status.girlVotedFor)}; max-age=${30 * 24 * 60 * 60}; path=/; SameSite=Lax`;
+      }
+    }
+  } catch (e) {}
 }
 
 export function getLocalCandidates(): Candidate[] {
@@ -392,22 +446,20 @@ export async function submitVote(submission: VoteSubmission): Promise<{
         writeOps.push(updateDoc(girlRef, { votes: increment(1) }));
       }
 
-      // Record voter lock
+      // Record voter lock - CRITICAL: Never pass undefined values to Firestore
       const voterRef = doc(db, 'voters', voterId);
-      writeOps.push(
-        setDoc(
-          voterRef,
-          {
-            voterId,
-            hasVotedBoy: currentStatus.hasVotedBoy || !!submission.boyCandidateId,
-            hasVotedGirl: currentStatus.hasVotedGirl || !!submission.girlCandidateId,
-            boyVotedFor: submission.boyCandidateId || currentStatus.boyVotedFor,
-            girlVotedFor: submission.girlCandidateId || currentStatus.girlVotedFor,
-            updatedAt: Date.now(),
-          },
-          { merge: true }
-        )
-      );
+      const voterDocData: Record<string, any> = {
+        voterId,
+        hasVotedBoy: currentStatus.hasVotedBoy || !!submission.boyCandidateId,
+        hasVotedGirl: currentStatus.hasVotedGirl || !!submission.girlCandidateId,
+        updatedAt: Date.now(),
+      };
+      const boyFor = submission.boyCandidateId || currentStatus.boyVotedFor;
+      if (boyFor) voterDocData.boyVotedFor = boyFor;
+      const girlFor = submission.girlCandidateId || currentStatus.girlVotedFor;
+      if (girlFor) voterDocData.girlVotedFor = girlFor;
+
+      writeOps.push(setDoc(voterRef, voterDocData, { merge: true }));
 
       await Promise.all(writeOps);
     } catch (err) {
@@ -474,6 +526,12 @@ export async function syncVoterStatus(voterId: string): Promise<VoterStatus> {
 
       if (lastResetAt > seenReset) {
         localStorage.setItem('novera_last_reset_seen', lastResetAt.toString());
+        if (typeof document !== 'undefined') {
+          document.cookie = 'novera_voted_b=; max-age=0; path=/; SameSite=Lax';
+          document.cookie = 'novera_voted_g=; max-age=0; path=/; SameSite=Lax';
+          document.cookie = 'novera_b_for=; max-age=0; path=/; SameSite=Lax';
+          document.cookie = 'novera_g_for=; max-age=0; path=/; SameSite=Lax';
+        }
         localStatus = { voterId, hasVotedBoy: false, hasVotedGirl: false };
         saveLocalVoterStatus(localStatus);
         return localStatus;
@@ -482,16 +540,29 @@ export async function syncVoterStatus(voterId: string): Promise<VoterStatus> {
       // 2. Check remote voter document
       const voterDocRef = doc(db, 'voters', voterId);
       const voterSnap = await getDoc(voterDocRef);
-      if (!voterSnap.exists()) {
-        // If wiped in Firestore, reset local status to allow voting fresh
-        localStatus = { voterId, hasVotedBoy: false, hasVotedGirl: false };
-        saveLocalVoterStatus(localStatus);
-        return localStatus;
-      } else {
+      if (voterSnap.exists()) {
         const remote = voterSnap.data() as VoterStatus;
-        localStatus = { ...localStatus, ...remote };
+        localStatus = {
+          ...localStatus,
+          ...remote,
+          hasVotedBoy: localStatus.hasVotedBoy || remote.hasVotedBoy,
+          hasVotedGirl: localStatus.hasVotedGirl || remote.hasVotedGirl,
+          boyVotedFor: remote.boyVotedFor || localStatus.boyVotedFor,
+          girlVotedFor: remote.girlVotedFor || localStatus.girlVotedFor,
+        };
         saveLocalVoterStatus(localStatus);
         return localStatus;
+      } else if (localStatus.hasVotedBoy || localStatus.hasVotedGirl) {
+        // If device has voted locally, heal/re-push status to Firestore so remote is also aware
+        const voterData: Record<string, any> = {
+          voterId,
+          hasVotedBoy: !!localStatus.hasVotedBoy,
+          hasVotedGirl: !!localStatus.hasVotedGirl,
+          updatedAt: Date.now(),
+        };
+        if (localStatus.boyVotedFor) voterData.boyVotedFor = localStatus.boyVotedFor;
+        if (localStatus.girlVotedFor) voterData.girlVotedFor = localStatus.girlVotedFor;
+        setDoc(voterDocRef, voterData, { merge: true }).catch(() => {});
       }
     } catch (e) {
       console.warn('Error syncing remote voter status:', e);
@@ -517,17 +588,23 @@ export function subscribeToVoterStatus(
     const voterRef = doc(db, 'voters', voterId);
     const systemRef = doc(db, 'system', 'ballot_state');
 
+    // Only merge remote when snap exists - NEVER wipe local status just because remote doc is absent!
     const unsubVoter = onSnapshot(
       voterRef,
       (snap) => {
-        if (!snap.exists()) {
-          const clean = { voterId, hasVotedBoy: false, hasVotedGirl: false };
-          saveLocalVoterStatus(clean);
-          callback(clean);
-        } else {
+        if (snap.exists()) {
           const remote = snap.data() as VoterStatus;
-          saveLocalVoterStatus(remote);
-          callback(remote);
+          const current = getLocalVoterStatus(voterId);
+          const merged: VoterStatus = {
+            ...current,
+            ...remote,
+            hasVotedBoy: current.hasVotedBoy || remote.hasVotedBoy,
+            hasVotedGirl: current.hasVotedGirl || remote.hasVotedGirl,
+            boyVotedFor: remote.boyVotedFor || current.boyVotedFor,
+            girlVotedFor: remote.girlVotedFor || current.girlVotedFor,
+          };
+          saveLocalVoterStatus(merged);
+          callback(merged);
         }
       },
       () => {}
@@ -541,6 +618,12 @@ export function subscribeToVoterStatus(
           const seenReset = Number(localStorage.getItem('novera_last_reset_seen') || '0');
           if (lastResetAt > seenReset) {
             localStorage.setItem('novera_last_reset_seen', lastResetAt.toString());
+            if (typeof document !== 'undefined') {
+              document.cookie = 'novera_voted_b=; max-age=0; path=/; SameSite=Lax';
+              document.cookie = 'novera_voted_g=; max-age=0; path=/; SameSite=Lax';
+              document.cookie = 'novera_b_for=; max-age=0; path=/; SameSite=Lax';
+              document.cookie = 'novera_g_for=; max-age=0; path=/; SameSite=Lax';
+            }
             const clean = { voterId, hasVotedBoy: false, hasVotedGirl: false };
             saveLocalVoterStatus(clean);
             callback(clean);
@@ -618,6 +701,13 @@ export async function resetAllVotes(): Promise<void> {
     }
     keysToRemove.forEach((k) => localStorage.removeItem(k));
     localStorage.removeItem(STORAGE_KEY_VOTER_ID);
+
+    document.cookie = 'novera_voted_b=; max-age=0; path=/; SameSite=Lax';
+    document.cookie = 'novera_voted_g=; max-age=0; path=/; SameSite=Lax';
+    document.cookie = 'novera_b_for=; max-age=0; path=/; SameSite=Lax';
+    document.cookie = 'novera_g_for=; max-age=0; path=/; SameSite=Lax';
+    document.cookie = 'novera_vid=; max-age=0; path=/; SameSite=Lax';
+
     localStorage.setItem('novera_last_reset_seen', resetTimestamp.toString());
 
     window.dispatchEvent(new Event('novera_vote_updated'));
