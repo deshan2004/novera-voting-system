@@ -51,14 +51,22 @@ export default function JudgePortalPage() {
 
   // Active scoring candidate
   const [scoringCandidate, setScoringCandidate] = useState<Candidate | null>(null);
+  const [scorecardTab, setScorecardTab] = useState<'model' | 'design'>('model');
 
-  // Model Official Runway Criteria (Max 100)
+  // 1. Model Official Runway Criteria (Max 100)
   const [walking, setWalking] = useState<number>(16); // max 20
   const [confidence, setConfidence] = useState<number>(16); // max 20
   const [stage, setStage] = useState<number>(16); // max 20
   const [posture, setPosture] = useState<number>(12); // max 15
   const [poses, setPoses] = useState<number>(12); // max 15
   const [face, setFace] = useState<number>(8); // max 10
+
+  // 2. Student Design Official Criteria (Max 100)
+  const [designCreativity, setDesignCreativity] = useState<number>(24); // max 30
+  const [designCraftsmanship, setDesignCraftsmanship] = useState<number>(20); // max 25
+  const [designTheme, setDesignTheme] = useState<number>(16); // max 20
+  const [designFit, setDesignFit] = useState<number>(12); // max 15
+  const [designImpact, setDesignImpact] = useState<number>(8); // max 10
 
   const [notes, setNotes] = useState<string>('');
   const [isSaving, setIsSaving] = useState<boolean>(false);
@@ -156,6 +164,13 @@ export default function JudgePortalPage() {
       setPosture(existing.posture ?? 12);
       setPoses(existing.poses ?? 12);
       setFace(existing.face ?? 8);
+
+      setDesignCreativity(existing.designCreativity ?? 24);
+      setDesignCraftsmanship(existing.designCraftsmanship ?? 20);
+      setDesignTheme(existing.designTheme ?? 16);
+      setDesignFit(existing.designFit ?? 12);
+      setDesignImpact(existing.designImpact ?? 8);
+
       setNotes(existing.notes || '');
     } else {
       setWalking(16);
@@ -164,12 +179,21 @@ export default function JudgePortalPage() {
       setPosture(12);
       setPoses(12);
       setFace(8);
+
+      setDesignCreativity(24);
+      setDesignCraftsmanship(20);
+      setDesignTheme(16);
+      setDesignFit(12);
+      setDesignImpact(8);
+
       setNotes('');
     }
+    setScorecardTab('model');
   };
 
   // Calculations for titles
   const totalModel = Number(walking) + Number(confidence) + Number(stage) + Number(posture) + Number(poses) + Number(face);
+  const totalDesign = Number(designCreativity) + Number(designCraftsmanship) + Number(designTheme) + Number(designFit) + Number(designImpact);
   const personalityScore = Number(confidence) + Number(stage) + Number(face); // max 50
   const stagePresenceScore = Math.min(10, Math.round(Number(confidence) / 2)) + Number(stage); // max 30 (10 conf + 20 stage)
   const photogenicScore = Number(posture) + Number(poses) + Number(face); // max 40
@@ -199,13 +223,13 @@ export default function JudgePortalPage() {
       stagePresenceScore,
       photogenicScore,
 
-      // Student Design (deprecated / set to 0)
-      designCreativity: 0,
-      designCraftsmanship: 0,
-      designTheme: 0,
-      designFit: 0,
-      designImpact: 0,
-      totalDesign: 0,
+      // Student Design Criteria (Best Design - Students)
+      designCreativity: Number(designCreativity),
+      designCraftsmanship: Number(designCraftsmanship),
+      designTheme: Number(designTheme),
+      designFit: Number(designFit),
+      designImpact: Number(designImpact),
+      totalDesign,
 
       notes,
       updatedAt: Date.now(),
@@ -301,6 +325,38 @@ export default function JudgePortalPage() {
       setPosture(9);
       setPoses(9);
       setFace(6);
+    }
+  };
+
+  const applyDesignPresetProfile = (tier: 'outstanding' | 'excellent' | 'veryGood' | 'fair') => {
+    if (tier === 'outstanding') {
+      // 92 Total
+      setDesignCreativity(28); // max 30
+      setDesignCraftsmanship(23); // max 25
+      setDesignTheme(18); // max 20
+      setDesignFit(14); // max 15
+      setDesignImpact(9); // max 10
+    } else if (tier === 'excellent') {
+      // 82 Total
+      setDesignCreativity(25);
+      setDesignCraftsmanship(20);
+      setDesignTheme(16);
+      setDesignFit(13);
+      setDesignImpact(8);
+    } else if (tier === 'veryGood') {
+      // 72 Total
+      setDesignCreativity(22);
+      setDesignCraftsmanship(18);
+      setDesignTheme(14);
+      setDesignFit(11);
+      setDesignImpact(7);
+    } else if (tier === 'fair') {
+      // 60 Total
+      setDesignCreativity(18);
+      setDesignCraftsmanship(15);
+      setDesignTheme(12);
+      setDesignFit(9);
+      setDesignImpact(6);
     }
   };
 
@@ -665,6 +721,13 @@ export default function JudgePortalPage() {
                         <span>Most Photogenic:</span>
                         <span className="font-mono text-white">{score.photogenicScore}/40</span>
                       </div>
+                      <div className="flex justify-between text-amber-300 font-bold border-t border-white/10 pt-1 mt-1">
+                        <span className="flex items-center gap-1">
+                          <Sparkles className="w-3 h-3 text-amber-400" />
+                          <span>Student Design:</span>
+                        </span>
+                        <span className="font-mono text-amber-200">{score.totalDesign ?? 0}/100</span>
+                      </div>
                     </div>
                   )}
                 </div>
@@ -777,6 +840,79 @@ export default function JudgePortalPage() {
           },
         ];
 
+        const designCriteriaList = [
+          {
+            id: 'designCreativity',
+            title: '1. Creativity & Originality',
+            subtitle: 'Fresh concept and unique ideas',
+            max: 30,
+            val: designCreativity,
+            set: setDesignCreativity,
+            presets: [
+              { label: 'Fair (18)', val: 18 },
+              { label: 'Good (22)', val: 22 },
+              { label: 'Great (26)', val: 26 },
+              { label: 'Top (30)', val: 30 },
+            ],
+          },
+          {
+            id: 'designCraftsmanship',
+            title: '2. Craftsmanship & Finish',
+            subtitle: 'Stitching, fabric handling and detailing',
+            max: 25,
+            val: designCraftsmanship,
+            set: setDesignCraftsmanship,
+            presets: [
+              { label: 'Fair (15)', val: 15 },
+              { label: 'Good (19)', val: 19 },
+              { label: 'Great (22)', val: 22 },
+              { label: 'Top (25)', val: 25 },
+            ],
+          },
+          {
+            id: 'designTheme',
+            title: '3. Theme Relevance',
+            subtitle: 'How well the design fits the event theme',
+            max: 20,
+            val: designTheme,
+            set: setDesignTheme,
+            presets: [
+              { label: 'Fair (12)', val: 12 },
+              { label: 'Good (15)', val: 15 },
+              { label: 'Great (18)', val: 18 },
+              { label: 'Top (20)', val: 20 },
+            ],
+          },
+          {
+            id: 'designFit',
+            title: '4. Fit & Styling',
+            subtitle: 'How the outfit sits on the model and works in motion',
+            max: 15,
+            val: designFit,
+            set: setDesignFit,
+            presets: [
+              { label: 'Fair (9)', val: 9 },
+              { label: 'Good (12)', val: 12 },
+              { label: 'Great (14)', val: 14 },
+              { label: 'Top (15)', val: 15 },
+            ],
+          },
+          {
+            id: 'designImpact',
+            title: '5. Overall Impact',
+            subtitle: 'Visual effect when shown on stage',
+            max: 10,
+            val: designImpact,
+            set: setDesignImpact,
+            presets: [
+              { label: 'Fair (6)', val: 6 },
+              { label: 'Good (8)', val: 8 },
+              { label: 'Great (9)', val: 9 },
+              { label: 'Top (10)', val: 10 },
+            ],
+          },
+        ];
+
         return (
           <div
             className="fixed inset-0 z-[100] bg-black/90 backdrop-blur-2xl flex items-center justify-center p-2 sm:p-4 overflow-y-auto animate-in fade-in duration-200"
@@ -819,176 +955,390 @@ export default function JudgePortalPage() {
                 </button>
               </div>
 
+              {/* 🎚️ DUAL SCORECARD CATEGORY SWITCHER (MODEL RUNWAY vs STUDENT DESIGN) */}
+              <div className="bg-[#181410] border-b border-white/10 px-4 sm:px-6 py-2.5 shrink-0">
+                <div className="grid grid-cols-2 p-1 rounded-2xl bg-black/60 border border-white/15 gap-1.5 shadow-inner">
+                  <button
+                    type="button"
+                    onClick={() => setScorecardTab('model')}
+                    className={`py-2 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer ${
+                      scorecardTab === 'model'
+                        ? 'bg-gradient-to-r from-novera-gold via-amber-300 to-amber-500 text-black font-extrabold shadow-md'
+                        : 'text-zinc-300 hover:text-white hover:bg-white/5'
+                    }`}
+                  >
+                    <span>👠 Model Runway</span>
+                    <span className={`px-2 py-0.5 rounded-full text-[10px] font-mono font-bold ${
+                      scorecardTab === 'model' ? 'bg-black/30 text-black' : 'bg-white/10 text-amber-300'
+                    }`}>
+                      {totalModel}/100
+                    </span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setScorecardTab('design')}
+                    className={`py-2 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer ${
+                      scorecardTab === 'design'
+                        ? 'bg-gradient-to-r from-novera-gold via-amber-300 to-amber-500 text-black font-extrabold shadow-md'
+                        : 'text-zinc-300 hover:text-white hover:bg-white/5'
+                    }`}
+                  >
+                    <span>👗 Student Design</span>
+                    <span className={`px-2 py-0.5 rounded-full text-[10px] font-mono font-bold ${
+                      scorecardTab === 'design' ? 'bg-black/30 text-black' : 'bg-white/10 text-amber-300'
+                    }`}>
+                      {totalDesign}/100
+                    </span>
+                  </button>
+                </div>
+              </div>
+
               {/* 📜 SCROLLABLE BODY CONTENT */}
               <div className="p-4 sm:p-6 space-y-4 overflow-y-auto flex-grow overscroll-contain">
-                {/* Master Model Total Score Display */}
-                <div className="p-4 rounded-2xl bg-gradient-to-r from-amber-500/15 via-black/80 to-amber-500/10 border-2 border-novera-gold/60 shadow-[0_0_25px_rgba(203,167,95,0.2)] flex items-center justify-between gap-4">
-                  <div>
-                    <span className="text-[10px] font-mono uppercase tracking-[0.2em] text-novera-gold font-bold block mb-0.5">
-                      Official Scorecard
-                    </span>
-                    <div className="flex items-baseline gap-2">
-                      <span className="font-serif text-3xl sm:text-4xl font-extrabold text-white">
-                        {totalModel}
-                      </span>
-                      <span className="text-zinc-400 font-mono text-xs sm:text-sm">/ 100 Total Marks</span>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider border ${
-                      totalModel >= 90
-                        ? 'bg-amber-400/20 text-amber-300 border-amber-400/50 shadow-[0_0_15px_rgba(251,191,36,0.3)]'
-                        : totalModel >= 80
-                        ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/50'
-                        : totalModel >= 70
-                        ? 'bg-sky-500/20 text-sky-300 border-sky-500/50'
-                        : 'bg-zinc-800 text-zinc-300 border-white/20'
-                    }`}>
-                      {totalModel >= 90 ? '★ Outstanding' : totalModel >= 80 ? '★ Excellent' : totalModel >= 70 ? '★ Very Good' : 'Good'}
-                    </span>
-                    <span className="text-[10px] text-zinc-400 block mt-1">Sum of 6 criteria below</span>
-                  </div>
-                </div>
-
-                {/* ⚡ ONE-TOUCH QUICK SCORE PROFILES (EASIEST WAY TO MARK MODELS ON RUNWAY) */}
-                <div className="p-3 rounded-2xl bg-white/[0.03] border border-white/10 space-y-1.5">
-                  <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-mono uppercase tracking-wider text-novera-gold font-bold flex items-center gap-1">
-                      <Zap className="w-3.5 h-3.5 text-amber-400" />
-                      <span>One-Touch Mark Presets (Auto-Fills Criteria):</span>
-                    </span>
-                    <span className="text-[10px] text-zinc-400 font-mono">Fine-tune with &plus;/&minus; below</span>
-                  </div>
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-0.5">
-                    <button
-                      type="button"
-                      onClick={() => applyPresetProfile('outstanding')}
-                      className={`px-2 py-2 rounded-xl border text-xs font-bold transition-all text-center flex flex-col items-center ${
-                        totalModel >= 90
-                          ? 'bg-gradient-to-r from-novera-gold to-amber-400 text-black border-amber-300 shadow-md font-extrabold'
-                          : 'bg-white/5 hover:bg-white/15 text-zinc-200 border-white/15'
-                      }`}
-                    >
-                      <span className="text-xs">★ 94 Marks</span>
-                      <span className="text-[10px] font-normal opacity-80">Outstanding</span>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => applyPresetProfile('excellent')}
-                      className={`px-2 py-2 rounded-xl border text-xs font-bold transition-all text-center flex flex-col items-center ${
-                        totalModel >= 80 && totalModel < 90
-                          ? 'bg-gradient-to-r from-novera-gold to-amber-400 text-black border-amber-300 shadow-md font-extrabold'
-                          : 'bg-white/5 hover:bg-white/15 text-zinc-200 border-white/15'
-                      }`}
-                    >
-                      <span className="text-xs">★ 84 Marks</span>
-                      <span className="text-[10px] font-normal opacity-80">Excellent</span>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => applyPresetProfile('veryGood')}
-                      className={`px-2 py-2 rounded-xl border text-xs font-bold transition-all text-center flex flex-col items-center ${
-                        totalModel >= 70 && totalModel < 80
-                          ? 'bg-gradient-to-r from-novera-gold to-amber-400 text-black border-amber-300 shadow-md font-extrabold'
-                          : 'bg-white/5 hover:bg-white/15 text-zinc-200 border-white/15'
-                      }`}
-                    >
-                      <span className="text-xs">★ 74 Marks</span>
-                      <span className="text-[10px] font-normal opacity-80">Very Good</span>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => applyPresetProfile('fair')}
-                      className={`px-2 py-2 rounded-xl border text-xs font-bold transition-all text-center flex flex-col items-center ${
-                        totalModel < 70
-                          ? 'bg-gradient-to-r from-novera-gold to-amber-400 text-black border-amber-300 shadow-md font-extrabold'
-                          : 'bg-white/5 hover:bg-white/15 text-zinc-200 border-white/15'
-                      }`}
-                    >
-                      <span className="text-xs">60 Marks</span>
-                      <span className="text-[10px] font-normal opacity-80">Fair Standard</span>
-                    </button>
-                  </div>
-                </div>
-
-                {/* 6 Official Model Criteria Cards */}
-                <div className="space-y-3 pt-1">
-                  {criteriaList.map((crit) => (
-                    <div
-                      key={crit.id}
-                      className="p-3 sm:p-3.5 rounded-2xl bg-white/[0.04] border border-white/10 hover:border-novera-gold/40 transition-colors space-y-2.5"
-                    >
-                      <div className="flex justify-between items-center text-xs">
-                        <div>
-                          <span className="font-bold text-white text-xs sm:text-sm block">
-                            {crit.title}
+                {scorecardTab === 'model' ? (
+                  <>
+                    {/* Master Model Total Score Display */}
+                    <div className="p-4 rounded-2xl bg-gradient-to-r from-amber-500/15 via-black/80 to-amber-500/10 border-2 border-novera-gold/60 shadow-[0_0_25px_rgba(203,167,95,0.2)] flex items-center justify-between gap-4">
+                      <div>
+                        <span className="text-[10px] font-mono uppercase tracking-[0.2em] text-novera-gold font-bold block mb-0.5">
+                          Official Model Scorecard
+                        </span>
+                        <div className="flex items-baseline gap-2">
+                          <span className="font-serif text-3xl sm:text-4xl font-extrabold text-white">
+                            {totalModel}
                           </span>
-                          <span className="text-[10px] sm:text-[11px] text-zinc-400">
-                            {crit.subtitle}
-                          </span>
-                        </div>
-                        <div className="font-mono font-bold text-xs sm:text-sm text-novera-gold px-2.5 py-0.5 rounded-full bg-novera-gold/15 border border-novera-gold/40 shrink-0">
-                          {crit.val} <span className="text-zinc-400 text-[10px] sm:text-xs font-normal">/ {crit.max}</span>
+                          <span className="text-zinc-400 font-mono text-xs sm:text-sm">/ 100 Total Marks</span>
                         </div>
                       </div>
-
-                      {/* Touch Stepper + Range Slider */}
-                      <div className="flex items-center gap-2.5">
-                        <button
-                          type="button"
-                          onClick={() => crit.set(Math.max(0, crit.val - 1))}
-                          className="w-10 h-10 sm:w-9 sm:h-9 rounded-xl bg-white/10 hover:bg-white/20 active:scale-90 text-white font-bold text-lg flex items-center justify-center border border-white/20 shrink-0 select-none shadow-sm cursor-pointer"
-                          title="Decrease 1 mark"
-                        >
-                          &minus;
-                        </button>
-                        <input
-                          type="range"
-                          min="0"
-                          max={crit.max}
-                          value={crit.val}
-                          onChange={(e) => crit.set(Number(e.target.value))}
-                          className="w-full glass-slider cursor-pointer h-2"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => crit.set(Math.min(crit.max, crit.val + 1))}
-                          className="w-10 h-10 sm:w-9 sm:h-9 rounded-xl bg-white/10 hover:bg-white/20 active:scale-90 text-white font-bold text-lg flex items-center justify-center border border-white/20 shrink-0 select-none shadow-sm cursor-pointer"
-                          title="Increase 1 mark"
-                        >
-                          +
-                        </button>
-                      </div>
-
-                      {/* 4 Quick Presets */}
-                      <div className="grid grid-cols-4 gap-1.5 pt-0.5">
-                        {crit.presets.map((preset) => (
-                          <button
-                            key={preset.val}
-                            type="button"
-                            onClick={() => crit.set(preset.val)}
-                            className={`py-1.5 rounded-xl text-xs font-semibold transition-all text-center cursor-pointer ${
-                              crit.val === preset.val
-                                ? 'bg-gradient-to-r from-novera-gold to-amber-400 text-black font-extrabold shadow-md scale-[1.02]'
-                                : 'bg-white/5 hover:bg-white/15 text-zinc-300 border border-white/10'
-                            }`}
-                          >
-                            {preset.label}
-                          </button>
-                        ))}
+                      <div className="text-right">
+                        <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider border ${
+                          totalModel >= 90
+                            ? 'bg-amber-400/20 text-amber-300 border-amber-400/50 shadow-[0_0_15px_rgba(251,191,36,0.3)]'
+                            : totalModel >= 80
+                            ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/50'
+                            : totalModel >= 70
+                            ? 'bg-sky-500/20 text-sky-300 border-sky-500/50'
+                            : 'bg-zinc-800 text-zinc-300 border-white/20'
+                        }`}>
+                          {totalModel >= 90 ? '★ Outstanding' : totalModel >= 80 ? '★ Excellent' : totalModel >= 70 ? '★ Very Good' : 'Good'}
+                        </span>
+                        <span className="text-[10px] text-zinc-400 block mt-1">Sum of 6 model criteria below</span>
                       </div>
                     </div>
-                  ))}
-                </div>
 
-                {/* Sub-award Alignment Footnote */}
-                <div className="my-2 p-3 rounded-2xl bg-amber-500/10 border border-amber-500/25 flex items-start gap-2.5 text-xs text-zinc-300">
-                  <Sparkles className="w-4 h-4 text-novera-gold shrink-0 mt-0.5" />
-                  <div>
-                    <span className="font-bold text-white block mb-0.5">Automated Special Titles Tracking</span>
-                    <span>Your markings automatically contribute to <strong>Best Personality ({personalityScore}/50)</strong>, <strong>Stage Presence ({stagePresenceScore}/30)</strong>, and <strong>Photogenic ({photogenicScore}/40)</strong>.</span>
-                  </div>
-                </div>
+                    {/* ⚡ ONE-TOUCH QUICK SCORE PROFILES (MODEL) */}
+                    <div className="p-3 rounded-2xl bg-white/[0.03] border border-white/10 space-y-1.5">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[10px] font-mono uppercase tracking-wider text-novera-gold font-bold flex items-center gap-1">
+                          <Zap className="w-3.5 h-3.5 text-amber-400" />
+                          <span>One-Touch Model Presets:</span>
+                        </span>
+                        <span className="text-[10px] text-zinc-400 font-mono">Fine-tune with &plus;/&minus; below</span>
+                      </div>
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-0.5">
+                        <button
+                          type="button"
+                          onClick={() => applyPresetProfile('outstanding')}
+                          className={`px-2 py-2 rounded-xl border text-xs font-bold transition-all text-center flex flex-col items-center cursor-pointer ${
+                            totalModel >= 90
+                              ? 'bg-gradient-to-r from-novera-gold to-amber-400 text-black border-amber-300 shadow-md font-extrabold'
+                              : 'bg-white/5 hover:bg-white/15 text-zinc-200 border-white/15'
+                          }`}
+                        >
+                          <span className="text-xs">★ 94 Marks</span>
+                          <span className="text-[10px] font-normal opacity-80">Outstanding</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => applyPresetProfile('excellent')}
+                          className={`px-2 py-2 rounded-xl border text-xs font-bold transition-all text-center flex flex-col items-center cursor-pointer ${
+                            totalModel >= 80 && totalModel < 90
+                              ? 'bg-gradient-to-r from-novera-gold to-amber-400 text-black border-amber-300 shadow-md font-extrabold'
+                              : 'bg-white/5 hover:bg-white/15 text-zinc-200 border-white/15'
+                          }`}
+                        >
+                          <span className="text-xs">★ 84 Marks</span>
+                          <span className="text-[10px] font-normal opacity-80">Excellent</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => applyPresetProfile('veryGood')}
+                          className={`px-2 py-2 rounded-xl border text-xs font-bold transition-all text-center flex flex-col items-center cursor-pointer ${
+                            totalModel >= 70 && totalModel < 80
+                              ? 'bg-gradient-to-r from-novera-gold to-amber-400 text-black border-amber-300 shadow-md font-extrabold'
+                              : 'bg-white/5 hover:bg-white/15 text-zinc-200 border-white/15'
+                          }`}
+                        >
+                          <span className="text-xs">★ 74 Marks</span>
+                          <span className="text-[10px] font-normal opacity-80">Very Good</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => applyPresetProfile('fair')}
+                          className={`px-2 py-2 rounded-xl border text-xs font-bold transition-all text-center flex flex-col items-center cursor-pointer ${
+                            totalModel < 70
+                              ? 'bg-gradient-to-r from-novera-gold to-amber-400 text-black border-amber-300 shadow-md font-extrabold'
+                              : 'bg-white/5 hover:bg-white/15 text-zinc-200 border-white/15'
+                          }`}
+                        >
+                          <span className="text-xs">60 Marks</span>
+                          <span className="text-[10px] font-normal opacity-80">Fair Standard</span>
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* 6 Official Model Criteria Cards */}
+                    <div className="space-y-3 pt-1">
+                      {criteriaList.map((crit) => (
+                        <div
+                          key={crit.id}
+                          className="p-3 sm:p-3.5 rounded-2xl bg-white/[0.04] border border-white/10 hover:border-novera-gold/40 transition-colors space-y-2.5"
+                        >
+                          <div className="flex justify-between items-center text-xs">
+                            <div>
+                              <span className="font-bold text-white text-xs sm:text-sm block">
+                                {crit.title}
+                              </span>
+                              <span className="text-[10px] sm:text-[11px] text-zinc-400">
+                                {crit.subtitle}
+                              </span>
+                            </div>
+                            <div className="font-mono font-bold text-xs sm:text-sm text-novera-gold px-2.5 py-0.5 rounded-full bg-novera-gold/15 border border-novera-gold/40 shrink-0">
+                              {crit.val} <span className="text-zinc-400 text-[10px] sm:text-xs font-normal">/ {crit.max}</span>
+                            </div>
+                          </div>
+
+                          {/* Touch Stepper + Range Slider */}
+                          <div className="flex items-center gap-2.5">
+                            <button
+                              type="button"
+                              onClick={() => crit.set(Math.max(0, crit.val - 1))}
+                              className="w-10 h-10 sm:w-9 sm:h-9 rounded-xl bg-white/10 hover:bg-white/20 active:scale-90 text-white font-bold text-lg flex items-center justify-center border border-white/20 shrink-0 select-none shadow-sm cursor-pointer"
+                              title="Decrease 1 mark"
+                            >
+                              &minus;
+                            </button>
+                            <input
+                              type="range"
+                              min="0"
+                              max={crit.max}
+                              value={crit.val}
+                              onChange={(e) => crit.set(Number(e.target.value))}
+                              className="w-full glass-slider cursor-pointer h-2"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => crit.set(Math.min(crit.max, crit.val + 1))}
+                              className="w-10 h-10 sm:w-9 sm:h-9 rounded-xl bg-white/10 hover:bg-white/20 active:scale-90 text-white font-bold text-lg flex items-center justify-center border border-white/20 shrink-0 select-none shadow-sm cursor-pointer"
+                              title="Increase 1 mark"
+                            >
+                              +
+                            </button>
+                          </div>
+
+                          {/* 4 Quick Presets */}
+                          <div className="grid grid-cols-4 gap-1.5 pt-0.5">
+                            {crit.presets.map((preset) => (
+                              <button
+                                key={preset.val}
+                                type="button"
+                                onClick={() => crit.set(preset.val)}
+                                className={`py-1.5 rounded-xl text-xs font-semibold transition-all text-center cursor-pointer ${
+                                  crit.val === preset.val
+                                    ? 'bg-gradient-to-r from-novera-gold to-amber-400 text-black font-extrabold shadow-md scale-[1.02]'
+                                    : 'bg-white/5 hover:bg-white/15 text-zinc-300 border border-white/10'
+                                }`}
+                              >
+                                {preset.label}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Sub-award Alignment Footnote */}
+                    <div className="my-2 p-3 rounded-2xl bg-amber-500/10 border border-amber-500/25 flex items-start gap-2.5 text-xs text-zinc-300">
+                      <Sparkles className="w-4 h-4 text-novera-gold shrink-0 mt-0.5" />
+                      <div>
+                        <span className="font-bold text-white block mb-0.5">Automated Special Titles Tracking</span>
+                        <span>Your markings automatically contribute to <strong>Best Personality ({personalityScore}/50)</strong>, <strong>Stage Presence ({stagePresenceScore}/30)</strong>, and <strong>Photogenic ({photogenicScore}/40)</strong>.</span>
+                      </div>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    {/* Master Student Design Total Score Display */}
+                    <div className="p-4 rounded-2xl bg-gradient-to-r from-amber-500/15 via-black/80 to-amber-500/10 border-2 border-novera-gold/60 shadow-[0_0_25px_rgba(203,167,95,0.2)] flex items-center justify-between gap-4">
+                      <div>
+                        <span className="text-[10px] font-mono uppercase tracking-[0.2em] text-novera-gold font-bold block mb-0.5">
+                          Design Marking Sheet (Best Design &ndash; Students)
+                        </span>
+                        <div className="flex items-baseline gap-2">
+                          <span className="font-serif text-3xl sm:text-4xl font-extrabold text-white">
+                            {totalDesign}
+                          </span>
+                          <span className="text-zinc-400 font-mono text-xs sm:text-sm">/ 100 Total Marks</span>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider border ${
+                          totalDesign >= 90
+                            ? 'bg-amber-400/20 text-amber-300 border-amber-400/50 shadow-[0_0_15px_rgba(251,191,36,0.3)]'
+                            : totalDesign >= 80
+                            ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/50'
+                            : totalDesign >= 70
+                            ? 'bg-sky-500/20 text-sky-300 border-sky-500/50'
+                            : 'bg-zinc-800 text-zinc-300 border-white/20'
+                        }`}>
+                          {totalDesign >= 90 ? '★ Outstanding' : totalDesign >= 80 ? '★ Excellent' : totalDesign >= 70 ? '★ Very Good' : 'Good'}
+                        </span>
+                        <span className="text-[10px] text-zinc-400 block mt-1">Sum of 5 design criteria below</span>
+                      </div>
+                    </div>
+
+                    {/* ⚡ ONE-TOUCH QUICK SCORE PROFILES (DESIGN) */}
+                    <div className="p-3 rounded-2xl bg-white/[0.03] border border-white/10 space-y-1.5">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[10px] font-mono uppercase tracking-wider text-novera-gold font-bold flex items-center gap-1">
+                          <Zap className="w-3.5 h-3.5 text-amber-400" />
+                          <span>One-Touch Design Presets:</span>
+                        </span>
+                        <span className="text-[10px] text-zinc-400 font-mono">Fine-tune with &plus;/&minus; below</span>
+                      </div>
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-0.5">
+                        <button
+                          type="button"
+                          onClick={() => applyDesignPresetProfile('outstanding')}
+                          className={`px-2 py-2 rounded-xl border text-xs font-bold transition-all text-center flex flex-col items-center cursor-pointer ${
+                            totalDesign >= 90
+                              ? 'bg-gradient-to-r from-novera-gold to-amber-400 text-black border-amber-300 shadow-md font-extrabold'
+                              : 'bg-white/5 hover:bg-white/15 text-zinc-200 border-white/15'
+                          }`}
+                        >
+                          <span className="text-xs">★ 92 Marks</span>
+                          <span className="text-[10px] font-normal opacity-80">Outstanding</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => applyDesignPresetProfile('excellent')}
+                          className={`px-2 py-2 rounded-xl border text-xs font-bold transition-all text-center flex flex-col items-center cursor-pointer ${
+                            totalDesign >= 80 && totalDesign < 90
+                              ? 'bg-gradient-to-r from-novera-gold to-amber-400 text-black border-amber-300 shadow-md font-extrabold'
+                              : 'bg-white/5 hover:bg-white/15 text-zinc-200 border-white/15'
+                          }`}
+                        >
+                          <span className="text-xs">★ 82 Marks</span>
+                          <span className="text-[10px] font-normal opacity-80">Excellent</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => applyDesignPresetProfile('veryGood')}
+                          className={`px-2 py-2 rounded-xl border text-xs font-bold transition-all text-center flex flex-col items-center cursor-pointer ${
+                            totalDesign >= 70 && totalDesign < 80
+                              ? 'bg-gradient-to-r from-novera-gold to-amber-400 text-black border-amber-300 shadow-md font-extrabold'
+                              : 'bg-white/5 hover:bg-white/15 text-zinc-200 border-white/15'
+                          }`}
+                        >
+                          <span className="text-xs">★ 72 Marks</span>
+                          <span className="text-[10px] font-normal opacity-80">Very Good</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => applyDesignPresetProfile('fair')}
+                          className={`px-2 py-2 rounded-xl border text-xs font-bold transition-all text-center flex flex-col items-center cursor-pointer ${
+                            totalDesign < 70
+                              ? 'bg-gradient-to-r from-novera-gold to-amber-400 text-black border-amber-300 shadow-md font-extrabold'
+                              : 'bg-white/5 hover:bg-white/15 text-zinc-200 border-white/15'
+                          }`}
+                        >
+                          <span className="text-xs">60 Marks</span>
+                          <span className="text-[10px] font-normal opacity-80">Fair Standard</span>
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* 5 Official Student Design Criteria Cards */}
+                    <div className="space-y-3 pt-1">
+                      {designCriteriaList.map((crit) => (
+                        <div
+                          key={crit.id}
+                          className="p-3 sm:p-3.5 rounded-2xl bg-white/[0.04] border border-white/10 hover:border-novera-gold/40 transition-colors space-y-2.5"
+                        >
+                          <div className="flex justify-between items-center text-xs">
+                            <div>
+                              <span className="font-bold text-white text-xs sm:text-sm block">
+                                {crit.title}
+                              </span>
+                              <span className="text-[10px] sm:text-[11px] text-zinc-400">
+                                {crit.subtitle}
+                              </span>
+                            </div>
+                            <div className="font-mono font-bold text-xs sm:text-sm text-novera-gold px-2.5 py-0.5 rounded-full bg-novera-gold/15 border border-novera-gold/40 shrink-0">
+                              {crit.val} <span className="text-zinc-400 text-[10px] sm:text-xs font-normal">/ {crit.max}</span>
+                            </div>
+                          </div>
+
+                          {/* Touch Stepper + Range Slider */}
+                          <div className="flex items-center gap-2.5">
+                            <button
+                              type="button"
+                              onClick={() => crit.set(Math.max(0, crit.val - 1))}
+                              className="w-10 h-10 sm:w-9 sm:h-9 rounded-xl bg-white/10 hover:bg-white/20 active:scale-90 text-white font-bold text-lg flex items-center justify-center border border-white/20 shrink-0 select-none shadow-sm cursor-pointer"
+                              title="Decrease 1 mark"
+                            >
+                              &minus;
+                            </button>
+                            <input
+                              type="range"
+                              min="0"
+                              max={crit.max}
+                              value={crit.val}
+                              onChange={(e) => crit.set(Number(e.target.value))}
+                              className="w-full glass-slider cursor-pointer h-2"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => crit.set(Math.min(crit.max, crit.val + 1))}
+                              className="w-10 h-10 sm:w-9 sm:h-9 rounded-xl bg-white/10 hover:bg-white/20 active:scale-90 text-white font-bold text-lg flex items-center justify-center border border-white/20 shrink-0 select-none shadow-sm cursor-pointer"
+                              title="Increase 1 mark"
+                            >
+                              +
+                            </button>
+                          </div>
+
+                          {/* 4 Quick Presets */}
+                          <div className="grid grid-cols-4 gap-1.5 pt-0.5">
+                            {crit.presets.map((preset) => (
+                              <button
+                                key={preset.val}
+                                type="button"
+                                onClick={() => crit.set(preset.val)}
+                                className={`py-1.5 rounded-xl text-xs font-semibold transition-all text-center cursor-pointer ${
+                                  crit.val === preset.val
+                                    ? 'bg-gradient-to-r from-novera-gold to-amber-400 text-black font-extrabold shadow-md scale-[1.02]'
+                                    : 'bg-white/5 hover:bg-white/15 text-zinc-300 border border-white/10'
+                                }`}
+                              >
+                                {preset.label}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Official Award Alignment Footnote */}
+                    <div className="my-2 p-3 rounded-2xl bg-amber-500/10 border border-amber-500/25 flex items-start gap-2.5 text-xs text-zinc-300">
+                      <Sparkles className="w-4 h-4 text-novera-gold shrink-0 mt-0.5" />
+                      <div>
+                        <span className="font-bold text-white block mb-0.5">Official Student Award Tracking</span>
+                        <span>Your markings contribute directly to the <strong>Best Design (Students) Award (Max 100)</strong> tabulated in the Master Admin Vault.</span>
+                      </div>
+                    </div>
+                  </>
+                )}
 
                 {/* Judge Notes */}
                 <div className="pt-1">
@@ -1022,7 +1372,7 @@ export default function JudgePortalPage() {
                 >
                   <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 pointer-events-none" />
                   <Save className="w-4 h-4 text-black" />
-                  <span>{isSaving ? 'Submitting...' : `Confirm & Submit Score (${totalModel} / 100)`}</span>
+                  <span>{isSaving ? 'Submitting...' : `Submit Both Scores (Model: ${totalModel} • Design: ${totalDesign})`}</span>
                 </button>
               </div>
             </div>
