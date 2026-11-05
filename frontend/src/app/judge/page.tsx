@@ -915,14 +915,14 @@ export default function JudgePortalPage() {
 
         return (
           <div
-            className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-xl flex items-center justify-center p-2 sm:p-4 overflow-y-auto animate-in fade-in duration-200 relative"
+            className="fixed inset-0 z-[100] bg-black/85 backdrop-blur-xl flex items-center justify-center p-3 sm:p-6 overflow-y-auto animate-in fade-in duration-200"
             onClick={() => setScoringCandidate(null)}
           >
             {/* 🌟 Cinematic Fashion Runway Stage Video Animation in Scorecard Backdrop */}
-            <RunwayStageBackground contained className="opacity-95" />
+            <RunwayStageBackground contained className="opacity-90" />
 
             <div
-              className="max-w-xl w-full bg-[#0d0b09]/95 backdrop-blur-3xl rounded-3xl border border-novera-gold/40 shadow-[0_0_80px_rgba(0,0,0,0.95)] relative z-10 animate-in zoom-in-95 duration-200 max-h-[92vh] sm:max-h-[90vh] flex flex-col overflow-hidden text-white"
+              className="max-w-xl w-full bg-[#0d0b09]/95 backdrop-blur-3xl rounded-3xl border border-novera-gold/40 shadow-[0_0_80px_rgba(0,0,0,0.95)] relative z-10 animate-in zoom-in-95 duration-200 max-h-[90vh] flex flex-col overflow-hidden text-white my-auto"
               onClick={(e) => e.stopPropagation()}
             >
               {/* 📌 PERMANENT HEADER (NEVER SCROLLS OUT OF VIEW - 100% VISIBLE WITH SAFE PADDING) */}
@@ -946,15 +946,15 @@ export default function JudgePortalPage() {
                   </div>
                 </div>
 
-                {/* 🔴 PROMINENT, ALWAYS-VISIBLE CLOSE BUTTON */}
+                {/* 🔴 PROMINENT, HIGH-CONTRAST CLOSE BUTTON */}
                 <button
                   type="button"
                   onClick={() => setScoringCandidate(null)}
-                  className="px-3.5 py-2 rounded-full bg-white/10 hover:bg-white/20 active:scale-95 text-zinc-200 hover:text-white border border-white/20 flex items-center gap-1.5 text-xs font-bold transition-all shadow-md shrink-0 cursor-pointer"
+                  className="px-4 py-2 rounded-full bg-rose-500/20 hover:bg-rose-500/40 active:scale-95 text-rose-200 hover:text-white border border-rose-400/50 flex items-center gap-1.5 text-xs font-extrabold uppercase tracking-wider transition-all shadow-md shrink-0 cursor-pointer"
                   title="Close Scorecard"
                 >
-                  <X className="w-4 h-4 text-amber-300" />
-                  <span>Close</span>
+                  <X className="w-4 h-4 text-rose-300" />
+                  <span>Close &times;</span>
                 </button>
               </div>
 
