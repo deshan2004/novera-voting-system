@@ -14,7 +14,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
   // If on /qr (Stage Screen) or /judge (Jury Portal), hide public audience navigation and banners!
   if (isStageMode || isJudgeMode) {
-    return <main className="min-h-screen bg-novera-ink text-novera-paper flex flex-col">{children}</main>;
+    return <main className="min-h-screen text-white flex flex-col bg-transparent">{children}</main>;
   }
 
   return (

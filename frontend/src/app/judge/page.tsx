@@ -362,7 +362,7 @@ export default function JudgePortalPage() {
 
   if (!isAuthenticated) {
     return (
-      <div className="min-h-[85vh] flex items-center justify-center p-3 sm:p-4 relative overflow-hidden">
+      <div className="min-h-[85vh] flex items-center justify-center p-3 sm:p-4 relative overflow-hidden bg-transparent">
         {/* Haute Couture Fashion Runway Stage Animation */}
         <RunwayStageBackground />
 
@@ -428,7 +428,7 @@ export default function JudgePortalPage() {
   }
 
   return (
-    <div className="min-h-screen relative bg-[#070605] text-white overflow-x-hidden">
+    <div className="min-h-screen relative bg-transparent text-white overflow-x-hidden">
       {/* Haute Couture Fashion Runway Stage Animation */}
       <RunwayStageBackground />
 
