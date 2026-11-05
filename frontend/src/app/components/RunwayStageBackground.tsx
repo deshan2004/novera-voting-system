@@ -169,13 +169,13 @@ export default function RunwayStageBackground({
       window.removeEventListener('resize', handleResize);
       cancelAnimationFrame(animationFrameId);
     };
-  }, []);
+  }, [contained]);
 
   return (
     <div
       className={`${
         contained ? 'absolute inset-0' : 'fixed inset-0 -z-20'
-      } pointer-events-none overflow-hidden bg-[#070605] ${className}`}
+      } pointer-events-none overflow-hidden ${className}`}
       aria-hidden="true"
     >
       {/* 1. High-Fashion Runway Looping Video */}
