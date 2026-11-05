@@ -24,13 +24,22 @@ import {
   Check,
   RefreshCw,
   Send,
+  Info,
+  X,
+  Eye,
+  User,
 } from 'lucide-react';
+import Image from 'next/image';
 import RunwayStageBackground from '@/app/components/RunwayStageBackground';
 import VotingCountdownOverlay from '@/app/components/VotingCountdownOverlay';
 
 export default function VotePage() {
   const [candidates, setCandidates] = useState<Candidate[]>([]);
   const [voterStatus, setVoterStatus] = useState<VoterStatus | null>(null);
+
+  // Selected candidate to view in detailed Profile Modal
+  const [profileCandidate, setProfileCandidate] = useState<Candidate | null>(null);
+  const [showReceiptContenders, setShowReceiptContenders] = useState<boolean>(false);
 
   // Creative Scan Entry Animation
   const [showScanIntro, setShowScanIntro] = useState<boolean>(true);
@@ -413,39 +422,128 @@ export default function VotePage() {
             </p>
           </div>
 
-          {/* Voted Cards Preview */}
+          {/* Voted Cards Preview (Clickable to view details) */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-left max-w-lg mx-auto">
             {/* Boy */}
-            <div className="p-4 rounded-2xl bg-white/5 border border-white/15 backdrop-blur-md shadow-sm flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-novera-gold/20 border border-novera-gold/40 text-novera-gold text-xs font-mono font-bold flex items-center justify-center shrink-0">
-                {boyVotedCandidate?.candidateNumber || 'M-XX'}
+            <button
+              type="button"
+              onClick={() => boyVotedCandidate && setProfileCandidate(boyVotedCandidate)}
+              className="p-4 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/15 backdrop-blur-md shadow-sm flex items-center justify-between gap-3 text-left transition-all group cursor-pointer"
+            >
+              <div className="flex items-center gap-3 truncate">
+                <div className="w-10 h-10 rounded-xl bg-novera-gold/20 border border-novera-gold/40 text-novera-gold text-xs font-mono font-bold flex items-center justify-center shrink-0">
+                  {boyVotedCandidate?.candidateNumber || 'M-XX'}
+                </div>
+                <div className="truncate">
+                  <span className="text-[10px] uppercase font-bold text-novera-gold block">Best Male Model</span>
+                  <span className="font-serif font-bold text-sm text-white truncate block group-hover:text-amber-200 transition-colors">
+                    {boyVotedCandidate?.name || 'Voted'}
+                  </span>
+                </div>
               </div>
-              <div className="truncate">
-                <span className="text-[10px] uppercase font-bold text-novera-gold block">Best Male Model</span>
-                <span className="font-serif font-bold text-sm text-white truncate block">
-                  {boyVotedCandidate?.name || 'Voted'}
-                </span>
+              <div className="text-[10px] text-amber-200/80 group-hover:text-amber-200 flex items-center gap-1 font-mono shrink-0">
+                <Info className="w-3.5 h-3.5 text-novera-gold" />
+                <span>Details &rarr;</span>
               </div>
-            </div>
+            </button>
 
             {/* Girl */}
-            <div className="p-4 rounded-2xl bg-white/5 border border-white/15 backdrop-blur-md shadow-sm flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-novera-gold/20 border border-novera-gold/40 text-novera-gold text-xs font-mono font-bold flex items-center justify-center shrink-0">
-                {girlVotedCandidate?.candidateNumber || 'F-XX'}
+            <button
+              type="button"
+              onClick={() => girlVotedCandidate && setProfileCandidate(girlVotedCandidate)}
+              className="p-4 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/15 backdrop-blur-md shadow-sm flex items-center justify-between gap-3 text-left transition-all group cursor-pointer"
+            >
+              <div className="flex items-center gap-3 truncate">
+                <div className="w-10 h-10 rounded-xl bg-novera-gold/20 border border-novera-gold/40 text-novera-gold text-xs font-mono font-bold flex items-center justify-center shrink-0">
+                  {girlVotedCandidate?.candidateNumber || 'F-XX'}
+                </div>
+                <div className="truncate">
+                  <span className="text-[10px] uppercase font-bold text-novera-gold block">Best Female Model</span>
+                  <span className="font-serif font-bold text-sm text-white truncate block group-hover:text-amber-200 transition-colors">
+                    {girlVotedCandidate?.name || 'Voted'}
+                  </span>
+                </div>
               </div>
-              <div className="truncate">
-                <span className="text-[10px] uppercase font-bold text-novera-gold block">Best Female Model</span>
-                <span className="font-serif font-bold text-sm text-white truncate block">
-                  {girlVotedCandidate?.name || 'Voted'}
-                </span>
+              <div className="text-[10px] text-amber-200/80 group-hover:text-amber-200 flex items-center gap-1 font-mono shrink-0">
+                <Info className="w-3.5 h-3.5 text-novera-gold" />
+                <span>Details &rarr;</span>
               </div>
-            </div>
+            </button>
           </div>
 
           <div className="pt-2 text-[11px] text-zinc-400 flex items-center justify-center gap-2">
             <Lock className="w-3.5 h-3.5 text-emerald-400" />
             <span>Strict single-ballot verification enforced</span>
           </div>
+
+          {/* Toggle to browse all contenders and view their profiles */}
+          <div className="pt-2">
+            <button
+              type="button"
+              onClick={() => setShowReceiptContenders((prev) => !prev)}
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white/10 hover:bg-white/15 border border-white/20 text-novera-gold text-xs font-semibold uppercase tracking-wider transition-all hover:scale-105 active:scale-95"
+            >
+              <Eye className="w-3.5 h-3.5 text-novera-gold" />
+              <span>{showReceiptContenders ? 'Hide Contenders Roster' : 'View All Contenders & Details'}</span>
+            </button>
+          </div>
+
+          {/* Expanded Contender Roster on Receipt */}
+          {showReceiptContenders && (
+            <div className="pt-4 space-y-6 border-t border-white/10 text-left animate-in fade-in duration-300 max-w-2xl mx-auto">
+              <div className="space-y-3">
+                <span className="text-[10px] font-mono uppercase tracking-widest text-novera-gold block font-bold text-center">
+                  Male Models Roster &bull; Tap any name to view details
+                </span>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                  {boys.map((c) => (
+                    <button
+                      key={c.id}
+                      type="button"
+                      onClick={() => setProfileCandidate(c)}
+                      className="p-3 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 flex items-center justify-between text-left transition-all group"
+                    >
+                      <div className="flex items-center gap-2.5 truncate">
+                        <span className="px-2 py-0.5 rounded-lg bg-white/10 text-novera-gold font-mono font-bold text-xs border border-white/10">
+                          {c.candidateNumber}
+                        </span>
+                        <span className="font-serif font-bold text-sm text-white group-hover:text-amber-200 transition-colors truncate">
+                          {c.name}
+                        </span>
+                      </div>
+                      <Info className="w-3.5 h-3.5 text-zinc-400 group-hover:text-novera-gold shrink-0 transition-colors" />
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                <span className="text-[10px] font-mono uppercase tracking-widest text-novera-gold block font-bold text-center">
+                  Female Models Roster &bull; Tap any name to view details
+                </span>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                  {girls.map((c) => (
+                    <button
+                      key={c.id}
+                      type="button"
+                      onClick={() => setProfileCandidate(c)}
+                      className="p-3 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 flex items-center justify-between text-left transition-all group"
+                    >
+                      <div className="flex items-center gap-2.5 truncate">
+                        <span className="px-2 py-0.5 rounded-lg bg-white/10 text-novera-gold font-mono font-bold text-xs border border-white/10">
+                          {c.candidateNumber}
+                        </span>
+                        <span className="font-serif font-bold text-sm text-white group-hover:text-amber-200 transition-colors truncate">
+                          {c.name}
+                        </span>
+                      </div>
+                      <Info className="w-3.5 h-3.5 text-zinc-400 group-hover:text-novera-gold shrink-0 transition-colors" />
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       ) : (
         /* FAST TWO-SECTION BALLOT (Single Screen, Compact Chips, No giant photos) */
@@ -534,75 +632,142 @@ export default function VotePage() {
                 )}
               </div>
 
-              {hasVotedBoy ? (
-                <div className="p-3.5 rounded-2xl bg-emerald-950/40 border border-emerald-500/40 text-xs flex items-center justify-between">
+              {/* Show Voted Banner if already voted */}
+              {hasVotedBoy && boyVotedCandidate && (
+                <div
+                  onClick={() => setProfileCandidate(boyVotedCandidate)}
+                  className="p-3.5 rounded-2xl bg-emerald-950/40 border border-emerald-500/40 text-xs flex items-center justify-between cursor-pointer hover:bg-emerald-950/60 transition-all group"
+                >
                   <div className="flex items-center gap-3">
                     <span className="px-2.5 py-1 rounded-lg bg-emerald-600 text-white font-mono font-bold text-xs">
-                      {boyVotedCandidate?.candidateNumber}
+                      {boyVotedCandidate.candidateNumber}
                     </span>
-                    <span className="font-serif font-bold text-sm text-emerald-200">
-                      {boyVotedCandidate?.name}
-                    </span>
+                    <div>
+                      <span className="text-[10px] text-emerald-400 font-bold uppercase block">Your Recorded Vote</span>
+                      <span className="font-serif font-bold text-sm text-emerald-200 group-hover:underline">
+                        {boyVotedCandidate.name}
+                      </span>
+                    </div>
                   </div>
-                  <span className="text-[11px] text-emerald-300 font-semibold uppercase tracking-wider flex items-center gap-1">
-                    <Lock className="w-3.5 h-3.5" />
-                    <span>Locked</span>
-                  </span>
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {boys.map((candidate) => {
-                    const isSelected = selectedBoyId === candidate.id;
-                    return (
-                      <button
-                        key={candidate.id}
-                        type="button"
-                        onClick={() => setSelectedBoyId(candidate.id)}
-                        className={`p-3.5 rounded-2xl text-left flex items-center justify-between gap-3 transition-all duration-200 ${
-                          isSelected
-                            ? 'bg-gradient-to-r from-novera-foil/30 to-amber-900/30 text-white shadow-[0_0_25px_rgba(203,167,95,0.35)] border-2 border-novera-foil scale-[1.01]'
-                            : 'bg-white/5 hover:bg-white/10 border border-white/10 text-white backdrop-blur-md'
-                        }`}
-                      >
-                        <div className="flex items-center gap-3 truncate">
-                          <span
-                            className={`w-10 h-10 rounded-xl font-mono text-xs font-bold flex items-center justify-center shrink-0 transition-colors ${
-                              isSelected
-                                ? 'bg-gradient-to-br from-novera-gold to-amber-500 text-black font-extrabold'
-                                : 'bg-white/10 text-novera-gold border border-white/15'
-                            }`}
-                          >
-                            {candidate.candidateNumber}
-                          </span>
-                          <div className="truncate">
-                            <span className="font-serif font-bold text-sm truncate block text-white">
-                              {candidate.name}
-                            </span>
-                            <span
-                              className={`text-[11px] block truncate ${
-                                isSelected ? 'text-amber-200' : 'text-zinc-400'
-                              }`}
-                            >
-                              Contender
-                            </span>
-                          </div>
-                        </div>
-
-                        {/* Selection Ring */}
-                        <div
-                          className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 border-2 transition-all ${
-                            isSelected
-                              ? 'bg-novera-gold border-novera-gold text-black'
-                              : 'border-white/20'
-                          }`}
-                        >
-                          {isSelected && <Check className="w-3.5 h-3.5 stroke-[3]" />}
-                        </div>
-                      </button>
-                    );
-                  })}
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] text-emerald-300 font-mono underline">View Profile &rarr;</span>
+                    <Lock className="w-3.5 h-3.5 text-emerald-400" />
+                  </div>
                 </div>
               )}
+
+              {/* All Male Contenders Grid (Always visible so users can view profile details!) */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {boys.map((candidate) => {
+                  const isSelected = selectedBoyId === candidate.id;
+                  const isVotedForThis = voterStatus?.boyVotedFor === candidate.id;
+                  const canSelect = votingSettings.isVotingOpen && !hasVotedBoy;
+
+                  return (
+                    <div
+                      key={candidate.id}
+                      onClick={() => {
+                        if (canSelect) {
+                          setSelectedBoyId(candidate.id);
+                        } else {
+                          setProfileCandidate(candidate);
+                        }
+                      }}
+                      className={`p-3.5 rounded-2xl text-left flex items-center justify-between gap-3 transition-all duration-200 cursor-pointer ${
+                        isVotedForThis
+                          ? 'bg-emerald-950/30 border-2 border-emerald-500/60 shadow-[0_0_20px_rgba(16,185,129,0.2)]'
+                          : isSelected
+                          ? 'bg-gradient-to-r from-novera-foil/30 to-amber-900/30 text-white shadow-[0_0_25px_rgba(203,167,95,0.35)] border-2 border-novera-foil scale-[1.01]'
+                          : 'bg-white/5 hover:bg-white/10 border border-white/10 text-white backdrop-blur-md'
+                      }`}
+                    >
+                      <div className="flex items-center gap-3 truncate">
+                        <span
+                          className={`w-10 h-10 rounded-xl font-mono text-xs font-bold flex items-center justify-center shrink-0 transition-colors ${
+                            isVotedForThis
+                              ? 'bg-emerald-500 text-black font-extrabold'
+                              : isSelected
+                              ? 'bg-gradient-to-br from-novera-gold to-amber-500 text-black font-extrabold'
+                              : 'bg-white/10 text-novera-gold border border-white/15'
+                          }`}
+                        >
+                          {candidate.candidateNumber}
+                        </span>
+                        <div className="truncate">
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setProfileCandidate(candidate);
+                            }}
+                            className="font-serif font-bold text-sm truncate block text-white hover:text-novera-gold transition-colors text-left group"
+                            title="Click to view candidate details"
+                          >
+                            <span className="underline decoration-dotted decoration-amber-400/60 underline-offset-4 group-hover:decoration-novera-gold group-hover:text-amber-200">
+                              {candidate.name}
+                            </span>
+                          </button>
+                          <div className="flex items-center gap-2 pt-0.5">
+                            <span
+                              className={`text-[11px] block truncate ${
+                                isVotedForThis
+                                  ? 'text-emerald-300 font-semibold'
+                                  : isSelected
+                                  ? 'text-amber-200'
+                                  : 'text-zinc-400'
+                              }`}
+                            >
+                              {isVotedForThis ? 'Voted' : 'Contender'}
+                            </span>
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setProfileCandidate(candidate);
+                              }}
+                              className="text-[10px] text-novera-gold hover:text-white inline-flex items-center gap-1 bg-novera-gold/10 hover:bg-novera-gold/25 px-2 py-0.5 rounded-full border border-novera-gold/30 transition-all font-mono"
+                            >
+                              <Info className="w-2.5 h-2.5 text-novera-gold" />
+                              <span>Details</span>
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Selection Ring / Status */}
+                      <div className="shrink-0 flex items-center">
+                        {canSelect ? (
+                          <div
+                            className={`w-6 h-6 rounded-full flex items-center justify-center border-2 transition-all ${
+                              isSelected
+                                ? 'bg-novera-gold border-novera-gold text-black'
+                                : 'border-white/20'
+                            }`}
+                          >
+                            {isSelected && <Check className="w-3.5 h-3.5 stroke-[3]" />}
+                          </div>
+                        ) : isVotedForThis ? (
+                          <div className="w-6 h-6 rounded-full bg-emerald-500 text-black flex items-center justify-center shadow-md">
+                            <Check className="w-3.5 h-3.5 stroke-[3]" />
+                          </div>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setProfileCandidate(candidate);
+                            }}
+                            className="w-7 h-7 rounded-full bg-white/10 hover:bg-novera-gold hover:text-black text-zinc-300 flex items-center justify-center transition-all text-xs"
+                            title="View Details"
+                          >
+                            <Info className="w-3.5 h-3.5" />
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
 
               {/* IMMEDIATE VOTE BUTTON FOR BEST MALE MODEL */}
               {!hasVotedBoy ? (
@@ -674,75 +839,142 @@ export default function VotePage() {
                 )}
               </div>
 
-              {hasVotedGirl ? (
-                <div className="p-3.5 rounded-2xl bg-emerald-950/40 border border-emerald-500/40 text-xs flex items-center justify-between">
+              {/* Show Voted Banner if already voted */}
+              {hasVotedGirl && girlVotedCandidate && (
+                <div
+                  onClick={() => setProfileCandidate(girlVotedCandidate)}
+                  className="p-3.5 rounded-2xl bg-emerald-950/40 border border-emerald-500/40 text-xs flex items-center justify-between cursor-pointer hover:bg-emerald-950/60 transition-all group"
+                >
                   <div className="flex items-center gap-3">
                     <span className="px-2.5 py-1 rounded-lg bg-emerald-600 text-white font-mono font-bold text-xs">
-                      {girlVotedCandidate?.candidateNumber}
+                      {girlVotedCandidate.candidateNumber}
                     </span>
-                    <span className="font-serif font-bold text-sm text-emerald-200">
-                      {girlVotedCandidate?.name}
-                    </span>
+                    <div>
+                      <span className="text-[10px] text-emerald-400 font-bold uppercase block">Your Recorded Vote</span>
+                      <span className="font-serif font-bold text-sm text-emerald-200 group-hover:underline">
+                        {girlVotedCandidate.name}
+                      </span>
+                    </div>
                   </div>
-                  <span className="text-[11px] text-emerald-300 font-semibold uppercase tracking-wider flex items-center gap-1">
-                    <Lock className="w-3.5 h-3.5" />
-                    <span>Locked</span>
-                  </span>
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {girls.map((candidate) => {
-                    const isSelected = selectedGirlId === candidate.id;
-                    return (
-                      <button
-                        key={candidate.id}
-                        type="button"
-                        onClick={() => setSelectedGirlId(candidate.id)}
-                        className={`p-3.5 rounded-2xl text-left flex items-center justify-between gap-3 transition-all duration-200 ${
-                          isSelected
-                            ? 'bg-gradient-to-r from-novera-foil/30 to-amber-900/30 text-white shadow-[0_0_25px_rgba(203,167,95,0.35)] border-2 border-novera-foil scale-[1.01]'
-                            : 'bg-white/5 hover:bg-white/10 border border-white/10 text-white backdrop-blur-md'
-                        }`}
-                      >
-                        <div className="flex items-center gap-3 truncate">
-                          <span
-                            className={`w-10 h-10 rounded-xl font-mono text-xs font-bold flex items-center justify-center shrink-0 transition-colors ${
-                              isSelected
-                                ? 'bg-gradient-to-br from-novera-gold to-amber-500 text-black font-extrabold'
-                                : 'bg-white/10 text-novera-gold border border-white/15'
-                            }`}
-                          >
-                            {candidate.candidateNumber}
-                          </span>
-                          <div className="truncate">
-                            <span className="font-serif font-bold text-sm truncate block text-white">
-                              {candidate.name}
-                            </span>
-                            <span
-                              className={`text-[11px] block truncate ${
-                                isSelected ? 'text-amber-200' : 'text-zinc-400'
-                              }`}
-                            >
-                              Contender
-                            </span>
-                          </div>
-                        </div>
-
-                        {/* Selection Ring */}
-                        <div
-                          className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 border-2 transition-all ${
-                            isSelected
-                              ? 'bg-novera-gold border-novera-gold text-black'
-                              : 'border-white/20'
-                          }`}
-                        >
-                          {isSelected && <Check className="w-3.5 h-3.5 stroke-[3]" />}
-                        </div>
-                      </button>
-                    );
-                  })}
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] text-emerald-300 font-mono underline">View Profile &rarr;</span>
+                    <Lock className="w-3.5 h-3.5 text-emerald-400" />
+                  </div>
                 </div>
               )}
+
+              {/* All Female Contenders Grid (Always visible so users can view profile details!) */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {girls.map((candidate) => {
+                  const isSelected = selectedGirlId === candidate.id;
+                  const isVotedForThis = voterStatus?.girlVotedFor === candidate.id;
+                  const canSelect = votingSettings.isVotingOpen && !hasVotedGirl;
+
+                  return (
+                    <div
+                      key={candidate.id}
+                      onClick={() => {
+                        if (canSelect) {
+                          setSelectedGirlId(candidate.id);
+                        } else {
+                          setProfileCandidate(candidate);
+                        }
+                      }}
+                      className={`p-3.5 rounded-2xl text-left flex items-center justify-between gap-3 transition-all duration-200 cursor-pointer ${
+                        isVotedForThis
+                          ? 'bg-emerald-950/30 border-2 border-emerald-500/60 shadow-[0_0_20px_rgba(16,185,129,0.2)]'
+                          : isSelected
+                          ? 'bg-gradient-to-r from-novera-foil/30 to-amber-900/30 text-white shadow-[0_0_25px_rgba(203,167,95,0.35)] border-2 border-novera-foil scale-[1.01]'
+                          : 'bg-white/5 hover:bg-white/10 border border-white/10 text-white backdrop-blur-md'
+                      }`}
+                    >
+                      <div className="flex items-center gap-3 truncate">
+                        <span
+                          className={`w-10 h-10 rounded-xl font-mono text-xs font-bold flex items-center justify-center shrink-0 transition-colors ${
+                            isVotedForThis
+                              ? 'bg-emerald-500 text-black font-extrabold'
+                              : isSelected
+                              ? 'bg-gradient-to-br from-novera-gold to-amber-500 text-black font-extrabold'
+                              : 'bg-white/10 text-novera-gold border border-white/15'
+                          }`}
+                        >
+                          {candidate.candidateNumber}
+                        </span>
+                        <div className="truncate">
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setProfileCandidate(candidate);
+                            }}
+                            className="font-serif font-bold text-sm truncate block text-white hover:text-novera-gold transition-colors text-left group"
+                            title="Click to view candidate details"
+                          >
+                            <span className="underline decoration-dotted decoration-amber-400/60 underline-offset-4 group-hover:decoration-novera-gold group-hover:text-amber-200">
+                              {candidate.name}
+                            </span>
+                          </button>
+                          <div className="flex items-center gap-2 pt-0.5">
+                            <span
+                              className={`text-[11px] block truncate ${
+                                isVotedForThis
+                                  ? 'text-emerald-300 font-semibold'
+                                  : isSelected
+                                  ? 'text-amber-200'
+                                  : 'text-zinc-400'
+                              }`}
+                            >
+                              {isVotedForThis ? 'Voted' : 'Contender'}
+                            </span>
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setProfileCandidate(candidate);
+                              }}
+                              className="text-[10px] text-novera-gold hover:text-white inline-flex items-center gap-1 bg-novera-gold/10 hover:bg-novera-gold/25 px-2 py-0.5 rounded-full border border-novera-gold/30 transition-all font-mono"
+                            >
+                              <Info className="w-2.5 h-2.5 text-novera-gold" />
+                              <span>Details</span>
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Selection Ring / Status */}
+                      <div className="shrink-0 flex items-center">
+                        {canSelect ? (
+                          <div
+                            className={`w-6 h-6 rounded-full flex items-center justify-center border-2 transition-all ${
+                              isSelected
+                                ? 'bg-novera-gold border-novera-gold text-black'
+                                : 'border-white/20'
+                            }`}
+                          >
+                            {isSelected && <Check className="w-3.5 h-3.5 stroke-[3]" />}
+                          </div>
+                        ) : isVotedForThis ? (
+                          <div className="w-6 h-6 rounded-full bg-emerald-500 text-black flex items-center justify-center shadow-md">
+                            <Check className="w-3.5 h-3.5 stroke-[3]" />
+                          </div>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setProfileCandidate(candidate);
+                            }}
+                            className="w-7 h-7 rounded-full bg-white/10 hover:bg-novera-gold hover:text-black text-zinc-300 flex items-center justify-center transition-all text-xs"
+                            title="View Details"
+                          >
+                            <Info className="w-3.5 h-3.5" />
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
 
               {/* IMMEDIATE VOTE BUTTON FOR BEST FEMALE MODEL */}
               {!hasVotedGirl ? (
@@ -798,6 +1030,130 @@ export default function VotePage() {
         </div>
       )}
       </div>
+
+      {/* ================= CANDIDATE PROFILE DETAILS MODAL (VIEW ANYTIME, EVEN WHEN LOCKED) ================= */}
+      {profileCandidate && (
+        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-2xl flex items-center justify-center p-3 sm:p-4 animate-in fade-in duration-200">
+          <div className="relative w-full max-w-md bg-[#0d0b08] border border-novera-gold/40 rounded-3xl overflow-hidden shadow-[0_0_60px_rgba(0,0,0,0.95),0_0_35px_rgba(203,167,95,0.25)] text-white animate-in zoom-in-95 duration-200 flex flex-col max-h-[92vh]">
+            {/* Hero Image Container */}
+            <div className="relative w-full h-72 sm:h-80 bg-zinc-950 shrink-0 overflow-hidden">
+              <Image
+                src={profileCandidate.imageUrl}
+                alt={profileCandidate.name}
+                fill
+                priority
+                className="object-cover object-top"
+                sizes="(max-width: 768px) 100vw, 450px"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#0d0b08] via-[#0d0b08]/30 to-black/60" />
+
+              {/* Close Button */}
+              <button
+                type="button"
+                onClick={() => setProfileCandidate(null)}
+                className="absolute top-4 right-4 w-9 h-9 rounded-full bg-black/60 backdrop-blur-md border border-white/20 text-white flex items-center justify-center hover:bg-white/20 transition-all z-10 shadow-lg"
+              >
+                <X className="w-4 h-4" />
+              </button>
+
+              {/* Badges */}
+              <div className="absolute top-4 left-4 flex items-center gap-2 z-10">
+                <span className="px-3 py-1 rounded-full bg-novera-gold text-black font-mono font-extrabold text-xs shadow-md">
+                  {profileCandidate.candidateNumber}
+                </span>
+                <span className="px-3 py-1 rounded-full bg-black/70 backdrop-blur-md border border-white/20 text-white font-mono text-[10px] uppercase tracking-wider font-semibold">
+                  {profileCandidate.category === 'boy' ? 'Male Model' : 'Female Model'}
+                </span>
+              </div>
+
+              {/* Contender Name Overlay */}
+              <div className="absolute bottom-3 left-5 right-5 space-y-0.5">
+                <span className="text-[10px] font-mono uppercase tracking-[0.25em] text-amber-200/80 block font-bold">
+                  Official Contender Profile
+                </span>
+                <h3 className="font-serif text-2xl sm:text-3xl font-extrabold text-white drop-shadow-md">
+                  {profileCandidate.name}
+                </h3>
+              </div>
+            </div>
+
+            {/* Modal Body */}
+            <div className="p-5 sm:p-6 space-y-4 overflow-y-auto">
+              {/* Bio & Runway Editorial Statement */}
+              <div className="p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md space-y-1.5">
+                <span className="text-[10px] font-mono uppercase tracking-widest text-novera-gold font-bold block">
+                  Runway Bio & Editorial Profile
+                </span>
+                <p className="text-xs sm:text-sm text-zinc-300 leading-relaxed italic font-serif">
+                  &ldquo;{profileCandidate.bio}&rdquo;
+                </p>
+              </div>
+
+              {/* Contender Specifications */}
+              <div className="grid grid-cols-2 gap-2.5 text-xs">
+                <div className="p-3 rounded-xl bg-white/5 border border-white/10 text-center">
+                  <span className="text-[10px] text-zinc-400 font-mono uppercase block">Age / Category</span>
+                  <strong className="text-white font-serif text-sm block pt-0.5">
+                    {profileCandidate.age || 22} Years &bull; {profileCandidate.category === 'boy' ? 'Boy' : 'Girl'}
+                  </strong>
+                </div>
+                <div className="p-3 rounded-xl bg-white/5 border border-white/10 text-center">
+                  <span className="text-[10px] text-zinc-400 font-mono uppercase block">Event</span>
+                  <strong className="text-novera-gold font-serif text-sm block pt-0.5">
+                    NOVERA &rsquo;26 Runway
+                  </strong>
+                </div>
+              </div>
+
+              {/* Action / Lock Status */}
+              <div className="pt-1">
+                {votingSettings.isVotingOpen &&
+                ((profileCandidate.category === 'boy' && !hasVotedBoy) ||
+                  (profileCandidate.category === 'girl' && !hasVotedGirl)) ? (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (profileCandidate.category === 'boy') {
+                        setSelectedBoyId(profileCandidate.id);
+                        setCategoryFilter('boy');
+                      } else {
+                        setSelectedGirlId(profileCandidate.id);
+                        setCategoryFilter('girl');
+                      }
+                      setProfileCandidate(null);
+                    }}
+                    className="w-full py-3.5 rounded-2xl font-bold uppercase tracking-wider text-xs sm:text-sm bg-gradient-to-r from-novera-gold to-amber-500 text-black shadow-[0_0_25px_rgba(203,167,95,0.4)] hover:brightness-110 flex items-center justify-center gap-2 font-extrabold transition-all"
+                  >
+                    <Crown className="w-4 h-4 text-black" />
+                    <span>Select {profileCandidate.name} to Vote</span>
+                  </button>
+                ) : (
+                  <div className="flex items-center justify-between gap-3 p-3 rounded-xl bg-white/5 border border-white/10">
+                    <div className="flex items-center gap-2 text-xs text-zinc-300">
+                      <Lock className="w-3.5 h-3.5 text-novera-gold" />
+                      <span className="text-[11px] font-mono">
+                        {!votingSettings.isVotingOpen
+                          ? 'Audience Voting Closed'
+                          : (profileCandidate.category === 'boy' && voterStatus?.boyVotedFor === profileCandidate.id) ||
+                            (profileCandidate.category === 'girl' && voterStatus?.girlVotedFor === profileCandidate.id)
+                          ? 'Your Verified Selection'
+                          : 'Ballot Locked for this Category'}
+                      </span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setProfileCandidate(null)}
+                      className="px-4 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white text-xs font-semibold uppercase tracking-wider transition-all"
+                    >
+                      Close Details
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
