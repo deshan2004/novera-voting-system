@@ -415,7 +415,7 @@ export default function JudgePortalPage() {
             >
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 pointer-events-none" />
               <Lock className="w-4 h-4" />
-              <span>Unlock Jury Scorecard</span>
+              <span>Unlock Judges Scorecard</span>
             </button>
           </form>
 
@@ -476,7 +476,7 @@ export default function JudgePortalPage() {
           <div>
             <div className="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-widest text-novera-gold">
               <Sparkles className="w-3.5 h-3.5 text-novera-gold animate-spin" style={{ animationDuration: '6s' }} />
-              <span>Official Runway Jury &bull; Seat Verified</span>
+              <span>Official Runway Judges &bull; Seat Verified</span>
             </div>
             <h1 className="font-serif text-2xl sm:text-3xl font-bold text-white">
               {activeJudge.name}
