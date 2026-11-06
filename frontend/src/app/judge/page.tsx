@@ -1070,14 +1070,14 @@ export default function JudgePortalPage() {
 
         return (
           <div
-            className="fixed inset-0 z-[100] bg-black/90 backdrop-blur-xl flex items-center justify-center p-2 sm:p-4 overflow-y-auto"
+            className="fixed inset-0 z-[9999] bg-black/90 backdrop-blur-2xl flex items-center justify-center p-2 sm:p-4 overflow-y-auto"
             onClick={() => setScoringCandidate(null)}
           >
             {/* 🌟 Cinematic Fashion Runway Stage Video Animation in Scorecard Backdrop */}
             <RunwayStageBackground contained className="opacity-90 pointer-events-none" />
 
             <div
-              className="max-w-2xl w-full bg-[#0d0b09]/98 backdrop-blur-3xl rounded-3xl border border-novera-gold/40 shadow-[0_0_80px_rgba(0,0,0,0.95)] relative z-10 animate-in zoom-in-95 duration-200 flex flex-col overflow-hidden text-white my-auto max-h-[94vh]"
+              className="max-w-2xl w-full bg-[#0d0b09]/98 backdrop-blur-3xl rounded-3xl border border-novera-gold/40 shadow-[0_0_80px_rgba(0,0,0,0.95)] relative z-10 animate-in zoom-in-95 duration-200 flex flex-col overflow-hidden text-white my-auto max-h-[90vh]"
               onClick={(e) => e.stopPropagation()}
             >
               {/* 📌 COMPACT 1-LINE HEADER (Candidate + Category Tabs + Close) */}

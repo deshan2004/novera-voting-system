@@ -58,7 +58,6 @@ import {
 } from 'lucide-react';
 import Image from 'next/image';
 import RunwayStageBackground from '@/app/components/RunwayStageBackground';
-import VotingCountdownOverlay from '@/app/components/VotingCountdownOverlay';
 import VotingClosedCeremonyOverlay from '@/app/components/VotingClosedCeremonyOverlay';
 
 export type AdminRole = 'master' | 'stage';
@@ -572,9 +571,9 @@ export default function AdminLeaderboardPage() {
       isOpen: true,
       title: 'Reset All Judge Scores?',
       subtitle: 'CLEAR ALL ROUND EVALUATIONS',
-      description: 'Are you sure you want to reset all JUDGES scores to 0? This will permanently wipe all scoring marks and submitted scorecards across all 6 official judges.',
+      description: `Are you sure you want to reset all JUDGES scores to 0? This will permanently wipe all scoring marks and submitted scorecards across all ${OFFICIAL_JUDGE_ROSTER.length} official judges.`,
       confirmLabel: 'Yes, Reset Judge Scores',
-      warningNote: 'All 6 judge accounts will have their submitted marksheets unlocked and reset to 0.',
+      warningNote: `All ${OFFICIAL_JUDGE_ROSTER.length} judge accounts will have their submitted marksheets unlocked and reset to 0.`,
       onConfirm: async () => {
         setIsResetting(true);
         try {
@@ -698,25 +697,8 @@ export default function AdminLeaderboardPage() {
 
   return (
     <div className="min-h-screen relative text-white overflow-x-hidden print:bg-white print:text-black print:min-h-0">
-      {/* 🌟 CINEMATIC RUNWAY OPENING COUNTDOWN OVERLAY */}
-      {votingSettings.countdownUntil && votingSettings.countdownUntil > Date.now() && (
-        <VotingCountdownOverlay
-          countdownUntil={votingSettings.countdownUntil}
-          onComplete={async () => {
-            try {
-              await saveVotingSettings({
-                ...votingSettings,
-                countdownUntil: null,
-              });
-            } catch (e) { }
-            setVotingSettings((prev) => ({ ...prev, countdownUntil: null }));
-            router.push('/qr');
-          }}
-        />
-      )}
-
-      {/* 👑 GRAND HAUTE COUTURE VOTING CONCLUDED CEREMONY OVERLAY */}
-      {showClosingCeremony && (
+      {/* 👑 GRAND HAUTE COUTURE VOTING CONCLUDED CEREMONY OVERLAY (Stage Controller only) */}
+      {adminRole === 'stage' && showClosingCeremony && (
         <VotingClosedCeremonyOverlay
           autoRedirectSeconds={6}
           onComplete={() => setShowClosingCeremony(false)}
@@ -1222,7 +1204,7 @@ export default function AdminLeaderboardPage() {
                       <div className="flex items-center gap-2.5">
                         <ShieldCheck className="w-5 h-5 text-novera-gold" />
                         <h3 className="font-serif text-lg font-bold text-white">
-                          6 Official Judges &bull; Live Telemetry &amp; Evaluation Audit
+                          8 Official Judges &bull; Live Telemetry &amp; Evaluation Audit
                         </h3>
                       </div>
                       <p className="text-[11px] text-zinc-300 mt-0.5">

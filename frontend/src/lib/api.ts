@@ -273,22 +273,31 @@ export function saveLocalVoterStatus(status: VoterStatus): void {
   } catch (e) {}
 }
 
+export function reconcileWithCanonicalContenders(list: Candidate[]): Candidate[] {
+  const voteMap = new Map<string, number>();
+  if (Array.isArray(list)) {
+    for (const c of list) {
+      if (c && c.id) {
+        voteMap.set(c.id, Number(c.votes || 0));
+      }
+    }
+  }
+  return INITIAL_CANDIDATES.map((cand) => ({
+    ...cand,
+    votes: voteMap.get(cand.id) ?? cand.votes ?? 0,
+  }));
+}
+
 export function getLocalCandidates(): Candidate[] {
   if (typeof window === 'undefined') return INITIAL_CANDIDATES;
   const raw = localStorage.getItem(STORAGE_KEY_CANDIDATES);
   if (raw) {
     try {
       const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed) && parsed.length >= INITIAL_CANDIDATES.length) return parsed;
       if (Array.isArray(parsed) && parsed.length > 0) {
-        // Upgrade existing candidates with full 20 candidates
-        const existingMap = new Map<string, Candidate>(parsed.map((c: Candidate) => [c.id, c]));
-        const merged = INITIAL_CANDIDATES.map((init) => {
-          const exist = existingMap.get(init.id);
-          return exist ? { ...init, votes: exist.votes ?? 0 } : init;
-        });
-        saveLocalCandidates(merged);
-        return merged;
+        const canonical = reconcileWithCanonicalContenders(parsed);
+        saveLocalCandidates(canonical);
+        return canonical;
       }
     } catch (e) {}
   }
@@ -316,7 +325,7 @@ export async function seedFirebaseCandidates(): Promise<void> {
         batch.set(candidateDoc, candidate, { merge: true });
       }
       await batch.commit();
-      console.log('Successfully seeded initial contenders into Firestore!');
+      console.log('Successfully seeded 20 Sri Lankan contenders into Firestore!');
     }
   } catch (err) {
     console.warn('Firebase candidate seed warning (check Firestore security rules):', err);
@@ -341,20 +350,12 @@ export function subscribeToCandidates(callback: (candidates: Candidate[]) => voi
         if (!snapshot.empty) {
           const list: Candidate[] = [];
           snapshot.forEach((doc) => list.push(doc.data() as Candidate));
+          const canonical = reconcileWithCanonicalContenders(list);
           if (list.length < INITIAL_CANDIDATES.length) {
             seedFirebaseCandidates().catch(() => {});
-            // Merge with local initial candidates so all 20 are immediately visible
-            const existingMap = new Map<string, Candidate>(list.map((c) => [c.id, c]));
-            const merged = INITIAL_CANDIDATES.map((init) => {
-              const exist = existingMap.get(init.id);
-              return exist ? { ...init, votes: exist.votes ?? 0 } : init;
-            });
-            saveLocalCandidates(merged);
-            callback(merged);
-          } else {
-            saveLocalCandidates(list);
-            callback(list);
           }
+          saveLocalCandidates(canonical);
+          callback(canonical);
         } else {
           // If empty, seed
           seedFirebaseCandidates().then(() => callback(getLocalCandidates()));
@@ -384,18 +385,12 @@ export async function fetchCandidates(): Promise<Candidate[]> {
       if (!snapshot.empty) {
         const list: Candidate[] = [];
         snapshot.forEach((doc) => list.push(doc.data() as Candidate));
+        const canonical = reconcileWithCanonicalContenders(list);
         if (list.length < INITIAL_CANDIDATES.length) {
           seedFirebaseCandidates().catch(() => {});
-          const existingMap = new Map<string, Candidate>(list.map((c) => [c.id, c]));
-          const merged = INITIAL_CANDIDATES.map((init) => {
-            const exist = existingMap.get(init.id);
-            return exist ? { ...init, votes: exist.votes ?? 0 } : init;
-          });
-          saveLocalCandidates(merged);
-          return merged;
         }
-        saveLocalCandidates(list);
-        return list;
+        saveLocalCandidates(canonical);
+        return canonical;
       } else {
         await seedFirebaseCandidates();
       }
