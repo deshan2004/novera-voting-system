@@ -344,7 +344,7 @@ export default function AdminLeaderboardPage() {
       sessionStorage.setItem('novera_admin_role', 'stage');
       setPasscodeError('');
     } else {
-      setPasscodeError('Invalid Passcode. Enter either Stage Passcode (stage2026) or Master Passcode (novera2026).');
+      setPasscodeError('Invalid Passcode. Please enter your authorized access code.');
     }
   };
 
@@ -638,18 +638,18 @@ export default function AdminLeaderboardPage() {
               NOVERA &rsquo;26 Admin Console
             </h1>
             <p className="text-[11px] sm:text-xs text-zinc-300 font-medium">
-              Enter designated role passcode to access Stage Controller or Confidential Vault.
+              Enter your authorized access passcode to unlock the console.
             </p>
           </div>
 
           <form onSubmit={handleLogin} className="space-y-4 text-left">
             <div>
               <label className="block text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-amber-200/90 mb-1.5">
-                Passcode (Stage or Master)
+                Access Passcode
               </label>
               <input
                 type="password"
-                placeholder="Enter stage2026 or novera2026"
+                placeholder="Enter access passcode"
                 value={passcode}
                 onChange={(e) => setPasscode(e.target.value)}
                 className="w-full px-4 py-3 sm:py-3.5 rounded-2xl bg-white/10 text-xs sm:text-sm text-white placeholder-zinc-400 outline-none focus:border-amber-400 focus:bg-white/15 font-mono text-center tracking-widest text-base shadow-inner border border-white/20 transition-all backdrop-blur-md"
@@ -673,25 +673,6 @@ export default function AdminLeaderboardPage() {
               <span>Unlock Admin Console</span>
             </button>
           </form>
-
-          {/* Role Access Guide */}
-          <div className="p-3.5 rounded-2xl bg-white/[0.04] border border-white/10 text-left space-y-2">
-            <span className="text-[10px] font-mono uppercase tracking-widest text-amber-300 font-bold block">
-              Designated Role Access:
-            </span>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[10px] text-zinc-300">
-              <div className="p-2 rounded-xl bg-black/40 border border-white/10">
-                <span className="text-amber-200 font-bold block">🎬 Stage Controller</span>
-                <span className="text-zinc-400 font-mono text-[9px] block">Passcode: stage2026</span>
-                <span className="text-[9px] text-zinc-400">Voting Timer &amp; QR screen only. All marks hidden.</span>
-              </div>
-              <div className="p-2 rounded-xl bg-black/40 border border-white/10">
-                <span className="text-amber-200 font-bold block">👑 Master Committee</span>
-                <span className="text-zinc-400 font-mono text-[9px] block">Passcode: novera2026</span>
-                <span className="text-[9px] text-zinc-400">Full Access: Jury marks, votes &amp; grand finale.</span>
-              </div>
-            </div>
-          </div>
 
           <p className="text-[10px] sm:text-[11px] text-zinc-400 font-mono">
             Authorized Organizing Committee Access Only &bull; NOVERA &rsquo;26
