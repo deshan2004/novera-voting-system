@@ -405,6 +405,40 @@ input[type='range'].glass-slider::-moz-range-thumb {
   animation: runwayTrackPulse 4s ease-in-out infinite;
 }
 
+/* ================= MODERN HAUTE COUTURE SCAN & SHIMMER ================= */
+@keyframes laserScan {
+  0% {
+    top: 6%;
+    opacity: 0.3;
+  }
+  50% {
+    top: 92%;
+    opacity: 1;
+  }
+  100% {
+    top: 6%;
+    opacity: 0.3;
+  }
+}
+
+.animate-laser-scan {
+  animation: laserScan 2.2s ease-in-out infinite;
+}
+
+@keyframes goldShimmerSweep {
+  0% {
+    background-position: -200% center;
+  }
+  100% {
+    background-position: 200% center;
+  }
+}
+
+.animate-gold-shimmer {
+  background-size: 200% auto;
+  animation: goldShimmerSweep 4s linear infinite;
+}
+
 /* ================= PRINT STYLES FOR MC ANNOUNCEMENT SUMMARY ================= */
 @media print {
   body, html {

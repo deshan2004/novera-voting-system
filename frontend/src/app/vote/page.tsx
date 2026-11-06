@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { Candidate, VoterStatus, VotingSettings } from '@/lib/types';
 import {
   fetchCandidates,
+  getLocalCandidates,
   getOrCreateVoterId,
   getLocalVoterStatus,
   submitVote,
@@ -34,7 +35,12 @@ import RunwayStageBackground from '@/app/components/RunwayStageBackground';
 import VotingCountdownOverlay from '@/app/components/VotingCountdownOverlay';
 
 export default function VotePage() {
-  const [candidates, setCandidates] = useState<Candidate[]>([]);
+  const [candidates, setCandidates] = useState<Candidate[]>(() => {
+    if (typeof window !== 'undefined') {
+      return getLocalCandidates();
+    }
+    return [];
+  });
   const [voterStatus, setVoterStatus] = useState<VoterStatus | null>(null);
 
   // Selected candidate to view in detailed Profile Modal
@@ -83,33 +89,39 @@ export default function VotePage() {
     setIntroStage('exit');
     setTimeout(() => {
       setShowScanIntro(false);
-    }, 400);
+    }, 350);
   };
 
+  // 1. Runway VIP Entry / QR Intro Timer Management (Decoupled from data loading)
   useEffect(() => {
-    // Check if came from QR scan or fresh session
-    const isFromQr = typeof window !== 'undefined' && window.location.search.includes('entry=qr');
-    const seenIntro = sessionStorage.getItem('novera_scan_intro_played');
+    const isFromQr =
+      typeof window !== 'undefined' &&
+      (window.location.search.includes('entry=qr') ||
+        window.location.search.includes('source=qr') ||
+        window.location.search.includes('qr=true'));
+    const seenIntro = typeof window !== 'undefined' ? sessionStorage.getItem('novera_scan_intro_played') : null;
 
     if (isFromQr || !seenIntro) {
       setShowScanIntro(true);
       setIntroStage('scan');
-      sessionStorage.setItem('novera_scan_intro_played', 'true');
+      try {
+        sessionStorage.setItem('novera_scan_intro_played', 'true');
+      } catch (e) {}
 
-      // Stage 1 -> Stage 2: Verified (1200ms)
+      // Stage 1 -> Stage 2: Verified (2200ms) - ample time to see luxury laser scanner
       const verifyTimer = setTimeout(() => {
         setIntroStage('verified');
-      }, 1200);
+      }, 2200);
 
-      // Stage 2 -> Stage 3: Smooth Dissolve Curtain (2800ms)
+      // Stage 2 -> Stage 3: Smooth Dissolve Curtain (4800ms) - ample time to see verified badge or click enter
       const exitTimer = setTimeout(() => {
         setIntroStage('exit');
-      }, 2800);
+      }, 4800);
 
-      // Finish and Unmount (3200ms)
+      // Finish and Unmount (5300ms)
       const finishTimer = setTimeout(() => {
         setShowScanIntro(false);
-      }, 3200);
+      }, 5300);
 
       return () => {
         clearTimeout(verifyTimer);
@@ -118,6 +130,15 @@ export default function VotePage() {
       };
     } else {
       setShowScanIntro(false);
+    }
+  }, []);
+
+  // 2. Data Initialization & Real-Time Sync (Unconditionally executed on mount)
+  useEffect(() => {
+    // Immediate hydration from cache so candidates display with 0ms delay
+    const initialList = getLocalCandidates();
+    if (initialList && initialList.length > 0) {
+      setCandidates(initialList);
     }
 
     const voterId = getOrCreateVoterId();
@@ -129,7 +150,7 @@ export default function VotePage() {
       setCategoryFilter('boy');
     }
 
-    // Check remote Firestore voter state and system reset signal
+    // Remote voter status verification
     syncVoterStatus(voterId).then((synced) => {
       setVoterStatus(synced);
       if (synced.hasVotedBoy && !synced.hasVotedGirl) {
@@ -139,8 +160,18 @@ export default function VotePage() {
       }
     });
 
+    // Fresh fetch from Firebase / Spring Boot
     fetchCandidates().then((list) => {
-      setCandidates(list);
+      if (list && list.length > 0) {
+        setCandidates(list);
+      }
+    });
+
+    // Real-time live synchronization for candidates
+    const unsubscribeCandidates = subscribeToCandidates((list) => {
+      if (list && list.length > 0) {
+        setCandidates(list);
+      }
     });
 
     // Real-time listener for voter status resets from admin
@@ -167,11 +198,17 @@ export default function VotePage() {
           setCategoryFilter('boy');
         }
       });
-      fetchCandidates().then(setCandidates);
+      fetchCandidates().then((list) => {
+        if (list && list.length > 0) {
+          setCandidates(list);
+        }
+      });
     };
 
     window.addEventListener('novera_vote_updated', handleSync);
+
     return () => {
+      unsubscribeCandidates();
       unsubscribeVoter();
       unsubscribeSettings();
       window.removeEventListener('novera_vote_updated', handleSync);
@@ -279,87 +316,125 @@ export default function VotePage() {
         {/* 👑 HAUTE COUTURE LUXURY RUNWAY ENTRY INTRO */}
         {showScanIntro && (
           <div
-            className={`fixed inset-0 z-[100] bg-[#070605] flex flex-col items-center justify-center p-6 text-center select-none transition-all duration-500 ease-out ${introStage === 'exit'
+            className={`fixed inset-0 z-[100] bg-[#070605] flex flex-col items-center justify-center p-6 text-center select-none transition-all duration-700 ease-out ${
+              introStage === 'exit'
                 ? 'opacity-0 scale-105 pointer-events-none'
                 : 'opacity-100 scale-100'
-              }`}
+            }`}
           >
-            {/* Ambient Runway Spotlight Glow */}
-            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-amber-600/15 via-[#0b0906] to-[#040302] pointer-events-none" />
-            <div className="absolute top-1/4 w-96 h-96 bg-novera-gold/15 rounded-full blur-[100px] pointer-events-none" />
+            {/* Ambient Runway Spotlight Glow & Radial Vignette */}
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-amber-600/20 via-[#0b0906] to-[#040302] pointer-events-none" />
+            <div className="absolute top-1/4 w-[32rem] h-[32rem] bg-novera-gold/15 rounded-full blur-[120px] pointer-events-none animate-pulse" />
+
+            {/* Cinematic Stage Spotlight Beams */}
+            <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-30">
+              <div className="absolute -top-24 left-1/4 w-72 h-[120vh] bg-gradient-to-b from-amber-300/25 via-amber-500/5 to-transparent -rotate-12 transform-gpu" />
+              <div className="absolute -top-24 right-1/4 w-72 h-[120vh] bg-gradient-to-b from-amber-300/25 via-amber-500/5 to-transparent rotate-12 transform-gpu" />
+            </div>
 
             {/* Luxury Concentric Insignia Emblem */}
-            <div className="relative w-32 h-32 mx-auto flex items-center justify-center mb-7">
+            <div className="relative w-36 h-36 mx-auto flex items-center justify-center mb-8">
               {/* Soft Ambient Halo */}
-              <div className="absolute w-36 h-36 rounded-full bg-amber-400/10 blur-xl animate-luxury-glow pointer-events-none" />
+              <div className="absolute w-44 h-44 rounded-full bg-amber-400/15 blur-2xl animate-luxury-glow pointer-events-none" />
 
               {/* Rotating Haute Couture Gold Outer Orbit */}
-              <div className="absolute inset-0 rounded-full border border-novera-foil/30 border-dashed animate-spin-slow" />
+              <div className="absolute inset-0 rounded-full border border-amber-400/35 border-dashed animate-spin-slow" />
+              <div className="absolute -inset-2.5 rounded-full border border-amber-500/20" />
 
-              {/* Inner Polished Gold Seal */}
-              <div className="relative w-24 h-24 rounded-full border-2 border-novera-gold/70 bg-black/60 backdrop-blur-md shadow-[0_0_35px_rgba(203,167,95,0.35)] flex items-center justify-center">
-                {/* Runway Corner Brackets */}
-                <div className="absolute -top-1 -left-1 w-3 h-3 border-t-2 border-l-2 border-amber-300" />
-                <div className="absolute -top-1 -right-1 w-3 h-3 border-t-2 border-r-2 border-amber-300" />
-                <div className="absolute -bottom-1 -left-1 w-3 h-3 border-b-2 border-l-2 border-amber-300" />
-                <div className="absolute -bottom-1 -right-1 w-3 h-3 border-b-2 border-r-2 border-amber-300" />
+              {/* Cardinal Runway Markers */}
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1 w-1.5 h-1.5 bg-amber-300 rounded-full shadow-[0_0_8px_#fde68a]" />
+              <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1 w-1.5 h-1.5 bg-amber-300 rounded-full shadow-[0_0_8px_#fde68a]" />
+              <div className="absolute left-0 top-1/2 -translate-x-1 -translate-y-1/2 w-1.5 h-1.5 bg-amber-300 rounded-full shadow-[0_0_8px_#fde68a]" />
+              <div className="absolute right-0 top-1/2 translate-x-1 -translate-y-1/2 w-1.5 h-1.5 bg-amber-300 rounded-full shadow-[0_0_8px_#fde68a]" />
+
+              {/* Central Glass Seal */}
+              <div className="relative w-28 h-28 rounded-2xl border-2 border-novera-gold/80 bg-[#0c0a08]/90 backdrop-blur-xl shadow-[0_0_40px_rgba(203,167,95,0.4)] flex items-center justify-center overflow-hidden">
+                {/* Laser Scanline Beam during 'scan' */}
+                {introStage === 'scan' && (
+                  <div className="absolute inset-x-0 h-1 bg-gradient-to-r from-transparent via-amber-300 to-transparent shadow-[0_0_12px_#fde68a] animate-laser-scan z-20 pointer-events-none" />
+                )}
+
+                {/* Subtle Luxury Pattern */}
+                <div className="absolute inset-0 bg-[linear-gradient(to_right,#b3924f15_1px,transparent_1px),linear-gradient(to_bottom,#b3924f15_1px,transparent_1px)] bg-[size:10px_10px] pointer-events-none" />
 
                 {introStage === 'scan' ? (
-                  <Crown className="w-10 h-10 text-novera-gold drop-shadow-[0_0_15px_rgba(236,213,153,0.9)] animate-pulse" />
+                  <div className="relative z-10 flex flex-col items-center justify-center space-y-1">
+                    <Crown className="w-11 h-11 text-amber-300 drop-shadow-[0_0_18px_rgba(252,211,77,0.9)] animate-pulse" />
+                    <span className="text-[8px] font-mono tracking-widest text-amber-300/80 font-bold uppercase">AUTHENTICATING</span>
+                  </div>
                 ) : (
-                  <div className="animate-in zoom-in-75 duration-300">
-                    <Check className="w-10 h-10 text-emerald-400 stroke-[3] drop-shadow-[0_0_15px_rgba(52,211,153,0.9)]" />
+                  <div className="relative z-10 flex flex-col items-center justify-center space-y-1 animate-in zoom-in-75 duration-300">
+                    <div className="w-12 h-12 rounded-full bg-emerald-500/20 border border-emerald-400/60 flex items-center justify-center shadow-[0_0_20px_rgba(52,211,153,0.7)]">
+                      <Check className="w-7 h-7 text-emerald-300 stroke-[3] drop-shadow-[0_0_10px_rgba(52,211,153,1)]" />
+                    </div>
+                    <span className="text-[8px] font-mono tracking-widest text-emerald-300 font-bold uppercase">PASSED</span>
                   </div>
                 )}
               </div>
             </div>
 
             {/* High Fashion Typography */}
-            <div className="space-y-3 mb-8 max-w-sm mx-auto">
-              <span className="text-[10px] font-mono tracking-[0.35em] uppercase text-amber-200/70 block">
-                AIESEC in CINEC Presents
-              </span>
+            <div className="space-y-3.5 mb-7 max-w-sm mx-auto">
+              <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-200/90 text-[10px] font-mono tracking-[0.3em] uppercase">
+                <Sparkles className="w-3 h-3 text-amber-300" />
+                <span>AIESEC in CINEC Presents</span>
+                <Sparkles className="w-3 h-3 text-amber-300" />
+              </div>
 
-              <h1 className="font-serif text-3xl sm:text-4xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-[#ecd599] via-white to-[#b3924f] drop-shadow-sm">
+              <h1 className="font-serif text-4xl sm:text-5xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-amber-100 via-amber-300 to-amber-200 drop-shadow-[0_2px_15px_rgba(203,167,95,0.4)] animate-gold-shimmer">
                 NOVERA &rsquo;26
               </h1>
 
-              <p className="text-[11px] font-mono uppercase tracking-[0.2em] text-zinc-400">
+              <p className="text-xs font-mono uppercase tracking-[0.25em] text-zinc-300">
                 Official Runway Voting Ballot
               </p>
 
               {/* Dynamic Stage Pill */}
               <div className="pt-2">
                 {introStage === 'scan' ? (
-                  <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-500/15 border border-amber-500/40 text-amber-200 text-[11px] font-mono tracking-wider">
-                    <span className="w-2 h-2 rounded-full bg-amber-400 animate-ping" />
-                    <span>AUTHENTICATING BALLOT CREDENTIALS...</span>
+                  <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-[#17130e] border border-amber-500/50 text-amber-200 text-xs font-mono tracking-wider shadow-[0_0_15px_rgba(245,158,11,0.2)]">
+                    <span className="relative flex h-2 w-2">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
+                    </span>
+                    <span>AUTHENTICATING SEAT &amp; RUNWAY PASS...</span>
                   </div>
                 ) : (
-                  <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/20 border border-emerald-400/50 text-emerald-300 text-[11px] font-mono tracking-wider animate-in fade-in zoom-in-95 duration-200">
-                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                    <span>SEAT VERIFIED &bull; RUNWAY BALLOT UNLOCKED</span>
+                  <div className="inline-flex items-center gap-2.5 px-4.5 py-2 rounded-full bg-[#0a1f14] border border-emerald-400/60 text-emerald-300 text-xs font-mono tracking-wider shadow-[0_0_20px_rgba(16,185,129,0.3)] animate-in fade-in zoom-in-95 duration-200">
+                    <ShieldCheck className="w-4 h-4 text-emerald-400" />
+                    <span>SEAT CONFIRMED &bull; BALLOT UNLOCKED</span>
                   </div>
                 )}
               </div>
             </div>
 
             {/* Sleek Golden Hairline Progress Bar */}
-            <div className="w-64 h-1 bg-zinc-900 rounded-full overflow-hidden border border-amber-500/20 shadow-inner mb-6">
+            <div className="w-72 max-w-xs h-1.5 bg-black/60 rounded-full overflow-hidden border border-amber-500/30 shadow-inner mb-7">
               <div
-                className="h-full bg-gradient-to-r from-amber-700 via-novera-foil to-amber-200 rounded-full transition-all duration-[2400ms] ease-out"
+                className="h-full bg-gradient-to-r from-amber-600 via-amber-300 to-emerald-400 rounded-full transition-all duration-[3000ms] ease-out shadow-[0_0_10px_rgba(245,158,11,0.8)]"
                 style={{ width: introStage === 'scan' ? '45%' : '100%' }}
               />
             </div>
 
-            {/* Quick Skip Button */}
-            <button
-              type="button"
-              onClick={handleDismissIntro}
-              className="px-4 py-1.5 rounded-full glass-badge-gold text-amber-200/80 hover:text-white text-[11px] font-mono uppercase tracking-widest transition-all hover:scale-105 active:scale-95"
-            >
-              Skip to Ballot &rarr;
-            </button>
+            {/* Action Buttons */}
+            {introStage === 'scan' ? (
+              <button
+                type="button"
+                onClick={handleDismissIntro}
+                className="px-5 py-2 rounded-full bg-white/5 hover:bg-white/10 border border-white/15 text-zinc-300 hover:text-white text-xs font-mono uppercase tracking-widest transition-all hover:scale-105 active:scale-95"
+              >
+                Skip to Ballot &rarr;
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={handleDismissIntro}
+                className="group px-6 py-2.5 rounded-full bg-gradient-to-r from-[#d4af37] via-[#f7e7a9] to-[#cba75f] text-black font-semibold text-xs uppercase tracking-widest shadow-[0_0_25px_rgba(203,167,95,0.6)] hover:shadow-[0_0_35px_rgba(203,167,95,0.9)] transition-all hover:scale-105 active:scale-95 flex items-center gap-2"
+              >
+                <span>Enter Runway Ballot</span>
+                <span className="transition-transform group-hover:translate-x-1 font-bold">&rarr;</span>
+              </button>
+            )}
           </div>
         )}
 
