@@ -62,14 +62,14 @@ import VotingCountdownOverlay from '@/app/components/VotingCountdownOverlay';
 const ADMIN_PASSCODE = 'novera2026';
 
 const OFFICIAL_JUDGE_ROSTER = [
-  { id: 'judge_mayuri', name: 'Mayuri', title: 'Official Runway Jury' },
-  { id: 'judge_kalpani', name: 'Kalpani', title: 'Official Runway Jury' },
-  { id: 'judge_piyumi', name: 'Piyumi', title: 'Fashion & Runway Jury' },
-  { id: 'judge_kalwani', name: 'Kalwani', title: 'Styling & Visual Jury' },
-  { id: 'judge_devdunu', name: 'Devdunu', title: 'Poise & Presence Jury' },
-  { id: 'judge_erusha', name: 'Erusha', title: 'Runway Technique Jury' },
-  { id: 'judge_sachith', name: 'Sachith', title: 'Personality & Charisma Jury' },
-  { id: 'judge_dulmi', name: 'Dulmi', title: 'Elegance & Wardrobe Jury' },
+  { id: 'judge_mayuri', name: 'Mayuri', title: "Official Runway Judge · NOVERA '26" },
+  { id: 'judge_kalpani', name: 'Kalpani', title: "Official Runway Judge · NOVERA '26" },
+  { id: 'judge_piyumi', name: 'Piyumi', title: "Official Runway Judge · NOVERA '26" },
+  { id: 'judge_kalwani', name: 'Kalwani', title: "Official Runway Judge · NOVERA '26" },
+  { id: 'judge_devdunu', name: 'Devdunu', title: "Official Runway Judge · NOVERA '26" },
+  { id: 'judge_erusha', name: 'Erusha', title: "Official Runway Judge · NOVERA '26" },
+  { id: 'judge_sachith', name: 'Sachith', title: "Official Runway Judge · NOVERA '26" },
+  { id: 'judge_dulmi', name: 'Dulmi', title: "Official Runway Judge · NOVERA '26" },
 ];
 
 export type AwardKey =

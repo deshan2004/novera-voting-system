@@ -40,14 +40,14 @@ import {
 import RunwayStageBackground from '@/app/components/RunwayStageBackground';
 
 const OFFICIAL_JUDGES = [
-  { id: 'judge_mayuri', name: 'Judge Mayuri', title: 'Official Runway Jury', code: 'mayuri' },
-  { id: 'judge_kalpani', name: 'Judge Kalpani', title: 'Official Runway Jury', code: 'kalpani' },
-  { id: 'judge_piyumi', name: 'Judge Piyumi', title: 'Fashion & Runway Jury', code: 'piyumi' },
-  { id: 'judge_kalwani', name: 'Judge Kalwani', title: 'Styling & Visual Jury', code: 'kalwani' },
-  { id: 'judge_devdunu', name: 'Judge Devdunu', title: 'Poise & Presence Jury', code: 'devdunu' },
-  { id: 'judge_erusha', name: 'Judge Erusha', title: 'Runway Technique Jury', code: 'erusha' },
-  { id: 'judge_sachith', name: 'Judge Sachith', title: 'Personality & Charisma Jury', code: 'sachith' },
-  { id: 'judge_dulmi', name: 'Judge Dulmi', title: 'Elegance & Wardrobe Jury', code: 'dulmi' },
+  { id: 'judge_mayuri', name: 'Judge Mayuri', title: "Official Runway Judge · NOVERA '26", code: 'mayuri' },
+  { id: 'judge_kalpani', name: 'Judge Kalpani', title: "Official Runway Judge · NOVERA '26", code: 'kalpani' },
+  { id: 'judge_piyumi', name: 'Judge Piyumi', title: "Official Runway Judge · NOVERA '26", code: 'piyumi' },
+  { id: 'judge_kalwani', name: 'Judge Kalwani', title: "Official Runway Judge · NOVERA '26", code: 'kalwani' },
+  { id: 'judge_devdunu', name: 'Judge Devdunu', title: "Official Runway Judge · NOVERA '26", code: 'devdunu' },
+  { id: 'judge_erusha', name: 'Judge Erusha', title: "Official Runway Judge · NOVERA '26", code: 'erusha' },
+  { id: 'judge_sachith', name: 'Judge Sachith', title: "Official Runway Judge · NOVERA '26", code: 'sachith' },
+  { id: 'judge_dulmi', name: 'Judge Dulmi', title: "Official Runway Judge · NOVERA '26", code: 'dulmi' },
 ];
 
 export default function JudgePortalPage() {
