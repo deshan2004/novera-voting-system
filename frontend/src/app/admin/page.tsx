@@ -58,6 +58,7 @@ import {
 } from 'lucide-react';
 import Image from 'next/image';
 import RunwayStageBackground from '@/app/components/RunwayStageBackground';
+import VotingCountdownOverlay from '@/app/components/VotingCountdownOverlay';
 import VotingClosedCeremonyOverlay from '@/app/components/VotingClosedCeremonyOverlay';
 
 export type AdminRole = 'master' | 'stage';
@@ -697,6 +698,23 @@ export default function AdminLeaderboardPage() {
 
   return (
     <div className="min-h-screen relative text-white overflow-x-hidden print:bg-white print:text-black print:min-h-0">
+      {/* 🌟 CINEMATIC RUNWAY OPENING COUNTDOWN OVERLAY - ONLY FOR STAGE OPERATOR (WHO HAS START VOTING BUTTON) */}
+      {adminRole === 'stage' && votingSettings.countdownUntil && votingSettings.countdownUntil > Date.now() && (
+        <VotingCountdownOverlay
+          countdownUntil={votingSettings.countdownUntil}
+          onComplete={async () => {
+            try {
+              await saveVotingSettings({
+                ...votingSettings,
+                countdownUntil: null,
+              });
+            } catch (e) { }
+            setVotingSettings((prev) => ({ ...prev, countdownUntil: null }));
+            router.push('/qr');
+          }}
+        />
+      )}
+
       {/* 👑 GRAND HAUTE COUTURE VOTING CONCLUDED CEREMONY OVERLAY (Stage Controller only) */}
       {adminRole === 'stage' && showClosingCeremony && (
         <VotingClosedCeremonyOverlay
