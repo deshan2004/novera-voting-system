@@ -159,7 +159,7 @@ export default function AdminLeaderboardPage() {
   const [passcodeError, setPasscodeError] = useState<string>('');
 
   const [adminMode, setAdminMode] = useState<'stage' | 'vault'>('stage');
-  const [vaultTab, setVaultTab] = useState<'audience' | 'judges' | 'summary'>('audience');
+  const [vaultTab, setVaultTab] = useState<'audience' | 'judges' | 'summary'>('judges');
   const [selectedJuryAward, setSelectedJuryAward] = useState<AwardKey>('topModel');
   const [selectedAuditJudge, setSelectedAuditJudge] = useState<typeof OFFICIAL_JUDGE_ROSTER[0] | null>(null);
   const [auditCategoryFilter, setAuditCategoryFilter] = useState<'all' | 'boy' | 'girl'>('all');
@@ -204,8 +204,12 @@ export default function AdminLeaderboardPage() {
     const savedRole = sessionStorage.getItem('novera_admin_role') as AdminRole | null;
     if (savedAuth === 'true') {
       setIsAuthenticated(true);
-      if (savedRole === 'master' || savedRole === 'stage') {
-        setAdminRole(savedRole);
+      if (savedRole === 'master') {
+        setAdminRole('master');
+        setAdminMode('vault');
+      } else {
+        setAdminRole('stage');
+        setAdminMode('stage');
       }
     }
 
@@ -333,6 +337,7 @@ export default function AdminLeaderboardPage() {
     if (MASTER_PASSCODES.includes(cleanPass)) {
       setIsAuthenticated(true);
       setAdminRole('master');
+      setAdminMode('vault'); // Directly opens the score vault
       sessionStorage.setItem('novera_admin_auth', 'true');
       sessionStorage.setItem('novera_admin_role', 'master');
       setPasscodeError('');
@@ -722,46 +727,33 @@ export default function AdminLeaderboardPage() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10 space-y-8 relative z-10 print:hidden">
-        {/* ================= VIEW 1: ADMIN HOME (STAGE LAUNCHPAD ONLY - NO MARKS EXPOSED) ================= */}
-        {adminMode === 'stage' && (
+        {/* ================= VIEW 1: STAGE LAUNCHPAD ONLY (STAGE VOTING OPERATOR) ================= */}
+        {adminRole === 'stage' && (
           <div className="space-y-6 animate-in fade-in duration-200">
             {/* Top Stage Header */}
             <div className="p-6 sm:p-8 rounded-3xl bg-black/40 backdrop-blur-2xl border border-white/15 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 shadow-2xl">
               <div>
-                {adminRole === 'stage' ? (
-                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/15 border border-amber-500/35 text-xs uppercase tracking-widest font-bold text-amber-300 mb-2">
-                    <Radio className="w-3.5 h-3.5 text-amber-400 animate-pulse" />
-                    <span>Stage Controller · Voting Operator</span>
-                  </div>
-                ) : (
-                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-black/50 backdrop-blur-xl border border-white/20 text-xs uppercase tracking-widest font-bold text-novera-gold mb-2">
-                    <ShieldCheck className="w-4 h-4 text-novera-gold animate-float" />
-                    <span>Master Administration Hub (Full Access)</span>
-                  </div>
-                )}
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/15 border border-amber-500/35 text-xs uppercase tracking-widest font-bold text-amber-300 mb-2">
+                  <Radio className="w-3.5 h-3.5 text-amber-400 animate-pulse" />
+                  <span>Stage Controller · Voting Operator</span>
+                </div>
                 <h1 className="font-serif text-2xl sm:text-4xl font-bold text-white">
                   Audience Voting Launchpad
                 </h1>
                 <p className="text-xs sm:text-sm text-zinc-300 mt-1">
-                  {adminRole === 'stage'
-                    ? 'Live Runway Voting & Stage Display Launcher • Marks & Results Hidden'
-                    : 'Official Stage Controller &bull; Privacy Protected'}
+                  Live Runway Voting &amp; Stage Display Launcher &bull; Marks &amp; Results Hidden
                 </p>
               </div>
 
               <div className="flex items-center gap-3">
-                {/* Button to navigate into the secret Tabulation & Results Vault (Master Role only) */}
-                {adminRole === 'master' && (
-                  <button
-                    type="button"
-                    onClick={() => setAdminMode('vault')}
-                    className="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs font-bold uppercase tracking-wider bg-white/10 hover:bg-white/20 text-white border border-white/20 hover:border-novera-gold/60 backdrop-blur-md transition-all shadow-md group"
-                    title="Open Confidential Marks & Tabulation Vault"
-                  >
-                    <Lock className="w-4 h-4 text-novera-gold group-hover:scale-110 transition-transform" />
-                    <span>Results &amp; Tabulation Vault &rarr;</span>
-                  </button>
-                )}
+                <Link
+                  href="/qr"
+                  target="_blank"
+                  className="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs font-bold uppercase tracking-wider bg-gradient-to-r from-novera-gold to-amber-400 text-black shadow-md hover:brightness-110 transition-all border border-amber-300"
+                >
+                  <QrCode className="w-4 h-4 text-black" />
+                  <span>Launch Stage Screen &rarr;</span>
+                </Link>
 
                 <button
                   onClick={handleLogout}
@@ -887,51 +879,25 @@ export default function AdminLeaderboardPage() {
           </div>
         )}
 
-        {/* ================= VIEW 2: CONFIDENTIAL RESULTS VAULT (TABULATION & ALL MARKS) ================= */}
-        {adminMode === 'vault' && adminRole !== 'master' && (
-          <div className="p-8 sm:p-12 rounded-3xl bg-black/60 border border-amber-500/40 text-center space-y-4 max-w-lg mx-auto my-12 animate-in fade-in duration-200">
-            <Lock className="w-12 h-12 text-amber-400 mx-auto" />
-            <h2 className="font-serif text-2xl font-bold text-white">Confidential Vault Restricted</h2>
-            <p className="text-xs text-zinc-300">
-              You are logged in with Stage Controller privileges. Access to Confidential Jury Marks and Tabulation Vault is strictly restricted to the Master Executive Committee.
-            </p>
-            <button
-              type="button"
-              onClick={() => setAdminMode('stage')}
-              className="px-6 py-2.5 rounded-full bg-novera-gold text-black text-xs font-bold uppercase tracking-wider hover:brightness-110 transition-all"
-            >
-              &larr; Return to Stage Controller
-            </button>
-          </div>
-        )}
-
-        {adminMode === 'vault' && adminRole === 'master' && (
+        {/* ================= VIEW 2: CONFIDENTIAL RESULTS VAULT (FOR MASTER COMMITTEE ONLY) ================= */}
+        {adminRole === 'master' && (
           <div className="space-y-6 animate-in fade-in duration-200">
-            {/* Top Banner with Return to Stage Controller Button */}
+            {/* Top Banner */}
             <div className="p-6 sm:p-8 rounded-3xl bg-black/40 backdrop-blur-2xl border border-white/15 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 shadow-2xl">
               <div>
                 <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-black/50 backdrop-blur-xl border border-white/20 text-xs uppercase tracking-widest font-bold text-novera-gold mb-2">
-                  <Lock className="w-4 h-4 text-novera-gold animate-pulse" />
-                  <span>Confidential Results Vault</span>
+                  <ShieldCheck className="w-4 h-4 text-novera-gold animate-float" />
+                  <span>Confidential Results Vault · Master Committee</span>
                 </div>
                 <h1 className="font-serif text-2xl sm:text-4xl font-bold text-white">
-                  Central Tabulation &amp; Surveillance
+                  Central Tabulation &amp; Official Marks
                 </h1>
                 <p className="text-xs sm:text-sm text-zinc-300 mt-1">
-                  Official Award Marking Alignment &bull; Final Award Titles (Girl &amp; Boy) &bull; Live Telemetry
+                  Confidential Jury Scorecards &bull; Audience Votes &bull; Grand Finale Standings
                 </p>
               </div>
 
               <div className="flex flex-wrap items-center gap-2.5">
-                {/* Prominent Back to Stage Controller Button */}
-                <button
-                  type="button"
-                  onClick={() => setAdminMode('stage')}
-                  className="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs font-extrabold uppercase tracking-wider bg-gradient-to-r from-novera-gold to-amber-400 text-black shadow-lg hover:brightness-110 transition-all border border-amber-300"
-                >
-                  <span>&larr; Back to Stage Controller</span>
-                </button>
-
                 {/* Privacy Shield Toggle (Hides counts & leaders from backstage bystanders) */}
                 <button
                   type="button"
