@@ -25,8 +25,6 @@ export interface VotingSettings {
   countdownUntil?: number | null;
   votingClosesAt?: number | null;
   votingDurationSeconds?: number;
-  stageFullscreen?: boolean;
-  stageFullscreenCommandId?: number;
 }
 
 export interface VoterStatus {

@@ -13,7 +13,6 @@ import {
   RefreshCw,
   Lock,
   Sparkles,
-  Square,
 } from 'lucide-react';
 import StageQrInteractiveBackground from '@/app/components/StageQrInteractiveBackground';
 import RunwayStageBackground from '@/app/components/RunwayStageBackground';
@@ -150,47 +149,13 @@ export default function QrDisplayPage() {
     }
   }, []);
 
-  // 📡 Real-time Remote Fullscreen Receiver (Triggered from phone / remote admin)
-  useEffect(() => {
-    if (typeof document === 'undefined') return;
-    if (votingSettings.stageFullscreen !== undefined) {
-      if (votingSettings.stageFullscreen) {
-        if (!document.fullscreenElement) {
-          document.documentElement.requestFullscreen().catch(() => {
-            // If browser blocks native OS fullscreen without user gesture,
-            // the state sets true so the 100% immersive CSS stage layout takes effect
-          });
-        }
-        setIsFullscreen(true);
-      } else {
-        if (document.fullscreenElement) {
-          document.exitFullscreen().catch(() => {});
-        }
-        setIsFullscreen(false);
-      }
-    }
-  }, [votingSettings.stageFullscreen, votingSettings.stageFullscreenCommandId]);
-
-  const toggleFullscreen = async () => {
-    const nextFs = !isFullscreen;
+  const toggleFullscreen = () => {
     if (!document.fullscreenElement) {
       document.documentElement.requestFullscreen().catch((err) => {
         console.error('Fullscreen request error:', err);
       });
     } else {
       document.exitFullscreen().catch(() => { });
-    }
-    setIsFullscreen(nextFs);
-
-    // Sync back to cloud settings so all phone controllers see updated status
-    try {
-      await saveVotingSettings({
-        ...votingSettings,
-        stageFullscreen: nextFs,
-        stageFullscreenCommandId: Date.now(),
-      });
-    } catch (e) {
-      console.warn('Failed to sync fullscreen state to cloud:', e);
     }
   };
 
@@ -204,9 +169,7 @@ export default function QrDisplayPage() {
   const isVotingLive = !!votingSettings.isVotingOpen;
 
   return (
-    <div className={`relative min-h-screen w-full text-novera-paper flex flex-col items-center justify-between p-3 sm:py-4 sm:px-6 select-none overflow-y-auto overflow-x-hidden ${
-      isFullscreen ? 'fixed inset-0 z-50 w-screen h-screen overflow-hidden bg-black' : ''
-    }`}>
+    <div className="relative min-h-screen w-full text-novera-paper flex flex-col items-center justify-between p-3 sm:py-4 sm:px-6 select-none overflow-y-auto overflow-x-hidden">
       {/* 🌟 GRAND STAGE OPENING BROADCAST & ANNOUNCEMENT OVERLAY */}
       {showOpeningBroadcast && (
         <div className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-3xl flex items-center justify-center p-4 select-none animate-in fade-in duration-500">
@@ -353,9 +316,7 @@ export default function QrDisplayPage() {
       {/* 🔒 Quick Return to Master Admin Hub */}
       <Link
         href="/admin"
-        className={`fixed top-4 left-4 z-40 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/60 hover:bg-black/90 text-zinc-300 hover:text-white border border-white/20 backdrop-blur-md text-xs font-mono transition-all shadow-md ${
-          isFullscreen ? 'opacity-0 hover:opacity-100 transition-opacity duration-300' : ''
-        }`}
+        className="fixed top-4 left-4 z-40 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/60 hover:bg-black/90 text-zinc-300 hover:text-white border border-white/20 backdrop-blur-md text-xs font-mono transition-all shadow-md"
         title="Return to Master Admin Hub"
       >
         <Lock className="w-3.5 h-3.5 text-novera-gold" />
@@ -490,28 +451,6 @@ export default function QrDisplayPage() {
 
         {/* Action Controls (Fullscreen stage view for projector & manual announce) */}
         <div className="flex flex-wrap items-center justify-center gap-2 pt-1 w-full max-w-md px-4">
-          {isVotingLive && (
-            <button
-              type="button"
-              onClick={async () => {
-                try {
-                  await saveVotingSettings({
-                    isVotingOpen: false,
-                    votingClosesAt: null,
-                    countdownUntil: null,
-                    announcement: 'Audience voting is currently PAUSED / CONCLUDED by the Central Committee.',
-                  });
-                  setShowClosingCeremony(true);
-                } catch (e) {}
-              }}
-              className="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-full bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 text-xs font-semibold uppercase tracking-wider transition-all border border-rose-500/40 shadow-md backdrop-blur-md cursor-pointer"
-              title="Stop audience voting session immediately"
-            >
-              <Square className="w-3.5 h-3.5 fill-rose-400 text-rose-400" />
-              <span>Stop Voting</span>
-            </button>
-          )}
-
           <button
             type="button"
             onClick={() => {

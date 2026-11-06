@@ -159,10 +159,10 @@ export function subscribeToVotingSettings(callback: (settings: VotingSettings) =
       }
     } catch (e) {}
 
-    // 5. Polling fallback every 1 second for rock-solid reliability across screens
+    // 5. Polling fallback every 1.5 seconds for rock-solid reliability across screens
     const pollInterval = setInterval(() => {
       fetchVotingSettings().then((s) => callback(s)).catch(() => {});
-    }, 1000);
+    }, 1500);
     cleanupFns.push(() => clearInterval(pollInterval));
   }
 
