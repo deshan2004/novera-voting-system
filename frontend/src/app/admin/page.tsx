@@ -62,6 +62,8 @@ import VotingCountdownOverlay from '@/app/components/VotingCountdownOverlay';
 const ADMIN_PASSCODE = 'novera2026';
 
 const OFFICIAL_JUDGE_ROSTER = [
+  { id: 'judge_mayuri', name: 'Mayuri', title: 'Official Runway Jury' },
+  { id: 'judge_kalpani', name: 'Kalpani', title: 'Official Runway Jury' },
   { id: 'judge_piyumi', name: 'Piyumi', title: 'Fashion & Runway Jury' },
   { id: 'judge_kalwani', name: 'Kalwani', title: 'Styling & Visual Jury' },
   { id: 'judge_devdunu', name: 'Devdunu', title: 'Poise & Presence Jury' },
@@ -1204,7 +1206,7 @@ export default function AdminLeaderboardPage() {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+                  <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2.5 sm:gap-3">
                     {OFFICIAL_JUDGE_ROSTER.map((judge) => {
                       const count = judgeScores.filter((s) => s.judgeId === judge.id).length;
                       return (

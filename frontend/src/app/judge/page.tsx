@@ -40,6 +40,8 @@ import {
 import RunwayStageBackground from '@/app/components/RunwayStageBackground';
 
 const OFFICIAL_JUDGES = [
+  { id: 'judge_mayuri', name: 'Judge Mayuri', title: 'Official Runway Jury', code: 'mayuri' },
+  { id: 'judge_kalpani', name: 'Judge Kalpani', title: 'Official Runway Jury', code: 'kalpani' },
   { id: 'judge_piyumi', name: 'Judge Piyumi', title: 'Fashion & Runway Jury', code: 'piyumi' },
   { id: 'judge_kalwani', name: 'Judge Kalwani', title: 'Styling & Visual Jury', code: 'kalwani' },
   { id: 'judge_devdunu', name: 'Judge Devdunu', title: 'Poise & Presence Jury', code: 'devdunu' },
