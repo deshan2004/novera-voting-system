@@ -450,19 +450,19 @@ export default function JudgePortalPage() {
                 <div className="space-y-5 animate-in zoom-in-95 duration-400">
                   {/* Verified Crown Badge */}
                   <div className="relative w-20 h-20 mx-auto flex items-center justify-center">
-                    <div className="absolute inset-0 rounded-2xl bg-amber-400/30 blur-xl animate-pulse" />
-                    <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-novera-gold to-amber-600 text-black flex items-center justify-center shadow-2xl border border-amber-200">
+                    <div className="absolute inset-0 rounded-2xl bg-novera-gold/30 blur-2xl animate-pulse" />
+                    <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#f3e5c8] via-[#d4af37] to-[#997a29] text-black flex items-center justify-center shadow-[0_0_35px_rgba(212,175,55,0.55)] border border-[#ffe5a3]">
                       <Crown className="w-9 h-9 text-black drop-shadow" />
                     </div>
                   </div>
 
                   {/* Prestige Greeting */}
                   <div className="space-y-1.5">
-                    <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-400/40 text-[11px] font-mono font-bold text-emerald-300 uppercase tracking-widest">
-                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                    <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-novera-gold/15 border border-novera-gold/40 text-[11px] font-mono font-bold text-[#f3e5c8] uppercase tracking-widest shadow-sm">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-novera-gold" />
                       <span>Credentials Verified &bull; Access Granted</span>
                     </div>
-                    <h2 className="font-serif text-2xl sm:text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-white via-amber-100 to-novera-gold tracking-tight pt-1">
+                    <h2 className="font-serif text-2xl sm:text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-white via-[#f3e5c8] to-novera-gold tracking-tight pt-1">
                       Welcome, {welcomeAnimation.judgeName}!
                     </h2>
                     <p className="text-xs text-novera-gold font-mono tracking-wider font-semibold">
@@ -471,7 +471,7 @@ export default function JudgePortalPage() {
                   </div>
 
                   {/* Elegant Talk / Voice Message Box */}
-                  <div className="p-4 rounded-2xl bg-white/[0.05] border border-amber-500/30 text-left space-y-2 shadow-inner">
+                  <div className="p-4 rounded-2xl bg-black/50 border border-novera-gold/30 text-left space-y-2 shadow-inner">
                     <div className="flex items-center gap-2 text-xs font-bold text-novera-gold uppercase tracking-wider">
                       <Sparkles className="w-3.5 h-3.5 text-novera-gold" />
                       <span>Official Judiciary Briefing</span>
@@ -481,19 +481,22 @@ export default function JudgePortalPage() {
                     </p>
                     <div className="pt-1.5 border-t border-white/10 flex items-center justify-between text-[11px] font-mono text-zinc-400">
                       <span>Official Scoring System</span>
-                      <span className="text-emerald-400 font-bold">● Online &bull; Live Telemetry</span>
+                      <span className="text-novera-gold font-bold flex items-center gap-1.5">
+                        <span className="w-2 h-2 rounded-full bg-novera-gold animate-pulse inline-block" />
+                        <span>Online &bull; Live Telemetry</span>
+                      </span>
                     </div>
                   </div>
 
                   {/* Calibration Progress Bar */}
                   <div className="space-y-2 pt-1">
                     <div className="flex items-center justify-between text-[10px] font-mono text-zinc-400 uppercase tracking-wider">
-                      <span>{welcomeAnimation.step === 3 ? 'Calibration Complete &bull; System Ready' : 'Calibrating Telemetry Link...'}</span>
+                      <span>{welcomeAnimation.step === 3 ? 'Calibration Complete \u2022 System Ready' : 'Calibrating Telemetry Link...'}</span>
                       <span className="text-novera-gold font-bold">{welcomeAnimation.step === 3 ? '100% · READY' : '78%'}</span>
                     </div>
                     <div className="w-full h-1.5 rounded-full bg-white/10 overflow-hidden">
                       <div
-                        className="h-full bg-gradient-to-r from-novera-gold via-amber-300 to-amber-500 transition-all duration-700 rounded-full"
+                        className="h-full bg-gradient-to-r from-novera-foil via-novera-gold to-[#f3e5c8] transition-all duration-700 rounded-full"
                         style={{ width: welcomeAnimation.step === 3 ? '100%' : '78%' }}
                       />
                     </div>
@@ -507,7 +510,7 @@ export default function JudgePortalPage() {
                         setWelcomeAnimation(null);
                         setIsAuthenticated(true);
                       }}
-                      className="w-full py-3.5 px-6 rounded-2xl bg-gradient-to-r from-novera-gold via-amber-400 to-amber-500 text-black font-serif font-extrabold text-sm sm:text-base tracking-wider uppercase shadow-[0_0_30px_rgba(212,175,55,0.4)] hover:brightness-110 active:scale-[0.98] transition-all cursor-pointer flex items-center justify-center gap-2 group"
+                      className="w-full py-3.5 px-6 rounded-2xl bg-gradient-to-r from-[#d4af37] via-[#f3e5c8] to-[#b3924f] text-black font-serif font-black text-sm sm:text-base tracking-wider uppercase shadow-[0_0_35px_rgba(212,175,55,0.5)] border border-[#ffe5a3] hover:brightness-110 active:scale-[0.98] transition-all cursor-pointer flex items-center justify-center gap-2 group"
                     >
                       <span>ENTER SCORING PORTAL</span>
                       <Sparkles className="w-4 h-4 text-black group-hover:rotate-12 transition-transform" />
