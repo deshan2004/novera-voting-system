@@ -893,7 +893,7 @@ export default function AdminLeaderboardPage() {
                   Central Tabulation &amp; Official Marks
                 </h1>
                 <p className="text-xs sm:text-sm text-zinc-300 mt-1">
-                  Confidential Jury Scorecards &bull; Audience Votes &bull; Grand Finale Standings
+                  Confidential Judges Scorecards &bull; Audience Votes &bull; Grand Finale Standings
                 </p>
               </div>
 
@@ -962,7 +962,7 @@ export default function AdminLeaderboardPage() {
                     }`}
                 >
                   <Award className={`w-4 h-4 shrink-0 ${vaultTab === 'judges' ? 'text-black' : 'text-novera-gold'}`} />
-                  <span>Jury Scores</span>
+                  <span>Judges Scores</span>
                 </button>
 
                 <button
@@ -1333,7 +1333,7 @@ export default function AdminLeaderboardPage() {
                       </div>
                       <div className="space-y-1">
                         <h4 className="font-serif text-lg font-bold text-white uppercase tracking-wider">
-                          Jury Category Leaders Masked
+                          Judges Category Leaders Masked
                         </h4>
                         <p className="text-xs text-zinc-400 max-w-md">
                           Live average scores and leading candidates are confidential until revealed by the Admin.
@@ -1629,7 +1629,7 @@ export default function AdminLeaderboardPage() {
                               </div>
                               <div>
                                 <span className="text-[10px] font-bold uppercase tracking-widest text-novera-gold">
-                                  Title #{index + 1} &bull; {award.source === 'jury' ? 'Official Jury Evaluation' : 'Public Web Ballot'}
+                                  Title #{index + 1} &bull; {award.source === 'jury' ? 'Official Judges Evaluation' : 'Public Web Ballot'}
                                 </span>
                                 <h3 className="font-serif text-xl sm:text-2xl font-bold text-white">
                                   {award.title}
@@ -1770,7 +1770,7 @@ export default function AdminLeaderboardPage() {
                     </div>
                     <div>
                       <div className="text-[10px] font-mono uppercase tracking-widest text-novera-gold font-bold">
-                        Official Jury Evaluation Audit
+                        Official Judges Evaluation Audit
                       </div>
                       <h3 className="font-serif text-xl sm:text-2xl font-bold text-white">
                         Judge {selectedAuditJudge.name}
