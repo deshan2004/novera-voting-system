@@ -733,7 +733,7 @@ export default function AdminLeaderboardPage() {
         {adminRole === 'stage' && (
           <div className="space-y-6 animate-in fade-in duration-200">
             {/* Top Stage Header */}
-            <div className="p-6 sm:p-8 rounded-3xl bg-black/40 backdrop-blur-2xl border border-white/15 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 shadow-2xl">
+            <div className="p-4 sm:p-8 rounded-2xl sm:rounded-3xl bg-black/40 backdrop-blur-2xl border border-white/15 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 sm:gap-6 shadow-2xl">
               <div>
                 <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/15 border border-amber-500/35 text-xs uppercase tracking-widest font-bold text-amber-300 mb-2">
                   <Radio className="w-3.5 h-3.5 text-amber-400 animate-pulse" />
@@ -747,35 +747,35 @@ export default function AdminLeaderboardPage() {
                 </p>
               </div>
 
-              <div className="flex items-center gap-3">
+              <div className="flex flex-wrap items-center gap-2 sm:gap-3 w-full sm:w-auto">
                 <Link
                   href="/qr"
                   target="_blank"
-                  className="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs font-bold uppercase tracking-wider bg-gradient-to-r from-novera-gold to-amber-400 text-black shadow-md hover:brightness-110 transition-all border border-amber-300"
+                  className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl sm:rounded-2xl text-xs font-bold uppercase tracking-wider bg-gradient-to-r from-novera-gold to-amber-400 text-black shadow-md hover:brightness-110 active:scale-95 transition-all border border-amber-300 text-center"
                 >
-                  <QrCode className="w-4 h-4 text-black" />
-                  <span>Launch Stage Screen &rarr;</span>
+                  <QrCode className="w-4 h-4 text-black shrink-0" />
+                  <span><span className="hidden sm:inline">Launch </span>Stage Screen &rarr;</span>
                 </Link>
 
                 <button
                   onClick={handleLogout}
-                  className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-2xl text-xs font-semibold text-zinc-300 bg-white/5 hover:bg-white/10 hover:text-white border border-white/15 backdrop-blur-md transition-colors shadow-sm"
+                  className="inline-flex items-center justify-center gap-1.5 px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl sm:rounded-2xl text-xs font-semibold text-zinc-300 bg-white/5 hover:bg-white/10 hover:text-white border border-white/15 backdrop-blur-md transition-colors shadow-sm active:scale-95 cursor-pointer"
                   title="Sign Out"
                 >
-                  <LogOut className="w-3.5 h-3.5 text-zinc-400" />
+                  <LogOut className="w-3.5 h-3.5 text-zinc-400 shrink-0" />
                   <span>Sign Out</span>
                 </button>
               </div>
             </div>
 
             {/* Main Launchpad Card with Big Button and Session Configuration */}
-            <div className="p-6 sm:p-8 rounded-3xl bg-black/50 backdrop-blur-2xl border border-white/15 shadow-2xl space-y-6">
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-white/10 pb-5">
+            <div className="p-4 sm:p-8 rounded-2xl sm:rounded-3xl bg-black/50 backdrop-blur-2xl border border-white/15 shadow-2xl space-y-5 sm:space-y-6">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 border-b border-white/10 pb-4 sm:pb-5">
                 <div>
                   <span className="text-[10px] font-mono uppercase tracking-[0.25em] text-novera-gold font-bold block mb-1">
                     Master Stage Controller &bull; Privacy Protected
                   </span>
-                  <h2 className="font-serif text-2xl sm:text-3xl font-bold text-white">
+                  <h2 className="font-serif text-xl sm:text-3xl font-bold text-white">
                     Live Voting Control
                   </h2>
                   <p className="text-xs text-zinc-300 mt-1">
@@ -784,11 +784,11 @@ export default function AdminLeaderboardPage() {
                 </div>
 
                 <div className="flex items-center gap-2">
-                  <span className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider border ${votingSettings.isVotingOpen
+                  <span className={`inline-flex items-center gap-2 px-3 sm:px-3.5 py-1 sm:py-1.5 rounded-full text-[11px] sm:text-xs font-bold uppercase tracking-wider border ${votingSettings.isVotingOpen
                       ? 'bg-amber-500/20 text-amber-300 border-amber-500/40 shadow-[0_0_20px_rgba(212,175,55,0.3)]'
                       : 'bg-black/60 text-zinc-400 border-white/10'
                     }`}>
-                    <span className={`w-2.5 h-2.5 rounded-full ${votingSettings.isVotingOpen ? 'bg-amber-400 animate-ping' : 'bg-zinc-500'}`} />
+                    <span className={`w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full ${votingSettings.isVotingOpen ? 'bg-amber-400 animate-ping' : 'bg-zinc-500'}`} />
                     <span>{votingSettings.isVotingOpen ? 'Stage Status: LIVE' : 'Stage Status: LOCKED'}</span>
                   </span>
                 </div>
@@ -800,20 +800,20 @@ export default function AdminLeaderboardPage() {
                   type="button"
                   onClick={toggleVotingStatus}
                   disabled={isUpdatingVotingStatus}
-                  className={`w-full py-10 sm:py-14 px-6 sm:px-10 rounded-3xl transition-all duration-300 flex items-center justify-center gap-4 sm:gap-6 relative overflow-hidden group cursor-pointer border-2 shadow-2xl active:scale-[0.99] ${votingSettings.isVotingOpen
+                  className={`w-full py-7 sm:py-12 md:py-14 px-4 sm:px-10 rounded-2xl sm:rounded-3xl transition-all duration-300 flex items-center justify-center gap-3 sm:gap-6 relative overflow-hidden group cursor-pointer border-2 shadow-2xl active:scale-[0.99] ${votingSettings.isVotingOpen
                       ? 'bg-gradient-to-r from-[#171410] via-[#241d15] to-[#171410] border-amber-400/80 text-amber-100 shadow-[0_0_50px_rgba(212,175,55,0.35)] hover:border-amber-300 hover:shadow-[0_0_65px_rgba(212,175,55,0.5)]'
                       : 'bg-gradient-to-r from-[#d4af37] via-[#f5e6b8] to-[#aa7c11] border-white/80 text-black shadow-[0_0_60px_rgba(212,175,55,0.45)] hover:brightness-110'
                     }`}
                 >
                   <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/25 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 pointer-events-none" />
 
-                  <div className="flex items-center gap-4 sm:gap-6">
+                  <div className="flex items-center gap-3 sm:gap-6">
                     {votingSettings.isVotingOpen ? (
-                      <Square className="w-8 h-8 sm:w-12 sm:h-12 text-amber-300 fill-amber-300 shrink-0 drop-shadow-md" />
+                      <Square className="w-6 h-6 sm:w-10 sm:h-10 md:w-12 md:h-12 text-amber-300 fill-amber-300 shrink-0 drop-shadow-md" />
                     ) : (
-                      <Play className="w-8 h-8 sm:w-12 sm:h-12 text-black fill-black shrink-0 drop-shadow-md animate-pulse" />
+                      <Play className="w-6 h-6 sm:w-10 sm:h-10 md:w-12 md:h-12 text-black fill-black shrink-0 drop-shadow-md animate-pulse" />
                     )}
-                    <span className={`font-serif text-2xl sm:text-4xl md:text-5xl font-black uppercase tracking-wide drop-shadow-[0_2px_15px_rgba(0,0,0,0.8)] text-center ${votingSettings.isVotingOpen
+                    <span className={`font-serif text-lg sm:text-3xl md:text-5xl font-black uppercase tracking-wide drop-shadow-[0_2px_15px_rgba(0,0,0,0.8)] text-center leading-tight ${votingSettings.isVotingOpen
                         ? 'text-transparent bg-clip-text bg-gradient-to-r from-amber-100 via-white to-amber-300'
                         : 'text-black'
                       }`}>
@@ -944,38 +944,38 @@ export default function AdminLeaderboardPage() {
 
             {/* Vault Tabs Navigation */}
             <div className="flex justify-center my-2">
-              <div className="grid grid-cols-3 gap-2 p-1.5 rounded-full bg-black/50 backdrop-blur-xl border border-white/15 shadow-inner w-full max-w-2xl">
+              <div className="grid grid-cols-3 gap-1 sm:gap-2 p-1 sm:p-1.5 rounded-full bg-black/50 backdrop-blur-xl border border-white/15 shadow-inner w-full max-w-2xl">
                 <button
                   onClick={() => setVaultTab('audience')}
-                  className={`flex items-center justify-center gap-2 py-3 px-4 rounded-full text-xs sm:text-sm font-bold uppercase tracking-wider whitespace-nowrap transition-all duration-200 ${vaultTab === 'audience'
+                  className={`flex items-center justify-center gap-1 sm:gap-2 py-2 sm:py-3 px-2 sm:px-4 rounded-full text-[10px] sm:text-sm font-bold uppercase tracking-wider transition-all duration-200 cursor-pointer ${vaultTab === 'audience'
                       ? 'bg-gradient-to-r from-novera-gold to-amber-500 text-black shadow-lg font-extrabold'
                       : 'text-zinc-400 hover:text-white hover:bg-white/10'
                     }`}
                 >
-                  <Vote className={`w-4 h-4 shrink-0 ${vaultTab === 'audience' ? 'text-black' : 'text-novera-gold'}`} />
-                  <span>Audience Votes</span>
+                  <Vote className={`w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0 ${vaultTab === 'audience' ? 'text-black' : 'text-novera-gold'}`} />
+                  <span className="truncate">Audience<span className="hidden sm:inline"> Votes</span></span>
                 </button>
 
                 <button
                   onClick={() => setVaultTab('judges')}
-                  className={`flex items-center justify-center gap-2 py-3 px-4 rounded-full text-xs sm:text-sm font-bold uppercase tracking-wider whitespace-nowrap transition-all duration-200 ${vaultTab === 'judges'
+                  className={`flex items-center justify-center gap-1 sm:gap-2 py-2 sm:py-3 px-2 sm:px-4 rounded-full text-[10px] sm:text-sm font-bold uppercase tracking-wider transition-all duration-200 cursor-pointer ${vaultTab === 'judges'
                       ? 'bg-gradient-to-r from-novera-gold to-amber-500 text-black shadow-lg font-extrabold'
                       : 'text-zinc-400 hover:text-white hover:bg-white/10'
                     }`}
                 >
-                  <Award className={`w-4 h-4 shrink-0 ${vaultTab === 'judges' ? 'text-black' : 'text-novera-gold'}`} />
-                  <span>Judges Scores</span>
+                  <Award className={`w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0 ${vaultTab === 'judges' ? 'text-black' : 'text-novera-gold'}`} />
+                  <span className="truncate">Judges<span className="hidden sm:inline"> Scores</span></span>
                 </button>
 
                 <button
                   onClick={() => setVaultTab('summary')}
-                  className={`flex items-center justify-center gap-2 py-3 px-4 rounded-full text-xs sm:text-sm font-bold uppercase tracking-wider whitespace-nowrap transition-all duration-200 ${vaultTab === 'summary'
+                  className={`flex items-center justify-center gap-1 sm:gap-2 py-2 sm:py-3 px-2 sm:px-4 rounded-full text-[10px] sm:text-sm font-bold uppercase tracking-wider transition-all duration-200 cursor-pointer ${vaultTab === 'summary'
                       ? 'bg-gradient-to-r from-novera-gold to-amber-500 text-black shadow-lg font-extrabold'
                       : 'text-zinc-400 hover:text-white hover:bg-white/10'
                     }`}
                 >
-                  <Trophy className={`w-4 h-4 shrink-0 ${vaultTab === 'summary' ? 'text-black' : 'text-novera-gold'}`} />
-                  <span>Final Award Titles</span>
+                  <Trophy className={`w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0 ${vaultTab === 'summary' ? 'text-black' : 'text-novera-gold'}`} />
+                  <span className="truncate">Award<span className="hidden sm:inline"> Titles</span></span>
                 </button>
               </div>
             </div>
@@ -1761,23 +1761,23 @@ export default function AdminLeaderboardPage() {
             <RunwayStageBackground contained className="opacity-90 pointer-events-none" />
             <div className="min-h-full flex items-center justify-center py-2 sm:py-4">
               <div
-                className="max-w-3xl w-full bg-[#0c0a08]/95 backdrop-blur-3xl rounded-3xl p-5 sm:p-7 border border-white/20 shadow-2xl relative z-10 animate-in zoom-in-95 duration-200 flex flex-col overflow-hidden text-left text-white max-h-[calc(100dvh-2rem)]"
+                className="max-w-3xl w-full bg-[#0c0a08]/95 backdrop-blur-3xl rounded-2xl sm:rounded-3xl p-3.5 sm:p-7 border border-white/20 shadow-2xl relative z-10 animate-in zoom-in-95 duration-200 flex flex-col overflow-hidden text-left text-white max-h-[92dvh] sm:max-h-[calc(100dvh-2rem)]"
                 onClick={(e) => e.stopPropagation()}
               >
                 {/* Modal Header */}
-                <div className="flex items-start justify-between pb-4 border-b border-white/10 shrink-0">
-                  <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-2xl bg-novera-gold/20 text-novera-gold border border-novera-gold/30 text-lg font-serif font-bold flex items-center justify-center shadow-md">
+                <div className="flex items-start justify-between pb-3 sm:pb-4 border-b border-white/10 shrink-0 gap-2">
+                  <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-novera-gold/20 text-novera-gold border border-novera-gold/30 text-base sm:text-lg font-serif font-bold flex items-center justify-center shadow-md shrink-0">
                       {selectedAuditJudge.name[0]}
                     </div>
-                    <div>
-                      <div className="text-[10px] font-mono uppercase tracking-widest text-novera-gold font-bold">
+                    <div className="min-w-0">
+                      <div className="text-[9px] sm:text-[10px] font-mono uppercase tracking-widest text-novera-gold font-bold truncate">
                         Official Judges Evaluation Audit
                       </div>
-                      <h3 className="font-serif text-xl sm:text-2xl font-bold text-white">
+                      <h3 className="font-serif text-lg sm:text-2xl font-bold text-white truncate">
                         Judge {selectedAuditJudge.name}
                       </h3>
-                      <div className="text-xs text-zinc-300 font-medium">
+                      <div className="text-[11px] sm:text-xs text-zinc-300 font-medium truncate">
                         {selectedAuditJudge.title}
                       </div>
                     </div>
@@ -1785,7 +1785,7 @@ export default function AdminLeaderboardPage() {
                   <button
                     type="button"
                     onClick={() => setSelectedAuditJudge(null)}
-                    className="px-3.5 py-1.5 rounded-full bg-white/10 hover:bg-rose-500/20 active:scale-95 text-zinc-300 hover:text-rose-200 border border-white/20 hover:border-rose-400/40 flex items-center gap-1.5 text-xs font-semibold tracking-wide transition-all shadow-sm shrink-0 cursor-pointer group"
+                    className="px-3 sm:px-3.5 py-1.5 rounded-full bg-white/10 hover:bg-rose-500/20 active:scale-95 text-zinc-300 hover:text-rose-200 border border-white/20 hover:border-rose-400/40 flex items-center gap-1.5 text-xs font-semibold tracking-wide transition-all shadow-sm shrink-0 cursor-pointer group"
                     title="Close Audit View"
                   >
                     <X className="w-3.5 h-3.5 text-zinc-400 group-hover:text-rose-300 transition-colors" strokeWidth={2.5} />
@@ -1794,74 +1794,78 @@ export default function AdminLeaderboardPage() {
                 </div>
 
                 {/* Filter & Progress Summary Bar */}
-                <div className="py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shrink-0">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <span className="text-xs font-semibold text-zinc-300">Category:</span>
-                    <div className="flex p-1 rounded-xl bg-white/10 border border-white/10">
-                      <button
-                        onClick={() => setAuditCategoryFilter('all')}
-                        className={`px-3 py-1 rounded-lg text-xs font-bold uppercase transition-all ${auditCategoryFilter === 'all'
-                            ? 'bg-gradient-to-r from-novera-gold to-amber-500 text-black font-extrabold shadow-sm'
-                            : 'text-zinc-400 hover:text-white'
-                          }`}
-                      >
-                        All ({candidates.length})
-                      </button>
-                      <button
-                        onClick={() => setAuditCategoryFilter('boy')}
-                        className={`px-3 py-1 rounded-lg text-xs font-bold uppercase transition-all ${auditCategoryFilter === 'boy'
-                            ? 'bg-gradient-to-r from-novera-gold to-amber-500 text-black font-extrabold shadow-sm'
-                            : 'text-zinc-400 hover:text-white'
-                          }`}
-                      >
-                        Boys ({candidates.filter((c) => c.category === 'boy').length})
-                      </button>
-                      <button
-                        onClick={() => setAuditCategoryFilter('girl')}
-                        className={`px-3 py-1 rounded-lg text-xs font-bold uppercase transition-all ${auditCategoryFilter === 'girl'
-                            ? 'bg-gradient-to-r from-novera-gold to-amber-500 text-black font-extrabold shadow-sm'
-                            : 'text-zinc-400 hover:text-white'
-                          }`}
-                      >
-                        Girls ({candidates.filter((c) => c.category === 'girl').length})
-                      </button>
+                <div className="py-2.5 sm:py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 shrink-0 border-b border-white/10 sm:border-b-0 pb-2.5 sm:pb-0">
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-2 w-full sm:w-auto">
+                    <div className="flex items-center gap-1.5 w-full sm:w-auto">
+                      <span className="text-[10px] sm:text-xs font-semibold text-zinc-300 shrink-0">Cat:</span>
+                      <div className="grid grid-cols-3 sm:flex p-1 rounded-xl bg-white/10 border border-white/10 flex-1 sm:flex-none">
+                        <button
+                          onClick={() => setAuditCategoryFilter('all')}
+                          className={`px-2 sm:px-3 py-1 rounded-lg text-[10px] sm:text-xs font-bold uppercase transition-all text-center cursor-pointer ${auditCategoryFilter === 'all'
+                              ? 'bg-gradient-to-r from-novera-gold to-amber-500 text-black font-extrabold shadow-sm'
+                              : 'text-zinc-400 hover:text-white'
+                            }`}
+                        >
+                          All ({candidates.length})
+                        </button>
+                        <button
+                          onClick={() => setAuditCategoryFilter('boy')}
+                          className={`px-2 sm:px-3 py-1 rounded-lg text-[10px] sm:text-xs font-bold uppercase transition-all text-center cursor-pointer ${auditCategoryFilter === 'boy'
+                              ? 'bg-gradient-to-r from-novera-gold to-amber-500 text-black font-extrabold shadow-sm'
+                              : 'text-zinc-400 hover:text-white'
+                            }`}
+                        >
+                          Boys ({candidates.filter((c) => c.category === 'boy').length})
+                        </button>
+                        <button
+                          onClick={() => setAuditCategoryFilter('girl')}
+                          className={`px-2 sm:px-3 py-1 rounded-lg text-[10px] sm:text-xs font-bold uppercase transition-all text-center cursor-pointer ${auditCategoryFilter === 'girl'
+                              ? 'bg-gradient-to-r from-novera-gold to-amber-500 text-black font-extrabold shadow-sm'
+                              : 'text-zinc-400 hover:text-white'
+                            }`}
+                        >
+                          Girls ({candidates.filter((c) => c.category === 'girl').length})
+                        </button>
+                      </div>
                     </div>
 
-                    <span className="text-xs font-semibold text-zinc-300 ml-1">Status:</span>
-                    <div className="flex p-1 rounded-xl bg-white/10 border border-white/10">
-                      <button
-                        onClick={() => setAuditStatusFilter('all')}
-                        className={`px-2.5 py-1 rounded-lg text-xs font-bold uppercase transition-all ${auditStatusFilter === 'all'
-                            ? 'bg-white/20 text-white font-extrabold shadow-sm'
-                            : 'text-zinc-400 hover:text-white'
-                          }`}
-                      >
-                        All Status
-                      </button>
-                      <button
-                        onClick={() => setAuditStatusFilter('scored')}
-                        className={`px-2.5 py-1 rounded-lg text-xs font-bold uppercase transition-all ${auditStatusFilter === 'scored'
-                            ? 'bg-emerald-500 text-black font-extrabold shadow-sm'
-                            : 'text-zinc-400 hover:text-emerald-400'
-                          }`}
-                      >
-                        Scored ({judgeScores.filter((s) => s.judgeId === selectedAuditJudge.id).length})
-                      </button>
-                      <button
-                        onClick={() => setAuditStatusFilter('pending')}
-                        className={`px-2.5 py-1 rounded-lg text-xs font-bold uppercase transition-all ${auditStatusFilter === 'pending'
-                            ? 'bg-amber-500 text-black font-extrabold shadow-sm'
-                            : 'text-zinc-400 hover:text-amber-400'
-                          }`}
-                      >
-                        Pending ({candidates.length - judgeScores.filter((s) => s.judgeId === selectedAuditJudge.id).length})
-                      </button>
+                    <div className="flex items-center gap-1.5 w-full sm:w-auto">
+                      <span className="text-[10px] sm:text-xs font-semibold text-zinc-300 shrink-0">Status:</span>
+                      <div className="grid grid-cols-3 sm:flex p-1 rounded-xl bg-white/10 border border-white/10 flex-1 sm:flex-none">
+                        <button
+                          onClick={() => setAuditStatusFilter('all')}
+                          className={`px-2 sm:px-2.5 py-1 rounded-lg text-[10px] sm:text-xs font-bold uppercase transition-all text-center cursor-pointer ${auditStatusFilter === 'all'
+                              ? 'bg-white/20 text-white font-extrabold shadow-sm'
+                              : 'text-zinc-400 hover:text-white'
+                            }`}
+                        >
+                          All
+                        </button>
+                        <button
+                          onClick={() => setAuditStatusFilter('scored')}
+                          className={`px-2 sm:px-2.5 py-1 rounded-lg text-[10px] sm:text-xs font-bold uppercase transition-all text-center cursor-pointer ${auditStatusFilter === 'scored'
+                              ? 'bg-emerald-500 text-black font-extrabold shadow-sm'
+                              : 'text-zinc-400 hover:text-emerald-400'
+                            }`}
+                        >
+                          Scored ({judgeScores.filter((s) => s.judgeId === selectedAuditJudge.id).length})
+                        </button>
+                        <button
+                          onClick={() => setAuditStatusFilter('pending')}
+                          className={`px-2 sm:px-2.5 py-1 rounded-lg text-[10px] sm:text-xs font-bold uppercase transition-all text-center cursor-pointer ${auditStatusFilter === 'pending'
+                              ? 'bg-amber-500 text-black font-extrabold shadow-sm'
+                              : 'text-zinc-400 hover:text-amber-400'
+                            }`}
+                        >
+                          Pending ({candidates.length - judgeScores.filter((s) => s.judgeId === selectedAuditJudge.id).length})
+                        </button>
+                      </div>
                     </div>
                   </div>
 
                   {/* Completion Tag */}
-                  <div className="text-xs font-mono font-semibold text-zinc-300 flex items-center gap-2 shrink-0">
-                    <span>Completed:</span>
+                  <div className="text-[11px] sm:text-xs font-mono font-semibold text-zinc-300 flex items-center justify-between sm:justify-start gap-2 shrink-0">
+                    <span>Progress:</span>
                     <span className="px-2.5 py-0.5 rounded-full bg-emerald-950/60 text-emerald-300 font-bold border border-emerald-500/40">
                       {judgeScores.filter((s) => s.judgeId === selectedAuditJudge.id).length} / {candidates.length} Scored
                     </span>
@@ -2063,11 +2067,11 @@ export default function AdminLeaderboardPage() {
               </div>
 
               {/* Modal Footer */}
-              <div className="pt-3 border-t border-white/10 flex justify-end shrink-0">
+              <div className="pt-3 pb-safe border-t border-white/10 flex justify-end shrink-0">
                 <button
                   type="button"
                   onClick={() => setSelectedAuditJudge(null)}
-                  className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-novera-gold to-amber-500 text-black font-extrabold hover:brightness-110 text-xs uppercase tracking-wider transition-all shadow-sm"
+                  className="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-gradient-to-r from-novera-gold to-amber-500 text-black font-extrabold hover:brightness-110 active:scale-95 text-xs uppercase tracking-wider transition-all shadow-sm text-center cursor-pointer"
                 >
                   Close Audit View
                 </button>

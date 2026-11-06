@@ -1092,14 +1092,14 @@ export default function JudgePortalPage() {
             <RunwayStageBackground contained className="opacity-90 pointer-events-none" />
 
             <div
-              className="max-w-2xl w-full bg-[#0d0b09]/98 backdrop-blur-3xl rounded-3xl border border-novera-gold/40 shadow-[0_0_80px_rgba(0,0,0,0.95)] relative z-10 animate-in zoom-in-95 duration-200 flex flex-col overflow-hidden text-white my-auto max-h-[90vh]"
+              className="max-w-2xl w-full bg-[#0d0b09]/98 backdrop-blur-3xl rounded-2xl sm:rounded-3xl border border-novera-gold/40 shadow-[0_0_80px_rgba(0,0,0,0.95)] relative z-10 animate-in zoom-in-95 duration-200 flex flex-col overflow-hidden text-white my-auto max-h-[92dvh] sm:max-h-[90vh]"
               onClick={(e) => e.stopPropagation()}
             >
               {/* 📌 COMPACT 1-LINE HEADER (Candidate + Category Tabs + Close) */}
-              <div className="bg-[#14110d] border-b border-white/15 px-3 sm:px-5 py-2.5 flex items-center justify-between gap-2 shrink-0 z-20">
+              <div className="bg-[#14110d] border-b border-white/15 px-2.5 sm:px-5 py-2 sm:py-2.5 flex items-center justify-between gap-1.5 sm:gap-2 shrink-0 z-20">
                 {/* Candidate Info */}
-                <div className="flex items-center gap-2.5 min-w-0">
-                  <div className="relative w-10 h-10 rounded-xl overflow-hidden shadow-md border-2 border-novera-gold/70 shrink-0">
+                <div className="flex items-center gap-2 sm:gap-2.5 min-w-0 flex-1">
+                  <div className="relative w-8 h-8 sm:w-10 sm:h-10 rounded-xl overflow-hidden shadow-md border border-novera-gold/70 shrink-0">
                     <Image
                       src={scoringCandidate.imageUrl}
                       alt={scoringCandidate.name}
@@ -1107,22 +1107,22 @@ export default function JudgePortalPage() {
                       className="object-cover"
                     />
                   </div>
-                  <div className="min-w-0">
-                    <div className="text-[10px] font-mono uppercase tracking-widest text-novera-gold font-bold truncate leading-tight">
+                  <div className="min-w-0 flex-1">
+                    <div className="text-[9px] sm:text-[10px] font-mono uppercase tracking-widest text-novera-gold font-bold truncate leading-tight">
                       #{scoringCandidate.candidateNumber} &bull; {scoringCandidate.category === 'boy' ? 'Male' : 'Female'}
                     </div>
-                    <h3 className="font-serif text-sm sm:text-base font-bold text-white truncate leading-tight">
+                    <h3 className="font-serif text-xs sm:text-base font-bold text-white truncate leading-tight">
                       {scoringCandidate.name}
                     </h3>
                   </div>
                 </div>
 
                 {/* Centered Category Switcher Tabs */}
-                <div className="flex items-center p-0.5 rounded-xl bg-black/60 border border-white/15 gap-1 shrink-0">
+                <div className="flex items-center p-0.5 rounded-xl bg-black/60 border border-white/15 gap-0.5 sm:gap-1 shrink-0">
                   <button
                     type="button"
                     onClick={() => setScorecardTab('model')}
-                    className={`py-1 px-2.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+                    className={`py-1 px-2 sm:px-2.5 rounded-lg text-[11px] sm:text-xs font-bold transition-all flex items-center gap-1 sm:gap-1.5 cursor-pointer ${
                       scorecardTab === 'model'
                         ? 'bg-gradient-to-r from-novera-gold to-amber-400 text-black font-extrabold shadow-sm'
                         : 'text-zinc-300 hover:text-white'
@@ -1130,7 +1130,7 @@ export default function JudgePortalPage() {
                   >
                     <Crown className="w-3 h-3" />
                     <span>Model</span>
-                    <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-mono font-bold ${
+                    <span className={`px-1 sm:px-1.5 py-0.2 rounded-full text-[9px] sm:text-[10px] font-mono font-bold ${
                       scorecardTab === 'model' ? 'bg-black/30 text-black' : 'bg-white/10 text-amber-300'
                     }`}>
                       {totalModel}
@@ -1140,7 +1140,7 @@ export default function JudgePortalPage() {
                   <button
                     type="button"
                     onClick={() => setScorecardTab('design')}
-                    className={`py-1 px-2.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+                    className={`py-1 px-2 sm:px-2.5 rounded-lg text-[11px] sm:text-xs font-bold transition-all flex items-center gap-1 sm:gap-1.5 cursor-pointer ${
                       scorecardTab === 'design'
                         ? 'bg-gradient-to-r from-novera-gold to-amber-400 text-black font-extrabold shadow-sm'
                         : 'text-zinc-300 hover:text-white'
@@ -1148,7 +1148,7 @@ export default function JudgePortalPage() {
                   >
                     <Palette className="w-3 h-3" />
                     <span>Design</span>
-                    <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-mono font-bold ${
+                    <span className={`px-1 sm:px-1.5 py-0.2 rounded-full text-[9px] sm:text-[10px] font-mono font-bold ${
                       scorecardTab === 'design' ? 'bg-black/30 text-black' : 'bg-white/10 text-amber-300'
                     }`}>
                       {totalDesign}
@@ -1160,24 +1160,24 @@ export default function JudgePortalPage() {
                 <button
                   type="button"
                   onClick={() => setScoringCandidate(null)}
-                  className="w-8 h-8 rounded-full bg-white/10 hover:bg-rose-500/20 active:scale-95 text-zinc-300 hover:text-rose-200 border border-white/20 flex items-center justify-center transition-all cursor-pointer shrink-0"
+                  className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white/10 hover:bg-rose-500/20 active:scale-95 text-zinc-300 hover:text-rose-200 border border-white/20 flex items-center justify-center transition-all cursor-pointer shrink-0 ml-0.5"
                   title="Close Scorecard"
                 >
-                  <X className="w-4 h-4" />
+                  <X className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                 </button>
               </div>
 
               {/* ⚡ ONE-TOUCH INSTANT PRESETS BAR (SCORE ALL CRITERIA IN 1 TAP) */}
-              <div className="bg-[#181410] border-b border-white/10 px-3 sm:px-5 py-2 flex flex-wrap items-center justify-between gap-2 shrink-0">
-                <div className="flex items-center gap-2">
-                  <span className="font-mono text-xs uppercase tracking-wider text-novera-gold font-bold">
+              <div className="bg-[#181410] border-b border-white/10 px-2.5 sm:px-5 py-1.5 sm:py-2 flex items-center justify-between gap-1.5 sm:gap-2 shrink-0 overflow-x-auto no-scrollbar">
+                <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+                  <span className="font-mono text-[11px] sm:text-xs uppercase tracking-wider text-novera-gold font-bold">
                     Total:
                   </span>
-                  <span className="font-serif text-xl sm:text-2xl font-extrabold text-white">
+                  <span className="font-serif text-lg sm:text-2xl font-extrabold text-white">
                     {scorecardTab === 'model' ? totalModel : totalDesign}
                   </span>
-                  <span className="text-zinc-400 font-mono text-xs">/ 100</span>
-                  <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border ml-1 ${
+                  <span className="text-zinc-400 font-mono text-[10px] sm:text-xs">/ 100</span>
+                  <span className={`px-1.5 sm:px-2 py-0.5 rounded-full text-[9px] sm:text-[10px] font-bold uppercase tracking-wider border ${
                     (scorecardTab === 'model' ? totalModel : totalDesign) >= 90
                       ? 'bg-amber-400/20 text-amber-300 border-amber-400/50'
                       : (scorecardTab === 'model' ? totalModel : totalDesign) >= 80
@@ -1193,12 +1193,12 @@ export default function JudgePortalPage() {
                 </div>
 
                 {/* 1-Touch Fast Preset Buttons */}
-                <div className="flex items-center gap-1.5">
+                <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
                   <span className="text-[10px] font-mono text-zinc-400 hidden sm:inline">1-Touch:</span>
                   <button
                     type="button"
                     onClick={() => (scorecardTab === 'model' ? applyPresetProfile('outstanding') : applyDesignPresetProfile('outstanding'))}
-                    className="px-2 py-1 rounded-lg text-[11px] font-bold bg-amber-400/20 text-amber-300 hover:bg-amber-400/30 border border-amber-400/40 active:scale-95 transition-all cursor-pointer"
+                    className="px-2 py-1 rounded-lg text-[10px] sm:text-[11px] font-bold bg-amber-400/20 text-amber-300 hover:bg-amber-400/30 border border-amber-400/40 active:scale-95 transition-all cursor-pointer whitespace-nowrap"
                     title="Quick preset 90+"
                   >
                     ★ 94
@@ -1206,7 +1206,7 @@ export default function JudgePortalPage() {
                   <button
                     type="button"
                     onClick={() => (scorecardTab === 'model' ? applyPresetProfile('excellent') : applyDesignPresetProfile('excellent'))}
-                    className="px-2 py-1 rounded-lg text-[11px] font-bold bg-amber-400/20 text-amber-300 hover:bg-amber-400/30 border border-amber-400/40 active:scale-95 transition-all cursor-pointer"
+                    className="px-2 py-1 rounded-lg text-[10px] sm:text-[11px] font-bold bg-amber-400/20 text-amber-300 hover:bg-amber-400/30 border border-amber-400/40 active:scale-95 transition-all cursor-pointer whitespace-nowrap"
                     title="Quick preset 80+"
                   >
                     ★ 84
@@ -1214,7 +1214,7 @@ export default function JudgePortalPage() {
                   <button
                     type="button"
                     onClick={() => (scorecardTab === 'model' ? applyPresetProfile('veryGood') : applyDesignPresetProfile('veryGood'))}
-                    className="px-2 py-1 rounded-lg text-[11px] font-bold bg-amber-400/20 text-amber-300 hover:bg-amber-400/30 border border-amber-400/40 active:scale-95 transition-all cursor-pointer"
+                    className="px-2 py-1 rounded-lg text-[10px] sm:text-[11px] font-bold bg-amber-400/20 text-amber-300 hover:bg-amber-400/30 border border-amber-400/40 active:scale-95 transition-all cursor-pointer whitespace-nowrap"
                     title="Quick preset 70+"
                   >
                     ★ 74
@@ -1222,7 +1222,7 @@ export default function JudgePortalPage() {
                   <button
                     type="button"
                     onClick={() => (scorecardTab === 'model' ? applyPresetProfile('fair') : applyDesignPresetProfile('fair'))}
-                    className="px-2 py-1 rounded-lg text-[11px] font-bold bg-white/10 text-zinc-300 hover:bg-white/20 border border-white/20 active:scale-95 transition-all cursor-pointer"
+                    className="px-2 py-1 rounded-lg text-[10px] sm:text-[11px] font-bold bg-white/10 text-zinc-300 hover:bg-white/20 border border-white/20 active:scale-95 transition-all cursor-pointer whitespace-nowrap"
                     title="Quick preset 60"
                   >
                     60
@@ -1230,7 +1230,7 @@ export default function JudgePortalPage() {
                   <button
                     type="button"
                     onClick={() => (scorecardTab === 'model' ? applyPresetProfile('zero') : applyDesignPresetProfile('zero'))}
-                    className="px-2 py-1 rounded-lg text-[11px] font-bold bg-rose-500/15 text-rose-300 hover:bg-rose-500/25 border border-rose-500/30 active:scale-95 transition-all cursor-pointer"
+                    className="px-2 py-1 rounded-lg text-[10px] sm:text-[11px] font-bold bg-rose-500/15 text-rose-300 hover:bg-rose-500/25 border border-rose-500/30 active:scale-95 transition-all cursor-pointer whitespace-nowrap"
                     title="Reset to 0"
                   >
                     Clear (0)
@@ -1239,7 +1239,7 @@ export default function JudgePortalPage() {
               </div>
 
               {/* 📜 ULTRA-COMPACT CRITERIA ROWS (NO SCROLL REQUIRED) */}
-              <div className="flex-1 min-h-0 overflow-y-auto novera-scrollbar p-2.5 sm:p-4 space-y-2 overscroll-contain">
+              <div className="flex-1 min-h-0 overflow-y-auto novera-scrollbar p-2 sm:p-4 space-y-2 overscroll-contain">
                 {(scorecardTab === 'model' ? criteriaList : designCriteriaList).map((crit) => {
                   const IconComponent = crit.icon;
                   return (
@@ -1252,17 +1252,17 @@ export default function JudgePortalPage() {
                         <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-lg bg-amber-500/15 border border-amber-500/30 flex items-center justify-center shrink-0">
                           <IconComponent className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-amber-300" />
                         </div>
-                        <div className="min-w-0">
-                          <div className="flex items-baseline gap-1.5">
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-baseline justify-between sm:justify-start gap-1.5">
                             <span className="font-bold text-white text-xs sm:text-sm truncate">{crit.title}</span>
-                            <span className="text-[10px] sm:text-xs font-mono text-zinc-400 shrink-0">/ {crit.max}</span>
+                            <span className="text-[10px] sm:text-xs font-mono text-novera-gold shrink-0 font-bold sm:font-normal sm:text-zinc-400">/ {crit.max}</span>
                           </div>
                           <span className="text-[10px] text-zinc-400 block truncate hidden sm:block">{crit.subtitle}</span>
                         </div>
                       </div>
 
                       {/* Fast Pill Buttons + Stepper */}
-                      <div className="flex items-center gap-1.5 sm:gap-2 shrink-0 self-end sm:self-center">
+                      <div className="flex items-center justify-between sm:justify-end gap-1.5 sm:gap-2 shrink-0 w-full sm:w-auto">
                         {/* Quick Presets Pills */}
                         <div className="flex items-center gap-1">
                           {crit.presets.map((preset) => (
@@ -1282,11 +1282,11 @@ export default function JudgePortalPage() {
                         </div>
 
                         {/* Stepper [-] [Value] [+] */}
-                        <div className="flex items-center gap-1 pl-1 border-l border-white/15">
+                        <div className="flex items-center gap-1 pl-1.5 border-l border-white/15">
                           <button
                             type="button"
                             onClick={() => crit.set(Math.max(0, crit.val - 1))}
-                            className="w-7 h-7 rounded-lg bg-white/10 hover:bg-white/20 active:scale-90 text-white flex items-center justify-center border border-white/20 transition-transform cursor-pointer"
+                            className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-white/10 hover:bg-white/20 active:scale-90 text-white flex items-center justify-center border border-white/20 transition-transform cursor-pointer"
                             title="Decrease 1"
                           >
                             <Minus className="w-3 h-3 text-zinc-200" strokeWidth={2.5} />
@@ -1297,7 +1297,7 @@ export default function JudgePortalPage() {
                           <button
                             type="button"
                             onClick={() => crit.set(Math.min(crit.max, crit.val + 1))}
-                            className="w-7 h-7 rounded-lg bg-white/10 hover:bg-white/20 active:scale-90 text-white flex items-center justify-center border border-white/20 transition-transform cursor-pointer"
+                            className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-white/10 hover:bg-white/20 active:scale-90 text-white flex items-center justify-center border border-white/20 transition-transform cursor-pointer"
                             title="Increase 1"
                           >
                             <Plus className="w-3 h-3 text-zinc-200" strokeWidth={2.5} />
@@ -1321,11 +1321,11 @@ export default function JudgePortalPage() {
               </div>
 
               {/* 📌 COMPACT FOOTER (CANCEL & INSTANT SUBMIT) */}
-              <div className="bg-[#120f0c] border-t border-white/15 px-3 sm:px-5 py-2.5 flex items-center justify-between gap-2.5 shrink-0 z-20">
+              <div className="bg-[#120f0c] border-t border-white/15 px-3 sm:px-5 py-2 sm:py-2.5 flex items-center justify-between gap-2 sm:gap-2.5 shrink-0 z-20 pb-safe">
                 <button
                   type="button"
                   onClick={() => setScoringCandidate(null)}
-                  className="px-3.5 sm:px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 active:scale-95 text-xs font-bold text-zinc-300 transition-colors cursor-pointer shrink-0"
+                  className="px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl bg-white/10 hover:bg-white/20 active:scale-95 text-xs font-bold text-zinc-300 transition-colors cursor-pointer shrink-0"
                 >
                   Cancel
                 </button>
@@ -1333,9 +1333,9 @@ export default function JudgePortalPage() {
                   type="button"
                   onClick={handleScoreSubmit}
                   disabled={isSaving}
-                  className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-[#d4af37] via-[#f3e5ab] to-[#aa7c11] text-black font-extrabold hover:brightness-110 active:scale-[0.99] text-xs sm:text-sm uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-xl disabled:opacity-50 cursor-pointer"
+                  className="flex-1 py-2 sm:py-2.5 rounded-xl bg-gradient-to-r from-[#d4af37] via-[#f3e5ab] to-[#aa7c11] text-black font-extrabold hover:brightness-110 active:scale-[0.99] text-xs sm:text-sm uppercase tracking-wider flex items-center justify-center gap-1.5 sm:gap-2 transition-all shadow-xl disabled:opacity-50 cursor-pointer"
                 >
-                  <CheckCircle2 className="w-4 h-4 text-black" strokeWidth={2.5} />
+                  <CheckCircle2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-black shrink-0" strokeWidth={2.5} />
                   <span className="truncate">
                     {isSaving
                       ? 'Submitting...'

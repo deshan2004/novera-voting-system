@@ -439,6 +439,29 @@ input[type='range'].glass-slider::-moz-range-thumb {
   animation: goldShimmerSweep 4s linear infinite;
 }
 
+/* ================= MOBILE OPTIMIZATIONS & UTILITIES ================= */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.pb-safe {
+  padding-bottom: max(env(safe-area-inset-bottom), 0.75rem);
+}
+
+.pt-safe {
+  padding-top: max(env(safe-area-inset-top), 0.75rem);
+}
+
+/* Fast mobile responsive touch feedback without 300ms delay */
+button, a, input, select {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
 /* ================= PRINT STYLES FOR MC ANNOUNCEMENT SUMMARY ================= */
 @media print {
   body, html {

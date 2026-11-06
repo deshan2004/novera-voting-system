@@ -12,8 +12,9 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   // All pages across NOVERA '26 now share the dark luxury runway stage glass theme
   const isDarkTheme = true;
 
-  // If on /qr (Stage Screen) or /judge (Official Judges Scorecard), hide audience navigation and banners for dedicated immersive experience!
-  if (isStageMode || isJudgeMode) {
+  // If on /qr (Stage Screen), /judge (Official Judges Scorecard), or /admin (Master Hub & Stage Controller):
+  // hide generic audience navigation and marquee for dedicated standalone full-screen experience on all devices!
+  if (isStageMode || isJudgeMode || isAdminMode) {
     return <main className="min-h-screen text-white flex flex-col bg-transparent">{children}</main>;
   }
 
