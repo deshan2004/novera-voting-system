@@ -40,7 +40,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
       {/* Main Navigation - Audience Focused (Frosted Glass Translucent) */}
       <header
-        className={`sticky top-0 z-50 transition-colors duration-300 backdrop-blur-xl border-b ${
+        className={`sticky top-0 z-30 transition-colors duration-300 backdrop-blur-xl border-b ${
           isDarkTheme
             ? 'bg-black/25 border-white/10 text-white'
             : 'bg-novera-paper/40 border-novera-ink/10 text-novera-ink'
@@ -92,7 +92,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
       </header>
 
       {/* Page Content */}
-      <main className="flex-grow">{children}</main>
+      <main className="flex-grow relative z-40">{children}</main>
 
       {/* Footer */}
       <footer className="bg-black/60 backdrop-blur-xl text-novera-paper-dim border-t border-white/10 py-6 px-4 text-center text-xs tracking-wider">

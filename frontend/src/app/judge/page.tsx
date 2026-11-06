@@ -66,20 +66,20 @@ export default function JudgePortalPage() {
   const [scoringCandidate, setScoringCandidate] = useState<Candidate | null>(null);
   const [scorecardTab, setScorecardTab] = useState<'model' | 'design'>('model');
 
-  // 1. Model Official Runway Criteria (Max 100)
-  const [walking, setWalking] = useState<number>(16); // max 20
-  const [confidence, setConfidence] = useState<number>(16); // max 20
-  const [stage, setStage] = useState<number>(16); // max 20
-  const [posture, setPosture] = useState<number>(12); // max 15
-  const [poses, setPoses] = useState<number>(12); // max 15
-  const [face, setFace] = useState<number>(8); // max 10
+  // 1. Model Official Runway Criteria (Max 100) - Default 0
+  const [walking, setWalking] = useState<number>(0); // max 20
+  const [confidence, setConfidence] = useState<number>(0); // max 20
+  const [stage, setStage] = useState<number>(0); // max 20
+  const [posture, setPosture] = useState<number>(0); // max 15
+  const [poses, setPoses] = useState<number>(0); // max 15
+  const [face, setFace] = useState<number>(0); // max 10
 
-  // 2. Student Design Official Criteria (Max 100)
-  const [designCreativity, setDesignCreativity] = useState<number>(24); // max 30
-  const [designCraftsmanship, setDesignCraftsmanship] = useState<number>(20); // max 25
-  const [designTheme, setDesignTheme] = useState<number>(16); // max 20
-  const [designFit, setDesignFit] = useState<number>(12); // max 15
-  const [designImpact, setDesignImpact] = useState<number>(8); // max 10
+  // 2. Student Design Official Criteria (Max 100) - Default 0
+  const [designCreativity, setDesignCreativity] = useState<number>(0); // max 30
+  const [designCraftsmanship, setDesignCraftsmanship] = useState<number>(0); // max 25
+  const [designTheme, setDesignTheme] = useState<number>(0); // max 20
+  const [designFit, setDesignFit] = useState<number>(0); // max 15
+  const [designImpact, setDesignImpact] = useState<number>(0); // max 10
 
   const [notes, setNotes] = useState<string>('');
   const [isSaving, setIsSaving] = useState<boolean>(false);
@@ -171,33 +171,33 @@ export default function JudgePortalPage() {
     );
 
     if (existing) {
-      setWalking(existing.walking ?? 16);
-      setConfidence(existing.confidence ?? 16);
-      setStage(existing.stage ?? 16);
-      setPosture(existing.posture ?? 12);
-      setPoses(existing.poses ?? 12);
-      setFace(existing.face ?? 8);
+      setWalking(existing.walking ?? 0);
+      setConfidence(existing.confidence ?? 0);
+      setStage(existing.stage ?? 0);
+      setPosture(existing.posture ?? 0);
+      setPoses(existing.poses ?? 0);
+      setFace(existing.face ?? 0);
 
-      setDesignCreativity(existing.designCreativity ?? 24);
-      setDesignCraftsmanship(existing.designCraftsmanship ?? 20);
-      setDesignTheme(existing.designTheme ?? 16);
-      setDesignFit(existing.designFit ?? 12);
-      setDesignImpact(existing.designImpact ?? 8);
+      setDesignCreativity(existing.designCreativity ?? 0);
+      setDesignCraftsmanship(existing.designCraftsmanship ?? 0);
+      setDesignTheme(existing.designTheme ?? 0);
+      setDesignFit(existing.designFit ?? 0);
+      setDesignImpact(existing.designImpact ?? 0);
 
       setNotes(existing.notes || '');
     } else {
-      setWalking(16);
-      setConfidence(16);
-      setStage(16);
-      setPosture(12);
-      setPoses(12);
-      setFace(8);
+      setWalking(0);
+      setConfidence(0);
+      setStage(0);
+      setPosture(0);
+      setPoses(0);
+      setFace(0);
 
-      setDesignCreativity(24);
-      setDesignCraftsmanship(20);
-      setDesignTheme(16);
-      setDesignFit(12);
-      setDesignImpact(8);
+      setDesignCreativity(0);
+      setDesignCraftsmanship(0);
+      setDesignTheme(0);
+      setDesignFit(0);
+      setDesignImpact(0);
 
       setNotes('');
     }
@@ -305,8 +305,15 @@ export default function JudgePortalPage() {
     });
   }, [currentCategoryCandidates, scoreFilter, searchQuery, judgeScores, selectedJudgeId]);
 
-  const applyPresetProfile = (tier: 'outstanding' | 'excellent' | 'veryGood' | 'fair') => {
-    if (tier === 'outstanding') {
+  const applyPresetProfile = (tier: 'outstanding' | 'excellent' | 'veryGood' | 'fair' | 'zero') => {
+    if (tier === 'zero') {
+      setWalking(0);
+      setConfidence(0);
+      setStage(0);
+      setPosture(0);
+      setPoses(0);
+      setFace(0);
+    } else if (tier === 'outstanding') {
       // 94 Total
       setWalking(19);
       setConfidence(19);
@@ -341,8 +348,14 @@ export default function JudgePortalPage() {
     }
   };
 
-  const applyDesignPresetProfile = (tier: 'outstanding' | 'excellent' | 'veryGood' | 'fair') => {
-    if (tier === 'outstanding') {
+  const applyDesignPresetProfile = (tier: 'outstanding' | 'excellent' | 'veryGood' | 'fair' | 'zero') => {
+    if (tier === 'zero') {
+      setDesignCreativity(0);
+      setDesignCraftsmanship(0);
+      setDesignTheme(0);
+      setDesignFit(0);
+      setDesignImpact(0);
+    } else if (tier === 'outstanding') {
       // 92 Total
       setDesignCreativity(28); // max 30
       setDesignCraftsmanship(23); // max 25
@@ -939,489 +952,247 @@ export default function JudgePortalPage() {
 
         return (
           <div
-            className="fixed inset-0 z-[100] bg-black/85 backdrop-blur-xl overflow-y-auto p-3 sm:p-6"
+            className="fixed inset-0 z-[100] bg-black/90 backdrop-blur-xl flex items-center justify-center p-2 sm:p-4 overflow-y-auto"
             onClick={() => setScoringCandidate(null)}
           >
             {/* 🌟 Cinematic Fashion Runway Stage Video Animation in Scorecard Backdrop */}
             <RunwayStageBackground contained className="opacity-90 pointer-events-none" />
 
-            <div className="min-h-full flex items-center justify-center py-2 sm:py-4">
-              <div
-                className="max-w-2xl w-full bg-[#0d0b09]/95 backdrop-blur-3xl rounded-3xl border border-novera-gold/40 shadow-[0_0_80px_rgba(0,0,0,0.95)] relative z-10 animate-in zoom-in-95 duration-200 flex flex-col overflow-hidden text-white max-h-[calc(100dvh-2rem)]"
-                onClick={(e) => e.stopPropagation()}
-              >
-              {/* 📌 PERMANENT CENTERED CANDIDATE HEADER */}
-              <div className="bg-[#14110d] border-b border-white/15 px-4 sm:px-6 py-4 relative flex flex-col items-center justify-center text-center shrink-0 shadow-md z-20">
-                {/* 🔴 LUXURY GLASS CLOSE BUTTON (TOP-RIGHT) */}
-                <button
-                  type="button"
-                  onClick={() => setScoringCandidate(null)}
-                  className="absolute top-3.5 right-3.5 px-3 py-1.5 rounded-full bg-white/10 hover:bg-rose-500/20 active:scale-95 text-zinc-300 hover:text-rose-200 border border-white/20 hover:border-rose-400/40 flex items-center gap-1.5 text-xs font-semibold tracking-wide transition-all shadow-sm cursor-pointer group"
-                  title="Close Scorecard"
-                >
-                  <X className="w-3.5 h-3.5 text-zinc-400 group-hover:text-rose-300 transition-colors" strokeWidth={2.5} />
-                  <span>Close</span>
-                </button>
-
-                {/* Centered Candidate Portrait with Gold Halo */}
-                <div className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-2xl overflow-hidden shadow-[0_0_25px_rgba(212,175,55,0.35)] border-2 border-novera-gold/70 mb-2.5 shrink-0">
-                  <Image
-                    src={scoringCandidate.imageUrl}
-                    alt={scoringCandidate.name}
-                    fill
-                    className="object-cover"
-                  />
+            <div
+              className="max-w-2xl w-full bg-[#0d0b09]/98 backdrop-blur-3xl rounded-3xl border border-novera-gold/40 shadow-[0_0_80px_rgba(0,0,0,0.95)] relative z-10 animate-in zoom-in-95 duration-200 flex flex-col overflow-hidden text-white my-auto max-h-[94vh]"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* 📌 COMPACT 1-LINE HEADER (Candidate + Category Tabs + Close) */}
+              <div className="bg-[#14110d] border-b border-white/15 px-3 sm:px-5 py-2.5 flex items-center justify-between gap-2 shrink-0 z-20">
+                {/* Candidate Info */}
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <div className="relative w-10 h-10 rounded-xl overflow-hidden shadow-md border-2 border-novera-gold/70 shrink-0">
+                    <Image
+                      src={scoringCandidate.imageUrl}
+                      alt={scoringCandidate.name}
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
+                  <div className="min-w-0">
+                    <div className="text-[10px] font-mono uppercase tracking-widest text-novera-gold font-bold truncate leading-tight">
+                      #{scoringCandidate.candidateNumber} &bull; {scoringCandidate.category === 'boy' ? 'Male' : 'Female'}
+                    </div>
+                    <h3 className="font-serif text-sm sm:text-base font-bold text-white truncate leading-tight">
+                      {scoringCandidate.name}
+                    </h3>
+                  </div>
                 </div>
 
-                {/* Centered Candidate Badge & Name */}
-                <div className="inline-flex items-center gap-2 px-3 py-0.5 rounded-full bg-novera-gold/15 border border-novera-gold/30 text-[11px] font-mono uppercase tracking-widest text-novera-gold font-bold mb-1 shadow-sm">
-                  <span>#{scoringCandidate.candidateNumber}</span>
-                  <span>&bull;</span>
-                  <span>{scoringCandidate.category === 'boy' ? 'Male Model' : 'Female Model'}</span>
-                </div>
-                <h3 className="font-serif text-xl sm:text-2xl font-bold text-white tracking-wide truncate max-w-[90%]">
-                  {scoringCandidate.name}
-                </h3>
-              </div>
-
-              {/* 🎚️ CENTERED DUAL SCORECARD CATEGORY SWITCHER (MODEL RUNWAY vs STUDENT DESIGN) */}
-              <div className="bg-[#181410] border-b border-white/10 px-4 sm:px-6 py-2.5 shrink-0 z-10 flex justify-center">
-                <div className="grid grid-cols-2 p-1 rounded-2xl bg-black/60 border border-white/15 gap-2 shadow-inner w-full max-w-md">
+                {/* Centered Category Switcher Tabs */}
+                <div className="flex items-center p-0.5 rounded-xl bg-black/60 border border-white/15 gap-1 shrink-0">
                   <button
                     type="button"
                     onClick={() => setScorecardTab('model')}
-                    className={`py-2 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer ${
+                    className={`py-1 px-2.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
                       scorecardTab === 'model'
-                        ? 'bg-gradient-to-r from-novera-gold via-amber-300 to-amber-500 text-black font-extrabold shadow-md'
-                        : 'text-zinc-300 hover:text-white hover:bg-white/5'
+                        ? 'bg-gradient-to-r from-novera-gold to-amber-400 text-black font-extrabold shadow-sm'
+                        : 'text-zinc-300 hover:text-white'
                     }`}
                   >
-                    <Crown className={`w-3.5 h-3.5 ${scorecardTab === 'model' ? 'text-black fill-black/20' : 'text-amber-400'}`} />
-                    <span>Model Runway</span>
-                    <span className={`px-2 py-0.5 rounded-full text-[10px] font-mono font-bold ${
+                    <Crown className="w-3 h-3" />
+                    <span>Model</span>
+                    <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-mono font-bold ${
                       scorecardTab === 'model' ? 'bg-black/30 text-black' : 'bg-white/10 text-amber-300'
                     }`}>
-                      {totalModel}/100
+                      {totalModel}
                     </span>
                   </button>
 
                   <button
                     type="button"
                     onClick={() => setScorecardTab('design')}
-                    className={`py-2 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer ${
+                    className={`py-1 px-2.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
                       scorecardTab === 'design'
-                        ? 'bg-gradient-to-r from-novera-gold via-amber-300 to-amber-500 text-black font-extrabold shadow-md'
-                        : 'text-zinc-300 hover:text-white hover:bg-white/5'
+                        ? 'bg-gradient-to-r from-novera-gold to-amber-400 text-black font-extrabold shadow-sm'
+                        : 'text-zinc-300 hover:text-white'
                     }`}
                   >
-                    <Palette className={`w-3.5 h-3.5 ${scorecardTab === 'design' ? 'text-black fill-black/20' : 'text-amber-400'}`} />
-                    <span>Student Design</span>
-                    <span className={`px-2 py-0.5 rounded-full text-[10px] font-mono font-bold ${
+                    <Palette className="w-3 h-3" />
+                    <span>Design</span>
+                    <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-mono font-bold ${
                       scorecardTab === 'design' ? 'bg-black/30 text-black' : 'bg-white/10 text-amber-300'
                     }`}>
-                      {totalDesign}/100
+                      {totalDesign}
                     </span>
+                  </button>
+                </div>
+
+                {/* Close Button */}
+                <button
+                  type="button"
+                  onClick={() => setScoringCandidate(null)}
+                  className="w-8 h-8 rounded-full bg-white/10 hover:bg-rose-500/20 active:scale-95 text-zinc-300 hover:text-rose-200 border border-white/20 flex items-center justify-center transition-all cursor-pointer shrink-0"
+                  title="Close Scorecard"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              {/* ⚡ ONE-TOUCH INSTANT PRESETS BAR (SCORE ALL CRITERIA IN 1 TAP) */}
+              <div className="bg-[#181410] border-b border-white/10 px-3 sm:px-5 py-2 flex flex-wrap items-center justify-between gap-2 shrink-0">
+                <div className="flex items-center gap-2">
+                  <span className="font-mono text-xs uppercase tracking-wider text-novera-gold font-bold">
+                    Total:
+                  </span>
+                  <span className="font-serif text-xl sm:text-2xl font-extrabold text-white">
+                    {scorecardTab === 'model' ? totalModel : totalDesign}
+                  </span>
+                  <span className="text-zinc-400 font-mono text-xs">/ 100</span>
+                  <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border ml-1 ${
+                    (scorecardTab === 'model' ? totalModel : totalDesign) >= 90
+                      ? 'bg-amber-400/20 text-amber-300 border-amber-400/50'
+                      : (scorecardTab === 'model' ? totalModel : totalDesign) >= 80
+                      ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/50'
+                      : (scorecardTab === 'model' ? totalModel : totalDesign) >= 70
+                      ? 'bg-sky-500/20 text-sky-300 border-sky-500/50'
+                      : (scorecardTab === 'model' ? totalModel : totalDesign) > 0
+                      ? 'bg-zinc-800 text-zinc-300 border-white/20'
+                      : 'bg-zinc-900 text-zinc-500 border-white/10'
+                  }`}>
+                    {(scorecardTab === 'model' ? totalModel : totalDesign) >= 90 ? '★ Outstanding' : (scorecardTab === 'model' ? totalModel : totalDesign) >= 80 ? '★ Excellent' : (scorecardTab === 'model' ? totalModel : totalDesign) >= 70 ? '★ Very Good' : (scorecardTab === 'model' ? totalModel : totalDesign) > 0 ? 'Good' : 'Unscored'}
+                  </span>
+                </div>
+
+                {/* 1-Touch Fast Preset Buttons */}
+                <div className="flex items-center gap-1.5">
+                  <span className="text-[10px] font-mono text-zinc-400 hidden sm:inline">1-Touch:</span>
+                  <button
+                    type="button"
+                    onClick={() => (scorecardTab === 'model' ? applyPresetProfile('outstanding') : applyDesignPresetProfile('outstanding'))}
+                    className="px-2 py-1 rounded-lg text-[11px] font-bold bg-amber-400/20 text-amber-300 hover:bg-amber-400/30 border border-amber-400/40 active:scale-95 transition-all cursor-pointer"
+                    title="Quick preset 90+"
+                  >
+                    ★ 94
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => (scorecardTab === 'model' ? applyPresetProfile('excellent') : applyDesignPresetProfile('excellent'))}
+                    className="px-2 py-1 rounded-lg text-[11px] font-bold bg-amber-400/20 text-amber-300 hover:bg-amber-400/30 border border-amber-400/40 active:scale-95 transition-all cursor-pointer"
+                    title="Quick preset 80+"
+                  >
+                    ★ 84
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => (scorecardTab === 'model' ? applyPresetProfile('veryGood') : applyDesignPresetProfile('veryGood'))}
+                    className="px-2 py-1 rounded-lg text-[11px] font-bold bg-amber-400/20 text-amber-300 hover:bg-amber-400/30 border border-amber-400/40 active:scale-95 transition-all cursor-pointer"
+                    title="Quick preset 70+"
+                  >
+                    ★ 74
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => (scorecardTab === 'model' ? applyPresetProfile('fair') : applyDesignPresetProfile('fair'))}
+                    className="px-2 py-1 rounded-lg text-[11px] font-bold bg-white/10 text-zinc-300 hover:bg-white/20 border border-white/20 active:scale-95 transition-all cursor-pointer"
+                    title="Quick preset 60"
+                  >
+                    60
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => (scorecardTab === 'model' ? applyPresetProfile('zero') : applyDesignPresetProfile('zero'))}
+                    className="px-2 py-1 rounded-lg text-[11px] font-bold bg-rose-500/15 text-rose-300 hover:bg-rose-500/25 border border-rose-500/30 active:scale-95 transition-all cursor-pointer"
+                    title="Reset to 0"
+                  >
+                    Clear (0)
                   </button>
                 </div>
               </div>
 
-              {/* 📜 SCROLLABLE BODY CONTENT - CENTERED ERGONOMIC CARDS */}
-              <div className="flex-1 min-h-0 overflow-y-auto novera-scrollbar p-4 sm:p-6 space-y-4 pb-8 overscroll-contain">
-                {scorecardTab === 'model' ? (
-                  <>
-                    {/* Centered Total Score & 1-Touch Presets Control Box */}
-                    <div className="p-4 sm:p-5 rounded-3xl bg-gradient-to-b from-amber-500/15 via-black/80 to-black/95 border border-novera-gold/50 shadow-xl text-center space-y-3.5">
-                      <div className="flex flex-col items-center justify-center gap-1">
-                        <div className="text-[10px] sm:text-[11px] font-mono uppercase tracking-widest text-novera-gold font-bold">
-                          Official Model Scorecard
+              {/* 📜 ULTRA-COMPACT CRITERIA ROWS (NO SCROLL REQUIRED) */}
+              <div className="flex-1 min-h-0 overflow-y-auto novera-scrollbar p-2.5 sm:p-4 space-y-2 overscroll-contain">
+                {(scorecardTab === 'model' ? criteriaList : designCriteriaList).map((crit) => {
+                  const IconComponent = crit.icon;
+                  return (
+                    <div
+                      key={crit.id}
+                      className="p-2 sm:p-2.5 rounded-xl sm:rounded-2xl bg-white/[0.04] border border-white/10 hover:border-novera-gold/40 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 sm:gap-3"
+                    >
+                      {/* Title & Max */}
+                      <div className="flex items-center gap-2 min-w-0">
+                        <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-lg bg-amber-500/15 border border-amber-500/30 flex items-center justify-center shrink-0">
+                          <IconComponent className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-amber-300" />
                         </div>
-                        <div className="flex items-baseline justify-center gap-2">
-                          <span className="font-serif text-3xl sm:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-white via-amber-100 to-novera-gold">
-                            {totalModel}
-                          </span>
-                          <span className="text-zinc-400 font-mono text-xs sm:text-sm">/ 100 Total Marks</span>
-                        </div>
-                        <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider border shadow-sm mt-0.5 ${
-                          totalModel >= 90
-                            ? 'bg-amber-400/20 text-amber-300 border-amber-400/50'
-                            : totalModel >= 80
-                            ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/50'
-                            : totalModel >= 70
-                            ? 'bg-sky-500/20 text-sky-300 border-sky-500/50'
-                            : 'bg-zinc-800 text-zinc-300 border-white/20'
-                        }`}>
-                          <Star className="w-3.5 h-3.5 fill-current" />
-                          <span>{totalModel >= 90 ? 'Outstanding' : totalModel >= 80 ? 'Excellent' : totalModel >= 70 ? 'Very Good' : 'Fair Standard'}</span>
-                        </div>
-                      </div>
-
-                      {/* Centered Presets Header */}
-                      <div className="flex items-center justify-center gap-2 pt-1 border-t border-white/10">
-                        <SlidersHorizontal className="w-3.5 h-3.5 text-novera-gold" />
-                        <span className="text-[11px] font-mono uppercase tracking-wider text-zinc-300 font-bold">
-                          One-Touch Model Presets
-                        </span>
-                        <span className="text-[10px] text-zinc-500 hidden sm:inline">(fine-tune below)</span>
-                      </div>
-
-                      {/* 4 Touch Preset Cards - Centered & Tactile */}
-                      <div className="grid grid-cols-4 gap-2 max-w-lg mx-auto">
-                        <button
-                          type="button"
-                          onClick={() => applyPresetProfile('outstanding')}
-                          className={`py-2 px-1 rounded-2xl border text-xs font-bold transition-all text-center flex flex-col items-center justify-center cursor-pointer shadow-sm ${
-                            totalModel >= 90
-                              ? 'bg-gradient-to-r from-novera-gold via-amber-300 to-amber-500 text-black border-amber-200 shadow-md font-extrabold scale-[1.02]'
-                              : 'bg-white/5 hover:bg-white/15 text-zinc-200 border-white/15'
-                          }`}
-                        >
-                          <span className="text-xs sm:text-sm font-extrabold leading-tight">★ 94</span>
-                          <span className="text-[9px] sm:text-[10px] font-normal opacity-85 truncate">Outstanding</span>
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => applyPresetProfile('excellent')}
-                          className={`py-2 px-1 rounded-2xl border text-xs font-bold transition-all text-center flex flex-col items-center justify-center cursor-pointer shadow-sm ${
-                            totalModel >= 80 && totalModel < 90
-                              ? 'bg-gradient-to-r from-novera-gold via-amber-300 to-amber-500 text-black border-amber-200 shadow-md font-extrabold scale-[1.02]'
-                              : 'bg-white/5 hover:bg-white/15 text-zinc-200 border-white/15'
-                          }`}
-                        >
-                          <span className="text-xs sm:text-sm font-extrabold leading-tight">★ 84</span>
-                          <span className="text-[9px] sm:text-[10px] font-normal opacity-85 truncate">Excellent</span>
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => applyPresetProfile('veryGood')}
-                          className={`py-2 px-1 rounded-2xl border text-xs font-bold transition-all text-center flex flex-col items-center justify-center cursor-pointer shadow-sm ${
-                            totalModel >= 70 && totalModel < 80
-                              ? 'bg-gradient-to-r from-novera-gold via-amber-300 to-amber-500 text-black border-amber-200 shadow-md font-extrabold scale-[1.02]'
-                              : 'bg-white/5 hover:bg-white/15 text-zinc-200 border-white/15'
-                          }`}
-                        >
-                          <span className="text-xs sm:text-sm font-extrabold leading-tight">★ 74</span>
-                          <span className="text-[9px] sm:text-[10px] font-normal opacity-85 truncate">Very Good</span>
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => applyPresetProfile('fair')}
-                          className={`py-2 px-1 rounded-2xl border text-xs font-bold transition-all text-center flex flex-col items-center justify-center cursor-pointer shadow-sm ${
-                            totalModel < 70
-                              ? 'bg-gradient-to-r from-novera-gold via-amber-300 to-amber-500 text-black border-amber-200 shadow-md font-extrabold scale-[1.02]'
-                              : 'bg-white/5 hover:bg-white/15 text-zinc-200 border-white/15'
-                          }`}
-                        >
-                          <span className="text-xs sm:text-sm font-extrabold leading-tight">60</span>
-                          <span className="text-[9px] sm:text-[10px] font-normal opacity-85 truncate">Fair Standard</span>
-                        </button>
-                      </div>
-                    </div>
-
-                    {/* 6 Official Model Criteria Cards - Centered & Ergonomic */}
-                    <div className="space-y-3.5 pt-1">
-                      {criteriaList.map((crit) => {
-                        const IconComponent = crit.icon;
-                        return (
-                          <div
-                            key={crit.id}
-                            className="p-4 rounded-3xl bg-white/[0.04] border border-white/10 hover:border-novera-gold/40 transition-all shadow-md space-y-3 text-center"
-                          >
-                            {/* Centered Title & Subtitle */}
-                            <div className="flex flex-col items-center justify-center text-center gap-1">
-                              <div className="flex items-center justify-center gap-2">
-                                <div className="w-7 h-7 rounded-xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center shrink-0 shadow-sm">
-                                  <IconComponent className="w-3.5 h-3.5 text-amber-300" />
-                                </div>
-                                <span className="font-bold text-white text-sm sm:text-base">
-                                  {crit.title}
-                                </span>
-                              </div>
-                              <span className="text-[11px] text-zinc-400">
-                                {crit.subtitle}
-                              </span>
-                            </div>
-
-                            {/* Centered Stepper & Score Group [-]  [ 16 / 20 ]  [+] */}
-                            <div className="flex items-center justify-center gap-3">
-                              <button
-                                type="button"
-                                onClick={() => crit.set(Math.max(0, crit.val - 1))}
-                                className="w-11 h-11 rounded-2xl bg-white/10 hover:bg-white/20 active:scale-90 text-white flex items-center justify-center border border-white/20 shrink-0 select-none shadow-md cursor-pointer transition-transform"
-                                title="Decrease 1 mark"
-                              >
-                                <Minus className="w-4 h-4 text-zinc-200" strokeWidth={2.5} />
-                              </button>
-
-                              <div className="min-w-[110px] py-1.5 px-4 rounded-2xl bg-black/70 border border-novera-gold/50 shadow-inner flex items-baseline justify-center gap-1.5">
-                                <span className="font-serif text-2xl sm:text-3xl font-extrabold text-novera-gold">
-                                  {crit.val}
-                                </span>
-                                <span className="text-zinc-400 font-mono text-xs">/ {crit.max}</span>
-                              </div>
-
-                              <button
-                                type="button"
-                                onClick={() => crit.set(Math.min(crit.max, crit.val + 1))}
-                                className="w-11 h-11 rounded-2xl bg-white/10 hover:bg-white/20 active:scale-90 text-white flex items-center justify-center border border-white/20 shrink-0 select-none shadow-md cursor-pointer transition-transform"
-                                title="Increase 1 mark"
-                              >
-                                <Plus className="w-4 h-4 text-zinc-200" strokeWidth={2.5} />
-                              </button>
-                            </div>
-
-                            {/* Centered Range Slider for smooth drag */}
-                            <div className="max-w-md mx-auto w-full px-2">
-                              <input
-                                type="range"
-                                min="0"
-                                max={crit.max}
-                                value={crit.val}
-                                onChange={(e) => crit.set(Number(e.target.value))}
-                                className="w-full glass-slider cursor-pointer h-2.5"
-                              />
-                            </div>
-
-                            {/* Centered 4 Quick Preset Touch Buttons */}
-                            <div className="grid grid-cols-4 gap-2 pt-0.5 max-w-md mx-auto w-full">
-                              {crit.presets.map((preset) => (
-                                <button
-                                  key={preset.val}
-                                  type="button"
-                                  onClick={() => crit.set(preset.val)}
-                                  className={`py-2 px-1.5 rounded-xl text-xs font-semibold transition-all text-center cursor-pointer flex flex-col items-center justify-center ${
-                                    crit.val === preset.val
-                                      ? 'bg-gradient-to-r from-novera-gold to-amber-400 text-black font-extrabold shadow-md scale-[1.02] border border-amber-300'
-                                      : 'bg-white/5 hover:bg-white/15 text-zinc-300 border border-white/10'
-                                  }`}
-                                >
-                                  <span className="font-extrabold text-xs">{preset.val}</span>
-                                  <span className="text-[10px] opacity-80 truncate">{preset.label.split(' ')[0]}</span>
-                                </button>
-                              ))}
-                            </div>
+                        <div className="min-w-0">
+                          <div className="flex items-baseline gap-1.5">
+                            <span className="font-bold text-white text-xs sm:text-sm truncate">{crit.title}</span>
+                            <span className="text-[10px] sm:text-xs font-mono text-zinc-400 shrink-0">/ {crit.max}</span>
                           </div>
-                        );
-                      })}
-                    </div>
-
-                    {/* Sub-award Alignment Footnote */}
-                    <div className="my-2 p-3 rounded-2xl bg-amber-500/10 border border-amber-500/25 flex items-start gap-2.5 text-xs text-zinc-300">
-                      <Sparkles className="w-4 h-4 text-novera-gold shrink-0 mt-0.5" />
-                      <div>
-                        <span className="font-bold text-white block mb-0.5">Automated Special Titles Tracking</span>
-                        <span>Your markings automatically contribute to <strong>Best Personality ({personalityScore}/50)</strong>, <strong>Stage Presence ({stagePresenceScore}/30)</strong>, and <strong>Photogenic ({photogenicScore}/40)</strong>.</span>
-                      </div>
-                    </div>
-                  </>
-                ) : (
-                  <>
-                    {/* Centered Total Score & Presets Control Panel (Student Design) */}
-                    <div className="p-4 sm:p-5 rounded-3xl bg-gradient-to-b from-amber-500/15 via-black/80 to-black/95 border border-novera-gold/50 shadow-xl text-center space-y-3.5">
-                      <div className="flex flex-col items-center justify-center gap-1">
-                        <div className="text-[10px] sm:text-[11px] font-mono uppercase tracking-widest text-novera-gold font-bold">
-                          Official Student Design Scorecard
-                        </div>
-                        <div className="flex items-baseline justify-center gap-2">
-                          <span className="font-serif text-3xl sm:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-white via-amber-100 to-novera-gold">
-                            {totalDesign}
-                          </span>
-                          <span className="text-zinc-400 font-mono text-xs sm:text-sm">/ 100 Marks (Design)</span>
-                        </div>
-                        <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider border shadow-sm mt-0.5 ${
-                          totalDesign >= 90
-                            ? 'bg-amber-400/20 text-amber-300 border-amber-400/50'
-                            : totalDesign >= 80
-                            ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/50'
-                            : totalDesign >= 70
-                            ? 'bg-sky-500/20 text-sky-300 border-sky-500/50'
-                            : 'bg-zinc-800 text-zinc-300 border-white/20'
-                        }`}>
-                          <Star className="w-3.5 h-3.5 fill-current" />
-                          <span>{totalDesign >= 90 ? 'Outstanding' : totalDesign >= 80 ? 'Excellent' : totalDesign >= 70 ? 'Very Good' : 'Fair Standard'}</span>
+                          <span className="text-[10px] text-zinc-400 block truncate hidden sm:block">{crit.subtitle}</span>
                         </div>
                       </div>
 
-                      {/* Centered Presets Header */}
-                      <div className="flex items-center justify-center gap-2 pt-1 border-t border-white/10">
-                        <SlidersHorizontal className="w-3.5 h-3.5 text-novera-gold" />
-                        <span className="text-[11px] font-mono uppercase tracking-wider text-zinc-300 font-bold">
-                          One-Touch Design Presets
-                        </span>
-                        <span className="text-[10px] text-zinc-500 hidden sm:inline">(fine-tune below)</span>
-                      </div>
+                      {/* Fast Pill Buttons + Stepper */}
+                      <div className="flex items-center gap-1.5 sm:gap-2 shrink-0 self-end sm:self-center">
+                        {/* Quick Presets Pills */}
+                        <div className="flex items-center gap-1">
+                          {crit.presets.map((preset) => (
+                            <button
+                              key={preset.val}
+                              type="button"
+                              onClick={() => crit.set(preset.val)}
+                              className={`px-2 py-1 rounded-lg text-[11px] sm:text-xs font-bold transition-all cursor-pointer ${
+                                crit.val === preset.val
+                                  ? 'bg-gradient-to-r from-novera-gold to-amber-400 text-black shadow-sm font-extrabold border border-amber-200'
+                                  : 'bg-white/5 hover:bg-white/15 text-zinc-300 border border-white/10'
+                              }`}
+                            >
+                              {preset.val}
+                            </button>
+                          ))}
+                        </div>
 
-                      {/* 4 Touch Preset Cards - Centered & Tactile */}
-                      <div className="grid grid-cols-4 gap-2 max-w-lg mx-auto">
-                        <button
-                          type="button"
-                          onClick={() => applyDesignPresetProfile('outstanding')}
-                          className={`py-2 px-1 rounded-2xl border text-xs font-bold transition-all text-center flex flex-col items-center justify-center cursor-pointer shadow-sm ${
-                            totalDesign >= 90
-                              ? 'bg-gradient-to-r from-novera-gold via-amber-300 to-amber-500 text-black border-amber-200 shadow-md font-extrabold scale-[1.02]'
-                              : 'bg-white/5 hover:bg-white/15 text-zinc-200 border-white/15'
-                          }`}
-                        >
-                          <span className="text-xs sm:text-sm font-extrabold leading-tight">★ 92</span>
-                          <span className="text-[9px] sm:text-[10px] font-normal opacity-85 truncate">Outstanding</span>
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => applyDesignPresetProfile('excellent')}
-                          className={`py-2 px-1 rounded-2xl border text-xs font-bold transition-all text-center flex flex-col items-center justify-center cursor-pointer shadow-sm ${
-                            totalDesign >= 80 && totalDesign < 90
-                              ? 'bg-gradient-to-r from-novera-gold via-amber-300 to-amber-500 text-black border-amber-200 shadow-md font-extrabold scale-[1.02]'
-                              : 'bg-white/5 hover:bg-white/15 text-zinc-200 border-white/15'
-                          }`}
-                        >
-                          <span className="text-xs sm:text-sm font-extrabold leading-tight">★ 82</span>
-                          <span className="text-[9px] sm:text-[10px] font-normal opacity-85 truncate">Excellent</span>
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => applyDesignPresetProfile('veryGood')}
-                          className={`py-2 px-1 rounded-2xl border text-xs font-bold transition-all text-center flex flex-col items-center justify-center cursor-pointer shadow-sm ${
-                            totalDesign >= 70 && totalDesign < 80
-                              ? 'bg-gradient-to-r from-novera-gold via-amber-300 to-amber-500 text-black border-amber-200 shadow-md font-extrabold scale-[1.02]'
-                              : 'bg-white/5 hover:bg-white/15 text-zinc-200 border-white/15'
-                          }`}
-                        >
-                          <span className="text-xs sm:text-sm font-extrabold leading-tight">★ 72</span>
-                          <span className="text-[9px] sm:text-[10px] font-normal opacity-85 truncate">Very Good</span>
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => applyDesignPresetProfile('fair')}
-                          className={`py-2 px-1 rounded-2xl border text-xs font-bold transition-all text-center flex flex-col items-center justify-center cursor-pointer shadow-sm ${
-                            totalDesign < 70
-                              ? 'bg-gradient-to-r from-novera-gold via-amber-300 to-amber-500 text-black border-amber-200 shadow-md font-extrabold scale-[1.02]'
-                              : 'bg-white/5 hover:bg-white/15 text-zinc-200 border-white/15'
-                          }`}
-                        >
-                          <span className="text-xs sm:text-sm font-extrabold leading-tight">60</span>
-                          <span className="text-[9px] sm:text-[10px] font-normal opacity-85 truncate">Fair Standard</span>
-                        </button>
-                      </div>
-                    </div>
-
-                    {/* 5 Official Student Design Criteria Cards - Centered & Ergonomic */}
-                    <div className="space-y-3.5 pt-1">
-                      {designCriteriaList.map((crit) => {
-                        const IconComponent = crit.icon;
-                        return (
-                          <div
-                            key={crit.id}
-                            className="p-4 rounded-3xl bg-white/[0.04] border border-white/10 hover:border-novera-gold/40 transition-all shadow-md space-y-3 text-center"
+                        {/* Stepper [-] [Value] [+] */}
+                        <div className="flex items-center gap-1 pl-1 border-l border-white/15">
+                          <button
+                            type="button"
+                            onClick={() => crit.set(Math.max(0, crit.val - 1))}
+                            className="w-7 h-7 rounded-lg bg-white/10 hover:bg-white/20 active:scale-90 text-white flex items-center justify-center border border-white/20 transition-transform cursor-pointer"
+                            title="Decrease 1"
                           >
-                            {/* Centered Title & Subtitle */}
-                            <div className="flex flex-col items-center justify-center text-center gap-1">
-                              <div className="flex items-center justify-center gap-2">
-                                <div className="w-7 h-7 rounded-xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center shrink-0 shadow-sm">
-                                  <IconComponent className="w-3.5 h-3.5 text-amber-300" />
-                                </div>
-                                <span className="font-bold text-white text-sm sm:text-base">
-                                  {crit.title}
-                                </span>
-                              </div>
-                              <span className="text-[11px] text-zinc-400">
-                                {crit.subtitle}
-                              </span>
-                            </div>
-
-                            {/* Centered Stepper & Score Group [-]  [ 16 / 20 ]  [+] */}
-                            <div className="flex items-center justify-center gap-3">
-                              <button
-                                type="button"
-                                onClick={() => crit.set(Math.max(0, crit.val - 1))}
-                                className="w-11 h-11 rounded-2xl bg-white/10 hover:bg-white/20 active:scale-90 text-white flex items-center justify-center border border-white/20 shrink-0 select-none shadow-md cursor-pointer transition-transform"
-                                title="Decrease 1 mark"
-                              >
-                                <Minus className="w-4 h-4 text-zinc-200" strokeWidth={2.5} />
-                              </button>
-
-                              <div className="min-w-[110px] py-1.5 px-4 rounded-2xl bg-black/70 border border-novera-gold/50 shadow-inner flex items-baseline justify-center gap-1.5">
-                                <span className="font-serif text-2xl sm:text-3xl font-extrabold text-novera-gold">
-                                  {crit.val}
-                                </span>
-                                <span className="text-zinc-400 font-mono text-xs">/ {crit.max}</span>
-                              </div>
-
-                              <button
-                                type="button"
-                                onClick={() => crit.set(Math.min(crit.max, crit.val + 1))}
-                                className="w-11 h-11 rounded-2xl bg-white/10 hover:bg-white/20 active:scale-90 text-white flex items-center justify-center border border-white/20 shrink-0 select-none shadow-md cursor-pointer transition-transform"
-                                title="Increase 1 mark"
-                              >
-                                <Plus className="w-4 h-4 text-zinc-200" strokeWidth={2.5} />
-                              </button>
-                            </div>
-
-                            {/* Centered Range Slider for smooth drag */}
-                            <div className="max-w-md mx-auto w-full px-2">
-                              <input
-                                type="range"
-                                min="0"
-                                max={crit.max}
-                                value={crit.val}
-                                onChange={(e) => crit.set(Number(e.target.value))}
-                                className="w-full glass-slider cursor-pointer h-2.5"
-                              />
-                            </div>
-
-                            {/* Centered 4 Quick Preset Touch Buttons */}
-                            <div className="grid grid-cols-4 gap-2 pt-0.5 max-w-md mx-auto w-full">
-                              {crit.presets.map((preset) => (
-                                <button
-                                  key={preset.val}
-                                  type="button"
-                                  onClick={() => crit.set(preset.val)}
-                                  className={`py-2 px-1.5 rounded-xl text-xs font-semibold transition-all text-center cursor-pointer flex flex-col items-center justify-center ${
-                                    crit.val === preset.val
-                                      ? 'bg-gradient-to-r from-novera-gold to-amber-400 text-black font-extrabold shadow-md scale-[1.02] border border-amber-300'
-                                      : 'bg-white/5 hover:bg-white/15 text-zinc-300 border border-white/10'
-                                  }`}
-                                >
-                                  <span className="font-extrabold text-xs">{preset.val}</span>
-                                  <span className="text-[10px] opacity-80 truncate">{preset.label.split(' ')[0]}</span>
-                                </button>
-                              ))}
-                            </div>
+                            <Minus className="w-3 h-3 text-zinc-200" strokeWidth={2.5} />
+                          </button>
+                          <div className="w-7 sm:w-8 text-center font-serif text-sm sm:text-base font-extrabold text-novera-gold">
+                            {crit.val}
                           </div>
-                        );
-                      })}
-                    </div>
-
-                    {/* Official Award Alignment Footnote */}
-                    <div className="my-2 p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/25 flex items-start gap-2.5 text-xs text-zinc-300 text-left">
-                      <Sparkles className="w-4 h-4 text-novera-gold shrink-0 mt-0.5" />
-                      <div>
-                        <span className="font-bold text-white block mb-0.5">Official Student Award Tracking</span>
-                        <span>Your markings contribute directly to the <strong>Best Design (Students) Award (Max 100)</strong> tabulated in the Master Admin Vault.</span>
+                          <button
+                            type="button"
+                            onClick={() => crit.set(Math.min(crit.max, crit.val + 1))}
+                            className="w-7 h-7 rounded-lg bg-white/10 hover:bg-white/20 active:scale-90 text-white flex items-center justify-center border border-white/20 transition-transform cursor-pointer"
+                            title="Increase 1"
+                          >
+                            <Plus className="w-3 h-3 text-zinc-200" strokeWidth={2.5} />
+                          </button>
+                        </div>
                       </div>
                     </div>
-                  </>
-                )}
+                  );
+                })}
 
-                {/* Judge Notes */}
-                <div className="pt-2 text-left">
-                  <label className="block text-xs font-semibold text-zinc-300 mb-1.5">
-                    Confidential Judge Notes (Visible to Admin)
-                  </label>
-                  <textarea
+                {/* Confidential Judge Notes - Compact */}
+                <div className="pt-1">
+                  <input
+                    type="text"
                     value={notes}
                     onChange={(e) => setNotes(e.target.value)}
-                    placeholder="e.g. Excellent posture and striking outfit presentation..."
-                    rows={2}
-                    className="w-full px-3.5 py-2.5 text-xs rounded-2xl bg-white/5 border border-white/15 text-white placeholder-zinc-500 outline-none focus:border-novera-gold resize-none shadow-inner"
+                    placeholder="Confidential judge remarks (optional)..."
+                    className="w-full px-3 py-1.5 text-xs rounded-xl bg-white/5 border border-white/15 text-white placeholder-zinc-500 outline-none focus:border-novera-gold shadow-inner"
                   />
                 </div>
               </div>
 
-              {/* 📌 PERMANENT FOOTER (CENTERED & PROMINENT SUBMIT) */}
-              <div className="bg-[#120f0c] border-t border-white/15 px-4 sm:px-6 py-3.5 flex items-center justify-center gap-3 shrink-0 shadow-[0_-10px_30px_rgba(0,0,0,0.6)] z-20">
+              {/* 📌 COMPACT FOOTER (CANCEL & INSTANT SUBMIT) */}
+              <div className="bg-[#120f0c] border-t border-white/15 px-3 sm:px-5 py-2.5 flex items-center justify-between gap-2.5 shrink-0 z-20">
                 <button
                   type="button"
                   onClick={() => setScoringCandidate(null)}
-                  className="px-4 sm:px-5 py-3 rounded-2xl bg-white/10 hover:bg-white/20 active:scale-95 text-xs font-bold text-zinc-300 transition-colors shadow-sm shrink-0 cursor-pointer"
+                  className="px-3.5 sm:px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 active:scale-95 text-xs font-bold text-zinc-300 transition-colors cursor-pointer shrink-0"
                 >
                   Cancel
                 </button>
@@ -1429,16 +1200,18 @@ export default function JudgePortalPage() {
                   type="button"
                   onClick={handleScoreSubmit}
                   disabled={isSaving}
-                  className="flex-1 max-w-lg py-3.5 rounded-2xl bg-gradient-to-r from-[#d4af37] via-[#f3e5ab] to-[#aa7c11] text-black font-extrabold hover:brightness-110 active:scale-[0.99] text-xs sm:text-sm uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-xl disabled:opacity-50 group relative overflow-hidden cursor-pointer"
+                  className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-[#d4af37] via-[#f3e5ab] to-[#aa7c11] text-black font-extrabold hover:brightness-110 active:scale-[0.99] text-xs sm:text-sm uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-xl disabled:opacity-50 cursor-pointer"
                 >
-                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 pointer-events-none" />
                   <CheckCircle2 className="w-4 h-4 text-black" strokeWidth={2.5} />
-                  <span className="truncate">{isSaving ? 'Submitting...' : `Submit Both Scores (Model: ${totalModel} • Design: ${totalDesign})`}</span>
+                  <span className="truncate">
+                    {isSaving
+                      ? 'Submitting...'
+                      : `Submit Scores (M: ${totalModel} • D: ${totalDesign})`}
+                  </span>
                 </button>
               </div>
             </div>
           </div>
-        </div>
         );
       })()}
 
