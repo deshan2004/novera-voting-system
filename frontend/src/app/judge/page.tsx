@@ -36,8 +36,10 @@ import {
   Lightbulb,
   Scissors,
   Layers,
+  ShieldCheck,
 } from 'lucide-react';
 import RunwayStageBackground from '@/app/components/RunwayStageBackground';
+import { playLuxuryChime } from '@/lib/audio';
 
 const OFFICIAL_JUDGES = [
   { id: 'judge_mayuri', name: 'Judge Mayuri', title: "Official Runway Judge · NOVERA '26", code: 'mayuri' },
@@ -55,6 +57,11 @@ export default function JudgePortalPage() {
   const [passcode, setPasscode] = useState<string>('');
   const [passcodeError, setPasscodeError] = useState<string>('');
   const [selectedJudgeId, setSelectedJudgeId] = useState<string>('judge_piyumi');
+  const [welcomeAnimation, setWelcomeAnimation] = useState<{
+    judgeName: string;
+    judgeTitle: string;
+    step: number;
+  } | null>(null);
 
   const [candidates, setCandidates] = useState<Candidate[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<GenderCategory>('boy');
@@ -138,19 +145,38 @@ export default function JudgePortalPage() {
       (j) => j.code.toLowerCase() === inputClean || j.name.toLowerCase().includes(inputClean)
     );
 
-    if (matchedJudge) {
-      setSelectedJudgeId(matchedJudge.id);
-      setIsAuthenticated(true);
-      sessionStorage.setItem('novera_judge_auth', 'true');
-      localStorage.setItem('novera_active_judge', JSON.stringify(matchedJudge));
+    const judgeToLogin = matchedJudge || (inputClean === 'judge2026' || inputClean === 'novera' ? OFFICIAL_JUDGES[0] : null);
+
+    if (judgeToLogin) {
+      playLuxuryChime();
       setPasscodeError('');
-    } else if (inputClean === 'judge2026' || inputClean === 'novera') {
-      const defaultJudge = OFFICIAL_JUDGES[0];
-      setSelectedJudgeId(defaultJudge.id);
-      setIsAuthenticated(true);
+      setSelectedJudgeId(judgeToLogin.id);
       sessionStorage.setItem('novera_judge_auth', 'true');
-      localStorage.setItem('novera_active_judge', JSON.stringify(defaultJudge));
-      setPasscodeError('');
+      sessionStorage.setItem('novera_judge_id', judgeToLogin.id);
+      localStorage.setItem('novera_active_judge', JSON.stringify(judgeToLogin));
+
+      // Trigger high-prestige welcome and authentication transition sequence
+      setWelcomeAnimation({
+        judgeName: judgeToLogin.name,
+        judgeTitle: judgeToLogin.title,
+        step: 1,
+      });
+
+      // Step 2: Welcome Speech & Briefing after 700ms
+      setTimeout(() => {
+        setWelcomeAnimation((cur) => (cur ? { ...cur, step: 2 } : null));
+      }, 700);
+
+      // Step 3: Telemetry Calibration after 2200ms
+      setTimeout(() => {
+        setWelcomeAnimation((cur) => (cur ? { ...cur, step: 3 } : null));
+      }, 2200);
+
+      // Step 4: Finalize and open scorecard portal after 3000ms
+      setTimeout(() => {
+        setWelcomeAnimation(null);
+        setIsAuthenticated(true);
+      }, 3000);
     } else {
       setPasscodeError('Invalid Judge Passcode. Please enter your authorized name.');
     }
@@ -391,6 +417,98 @@ export default function JudgePortalPage() {
       <div className="min-h-[85vh] flex items-center justify-center p-3 sm:p-4 relative overflow-hidden bg-transparent">
         {/* Haute Couture Fashion Runway Stage Animation */}
         <RunwayStageBackground />
+
+        {/* 🌟 LUXURY CINEMATIC JUDGE WELCOME & AUTHENTICATION OVERLAY */}
+        {welcomeAnimation && (
+          <div className="fixed inset-0 z-[200] bg-black/95 backdrop-blur-3xl flex items-center justify-center p-4 select-none animate-in fade-in duration-300">
+            <RunwayStageBackground contained className="opacity-90 pointer-events-none" />
+
+            <div className="max-w-lg w-full text-center space-y-6 relative p-6 sm:p-8 rounded-3xl bg-black/70 border border-novera-gold/40 shadow-[0_0_100px_rgba(212,175,55,0.4)] backdrop-blur-2xl animate-in zoom-in-95 duration-300">
+              <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-novera-gold to-transparent animate-scan-sweep" />
+
+              {/* Step 1: Biometric Scanning Crest */}
+              {welcomeAnimation.step === 1 && (
+                <div className="space-y-5 animate-in zoom-in-90 duration-300">
+                  <div className="relative w-24 h-24 mx-auto flex items-center justify-center">
+                    <div className="absolute inset-0 rounded-full border-2 border-novera-gold/30 animate-ping" />
+                    <div className="absolute -inset-2 rounded-full border border-amber-400/40 animate-spin" style={{ animationDuration: '4s' }} />
+                    <div className="w-20 h-20 rounded-full bg-amber-950/80 border-2 border-novera-gold flex items-center justify-center shadow-[0_0_40px_rgba(212,175,55,0.5)]">
+                      <ShieldCheck className="w-10 h-10 text-amber-300 animate-pulse" />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <span className="text-[11px] font-mono uppercase tracking-[0.3em] text-novera-gold font-bold block animate-pulse">
+                      AUTHENTICATING OFFICIAL CREDENTIALS...
+                    </span>
+                    <h3 className="font-serif text-xl sm:text-2xl font-bold text-white tracking-wide">
+                      NOVERA &rsquo;26 Security Verification
+                    </h3>
+                    <div className="text-xs text-zinc-400 font-mono">
+                      Establishing encrypted runway connection
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Step 2 & 3: Official Welcome Speech & Talk */}
+              {welcomeAnimation.step >= 2 && (
+                <div className="space-y-5 animate-in zoom-in-95 duration-400">
+                  {/* Verified Crown Badge */}
+                  <div className="relative w-20 h-20 mx-auto flex items-center justify-center">
+                    <div className="absolute inset-0 rounded-2xl bg-amber-400/30 blur-xl animate-pulse" />
+                    <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-novera-gold to-amber-600 text-black flex items-center justify-center shadow-2xl border border-amber-200">
+                      <Crown className="w-9 h-9 text-black drop-shadow" />
+                    </div>
+                  </div>
+
+                  {/* Prestige Greeting */}
+                  <div className="space-y-1.5">
+                    <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-400/40 text-[11px] font-mono font-bold text-emerald-300 uppercase tracking-widest">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                      <span>Credentials Verified &bull; Access Granted</span>
+                    </div>
+                    <h2 className="font-serif text-2xl sm:text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-white via-amber-100 to-novera-gold tracking-tight pt-1">
+                      Welcome, {welcomeAnimation.judgeName}!
+                    </h2>
+                    <p className="text-xs text-novera-gold font-mono tracking-wider font-semibold">
+                      {welcomeAnimation.judgeTitle}
+                    </p>
+                  </div>
+
+                  {/* Elegant Talk / Voice Message Box */}
+                  <div className="p-4 rounded-2xl bg-white/[0.05] border border-amber-500/30 text-left space-y-2 shadow-inner">
+                    <div className="flex items-center gap-2 text-xs font-bold text-novera-gold uppercase tracking-wider">
+                      <Sparkles className="w-3.5 h-3.5 text-novera-gold" />
+                      <span>Official Judiciary Briefing</span>
+                    </div>
+                    <p className="text-xs sm:text-sm text-zinc-200 leading-relaxed font-serif italic">
+                      &ldquo;Honored Judge, your seat on the official NOVERA &rsquo;26 runway adjudication panel is confirmed. Your confidential terminal is primed to mark Model Runway and Student Design with absolute excellence.&rdquo;
+                    </p>
+                    <div className="pt-1.5 border-t border-white/10 flex items-center justify-between text-[11px] font-mono text-zinc-400">
+                      <span>ලකුණු ලබාදීමේ නිල පද්ධතිය</span>
+                      <span className="text-emerald-400 font-bold">● Online &bull; Live Telemetry</span>
+                    </div>
+                  </div>
+
+                  {/* Calibration Progress Bar */}
+                  <div className="space-y-2 pt-1">
+                    <div className="flex items-center justify-between text-[10px] font-mono text-zinc-400 uppercase tracking-wider">
+                      <span>{welcomeAnimation.step === 3 ? 'Launching Terminal...' : 'Calibrating Telemetry Link...'}</span>
+                      <span className="text-novera-gold font-bold">{welcomeAnimation.step === 3 ? '100%' : '78%'}</span>
+                    </div>
+                    <div className="w-full h-1.5 rounded-full bg-white/10 overflow-hidden">
+                      <div
+                        className="h-full bg-gradient-to-r from-novera-gold via-amber-300 to-amber-500 transition-all duration-700 rounded-full"
+                        style={{ width: welcomeAnimation.step === 3 ? '100%' : '78%' }}
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
 
         <div className="max-w-sm sm:max-w-md w-full bg-black/40 backdrop-blur-2xl rounded-3xl p-5 sm:p-8 border border-white/20 shadow-[0_30px_90px_rgba(0,0,0,0.8),inset_0_1px_1px_rgba(255,255,255,0.2)] text-center space-y-5 sm:space-y-6 relative overflow-hidden animate-in zoom-in-95 duration-500">
           <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-amber-300 to-transparent animate-scan-sweep" />

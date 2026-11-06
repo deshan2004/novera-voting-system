@@ -19,6 +19,7 @@ import RunwayStageBackground from '@/app/components/RunwayStageBackground';
 import VotingClosedCeremonyOverlay from '@/app/components/VotingClosedCeremonyOverlay';
 import { subscribeToVotingSettings, saveVotingSettings } from '@/lib/api';
 import { VotingSettings } from '@/lib/types';
+import { playLuxuryChime } from '@/lib/audio';
 
 export default function QrDisplayPage() {
   const router = useRouter();
@@ -30,12 +31,21 @@ export default function QrDisplayPage() {
   const [remainingTimeText, setRemainingTimeText] = useState<string>('');
   const [remainingSeconds, setRemainingSeconds] = useState<number>(0);
   const [showClosingCeremony, setShowClosingCeremony] = useState<boolean>(false);
+  const [showOpeningBroadcast, setShowOpeningBroadcast] = useState<boolean>(false);
   const wasVotingOpenRef = useRef<boolean>(false);
 
-  // Auto-trigger closing ceremony when voting concludes or closes
+  // Auto-trigger opening broadcast when voting unlocks, and closing ceremony when voting concludes
   useEffect(() => {
     if (votingSettings.isVotingOpen) {
-      wasVotingOpenRef.current = true;
+      if (!wasVotingOpenRef.current) {
+        setShowOpeningBroadcast(true);
+        playLuxuryChime();
+        const timer = setTimeout(() => {
+          setShowOpeningBroadcast(false);
+        }, 6000);
+        wasVotingOpenRef.current = true;
+        return () => clearTimeout(timer);
+      }
     } else if (wasVotingOpenRef.current && !votingSettings.isVotingOpen) {
       setShowClosingCeremony(true);
     }
@@ -149,6 +159,63 @@ export default function QrDisplayPage() {
 
   return (
     <div className="relative min-h-screen w-full text-novera-paper flex flex-col items-center justify-between p-3 sm:py-4 sm:px-6 select-none overflow-y-auto overflow-x-hidden">
+      {/* 🌟 GRAND STAGE OPENING BROADCAST & ANNOUNCEMENT OVERLAY */}
+      {showOpeningBroadcast && (
+        <div className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-3xl flex items-center justify-center p-4 select-none animate-in fade-in duration-500">
+          <RunwayStageBackground contained className="opacity-95 pointer-events-none" />
+
+          <div className="max-w-2xl w-full text-center space-y-6 relative p-6 sm:p-10 rounded-3xl bg-black/75 border-2 border-novera-gold/60 shadow-[0_0_120px_rgba(212,175,55,0.5)] backdrop-blur-3xl animate-in zoom-in-95 duration-400">
+            {/* Top Golden Light Ray */}
+            <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-transparent via-amber-300 to-transparent animate-scan-sweep" />
+
+            {/* Glowing Golden Stage Emblem */}
+            <div className="relative w-24 h-24 sm:w-28 sm:h-28 mx-auto flex items-center justify-center">
+              <div className="absolute inset-0 rounded-full border-4 border-amber-400/30 animate-ping" />
+              <div className="absolute -inset-3 rounded-full border border-amber-300/40 animate-spin" style={{ animationDuration: '6s' }} />
+              <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-gradient-to-br from-amber-900/90 via-black to-black border-2 border-novera-gold flex items-center justify-center shadow-[0_0_50px_rgba(212,175,55,0.7)]">
+                <Vote className="w-10 h-10 sm:w-12 sm:h-12 text-amber-300 drop-shadow-[0_0_15px_rgba(251,191,36,0.9)] animate-pulse" />
+              </div>
+            </div>
+
+            {/* Stage Headline */}
+            <div className="space-y-2">
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-400/20 border border-amber-400/50 text-xs sm:text-sm font-mono font-bold text-amber-300 uppercase tracking-[0.3em] shadow-sm animate-pulse">
+                <Sparkles className="w-4 h-4 text-novera-gold" />
+                <span>Audience Voting Live Now</span>
+              </div>
+              <h1 className="font-serif text-3xl sm:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white via-amber-100 to-novera-gold tracking-tight pt-2">
+                NOVERA &rsquo;26 Runway Ballot
+              </h1>
+              <p className="text-xs sm:text-sm font-mono uppercase tracking-[0.25em] text-zinc-300">
+                Official Stage Showcase &bull; AIESEC in CINEC
+              </p>
+            </div>
+
+            {/* Grand Stage Talk / Announcement Speech Box */}
+            <div className="p-5 rounded-2xl bg-white/[0.05] border border-amber-500/40 text-center space-y-2.5 shadow-inner">
+              <p className="text-sm sm:text-base text-zinc-100 leading-relaxed font-serif italic">
+                &ldquo;Ladies and Gentlemen, public voting for NOVERA &rsquo;26 is officially open! Please point your smartphone cameras at the illuminated stage QR code now to cast your votes for Best Male Model &amp; Best Female Model.&rdquo;
+              </p>
+              <div className="pt-2 border-t border-white/10 text-xs sm:text-sm font-mono text-amber-300/90 font-semibold">
+                නොවේරා &rsquo;26 නිල ප්‍රේක්ෂක ඡන්ද විමසීම දැන් සක්‍රීයයි &bull; තිරයේ ඇති QR Code එක Scan කරන්න!
+              </div>
+            </div>
+
+            {/* Proceed to QR button */}
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => setShowOpeningBroadcast(false)}
+                className="w-full sm:w-auto px-6 py-3 rounded-full bg-gradient-to-r from-novera-gold via-amber-300 to-amber-500 text-black font-extrabold text-xs sm:text-sm uppercase tracking-wider hover:brightness-110 shadow-lg active:scale-95 transition-all cursor-pointer flex items-center justify-center gap-2"
+              >
+                <span>Proceed to QR Scanner</span>
+                <Sparkles className="w-4 h-4 text-black" />
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* 👑 GRAND HAUTE COUTURE VOTING CONCLUDED CEREMONY OVERLAY */}
       {showClosingCeremony && (
         <VotingClosedCeremonyOverlay
@@ -301,14 +368,27 @@ export default function QrDisplayPage() {
           </div>
         </div>
 
-        {/* Action Controls (Fullscreen stage view for projector) */}
-        <div className="flex items-center justify-center pt-1 w-full max-w-xs px-4">
+        {/* Action Controls (Fullscreen stage view for projector & manual announce) */}
+        <div className="flex flex-wrap items-center justify-center gap-2 pt-1 w-full max-w-md px-4">
           <button
+            type="button"
+            onClick={() => {
+              playLuxuryChime();
+              setShowOpeningBroadcast(true);
+            }}
+            className="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-full bg-novera-gold/20 hover:bg-novera-gold/30 text-amber-300 text-xs font-semibold uppercase tracking-wider transition-all border border-novera-gold/40 shadow-md backdrop-blur-md cursor-pointer"
+            title="Play opening announcement animation on stage screen"
+          >
+            <Sparkles className="w-3.5 h-3.5 text-novera-gold" />
+            <span>Announce Voting</span>
+          </button>
+          <button
+            type="button"
             onClick={toggleFullscreen}
-            className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full bg-white/10 hover:bg-white/20 text-white text-xs font-semibold uppercase tracking-wider transition-all border border-white/20 shadow-md backdrop-blur-md hover:border-novera-gold/50"
+            className="inline-flex items-center justify-center gap-2 px-5 py-2 rounded-full bg-white/10 hover:bg-white/20 text-white text-xs font-semibold uppercase tracking-wider transition-all border border-white/20 shadow-md backdrop-blur-md hover:border-novera-gold/50 cursor-pointer"
           >
             {isFullscreen ? <Minimize2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> : <Maximize2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />}
-            <span>{isFullscreen ? 'Exit Fullscreen' : 'Stage Fullscreen Mode'}</span>
+            <span>{isFullscreen ? 'Exit Fullscreen' : 'Stage Fullscreen'}</span>
           </button>
         </div>
 
