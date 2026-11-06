@@ -208,7 +208,7 @@ export default function QrDisplayPage() {
                 &ldquo;Ladies and Gentlemen, public voting for NOVERA &rsquo;26 is officially open! Please point your smartphone cameras at the illuminated stage QR code now to cast your votes for Best Male Model &amp; Best Female Model.&rdquo;
               </p>
               <div className="pt-2 border-t border-white/10 text-xs sm:text-sm font-mono text-amber-300/90 font-semibold">
-                නොවේරා &rsquo;26 නිල ප්‍රේක්ෂක ඡන්ද විමසීම දැන් සක්‍රීයයි &bull; තිරයේ ඇති QR Code එක Scan කරන්න!
+                Official Audience Voting Active &bull; Point Smartphone Camera &amp; Scan Stage QR Code
               </div>
             </div>
 
@@ -279,7 +279,7 @@ export default function QrDisplayPage() {
                 &ldquo;Welcome to the Official Stage Projection. High-speed audience QR voting terminal initialized and synchronized with central tabulation.&rdquo;
               </p>
               <div className="pt-2 border-t border-white/10 text-xs sm:text-sm font-mono text-amber-300 font-semibold">
-                නොවේරා &rsquo;26 නිල වේදිකා තිරය වෙත සාදරයෙන් පිළිගනිමු &bull; Ready
+                Welcome to NOVERA &rsquo;26 Official Stage Display &bull; System Ready
               </div>
             </div>
 

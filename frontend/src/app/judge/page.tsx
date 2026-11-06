@@ -162,21 +162,15 @@ export default function JudgePortalPage() {
         step: 1,
       });
 
-      // Step 2: Welcome Speech & Briefing after 700ms
+      // Step 2: Welcome Speech & Briefing after 600ms
       setTimeout(() => {
         setWelcomeAnimation((cur) => (cur ? { ...cur, step: 2 } : null));
-      }, 700);
+      }, 600);
 
-      // Step 3: Telemetry Calibration after 2200ms
+      // Step 3: Complete Telemetry Calibration after 1400ms (Ready for judge to start)
       setTimeout(() => {
         setWelcomeAnimation((cur) => (cur ? { ...cur, step: 3 } : null));
-      }, 2200);
-
-      // Step 4: Finalize and open scorecard portal after 3000ms
-      setTimeout(() => {
-        setWelcomeAnimation(null);
-        setIsAuthenticated(true);
-      }, 3000);
+      }, 1400);
     } else {
       setPasscodeError('Invalid Judge Passcode. Please enter your authorized name.');
     }
@@ -486,7 +480,7 @@ export default function JudgePortalPage() {
                       &ldquo;Honored Judge, your seat on the official NOVERA &rsquo;26 runway adjudication panel is confirmed. Your confidential terminal is primed to mark Model Runway and Student Design with absolute excellence.&rdquo;
                     </p>
                     <div className="pt-1.5 border-t border-white/10 flex items-center justify-between text-[11px] font-mono text-zinc-400">
-                      <span>ලකුණු ලබාදීමේ නිල පද්ධතිය</span>
+                      <span>Official Scoring System</span>
                       <span className="text-emerald-400 font-bold">● Online &bull; Live Telemetry</span>
                     </div>
                   </div>
@@ -494,8 +488,8 @@ export default function JudgePortalPage() {
                   {/* Calibration Progress Bar */}
                   <div className="space-y-2 pt-1">
                     <div className="flex items-center justify-between text-[10px] font-mono text-zinc-400 uppercase tracking-wider">
-                      <span>{welcomeAnimation.step === 3 ? 'Launching Terminal...' : 'Calibrating Telemetry Link...'}</span>
-                      <span className="text-novera-gold font-bold">{welcomeAnimation.step === 3 ? '100%' : '78%'}</span>
+                      <span>{welcomeAnimation.step === 3 ? 'Calibration Complete &bull; System Ready' : 'Calibrating Telemetry Link...'}</span>
+                      <span className="text-novera-gold font-bold">{welcomeAnimation.step === 3 ? '100% · READY' : '78%'}</span>
                     </div>
                     <div className="w-full h-1.5 rounded-full bg-white/10 overflow-hidden">
                       <div
@@ -503,6 +497,24 @@ export default function JudgePortalPage() {
                         style={{ width: welcomeAnimation.step === 3 ? '100%' : '78%' }}
                       />
                     </div>
+                  </div>
+
+                  {/* 🚀 MANUAL "START / ENTER SCORING" CTA BUTTON */}
+                  <div className="pt-2 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setWelcomeAnimation(null);
+                        setIsAuthenticated(true);
+                      }}
+                      className="w-full py-3.5 px-6 rounded-2xl bg-gradient-to-r from-novera-gold via-amber-400 to-amber-500 text-black font-serif font-extrabold text-sm sm:text-base tracking-wider uppercase shadow-[0_0_30px_rgba(212,175,55,0.4)] hover:brightness-110 active:scale-[0.98] transition-all cursor-pointer flex items-center justify-center gap-2 group"
+                    >
+                      <span>ENTER SCORING PORTAL</span>
+                      <Sparkles className="w-4 h-4 text-black group-hover:rotate-12 transition-transform" />
+                    </button>
+                    <p className="text-[10px] text-zinc-400 font-mono mt-2">
+                      Review briefing above and click button when ready to begin
+                    </p>
                   </div>
                 </div>
               )}
