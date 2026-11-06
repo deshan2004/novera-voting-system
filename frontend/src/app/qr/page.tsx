@@ -20,6 +20,7 @@ import VotingClosedCeremonyOverlay from '@/app/components/VotingClosedCeremonyOv
 import { subscribeToVotingSettings, saveVotingSettings } from '@/lib/api';
 import { VotingSettings } from '@/lib/types';
 import { playLuxuryChime } from '@/lib/audio';
+import VotingCountdownOverlay from '@/app/components/VotingCountdownOverlay';
 
 export default function QrDisplayPage() {
   const router = useRouter();
@@ -32,7 +33,17 @@ export default function QrDisplayPage() {
   const [remainingSeconds, setRemainingSeconds] = useState<number>(0);
   const [showClosingCeremony, setShowClosingCeremony] = useState<boolean>(false);
   const [showOpeningBroadcast, setShowOpeningBroadcast] = useState<boolean>(false);
+  const [stageEntryAnimation, setStageEntryAnimation] = useState<boolean>(true);
   const wasVotingOpenRef = useRef<boolean>(false);
+
+  // Play prestigious chime and trigger stage entrance sequence on mount
+  useEffect(() => {
+    playLuxuryChime();
+    const timer = setTimeout(() => {
+      setStageEntryAnimation(false);
+    }, 2800);
+    return () => clearTimeout(timer);
+  }, []);
 
   // Auto-trigger opening broadcast when voting unlocks, and closing ceremony when voting concludes
   useEffect(() => {
@@ -210,6 +221,76 @@ export default function QrDisplayPage() {
               >
                 <span>Proceed to QR Scanner</span>
                 <Sparkles className="w-4 h-4 text-black" />
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 🌟 CINEMATIC STAGE OPENING COUNTDOWN (5-4-3-2-1) */}
+      {votingSettings.countdownUntil && votingSettings.countdownUntil > Date.now() && (
+        <VotingCountdownOverlay
+          countdownUntil={votingSettings.countdownUntil}
+          onComplete={() => {
+            setShowOpeningBroadcast(true);
+            playLuxuryChime();
+          }}
+        />
+      )}
+
+      {/* 🎬 CINEMATIC STAGE ENTRANCE TRANSITION (WHEN VISITING /QR) */}
+      {stageEntryAnimation && (
+        <div
+          className="fixed inset-0 z-[150] bg-black/95 backdrop-blur-3xl flex items-center justify-center p-4 select-none animate-in fade-in duration-500 cursor-pointer"
+          onClick={() => setStageEntryAnimation(false)}
+        >
+          <RunwayStageBackground contained className="opacity-95 pointer-events-none" />
+
+          {/* Shimmering Ambient Spotlight */}
+          <div className="absolute inset-0 bg-radial from-amber-500/20 via-black/80 to-black -z-10" />
+
+          <div className="max-w-xl w-full text-center space-y-6 relative p-8 sm:p-12 rounded-3xl bg-black/80 border-2 border-novera-gold/60 shadow-[0_0_120px_rgba(212,175,55,0.45)] backdrop-blur-3xl animate-in zoom-in-95 duration-400">
+            <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-transparent via-amber-300 to-transparent animate-scan-sweep" />
+
+            {/* Glowing Golden Rotating Crest */}
+            <div className="relative w-24 h-24 sm:w-28 sm:h-28 mx-auto flex items-center justify-center">
+              <div className="absolute inset-0 rounded-full border-4 border-amber-400/30 animate-ping" />
+              <div className="absolute -inset-3 rounded-full border border-amber-300/40 animate-spin" style={{ animationDuration: '6s' }} />
+              <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-gradient-to-br from-amber-950/90 via-black to-black border-2 border-novera-gold flex items-center justify-center shadow-[0_0_50px_rgba(212,175,55,0.7)]">
+                <Sparkles className="w-10 h-10 sm:w-12 sm:h-12 text-amber-300 drop-shadow-[0_0_15px_rgba(251,191,36,0.9)] animate-pulse" />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-400/20 border border-amber-400/50 text-xs sm:text-sm font-mono font-bold text-amber-300 uppercase tracking-[0.3em] shadow-sm animate-pulse">
+                <span>Official Runway Stage</span>
+              </div>
+              <h1 className="font-serif text-3xl sm:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white via-amber-100 to-novera-gold tracking-tight pt-1">
+                NOVERA &rsquo;26
+              </h1>
+              <p className="text-xs sm:text-sm font-mono uppercase tracking-[0.25em] text-zinc-300">
+                AIESEC in CINEC Presents &bull; Live Telemetry Stage
+              </p>
+            </div>
+
+            {/* Welcome Talk / Announcement Box */}
+            <div className="p-4 sm:p-5 rounded-2xl bg-white/[0.05] border border-amber-500/40 text-center space-y-2 shadow-inner">
+              <p className="text-sm sm:text-base text-zinc-100 leading-relaxed font-serif italic">
+                &ldquo;Welcome to the Official Stage Projection. High-speed audience QR voting terminal initialized and synchronized with central tabulation.&rdquo;
+              </p>
+              <div className="pt-2 border-t border-white/10 text-xs sm:text-sm font-mono text-amber-300 font-semibold">
+                නොවේරා &rsquo;26 නිල වේදිකා තිරය වෙත සාදරයෙන් පිළිගනිමු &bull; Ready
+              </div>
+            </div>
+
+            {/* Touch / Click to Proceed */}
+            <div className="pt-1">
+              <button
+                type="button"
+                onClick={() => setStageEntryAnimation(false)}
+                className="px-6 py-2.5 rounded-full bg-white/10 hover:bg-white/20 text-xs font-mono font-bold uppercase tracking-widest text-zinc-300 hover:text-white border border-white/20 transition-all cursor-pointer"
+              >
+                Tap anywhere or click to enter &rarr;
               </button>
             </div>
           </div>
