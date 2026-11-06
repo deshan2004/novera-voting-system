@@ -60,7 +60,10 @@ import RunwayStageBackground from '@/app/components/RunwayStageBackground';
 import VotingCountdownOverlay from '@/app/components/VotingCountdownOverlay';
 import VotingClosedCeremonyOverlay from '@/app/components/VotingClosedCeremonyOverlay';
 
-const ADMIN_PASSCODE = 'novera2026';
+export type AdminRole = 'master' | 'stage';
+
+const MASTER_PASSCODES = ['novera2026', 'admin2026', 'master2026'];
+const STAGE_PASSCODES = ['stage2026', 'stage', 'noverastage'];
 
 const OFFICIAL_JUDGE_ROSTER = [
   { id: 'judge_mayuri', name: 'Mayuri', title: "Official Runway Judge · NOVERA '26" },
@@ -151,6 +154,7 @@ const AWARD_DEFINITIONS: AwardDefinition[] = [
 export default function AdminLeaderboardPage() {
   const router = useRouter();
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  const [adminRole, setAdminRole] = useState<AdminRole>('stage');
   const [passcode, setPasscode] = useState<string>('');
   const [passcodeError, setPasscodeError] = useState<string>('');
 
@@ -197,8 +201,12 @@ export default function AdminLeaderboardPage() {
 
   useEffect(() => {
     const savedAuth = sessionStorage.getItem('novera_admin_auth');
+    const savedRole = sessionStorage.getItem('novera_admin_role') as AdminRole | null;
     if (savedAuth === 'true') {
       setIsAuthenticated(true);
+      if (savedRole === 'master' || savedRole === 'stage') {
+        setAdminRole(savedRole);
+      }
     }
 
     loadData();
@@ -320,18 +328,31 @@ export default function AdminLeaderboardPage() {
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    if (passcode.trim() === ADMIN_PASSCODE) {
+    const cleanPass = passcode.trim().toLowerCase();
+
+    if (MASTER_PASSCODES.includes(cleanPass)) {
       setIsAuthenticated(true);
+      setAdminRole('master');
       sessionStorage.setItem('novera_admin_auth', 'true');
+      sessionStorage.setItem('novera_admin_role', 'master');
+      setPasscodeError('');
+    } else if (STAGE_PASSCODES.includes(cleanPass)) {
+      setIsAuthenticated(true);
+      setAdminRole('stage');
+      setAdminMode('stage'); // Stage role is locked to Stage Launchpad
+      sessionStorage.setItem('novera_admin_auth', 'true');
+      sessionStorage.setItem('novera_admin_role', 'stage');
       setPasscodeError('');
     } else {
-      setPasscodeError('Invalid Admin Passcode. Please enter the master access code.');
+      setPasscodeError('Invalid Passcode. Enter either Stage Passcode (stage2026) or Master Passcode (novera2026).');
     }
   };
 
   const handleLogout = () => {
     setIsAuthenticated(false);
+    setPasscode('');
     sessionStorage.removeItem('novera_admin_auth');
+    sessionStorage.removeItem('novera_admin_role');
   };
 
   // Audience Calculations
@@ -614,21 +635,21 @@ export default function AdminLeaderboardPage() {
 
           <div className="space-y-1 sm:space-y-1.5">
             <h1 className="font-serif text-xl sm:text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-[#FFF5D6] via-[#ECD599] to-[#B3924F] tracking-tight pt-1">
-              NOVERA &rsquo;26 Admin
+              NOVERA &rsquo;26 Admin Console
             </h1>
             <p className="text-[11px] sm:text-xs text-zinc-300 font-medium">
-              Enter master administrator password to view live audience votes and judge evaluations.
+              Enter designated role passcode to access Stage Controller or Confidential Vault.
             </p>
           </div>
 
           <form onSubmit={handleLogin} className="space-y-4 text-left">
             <div>
               <label className="block text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-amber-200/90 mb-1.5">
-                Master Passcode
+                Passcode (Stage or Master)
               </label>
               <input
                 type="password"
-                placeholder="Enter admin passcode"
+                placeholder="Enter stage2026 or novera2026"
                 value={passcode}
                 onChange={(e) => setPasscode(e.target.value)}
                 className="w-full px-4 py-3 sm:py-3.5 rounded-2xl bg-white/10 text-xs sm:text-sm text-white placeholder-zinc-400 outline-none focus:border-amber-400 focus:bg-white/15 font-mono text-center tracking-widest text-base shadow-inner border border-white/20 transition-all backdrop-blur-md"
@@ -649,9 +670,28 @@ export default function AdminLeaderboardPage() {
             >
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 pointer-events-none" />
               <Lock className="w-4 h-4" />
-              <span>Unlock Admin Dashboard</span>
+              <span>Unlock Admin Console</span>
             </button>
           </form>
+
+          {/* Role Access Guide */}
+          <div className="p-3.5 rounded-2xl bg-white/[0.04] border border-white/10 text-left space-y-2">
+            <span className="text-[10px] font-mono uppercase tracking-widest text-amber-300 font-bold block">
+              Designated Role Access:
+            </span>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[10px] text-zinc-300">
+              <div className="p-2 rounded-xl bg-black/40 border border-white/10">
+                <span className="text-amber-200 font-bold block">🎬 Stage Controller</span>
+                <span className="text-zinc-400 font-mono text-[9px] block">Passcode: stage2026</span>
+                <span className="text-[9px] text-zinc-400">Voting Timer &amp; QR screen only. All marks hidden.</span>
+              </div>
+              <div className="p-2 rounded-xl bg-black/40 border border-white/10">
+                <span className="text-amber-200 font-bold block">👑 Master Committee</span>
+                <span className="text-zinc-400 font-mono text-[9px] block">Passcode: novera2026</span>
+                <span className="text-[9px] text-zinc-400">Full Access: Jury marks, votes &amp; grand finale.</span>
+              </div>
+            </div>
+          </div>
 
           <p className="text-[10px] sm:text-[11px] text-zinc-400 font-mono">
             Authorized Organizing Committee Access Only &bull; NOVERA &rsquo;26
@@ -707,34 +747,45 @@ export default function AdminLeaderboardPage() {
             {/* Top Stage Header */}
             <div className="p-6 sm:p-8 rounded-3xl bg-black/40 backdrop-blur-2xl border border-white/15 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 shadow-2xl">
               <div>
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-black/50 backdrop-blur-xl border border-white/20 text-xs uppercase tracking-widest font-bold text-novera-gold mb-2">
-                  <ShieldCheck className="w-4 h-4 text-novera-gold animate-float" />
-                  <span>Master Administration Hub</span>
-                </div>
+                {adminRole === 'stage' ? (
+                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/15 border border-amber-500/35 text-xs uppercase tracking-widest font-bold text-amber-300 mb-2">
+                    <Radio className="w-3.5 h-3.5 text-amber-400 animate-pulse" />
+                    <span>Stage Controller · Voting Operator</span>
+                  </div>
+                ) : (
+                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-black/50 backdrop-blur-xl border border-white/20 text-xs uppercase tracking-widest font-bold text-novera-gold mb-2">
+                    <ShieldCheck className="w-4 h-4 text-novera-gold animate-float" />
+                    <span>Master Administration Hub (Full Access)</span>
+                  </div>
+                )}
                 <h1 className="font-serif text-2xl sm:text-4xl font-bold text-white">
                   Audience Voting Launchpad
                 </h1>
                 <p className="text-xs sm:text-sm text-zinc-300 mt-1">
-                  Official Stage Controller &bull; Privacy Protected
+                  {adminRole === 'stage'
+                    ? 'Live Runway Voting & Stage Display Launcher • Marks & Results Hidden'
+                    : 'Official Stage Controller &bull; Privacy Protected'}
                 </p>
               </div>
 
               <div className="flex items-center gap-3">
-                {/* Button to navigate into the secret Tabulation & Results Vault */}
-                <button
-                  type="button"
-                  onClick={() => setAdminMode('vault')}
-                  className="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs font-bold uppercase tracking-wider bg-white/10 hover:bg-white/20 text-white border border-white/20 hover:border-novera-gold/60 backdrop-blur-md transition-all shadow-md group"
-                  title="Open Confidential Marks & Tabulation Vault"
-                >
-                  <Lock className="w-4 h-4 text-novera-gold group-hover:scale-110 transition-transform" />
-                  <span>Results &amp; Tabulation Vault &rarr;</span>
-                </button>
+                {/* Button to navigate into the secret Tabulation & Results Vault (Master Role only) */}
+                {adminRole === 'master' && (
+                  <button
+                    type="button"
+                    onClick={() => setAdminMode('vault')}
+                    className="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs font-bold uppercase tracking-wider bg-white/10 hover:bg-white/20 text-white border border-white/20 hover:border-novera-gold/60 backdrop-blur-md transition-all shadow-md group"
+                    title="Open Confidential Marks & Tabulation Vault"
+                  >
+                    <Lock className="w-4 h-4 text-novera-gold group-hover:scale-110 transition-transform" />
+                    <span>Results &amp; Tabulation Vault &rarr;</span>
+                  </button>
+                )}
 
                 <button
                   onClick={handleLogout}
                   className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-2xl text-xs font-semibold text-zinc-300 bg-white/5 hover:bg-white/10 hover:text-white border border-white/15 backdrop-blur-md transition-colors shadow-sm"
-                  title="Sign Out of Master Admin Hub"
+                  title="Sign Out"
                 >
                   <LogOut className="w-3.5 h-3.5 text-zinc-400" />
                   <span>Sign Out</span>
@@ -856,7 +907,24 @@ export default function AdminLeaderboardPage() {
         )}
 
         {/* ================= VIEW 2: CONFIDENTIAL RESULTS VAULT (TABULATION & ALL MARKS) ================= */}
-        {adminMode === 'vault' && (
+        {adminMode === 'vault' && adminRole !== 'master' && (
+          <div className="p-8 sm:p-12 rounded-3xl bg-black/60 border border-amber-500/40 text-center space-y-4 max-w-lg mx-auto my-12 animate-in fade-in duration-200">
+            <Lock className="w-12 h-12 text-amber-400 mx-auto" />
+            <h2 className="font-serif text-2xl font-bold text-white">Confidential Vault Restricted</h2>
+            <p className="text-xs text-zinc-300">
+              You are logged in with Stage Controller privileges. Access to Confidential Jury Marks and Tabulation Vault is strictly restricted to the Master Executive Committee.
+            </p>
+            <button
+              type="button"
+              onClick={() => setAdminMode('stage')}
+              className="px-6 py-2.5 rounded-full bg-novera-gold text-black text-xs font-bold uppercase tracking-wider hover:brightness-110 transition-all"
+            >
+              &larr; Return to Stage Controller
+            </button>
+          </div>
+        )}
+
+        {adminMode === 'vault' && adminRole === 'master' && (
           <div className="space-y-6 animate-in fade-in duration-200">
             {/* Top Banner with Return to Stage Controller Button */}
             <div className="p-6 sm:p-8 rounded-3xl bg-black/40 backdrop-blur-2xl border border-white/15 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 shadow-2xl">
