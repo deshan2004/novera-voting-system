@@ -13,6 +13,7 @@ import {
   RefreshCw,
   Lock,
   Sparkles,
+  Square,
 } from 'lucide-react';
 import StageQrInteractiveBackground from '@/app/components/StageQrInteractiveBackground';
 import RunwayStageBackground from '@/app/components/RunwayStageBackground';
@@ -489,6 +490,28 @@ export default function QrDisplayPage() {
 
         {/* Action Controls (Fullscreen stage view for projector & manual announce) */}
         <div className="flex flex-wrap items-center justify-center gap-2 pt-1 w-full max-w-md px-4">
+          {isVotingLive && (
+            <button
+              type="button"
+              onClick={async () => {
+                try {
+                  await saveVotingSettings({
+                    isVotingOpen: false,
+                    votingClosesAt: null,
+                    countdownUntil: null,
+                    announcement: 'Audience voting is currently PAUSED / CONCLUDED by the Central Committee.',
+                  });
+                  setShowClosingCeremony(true);
+                } catch (e) {}
+              }}
+              className="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-full bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 text-xs font-semibold uppercase tracking-wider transition-all border border-rose-500/40 shadow-md backdrop-blur-md cursor-pointer"
+              title="Stop audience voting session immediately"
+            >
+              <Square className="w-3.5 h-3.5 fill-rose-400 text-rose-400" />
+              <span>Stop Voting</span>
+            </button>
+          )}
+
           <button
             type="button"
             onClick={() => {

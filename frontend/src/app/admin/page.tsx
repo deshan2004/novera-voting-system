@@ -732,6 +732,7 @@ export default function AdminLeaderboardPage() {
               });
             } catch (e) { }
             setVotingSettings((prev) => ({ ...prev, countdownUntil: null }));
+            router.push('/qr');
           }}
         />
       )}
