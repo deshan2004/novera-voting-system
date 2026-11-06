@@ -279,7 +279,17 @@ export function getLocalCandidates(): Candidate[] {
   if (raw) {
     try {
       const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      if (Array.isArray(parsed) && parsed.length >= INITIAL_CANDIDATES.length) return parsed;
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        // Upgrade existing candidates with full 20 candidates
+        const existingMap = new Map<string, Candidate>(parsed.map((c: Candidate) => [c.id, c]));
+        const merged = INITIAL_CANDIDATES.map((init) => {
+          const exist = existingMap.get(init.id);
+          return exist ? { ...init, votes: exist.votes ?? 0 } : init;
+        });
+        saveLocalCandidates(merged);
+        return merged;
+      }
     } catch (e) {}
   }
   localStorage.setItem(STORAGE_KEY_CANDIDATES, JSON.stringify(INITIAL_CANDIDATES));
@@ -299,11 +309,11 @@ export async function seedFirebaseCandidates(): Promise<void> {
   try {
     const candidatesCol = collection(db, 'candidates');
     const snapshot = await getDocs(candidatesCol);
-    if (snapshot.empty) {
+    if (snapshot.empty || snapshot.size < INITIAL_CANDIDATES.length) {
       const batch = writeBatch(db);
       for (const candidate of INITIAL_CANDIDATES) {
         const candidateDoc = doc(db, 'candidates', candidate.id);
-        batch.set(candidateDoc, candidate);
+        batch.set(candidateDoc, candidate, { merge: true });
       }
       await batch.commit();
       console.log('Successfully seeded initial contenders into Firestore!');
@@ -331,8 +341,20 @@ export function subscribeToCandidates(callback: (candidates: Candidate[]) => voi
         if (!snapshot.empty) {
           const list: Candidate[] = [];
           snapshot.forEach((doc) => list.push(doc.data() as Candidate));
-          saveLocalCandidates(list);
-          callback(list);
+          if (list.length < INITIAL_CANDIDATES.length) {
+            seedFirebaseCandidates().catch(() => {});
+            // Merge with local initial candidates so all 20 are immediately visible
+            const existingMap = new Map<string, Candidate>(list.map((c) => [c.id, c]));
+            const merged = INITIAL_CANDIDATES.map((init) => {
+              const exist = existingMap.get(init.id);
+              return exist ? { ...init, votes: exist.votes ?? 0 } : init;
+            });
+            saveLocalCandidates(merged);
+            callback(merged);
+          } else {
+            saveLocalCandidates(list);
+            callback(list);
+          }
         } else {
           // If empty, seed
           seedFirebaseCandidates().then(() => callback(getLocalCandidates()));
@@ -362,6 +384,16 @@ export async function fetchCandidates(): Promise<Candidate[]> {
       if (!snapshot.empty) {
         const list: Candidate[] = [];
         snapshot.forEach((doc) => list.push(doc.data() as Candidate));
+        if (list.length < INITIAL_CANDIDATES.length) {
+          seedFirebaseCandidates().catch(() => {});
+          const existingMap = new Map<string, Candidate>(list.map((c) => [c.id, c]));
+          const merged = INITIAL_CANDIDATES.map((init) => {
+            const exist = existingMap.get(init.id);
+            return exist ? { ...init, votes: exist.votes ?? 0 } : init;
+          });
+          saveLocalCandidates(merged);
+          return merged;
+        }
         saveLocalCandidates(list);
         return list;
       } else {
