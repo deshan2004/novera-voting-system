@@ -937,14 +937,14 @@ export default function JudgePortalPage() {
 
         return (
           <div
-            className="fixed inset-0 z-[100] bg-black/85 backdrop-blur-xl flex items-center justify-center p-2 sm:p-4 md:p-6 animate-in fade-in duration-200"
+            className="fixed inset-0 z-[100] bg-black/85 backdrop-blur-xl overflow-y-auto p-2 sm:p-4 md:p-6 flex flex-col items-center justify-start sm:justify-center animate-in fade-in duration-200"
             onClick={() => setScoringCandidate(null)}
           >
             {/* 🌟 Cinematic Fashion Runway Stage Video Animation in Scorecard Backdrop */}
             <RunwayStageBackground contained className="opacity-90" />
 
             <div
-              className="max-w-xl w-full h-[92vh] sm:h-[88vh] max-h-[860px] bg-[#0d0b09]/95 backdrop-blur-3xl rounded-3xl border border-novera-gold/40 shadow-[0_0_80px_rgba(0,0,0,0.95)] relative z-10 animate-in zoom-in-95 duration-200 flex flex-col overflow-hidden text-white"
+              className="max-w-xl w-full h-[calc(100dvh-1rem)] sm:h-[86vh] max-h-[820px] my-auto bg-[#0d0b09]/95 backdrop-blur-3xl rounded-3xl border border-novera-gold/40 shadow-[0_0_80px_rgba(0,0,0,0.95)] relative z-10 animate-in zoom-in-95 duration-200 flex flex-col overflow-hidden text-white shrink-0"
               onClick={(e) => e.stopPropagation()}
             >
               {/* 📌 PERMANENT HEADER (NEVER SCROLLS OUT OF VIEW - 100% VISIBLE WITH SAFE PADDING) */}
