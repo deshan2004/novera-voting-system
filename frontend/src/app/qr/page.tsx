@@ -149,13 +149,47 @@ export default function QrDisplayPage() {
     }
   }, []);
 
-  const toggleFullscreen = () => {
+  // 📡 Real-time Remote Fullscreen Receiver (Triggered from phone / remote admin)
+  useEffect(() => {
+    if (typeof document === 'undefined') return;
+    if (votingSettings.stageFullscreen !== undefined) {
+      if (votingSettings.stageFullscreen) {
+        if (!document.fullscreenElement) {
+          document.documentElement.requestFullscreen().catch(() => {
+            // If browser blocks native OS fullscreen without user gesture,
+            // the state sets true so the 100% immersive CSS stage layout takes effect
+          });
+        }
+        setIsFullscreen(true);
+      } else {
+        if (document.fullscreenElement) {
+          document.exitFullscreen().catch(() => {});
+        }
+        setIsFullscreen(false);
+      }
+    }
+  }, [votingSettings.stageFullscreen, votingSettings.stageFullscreenCommandId]);
+
+  const toggleFullscreen = async () => {
+    const nextFs = !isFullscreen;
     if (!document.fullscreenElement) {
       document.documentElement.requestFullscreen().catch((err) => {
         console.error('Fullscreen request error:', err);
       });
     } else {
       document.exitFullscreen().catch(() => { });
+    }
+    setIsFullscreen(nextFs);
+
+    // Sync back to cloud settings so all phone controllers see updated status
+    try {
+      await saveVotingSettings({
+        ...votingSettings,
+        stageFullscreen: nextFs,
+        stageFullscreenCommandId: Date.now(),
+      });
+    } catch (e) {
+      console.warn('Failed to sync fullscreen state to cloud:', e);
     }
   };
 
@@ -169,7 +203,9 @@ export default function QrDisplayPage() {
   const isVotingLive = !!votingSettings.isVotingOpen;
 
   return (
-    <div className="relative min-h-screen w-full text-novera-paper flex flex-col items-center justify-between p-3 sm:py-4 sm:px-6 select-none overflow-y-auto overflow-x-hidden">
+    <div className={`relative min-h-screen w-full text-novera-paper flex flex-col items-center justify-between p-3 sm:py-4 sm:px-6 select-none overflow-y-auto overflow-x-hidden ${
+      isFullscreen ? 'fixed inset-0 z-50 w-screen h-screen overflow-hidden bg-black' : ''
+    }`}>
       {/* 🌟 GRAND STAGE OPENING BROADCAST & ANNOUNCEMENT OVERLAY */}
       {showOpeningBroadcast && (
         <div className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-3xl flex items-center justify-center p-4 select-none animate-in fade-in duration-500">
@@ -316,7 +352,9 @@ export default function QrDisplayPage() {
       {/* 🔒 Quick Return to Master Admin Hub */}
       <Link
         href="/admin"
-        className="fixed top-4 left-4 z-40 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/60 hover:bg-black/90 text-zinc-300 hover:text-white border border-white/20 backdrop-blur-md text-xs font-mono transition-all shadow-md"
+        className={`fixed top-4 left-4 z-40 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/60 hover:bg-black/90 text-zinc-300 hover:text-white border border-white/20 backdrop-blur-md text-xs font-mono transition-all shadow-md ${
+          isFullscreen ? 'opacity-0 hover:opacity-100 transition-opacity duration-300' : ''
+        }`}
         title="Return to Master Admin Hub"
       >
         <Lock className="w-3.5 h-3.5 text-novera-gold" />
