@@ -138,6 +138,25 @@ export default function QrDisplayPage() {
 
       const unsubVoting = subscribeToVotingSettings((settings) => {
         setVotingSettings(settings);
+
+        // 📡 Listen for remote stage fullscreen toggle from other devices (e.g. phone)
+        if (typeof settings.stageFullscreen === 'boolean') {
+          const targetFs = settings.stageFullscreen;
+          setIsFullscreen(targetFs);
+          calculateSize();
+
+          if (targetFs) {
+            if (typeof document !== 'undefined' && !document.fullscreenElement) {
+              document.documentElement.requestFullscreen().catch(() => {
+                // If browser blocks without direct click on this tab, CSS kiosk fullscreen is already 100% active!
+              });
+            }
+          } else {
+            if (typeof document !== 'undefined' && document.fullscreenElement) {
+              document.exitFullscreen().catch(() => {});
+            }
+          }
+        }
       });
 
       return () => {
@@ -149,15 +168,44 @@ export default function QrDisplayPage() {
     }
   }, []);
 
-  const toggleFullscreen = () => {
-    if (!document.fullscreenElement) {
-      document.documentElement.requestFullscreen().catch((err) => {
-        console.error('Fullscreen request error:', err);
+  const toggleFullscreen = async () => {
+    const nextFs = !isFullscreen;
+    setIsFullscreen(nextFs);
+
+    if (typeof document !== 'undefined') {
+      if (!document.fullscreenElement && nextFs) {
+        document.documentElement.requestFullscreen().catch(() => {});
+      } else if (document.fullscreenElement && !nextFs) {
+        document.exitFullscreen().catch(() => {});
+      }
+    }
+
+    // 📡 SYNC TO ALL OTHER DEVICES (Projector Screen, Stage Laptops, Phone Controllers)
+    try {
+      await saveVotingSettings({
+        ...votingSettings,
+        stageFullscreen: nextFs,
+        stageFullscreenCommandId: Date.now(),
       });
-    } else {
-      document.exitFullscreen().catch(() => { });
+    } catch (err) {
+      console.warn('Failed to broadcast stage fullscreen across devices:', err);
     }
   };
+
+  // 🖱️ Auto-activate native OS fullscreen on projector upon any click/key if commanded from phone
+  useEffect(() => {
+    const handleGlobalUserAction = () => {
+      if (votingSettings.stageFullscreen && typeof document !== 'undefined' && !document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(() => {});
+      }
+    };
+    window.addEventListener('click', handleGlobalUserAction);
+    window.addEventListener('keydown', handleGlobalUserAction);
+    return () => {
+      window.removeEventListener('click', handleGlobalUserAction);
+      window.removeEventListener('keydown', handleGlobalUserAction);
+    };
+  }, [votingSettings.stageFullscreen]);
 
   const handlePointerCoords = ({ normX, normY }: { x: number; y: number; normX: number; normY: number }) => {
     setTilt({
@@ -169,7 +217,9 @@ export default function QrDisplayPage() {
   const isVotingLive = !!votingSettings.isVotingOpen;
 
   return (
-    <div className="relative min-h-screen w-full text-novera-paper flex flex-col items-center justify-between p-3 sm:py-4 sm:px-6 select-none overflow-y-auto overflow-x-hidden">
+    <div className={`relative min-h-screen w-full text-novera-paper flex flex-col items-center justify-between p-3 sm:py-4 sm:px-6 select-none overflow-y-auto overflow-x-hidden ${
+      isFullscreen ? 'fixed inset-0 z-50 w-screen h-screen overflow-hidden bg-black' : ''
+    }`}>
       {/* 🌟 GRAND STAGE OPENING BROADCAST & ANNOUNCEMENT OVERLAY */}
       {showOpeningBroadcast && (
         <div className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-3xl flex items-center justify-center p-4 select-none animate-in fade-in duration-500">
@@ -316,7 +366,9 @@ export default function QrDisplayPage() {
       {/* 🔒 Quick Return to Master Admin Hub */}
       <Link
         href="/admin"
-        className="fixed top-4 left-4 z-40 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/60 hover:bg-black/90 text-zinc-300 hover:text-white border border-white/20 backdrop-blur-md text-xs font-mono transition-all shadow-md"
+        className={`fixed top-4 left-4 z-40 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/60 hover:bg-black/90 text-zinc-300 hover:text-white border border-white/20 backdrop-blur-md text-xs font-mono transition-all shadow-md ${
+          isFullscreen ? 'opacity-0 hover:opacity-100 transition-opacity duration-300' : ''
+        }`}
         title="Return to Master Admin Hub"
       >
         <Lock className="w-3.5 h-3.5 text-novera-gold" />
@@ -466,10 +518,14 @@ export default function QrDisplayPage() {
           <button
             type="button"
             onClick={toggleFullscreen}
-            className="inline-flex items-center justify-center gap-2 px-5 py-2 rounded-full bg-white/10 hover:bg-white/20 text-white text-xs font-semibold uppercase tracking-wider transition-all border border-white/20 shadow-md backdrop-blur-md hover:border-novera-gold/50 cursor-pointer"
+            className={`inline-flex items-center justify-center gap-2 px-5 py-2 rounded-full text-xs font-semibold uppercase tracking-wider transition-all border shadow-md backdrop-blur-md cursor-pointer ${
+              isFullscreen
+                ? 'bg-amber-400 text-black border-amber-300 shadow-[0_0_20px_rgba(212,175,55,0.4)] font-bold'
+                : 'bg-white/10 hover:bg-white/20 text-white border-white/20 hover:border-novera-gold/50'
+            }`}
           >
             {isFullscreen ? <Minimize2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> : <Maximize2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />}
-            <span>{isFullscreen ? 'Exit Fullscreen' : 'Stage Fullscreen'}</span>
+            <span>{isFullscreen ? 'Exit Stage Fullscreen' : 'Stage Fullscreen'}</span>
           </button>
         </div>
 

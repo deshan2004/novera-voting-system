@@ -55,6 +55,8 @@ import {
   AlertTriangle,
   X,
   RefreshCw,
+  Maximize2,
+  Minimize2,
 } from 'lucide-react';
 import Image from 'next/image';
 import RunwayStageBackground from '@/app/components/RunwayStageBackground';
@@ -312,6 +314,25 @@ export default function AdminLeaderboardPage() {
       } finally {
         setIsUpdatingVotingStatus(false);
       }
+    }
+  };
+
+  // 📡 Remote Stage Fullscreen Trigger (Controls the projector/stage screen from this phone)
+  const toggleRemoteStageFullscreen = async () => {
+    const nextFullscreen = !votingSettings.stageFullscreen;
+    try {
+      await saveVotingSettings({
+        ...votingSettings,
+        stageFullscreen: nextFullscreen,
+        stageFullscreenCommandId: Date.now(),
+      });
+      setVotingSettings((prev) => ({
+        ...prev,
+        stageFullscreen: nextFullscreen,
+        stageFullscreenCommandId: Date.now(),
+      }));
+    } catch (err) {
+      console.warn('Failed to toggle remote stage fullscreen:', err);
     }
   };
 
@@ -748,6 +769,30 @@ export default function AdminLeaderboardPage() {
               </div>
 
               <div className="flex flex-wrap items-center gap-2 sm:gap-3 w-full sm:w-auto">
+                {/* 🖥️ Remote Projector Fullscreen Toggle */}
+                <button
+                  type="button"
+                  onClick={toggleRemoteStageFullscreen}
+                  className={`flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl sm:rounded-2xl text-xs font-bold uppercase tracking-wider border transition-all shadow-md active:scale-95 cursor-pointer ${
+                    votingSettings.stageFullscreen
+                      ? 'bg-amber-400 text-black border-amber-300 shadow-[0_0_20px_rgba(212,175,55,0.4)]'
+                      : 'bg-white/10 text-zinc-200 hover:text-white hover:bg-white/15 border-white/20'
+                  }`}
+                  title="Toggle Fullscreen on the stage projector display remotely"
+                >
+                  {votingSettings.stageFullscreen ? (
+                    <>
+                      <Minimize2 className="w-4 h-4 text-black shrink-0" />
+                      <span>Stage Fullscreen: ON</span>
+                    </>
+                  ) : (
+                    <>
+                      <Maximize2 className="w-4 h-4 text-amber-300 shrink-0" />
+                      <span>Stage Fullscreen</span>
+                    </>
+                  )}
+                </button>
+
                 <Link
                   href="/qr"
                   target="_blank"
@@ -783,7 +828,22 @@ export default function AdminLeaderboardPage() {
                   </p>
                 </div>
 
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2">
+                  {/* Remote Stage Fullscreen Quick Pill */}
+                  <button
+                    type="button"
+                    onClick={toggleRemoteStageFullscreen}
+                    className={`inline-flex items-center gap-1.5 px-3 py-1 sm:py-1.5 rounded-full text-[10px] sm:text-xs font-bold uppercase tracking-wider border cursor-pointer active:scale-95 transition-all shadow-sm ${
+                      votingSettings.stageFullscreen
+                        ? 'bg-amber-400 text-black border-amber-300 shadow-[0_0_15px_rgba(212,175,55,0.4)]'
+                        : 'bg-black/60 text-zinc-300 hover:text-white border-white/20'
+                    }`}
+                    title="Remotely control stage projector fullscreen"
+                  >
+                    {votingSettings.stageFullscreen ? <Minimize2 className="w-3 h-3 text-black" /> : <Maximize2 className="w-3 h-3 text-amber-300" />}
+                    <span>{votingSettings.stageFullscreen ? 'Projector FS: ON' : 'Remote FS: OFF'}</span>
+                  </button>
+
                   <span className={`inline-flex items-center gap-2 px-3 sm:px-3.5 py-1 sm:py-1.5 rounded-full text-[11px] sm:text-xs font-bold uppercase tracking-wider border ${votingSettings.isVotingOpen
                       ? 'bg-amber-500/20 text-amber-300 border-amber-500/40 shadow-[0_0_20px_rgba(212,175,55,0.3)]'
                       : 'bg-black/60 text-zinc-400 border-white/10'
