@@ -1205,7 +1205,7 @@ export default function JudgePortalPage() {
                     </div>
 
                     {/* Sub-award Alignment Footnote */}
-                    <div className="my-2 p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/25 flex items-start gap-2.5 text-xs text-zinc-300 text-left">
+                    <div className="my-2 p-3 rounded-2xl bg-amber-500/10 border border-amber-500/25 flex items-start gap-2.5 text-xs text-zinc-300">
                       <Sparkles className="w-4 h-4 text-novera-gold shrink-0 mt-0.5" />
                       <div>
                         <span className="font-bold text-white block mb-0.5">Automated Special Titles Tracking</span>
