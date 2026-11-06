@@ -939,16 +939,17 @@ export default function JudgePortalPage() {
 
         return (
           <div
-            className="fixed inset-0 z-[100] bg-black/85 backdrop-blur-xl overflow-y-auto p-2 sm:p-4 md:p-6 flex flex-col items-center justify-start sm:justify-center animate-in fade-in duration-200"
+            className="fixed inset-0 z-[100] bg-black/85 backdrop-blur-xl overflow-y-auto p-3 sm:p-6"
             onClick={() => setScoringCandidate(null)}
           >
             {/* 🌟 Cinematic Fashion Runway Stage Video Animation in Scorecard Backdrop */}
-            <RunwayStageBackground contained className="opacity-90" />
+            <RunwayStageBackground contained className="opacity-90 pointer-events-none" />
 
-            <div
-              className="max-w-xl w-full h-[calc(100dvh-1rem)] sm:h-[86vh] max-h-[820px] my-auto bg-[#0d0b09]/95 backdrop-blur-3xl rounded-3xl border border-novera-gold/40 shadow-[0_0_80px_rgba(0,0,0,0.95)] relative z-10 animate-in zoom-in-95 duration-200 flex flex-col overflow-hidden text-white shrink-0"
-              onClick={(e) => e.stopPropagation()}
-            >
+            <div className="min-h-full flex items-center justify-center py-2 sm:py-4">
+              <div
+                className="max-w-xl w-full bg-[#0d0b09]/95 backdrop-blur-3xl rounded-3xl border border-novera-gold/40 shadow-[0_0_80px_rgba(0,0,0,0.95)] relative z-10 animate-in zoom-in-95 duration-200 flex flex-col overflow-hidden text-white max-h-[calc(100dvh-2rem)]"
+                onClick={(e) => e.stopPropagation()}
+              >
               {/* 📌 PERMANENT HEADER (NEVER SCROLLS OUT OF VIEW - 100% VISIBLE WITH SAFE PADDING) */}
               <div className="bg-[#14110d] border-b border-white/15 px-4 sm:px-6 py-3.5 flex items-center justify-between shrink-0 shadow-md z-20">
                 <div className="flex items-center gap-3 min-w-0">
@@ -1027,102 +1028,82 @@ export default function JudgePortalPage() {
               <div className="flex-1 min-h-0 overflow-y-auto novera-scrollbar p-4 sm:p-6 space-y-4 overscroll-contain">
                 {scorecardTab === 'model' ? (
                   <>
-                    {/* Master Model Total Score Display */}
-                    <div className="p-4 rounded-2xl bg-gradient-to-r from-amber-500/15 via-black/80 to-amber-500/10 border-2 border-novera-gold/60 shadow-[0_0_25px_rgba(203,167,95,0.2)] flex items-center justify-between gap-4">
-                      <div>
-                        <span className="text-[10px] font-mono uppercase tracking-[0.2em] text-novera-gold font-bold block mb-0.5">
-                          Official Model Scorecard
-                        </span>
+                    {/* Unified Compact Score & Presets Control Panel */}
+                    <div className="p-3 sm:p-3.5 rounded-2xl bg-gradient-to-r from-amber-500/15 via-black/80 to-amber-500/10 border border-novera-gold/50 shadow-md space-y-2">
+                      <div className="flex items-center justify-between gap-2">
                         <div className="flex items-baseline gap-2">
-                          <span className="font-serif text-3xl sm:text-4xl font-extrabold text-white">
+                          <span className="font-serif text-2xl sm:text-3xl font-extrabold text-white">
                             {totalModel}
                           </span>
-                          <span className="text-zinc-400 font-mono text-xs sm:text-sm">/ 100 Total Marks</span>
+                          <span className="text-zinc-400 font-mono text-xs">/ 100 Marks</span>
+                          <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold uppercase tracking-wider border ml-1 ${
+                            totalModel >= 90
+                              ? 'bg-amber-400/20 text-amber-300 border-amber-400/50'
+                              : totalModel >= 80
+                              ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/50'
+                              : totalModel >= 70
+                              ? 'bg-sky-500/20 text-sky-300 border-sky-500/50'
+                              : 'bg-zinc-800 text-zinc-300 border-white/20'
+                          }`}>
+                            <Star className="w-3 h-3 fill-current" />
+                            <span>{totalModel >= 90 ? 'Outstanding' : totalModel >= 80 ? 'Excellent' : totalModel >= 70 ? 'Very Good' : 'Good'}</span>
+                          </span>
                         </div>
-                      </div>
-                      <div className="text-right">
-                        <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider border ${
-                          totalModel >= 90
-                            ? 'bg-amber-400/20 text-amber-300 border-amber-400/50 shadow-[0_0_15px_rgba(251,191,36,0.3)]'
-                            : totalModel >= 80
-                            ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/50'
-                            : totalModel >= 70
-                            ? 'bg-sky-500/20 text-sky-300 border-sky-500/50'
-                            : 'bg-zinc-800 text-zinc-300 border-white/20'
-                        }`}>
-                          <Star className="w-3.5 h-3.5 fill-current" />
-                          <span>{totalModel >= 90 ? 'Outstanding' : totalModel >= 80 ? 'Excellent' : totalModel >= 70 ? 'Very Good' : 'Good'}</span>
+                        <span className="text-[10px] font-mono uppercase tracking-wider text-novera-gold font-bold flex items-center gap-1 shrink-0">
+                          <SlidersHorizontal className="w-3 h-3 text-amber-400" />
+                          <span>Quick Presets</span>
                         </span>
-                        <span className="text-[10px] text-zinc-400 block mt-1">Sum of 6 model criteria below</span>
                       </div>
-                    </div>
 
-                    {/* ⚡ ONE-TOUCH QUICK SCORE PROFILES (MODEL) */}
-                    <div className="p-3 rounded-2xl bg-white/[0.03] border border-white/10 space-y-1.5">
-                      <div className="flex items-center justify-between">
-                        <span className="text-[10px] font-mono uppercase tracking-wider text-novera-gold font-bold flex items-center gap-1.5">
-                          <SlidersHorizontal className="w-3.5 h-3.5 text-amber-400" />
-                          <span>One-Touch Model Presets:</span>
-                        </span>
-                        <span className="text-[10px] text-zinc-400 font-mono">Fine-tune with sliders below</span>
-                      </div>
-                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-0.5">
+                      {/* 4 Touch Presets */}
+                      <div className="grid grid-cols-4 gap-1.5">
                         <button
                           type="button"
                           onClick={() => applyPresetProfile('outstanding')}
-                          className={`px-2 py-2 rounded-xl border text-xs font-bold transition-all text-center flex flex-col items-center cursor-pointer ${
+                          className={`py-1.5 px-1 rounded-xl border text-xs font-bold transition-all text-center flex flex-col items-center cursor-pointer ${
                             totalModel >= 90
-                              ? 'bg-gradient-to-r from-novera-gold to-amber-400 text-black border-amber-300 shadow-md font-extrabold'
+                              ? 'bg-gradient-to-r from-novera-gold to-amber-400 text-black border-amber-300 shadow-sm font-extrabold'
                               : 'bg-white/5 hover:bg-white/15 text-zinc-200 border-white/15'
                           }`}
                         >
-                          <span className="text-xs flex items-center gap-1">
-                            <Star className={`w-3 h-3 ${totalModel >= 90 ? 'fill-black text-black' : 'fill-amber-400 text-amber-400'}`} />
-                            <span>94 Marks</span>
-                          </span>
-                          <span className="text-[10px] font-normal opacity-80">Outstanding</span>
+                          <span className="text-[11px] leading-tight font-extrabold">★ 94</span>
+                          <span className="text-[9px] font-normal opacity-80 truncate">Outstanding</span>
                         </button>
                         <button
                           type="button"
                           onClick={() => applyPresetProfile('excellent')}
-                          className={`px-2 py-2 rounded-xl border text-xs font-bold transition-all text-center flex flex-col items-center cursor-pointer ${
+                          className={`py-1.5 px-1 rounded-xl border text-xs font-bold transition-all text-center flex flex-col items-center cursor-pointer ${
                             totalModel >= 80 && totalModel < 90
-                              ? 'bg-gradient-to-r from-novera-gold to-amber-400 text-black border-amber-300 shadow-md font-extrabold'
+                              ? 'bg-gradient-to-r from-novera-gold to-amber-400 text-black border-amber-300 shadow-sm font-extrabold'
                               : 'bg-white/5 hover:bg-white/15 text-zinc-200 border-white/15'
                           }`}
                         >
-                          <span className="text-xs flex items-center gap-1">
-                            <Star className={`w-3 h-3 ${totalModel >= 80 && totalModel < 90 ? 'fill-black text-black' : 'fill-amber-400 text-amber-400'}`} />
-                            <span>84 Marks</span>
-                          </span>
-                          <span className="text-[10px] font-normal opacity-80">Excellent</span>
+                          <span className="text-[11px] leading-tight font-extrabold">★ 84</span>
+                          <span className="text-[9px] font-normal opacity-80 truncate">Excellent</span>
                         </button>
                         <button
                           type="button"
                           onClick={() => applyPresetProfile('veryGood')}
-                          className={`px-2 py-2 rounded-xl border text-xs font-bold transition-all text-center flex flex-col items-center cursor-pointer ${
+                          className={`py-1.5 px-1 rounded-xl border text-xs font-bold transition-all text-center flex flex-col items-center cursor-pointer ${
                             totalModel >= 70 && totalModel < 80
-                              ? 'bg-gradient-to-r from-novera-gold to-amber-400 text-black border-amber-300 shadow-md font-extrabold'
+                              ? 'bg-gradient-to-r from-novera-gold to-amber-400 text-black border-amber-300 shadow-sm font-extrabold'
                               : 'bg-white/5 hover:bg-white/15 text-zinc-200 border-white/15'
                           }`}
                         >
-                          <span className="text-xs flex items-center gap-1">
-                            <Star className={`w-3 h-3 ${totalModel >= 70 && totalModel < 80 ? 'fill-black text-black' : 'fill-amber-400 text-amber-400'}`} />
-                            <span>74 Marks</span>
-                          </span>
-                          <span className="text-[10px] font-normal opacity-80">Very Good</span>
+                          <span className="text-[11px] leading-tight font-extrabold">★ 74</span>
+                          <span className="text-[9px] font-normal opacity-80 truncate">Very Good</span>
                         </button>
                         <button
                           type="button"
                           onClick={() => applyPresetProfile('fair')}
-                          className={`px-2 py-2 rounded-xl border text-xs font-bold transition-all text-center flex flex-col items-center cursor-pointer ${
+                          className={`py-1.5 px-1 rounded-xl border text-xs font-bold transition-all text-center flex flex-col items-center cursor-pointer ${
                             totalModel < 70
-                              ? 'bg-gradient-to-r from-novera-gold to-amber-400 text-black border-amber-300 shadow-md font-extrabold'
+                              ? 'bg-gradient-to-r from-novera-gold to-amber-400 text-black border-amber-300 shadow-sm font-extrabold'
                               : 'bg-white/5 hover:bg-white/15 text-zinc-200 border-white/15'
                           }`}
                         >
-                          <span className="text-xs">60 Marks</span>
-                          <span className="text-[10px] font-normal opacity-80">Fair Standard</span>
+                          <span className="text-[11px] leading-tight font-extrabold">60</span>
+                          <span className="text-[9px] font-normal opacity-80 truncate">Fair Standard</span>
                         </button>
                       </div>
                     </div>
@@ -1216,102 +1197,82 @@ export default function JudgePortalPage() {
                   </>
                 ) : (
                   <>
-                    {/* Master Student Design Total Score Display */}
-                    <div className="p-4 rounded-2xl bg-gradient-to-r from-amber-500/15 via-black/80 to-amber-500/10 border-2 border-novera-gold/60 shadow-[0_0_25px_rgba(203,167,95,0.2)] flex items-center justify-between gap-4">
-                      <div>
-                        <span className="text-[10px] font-mono uppercase tracking-[0.2em] text-novera-gold font-bold block mb-0.5">
-                          Design Marking Sheet (Best Design &ndash; Students)
-                        </span>
+                    {/* Unified Compact Score & Presets Control Panel (Design) */}
+                    <div className="p-3 sm:p-3.5 rounded-2xl bg-gradient-to-r from-amber-500/15 via-black/80 to-amber-500/10 border border-novera-gold/50 shadow-md space-y-2">
+                      <div className="flex items-center justify-between gap-2">
                         <div className="flex items-baseline gap-2">
-                          <span className="font-serif text-3xl sm:text-4xl font-extrabold text-white">
+                          <span className="font-serif text-2xl sm:text-3xl font-extrabold text-white">
                             {totalDesign}
                           </span>
-                          <span className="text-zinc-400 font-mono text-xs sm:text-sm">/ 100 Total Marks</span>
+                          <span className="text-zinc-400 font-mono text-xs">/ 100 Marks (Design)</span>
+                          <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold uppercase tracking-wider border ml-1 ${
+                            totalDesign >= 90
+                              ? 'bg-amber-400/20 text-amber-300 border-amber-400/50'
+                              : totalDesign >= 80
+                              ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/50'
+                              : totalDesign >= 70
+                              ? 'bg-sky-500/20 text-sky-300 border-sky-500/50'
+                              : 'bg-zinc-800 text-zinc-300 border-white/20'
+                          }`}>
+                            <Star className="w-3 h-3 fill-current" />
+                            <span>{totalDesign >= 90 ? 'Outstanding' : totalDesign >= 80 ? 'Excellent' : totalDesign >= 70 ? 'Very Good' : 'Good'}</span>
+                          </span>
                         </div>
-                      </div>
-                      <div className="text-right">
-                        <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider border ${
-                          totalDesign >= 90
-                            ? 'bg-amber-400/20 text-amber-300 border-amber-400/50 shadow-[0_0_15px_rgba(251,191,36,0.3)]'
-                            : totalDesign >= 80
-                            ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/50'
-                            : totalDesign >= 70
-                            ? 'bg-sky-500/20 text-sky-300 border-sky-500/50'
-                            : 'bg-zinc-800 text-zinc-300 border-white/20'
-                        }`}>
-                          <Star className="w-3.5 h-3.5 fill-current" />
-                          <span>{totalDesign >= 90 ? 'Outstanding' : totalDesign >= 80 ? 'Excellent' : totalDesign >= 70 ? 'Very Good' : 'Good'}</span>
+                        <span className="text-[10px] font-mono uppercase tracking-wider text-novera-gold font-bold flex items-center gap-1 shrink-0">
+                          <SlidersHorizontal className="w-3 h-3 text-amber-400" />
+                          <span>Quick Presets</span>
                         </span>
-                        <span className="text-[10px] text-zinc-400 block mt-1">Sum of 5 design criteria below</span>
                       </div>
-                    </div>
 
-                    {/* ⚡ ONE-TOUCH QUICK SCORE PROFILES (DESIGN) */}
-                    <div className="p-3 rounded-2xl bg-white/[0.03] border border-white/10 space-y-1.5">
-                      <div className="flex items-center justify-between">
-                        <span className="text-[10px] font-mono uppercase tracking-wider text-novera-gold font-bold flex items-center gap-1.5">
-                          <SlidersHorizontal className="w-3.5 h-3.5 text-amber-400" />
-                          <span>One-Touch Design Presets:</span>
-                        </span>
-                        <span className="text-[10px] text-zinc-400 font-mono">Fine-tune with sliders below</span>
-                      </div>
-                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-0.5">
+                      {/* 4 Touch Presets */}
+                      <div className="grid grid-cols-4 gap-1.5">
                         <button
                           type="button"
                           onClick={() => applyDesignPresetProfile('outstanding')}
-                          className={`px-2 py-2 rounded-xl border text-xs font-bold transition-all text-center flex flex-col items-center cursor-pointer ${
+                          className={`py-1.5 px-1 rounded-xl border text-xs font-bold transition-all text-center flex flex-col items-center cursor-pointer ${
                             totalDesign >= 90
-                              ? 'bg-gradient-to-r from-novera-gold to-amber-400 text-black border-amber-300 shadow-md font-extrabold'
+                              ? 'bg-gradient-to-r from-novera-gold to-amber-400 text-black border-amber-300 shadow-sm font-extrabold'
                               : 'bg-white/5 hover:bg-white/15 text-zinc-200 border-white/15'
                           }`}
                         >
-                          <span className="text-xs flex items-center gap-1">
-                            <Star className={`w-3 h-3 ${totalDesign >= 90 ? 'fill-black text-black' : 'fill-amber-400 text-amber-400'}`} />
-                            <span>92 Marks</span>
-                          </span>
-                          <span className="text-[10px] font-normal opacity-80">Outstanding</span>
+                          <span className="text-[11px] leading-tight font-extrabold">★ 92</span>
+                          <span className="text-[9px] font-normal opacity-80 truncate">Outstanding</span>
                         </button>
                         <button
                           type="button"
                           onClick={() => applyDesignPresetProfile('excellent')}
-                          className={`px-2 py-2 rounded-xl border text-xs font-bold transition-all text-center flex flex-col items-center cursor-pointer ${
+                          className={`py-1.5 px-1 rounded-xl border text-xs font-bold transition-all text-center flex flex-col items-center cursor-pointer ${
                             totalDesign >= 80 && totalDesign < 90
-                              ? 'bg-gradient-to-r from-novera-gold to-amber-400 text-black border-amber-300 shadow-md font-extrabold'
+                              ? 'bg-gradient-to-r from-novera-gold to-amber-400 text-black border-amber-300 shadow-sm font-extrabold'
                               : 'bg-white/5 hover:bg-white/15 text-zinc-200 border-white/15'
                           }`}
                         >
-                          <span className="text-xs flex items-center gap-1">
-                            <Star className={`w-3 h-3 ${totalDesign >= 80 && totalDesign < 90 ? 'fill-black text-black' : 'fill-amber-400 text-amber-400'}`} />
-                            <span>82 Marks</span>
-                          </span>
-                          <span className="text-[10px] font-normal opacity-80">Excellent</span>
+                          <span className="text-[11px] leading-tight font-extrabold">★ 82</span>
+                          <span className="text-[9px] font-normal opacity-80 truncate">Excellent</span>
                         </button>
                         <button
                           type="button"
                           onClick={() => applyDesignPresetProfile('veryGood')}
-                          className={`px-2 py-2 rounded-xl border text-xs font-bold transition-all text-center flex flex-col items-center cursor-pointer ${
+                          className={`py-1.5 px-1 rounded-xl border text-xs font-bold transition-all text-center flex flex-col items-center cursor-pointer ${
                             totalDesign >= 70 && totalDesign < 80
-                              ? 'bg-gradient-to-r from-novera-gold to-amber-400 text-black border-amber-300 shadow-md font-extrabold'
+                              ? 'bg-gradient-to-r from-novera-gold to-amber-400 text-black border-amber-300 shadow-sm font-extrabold'
                               : 'bg-white/5 hover:bg-white/15 text-zinc-200 border-white/15'
                           }`}
                         >
-                          <span className="text-xs flex items-center gap-1">
-                            <Star className={`w-3 h-3 ${totalDesign >= 70 && totalDesign < 80 ? 'fill-black text-black' : 'fill-amber-400 text-amber-400'}`} />
-                            <span>72 Marks</span>
-                          </span>
-                          <span className="text-[10px] font-normal opacity-80">Very Good</span>
+                          <span className="text-[11px] leading-tight font-extrabold">★ 72</span>
+                          <span className="text-[9px] font-normal opacity-80 truncate">Very Good</span>
                         </button>
                         <button
                           type="button"
                           onClick={() => applyDesignPresetProfile('fair')}
-                          className={`px-2 py-2 rounded-xl border text-xs font-bold transition-all text-center flex flex-col items-center cursor-pointer ${
+                          className={`py-1.5 px-1 rounded-xl border text-xs font-bold transition-all text-center flex flex-col items-center cursor-pointer ${
                             totalDesign < 70
-                              ? 'bg-gradient-to-r from-novera-gold to-amber-400 text-black border-amber-300 shadow-md font-extrabold'
+                              ? 'bg-gradient-to-r from-novera-gold to-amber-400 text-black border-amber-300 shadow-sm font-extrabold'
                               : 'bg-white/5 hover:bg-white/15 text-zinc-200 border-white/15'
                           }`}
                         >
-                          <span className="text-xs">60 Marks</span>
-                          <span className="text-[10px] font-normal opacity-80">Fair Standard</span>
+                          <span className="text-[11px] leading-tight font-extrabold">60</span>
+                          <span className="text-[9px] font-normal opacity-80 truncate">Fair Standard</span>
                         </button>
                       </div>
                     </div>
@@ -1442,6 +1403,7 @@ export default function JudgePortalPage() {
               </div>
             </div>
           </div>
+        </div>
         );
       })()}
 

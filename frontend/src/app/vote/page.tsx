@@ -961,9 +961,16 @@ export default function VotePage() {
 
       {/* ================= CANDIDATE PROFILE DETAILS MODAL (VIEW ANYTIME, EVEN WHEN LOCKED) ================= */}
       {profileCandidate && (
-        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-xl overflow-y-auto p-2 sm:p-4 flex flex-col items-center justify-start sm:justify-center animate-in fade-in duration-200">
-          <RunwayStageBackground contained className="opacity-80" />
-          <div className="relative z-10 w-full max-w-md my-auto bg-[#0d0b08]/95 border border-novera-gold/40 rounded-3xl overflow-hidden shadow-[0_0_60px_rgba(0,0,0,0.95),0_0_35px_rgba(203,167,95,0.25)] text-white animate-in zoom-in-95 duration-200 flex flex-col max-h-[calc(100dvh-1rem)] shrink-0">
+        <div
+          className="fixed inset-0 z-50 bg-black/85 backdrop-blur-xl overflow-y-auto p-3 sm:p-6"
+          onClick={() => setProfileCandidate(null)}
+        >
+          <RunwayStageBackground contained className="opacity-80 pointer-events-none" />
+          <div className="min-h-full flex items-center justify-center py-2 sm:py-4">
+            <div
+              className="relative z-10 w-full max-w-md bg-[#0d0b08]/95 border border-novera-gold/40 rounded-3xl overflow-hidden shadow-[0_0_60px_rgba(0,0,0,0.95),0_0_35px_rgba(203,167,95,0.25)] text-white animate-in zoom-in-95 duration-200 flex flex-col max-h-[calc(100dvh-2rem)] shrink-0"
+              onClick={(e) => e.stopPropagation()}
+            >
             {/* Hero Image Container */}
             <div className="relative w-full h-72 sm:h-80 bg-zinc-950 shrink-0 overflow-hidden">
               <Image
@@ -1082,6 +1089,7 @@ export default function VotePage() {
             </div>
           </div>
         </div>
+      </div>
       )}
     </div>
   );

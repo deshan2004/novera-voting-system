@@ -1725,81 +1725,91 @@ export default function AdminLeaderboardPage() {
 
         {/* ================= JUDGE SCORECARD AUDIT MODAL ================= */}
         {selectedAuditJudge && (
-          <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-xl overflow-y-auto p-2 sm:p-4 flex flex-col items-center justify-start sm:justify-center animate-in fade-in duration-200">
-            <RunwayStageBackground contained className="opacity-90" />
-            <div className="max-w-3xl w-full my-auto bg-[#0c0a08]/95 backdrop-blur-3xl rounded-3xl p-5 sm:p-7 border border-white/20 shadow-2xl relative z-10 animate-in zoom-in-95 duration-200 max-h-[calc(100dvh-1rem)] flex flex-col overflow-hidden text-left text-white shrink-0">
-              {/* Modal Header */}
-              <div className="flex items-start justify-between pb-4 border-b border-white/10 shrink-0">
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-2xl bg-novera-gold/20 text-novera-gold border border-novera-gold/30 text-lg font-serif font-bold flex items-center justify-center shadow-md">
-                    {selectedAuditJudge.name[0]}
-                  </div>
-                  <div>
-                    <div className="text-[10px] font-mono uppercase tracking-widest text-novera-gold font-bold">
-                      Official Jury Evaluation Audit
+          <div
+            className="fixed inset-0 z-50 bg-black/85 backdrop-blur-xl overflow-y-auto p-3 sm:p-6"
+            onClick={() => setSelectedAuditJudge(null)}
+          >
+            <RunwayStageBackground contained className="opacity-90 pointer-events-none" />
+            <div className="min-h-full flex items-center justify-center py-2 sm:py-4">
+              <div
+                className="max-w-3xl w-full bg-[#0c0a08]/95 backdrop-blur-3xl rounded-3xl p-5 sm:p-7 border border-white/20 shadow-2xl relative z-10 animate-in zoom-in-95 duration-200 flex flex-col overflow-hidden text-left text-white max-h-[calc(100dvh-2rem)]"
+                onClick={(e) => e.stopPropagation()}
+              >
+                {/* Modal Header */}
+                <div className="flex items-start justify-between pb-4 border-b border-white/10 shrink-0">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 rounded-2xl bg-novera-gold/20 text-novera-gold border border-novera-gold/30 text-lg font-serif font-bold flex items-center justify-center shadow-md">
+                      {selectedAuditJudge.name[0]}
                     </div>
-                    <h3 className="font-serif text-xl sm:text-2xl font-bold text-white">
-                      Judge {selectedAuditJudge.name}
-                    </h3>
-                    <div className="text-xs text-zinc-300 font-medium">
-                      {selectedAuditJudge.title}
+                    <div>
+                      <div className="text-[10px] font-mono uppercase tracking-widest text-novera-gold font-bold">
+                        Official Jury Evaluation Audit
+                      </div>
+                      <h3 className="font-serif text-xl sm:text-2xl font-bold text-white">
+                        Judge {selectedAuditJudge.name}
+                      </h3>
+                      <div className="text-xs text-zinc-300 font-medium">
+                        {selectedAuditJudge.title}
+                      </div>
                     </div>
                   </div>
+                  <button
+                    type="button"
+                    onClick={() => setSelectedAuditJudge(null)}
+                    className="px-3.5 py-1.5 rounded-full bg-white/10 hover:bg-rose-500/20 active:scale-95 text-zinc-300 hover:text-rose-200 border border-white/20 hover:border-rose-400/40 flex items-center gap-1.5 text-xs font-semibold tracking-wide transition-all shadow-sm shrink-0 cursor-pointer group"
+                    title="Close Audit View"
+                  >
+                    <X className="w-3.5 h-3.5 text-zinc-400 group-hover:text-rose-300 transition-colors" strokeWidth={2.5} />
+                    <span>Close</span>
+                  </button>
                 </div>
-                <button
-                  onClick={() => setSelectedAuditJudge(null)}
-                  className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-zinc-300 flex items-center justify-center transition-colors text-base font-bold shadow-sm"
-                >
-                  &times;
-                </button>
-              </div>
 
-              {/* Filter & Progress Summary Bar */}
-              <div className="py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shrink-0">
-                <div className="flex items-center gap-2">
-                  <span className="text-xs font-semibold text-zinc-300">Filter:</span>
-                  <div className="flex p-1 rounded-xl bg-white/10 border border-white/10">
-                    <button
-                      onClick={() => setAuditCategoryFilter('all')}
-                      className={`px-3 py-1 rounded-lg text-xs font-bold uppercase transition-all ${auditCategoryFilter === 'all'
-                          ? 'bg-gradient-to-r from-novera-gold to-amber-500 text-black font-extrabold shadow-sm'
-                          : 'text-zinc-400 hover:text-white'
-                        }`}
-                    >
-                      All ({candidates.length})
-                    </button>
-                    <button
-                      onClick={() => setAuditCategoryFilter('boy')}
-                      className={`px-3 py-1 rounded-lg text-xs font-bold uppercase transition-all ${auditCategoryFilter === 'boy'
-                          ? 'bg-gradient-to-r from-novera-gold to-amber-500 text-black font-extrabold shadow-sm'
-                          : 'text-zinc-400 hover:text-white'
-                        }`}
-                    >
-                      Boys ({candidates.filter((c) => c.category === 'boy').length})
-                    </button>
-                    <button
-                      onClick={() => setAuditCategoryFilter('girl')}
-                      className={`px-3 py-1 rounded-lg text-xs font-bold uppercase transition-all ${auditCategoryFilter === 'girl'
-                          ? 'bg-gradient-to-r from-novera-gold to-amber-500 text-black font-extrabold shadow-sm'
-                          : 'text-zinc-400 hover:text-white'
-                        }`}
-                    >
-                      Girls ({candidates.filter((c) => c.category === 'girl').length})
-                    </button>
+                {/* Filter & Progress Summary Bar */}
+                <div className="py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shrink-0">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-semibold text-zinc-300">Filter:</span>
+                    <div className="flex p-1 rounded-xl bg-white/10 border border-white/10">
+                      <button
+                        onClick={() => setAuditCategoryFilter('all')}
+                        className={`px-3 py-1 rounded-lg text-xs font-bold uppercase transition-all ${auditCategoryFilter === 'all'
+                            ? 'bg-gradient-to-r from-novera-gold to-amber-500 text-black font-extrabold shadow-sm'
+                            : 'text-zinc-400 hover:text-white'
+                          }`}
+                      >
+                        All ({candidates.length})
+                      </button>
+                      <button
+                        onClick={() => setAuditCategoryFilter('boy')}
+                        className={`px-3 py-1 rounded-lg text-xs font-bold uppercase transition-all ${auditCategoryFilter === 'boy'
+                            ? 'bg-gradient-to-r from-novera-gold to-amber-500 text-black font-extrabold shadow-sm'
+                            : 'text-zinc-400 hover:text-white'
+                          }`}
+                      >
+                        Boys ({candidates.filter((c) => c.category === 'boy').length})
+                      </button>
+                      <button
+                        onClick={() => setAuditCategoryFilter('girl')}
+                        className={`px-3 py-1 rounded-lg text-xs font-bold uppercase transition-all ${auditCategoryFilter === 'girl'
+                            ? 'bg-gradient-to-r from-novera-gold to-amber-500 text-black font-extrabold shadow-sm'
+                            : 'text-zinc-400 hover:text-white'
+                          }`}
+                      >
+                        Girls ({candidates.filter((c) => c.category === 'girl').length})
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Completion Tag */}
+                  <div className="text-xs font-mono font-semibold text-zinc-300 flex items-center gap-2">
+                    <span>Completed:</span>
+                    <span className="px-2.5 py-0.5 rounded-full bg-emerald-950/60 text-emerald-300 font-bold border border-emerald-500/40">
+                      {judgeScores.filter((s) => s.judgeId === selectedAuditJudge.id).length} / {candidates.length} Scored
+                    </span>
                   </div>
                 </div>
 
-                {/* Completion Tag */}
-                <div className="text-xs font-mono font-semibold text-zinc-300 flex items-center gap-2">
-                  <span>Completed:</span>
-                  <span className="px-2.5 py-0.5 rounded-full bg-emerald-950/60 text-emerald-300 font-bold border border-emerald-500/40">
-                    {judgeScores.filter((s) => s.judgeId === selectedAuditJudge.id).length} / {candidates.length} Scored
-                  </span>
-                </div>
-              </div>
-
-              {/* Scrollable Candidates Score Cards List */}
-              <div className="overflow-y-auto space-y-3.5 pr-1 flex-grow">
+                {/* Scrollable Candidates Score Cards List */}
+                <div className="flex-1 min-h-0 overflow-y-auto novera-scrollbar space-y-3.5 pr-1">
                 {candidates
                   .filter((c) => auditCategoryFilter === 'all' || c.category === auditCategoryFilter)
                   .map((candidate) => {
@@ -1939,18 +1949,26 @@ export default function AdminLeaderboardPage() {
               </div>
             </div>
           </div>
+        </div>
         )}
 
         {/* ================= HAUTE COUTURE CONFIRMATION MODAL (USER-FRIENDLY REPLACEMENT FOR BROWSER ALERTS) ================= */}
         {confirmModal && confirmModal.isOpen && (
-          <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-xl overflow-y-auto p-2 sm:p-4 flex flex-col items-center justify-start sm:justify-center animate-in fade-in duration-200">
-            <RunwayStageBackground contained className="opacity-75" />
-            <div className="relative z-10 w-full max-w-md my-auto bg-[#0e0c0a]/95 border border-amber-500/30 rounded-3xl p-6 sm:p-7 shadow-[0_0_60px_rgba(0,0,0,0.95),0_0_30px_rgba(203,167,95,0.15)] text-center text-white space-y-5 animate-in zoom-in-95 duration-200 overflow-hidden shrink-0">
-              {/* Subtle Ambient Radial Glow */}
-              <div className="absolute -top-10 left-1/2 -translate-x-1/2 w-48 h-28 bg-rose-500/20 rounded-full blur-3xl pointer-events-none" />
+          <div
+            className="fixed inset-0 z-50 bg-black/85 backdrop-blur-xl overflow-y-auto p-3 sm:p-6"
+            onClick={() => setConfirmModal(null)}
+          >
+            <RunwayStageBackground contained className="opacity-75 pointer-events-none" />
+            <div className="min-h-full flex items-center justify-center py-4">
+              <div
+                className="relative z-10 w-full max-w-md bg-[#0e0c0a]/95 border border-amber-500/30 rounded-3xl p-6 sm:p-7 shadow-[0_0_60px_rgba(0,0,0,0.95),0_0_30px_rgba(203,167,95,0.15)] text-center text-white space-y-5 animate-in zoom-in-95 duration-200 overflow-hidden"
+                onClick={(e) => e.stopPropagation()}
+              >
+                {/* Subtle Ambient Radial Glow */}
+                <div className="absolute -top-10 left-1/2 -translate-x-1/2 w-48 h-28 bg-rose-500/20 rounded-full blur-3xl pointer-events-none" />
 
-              {/* Close (X) button */}
-              <button
+                {/* Close (X) button */}
+                <button
                 type="button"
                 onClick={() => setConfirmModal(null)}
                 disabled={isResetting}
@@ -2017,6 +2035,7 @@ export default function AdminLeaderboardPage() {
               </div>
             </div>
           </div>
+        </div>
         )}
 
         {/* ================= ELEGANT FLOATING TOAST FEEDBACK ================= */}
