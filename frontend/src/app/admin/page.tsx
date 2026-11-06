@@ -58,6 +58,7 @@ import {
 import Image from 'next/image';
 import RunwayStageBackground from '@/app/components/RunwayStageBackground';
 import VotingCountdownOverlay from '@/app/components/VotingCountdownOverlay';
+import VotingClosedCeremonyOverlay from '@/app/components/VotingClosedCeremonyOverlay';
 
 const ADMIN_PASSCODE = 'novera2026';
 
@@ -186,6 +187,7 @@ export default function AdminLeaderboardPage() {
   const [votingDurationMinutes, setVotingDurationMinutes] = useState<number>(10);
   const [remainingTimeText, setRemainingTimeText] = useState<string>('');
   const [remainingSeconds, setRemainingSeconds] = useState<number>(0);
+  const [showClosingCeremony, setShowClosingCeremony] = useState<boolean>(false);
 
   const loadData = () => {
     fetchCandidates().then((list) => {
@@ -249,6 +251,7 @@ export default function AdminLeaderboardPage() {
           announcement: 'Audience voting has concluded for NOVERA ’26.',
         });
         setRemainingTimeText('00:00');
+        setShowClosingCeremony(true);
         return;
       }
 
@@ -291,6 +294,7 @@ export default function AdminLeaderboardPage() {
           countdownUntil: null,
           announcement: 'Audience voting is currently PAUSED / CONCLUDED by the Central Committee.',
         });
+        setShowClosingCeremony(true);
       } finally {
         setIsUpdatingVotingStatus(false);
       }
@@ -680,6 +684,14 @@ export default function AdminLeaderboardPage() {
             setVotingSettings((prev) => ({ ...prev, countdownUntil: null }));
             router.push('/qr');
           }}
+        />
+      )}
+
+      {/* 👑 GRAND HAUTE COUTURE VOTING CONCLUDED CEREMONY OVERLAY */}
+      {showClosingCeremony && (
+        <VotingClosedCeremonyOverlay
+          autoRedirectSeconds={6}
+          onComplete={() => setShowClosingCeremony(false)}
         />
       )}
 

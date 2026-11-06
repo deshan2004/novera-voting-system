@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Candidate, VoterStatus, VotingSettings } from '@/lib/types';
 import {
   fetchCandidates,
@@ -33,6 +33,7 @@ import {
 import Image from 'next/image';
 import RunwayStageBackground from '@/app/components/RunwayStageBackground';
 import VotingCountdownOverlay from '@/app/components/VotingCountdownOverlay';
+import VotingClosedCeremonyOverlay from '@/app/components/VotingClosedCeremonyOverlay';
 
 export default function VotePage() {
   const [candidates, setCandidates] = useState<Candidate[]>(() => {
@@ -62,6 +63,16 @@ export default function VotePage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
   const [remainingTimeText, setRemainingTimeText] = useState<string>('');
+  const [showVoterClosedCelebration, setShowVoterClosedCelebration] = useState<boolean>(false);
+  const wasVotingOpenRef = useRef<boolean>(false);
+
+  useEffect(() => {
+    if (votingSettings.isVotingOpen) {
+      wasVotingOpenRef.current = true;
+    } else if (wasVotingOpenRef.current && !votingSettings.isVotingOpen) {
+      setShowVoterClosedCelebration(true);
+    }
+  }, [votingSettings.isVotingOpen]);
 
   useEffect(() => {
     if (!votingSettings.isVotingOpen || !votingSettings.votingClosesAt) {
@@ -306,6 +317,16 @@ export default function VotePage() {
       {votingSettings.countdownUntil && votingSettings.countdownUntil > Date.now() && (
         <VotingCountdownOverlay
           countdownUntil={votingSettings.countdownUntil}
+        />
+      )}
+
+      {/* 👑 GRAND HAUTE COUTURE VOTING CONCLUDED CEREMONY OVERLAY */}
+      {showVoterClosedCelebration && (
+        <VotingClosedCeremonyOverlay
+          autoRedirectSeconds={5}
+          isStagePresenter={false}
+          customMessage="Audience voting has officially concluded for NOVERA ’26. Thank you for participating! All ballots are locked and encrypted."
+          onComplete={() => setShowVoterClosedCelebration(false)}
         />
       )}
 
