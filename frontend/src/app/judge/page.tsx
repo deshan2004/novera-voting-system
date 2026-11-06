@@ -947,45 +947,46 @@ export default function JudgePortalPage() {
 
             <div className="min-h-full flex items-center justify-center py-2 sm:py-4">
               <div
-                className="max-w-xl w-full bg-[#0d0b09]/95 backdrop-blur-3xl rounded-3xl border border-novera-gold/40 shadow-[0_0_80px_rgba(0,0,0,0.95)] relative z-10 animate-in zoom-in-95 duration-200 flex flex-col overflow-hidden text-white max-h-[calc(100dvh-2rem)]"
+                className="max-w-2xl w-full bg-[#0d0b09]/95 backdrop-blur-3xl rounded-3xl border border-novera-gold/40 shadow-[0_0_80px_rgba(0,0,0,0.95)] relative z-10 animate-in zoom-in-95 duration-200 flex flex-col overflow-hidden text-white max-h-[calc(100dvh-2rem)]"
                 onClick={(e) => e.stopPropagation()}
               >
-              {/* 📌 PERMANENT HEADER (NEVER SCROLLS OUT OF VIEW - 100% VISIBLE WITH SAFE PADDING) */}
-              <div className="bg-[#14110d] border-b border-white/15 px-4 sm:px-6 py-3.5 flex items-center justify-between shrink-0 shadow-md z-20">
-                <div className="flex items-center gap-3 min-w-0">
-                  <div className="relative w-12 h-12 rounded-2xl overflow-hidden shrink-0 shadow-md border-2 border-novera-gold/60">
-                    <Image
-                      src={scoringCandidate.imageUrl}
-                      alt={scoringCandidate.name}
-                      fill
-                      className="object-cover"
-                    />
-                  </div>
-                  <div className="min-w-0">
-                    <div className="text-[11px] font-mono uppercase tracking-widest text-novera-gold font-bold truncate">
-                      #{scoringCandidate.candidateNumber} &bull; {scoringCandidate.category === 'boy' ? 'Male Model' : 'Female Model'}
-                    </div>
-                    <h3 className="font-serif text-lg sm:text-xl font-bold text-white truncate">
-                      {scoringCandidate.name}
-                    </h3>
-                  </div>
-                </div>
-
-                {/* 🔴 MODERN LUXURY GLASS CLOSE BUTTON */}
+              {/* 📌 PERMANENT CENTERED CANDIDATE HEADER */}
+              <div className="bg-[#14110d] border-b border-white/15 px-4 sm:px-6 py-4 relative flex flex-col items-center justify-center text-center shrink-0 shadow-md z-20">
+                {/* 🔴 LUXURY GLASS CLOSE BUTTON (TOP-RIGHT) */}
                 <button
                   type="button"
                   onClick={() => setScoringCandidate(null)}
-                  className="px-3.5 py-1.5 rounded-full bg-white/10 hover:bg-rose-500/20 active:scale-95 text-zinc-300 hover:text-rose-200 border border-white/20 hover:border-rose-400/40 flex items-center gap-1.5 text-xs font-semibold tracking-wide transition-all shadow-sm shrink-0 cursor-pointer group"
+                  className="absolute top-3.5 right-3.5 px-3 py-1.5 rounded-full bg-white/10 hover:bg-rose-500/20 active:scale-95 text-zinc-300 hover:text-rose-200 border border-white/20 hover:border-rose-400/40 flex items-center gap-1.5 text-xs font-semibold tracking-wide transition-all shadow-sm cursor-pointer group"
                   title="Close Scorecard"
                 >
                   <X className="w-3.5 h-3.5 text-zinc-400 group-hover:text-rose-300 transition-colors" strokeWidth={2.5} />
                   <span>Close</span>
                 </button>
+
+                {/* Centered Candidate Portrait with Gold Halo */}
+                <div className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-2xl overflow-hidden shadow-[0_0_25px_rgba(212,175,55,0.35)] border-2 border-novera-gold/70 mb-2.5 shrink-0">
+                  <Image
+                    src={scoringCandidate.imageUrl}
+                    alt={scoringCandidate.name}
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+
+                {/* Centered Candidate Badge & Name */}
+                <div className="inline-flex items-center gap-2 px-3 py-0.5 rounded-full bg-novera-gold/15 border border-novera-gold/30 text-[11px] font-mono uppercase tracking-widest text-novera-gold font-bold mb-1 shadow-sm">
+                  <span>#{scoringCandidate.candidateNumber}</span>
+                  <span>&bull;</span>
+                  <span>{scoringCandidate.category === 'boy' ? 'Male Model' : 'Female Model'}</span>
+                </div>
+                <h3 className="font-serif text-xl sm:text-2xl font-bold text-white tracking-wide truncate max-w-[90%]">
+                  {scoringCandidate.name}
+                </h3>
               </div>
 
-              {/* 🎚️ DUAL SCORECARD CATEGORY SWITCHER (MODEL RUNWAY vs STUDENT DESIGN) */}
-              <div className="bg-[#181410] border-b border-white/10 px-4 sm:px-6 py-2.5 shrink-0 z-10">
-                <div className="grid grid-cols-2 p-1 rounded-2xl bg-black/60 border border-white/15 gap-1.5 shadow-inner">
+              {/* 🎚️ CENTERED DUAL SCORECARD CATEGORY SWITCHER (MODEL RUNWAY vs STUDENT DESIGN) */}
+              <div className="bg-[#181410] border-b border-white/10 px-4 sm:px-6 py-2.5 shrink-0 z-10 flex justify-center">
+                <div className="grid grid-cols-2 p-1 rounded-2xl bg-black/60 border border-white/15 gap-2 shadow-inner w-full max-w-md">
                   <button
                     type="button"
                     onClick={() => setScorecardTab('model')}
@@ -1024,160 +1025,177 @@ export default function JudgePortalPage() {
                 </div>
               </div>
 
-              {/* 📜 SCROLLABLE BODY CONTENT - FIXED SCROLLING CONTAINER */}
-              <div className="flex-1 min-h-0 overflow-y-auto novera-scrollbar p-4 sm:p-6 space-y-4 overscroll-contain">
+              {/* 📜 SCROLLABLE BODY CONTENT - CENTERED ERGONOMIC CARDS */}
+              <div className="flex-1 min-h-0 overflow-y-auto novera-scrollbar p-4 sm:p-6 space-y-4 pb-8 overscroll-contain">
                 {scorecardTab === 'model' ? (
                   <>
-                    {/* Unified Compact Score & Presets Control Panel */}
-                    <div className="p-3 sm:p-3.5 rounded-2xl bg-gradient-to-r from-amber-500/15 via-black/80 to-amber-500/10 border border-novera-gold/50 shadow-md space-y-2">
-                      <div className="flex items-center justify-between gap-2">
-                        <div className="flex items-baseline gap-2">
-                          <span className="font-serif text-2xl sm:text-3xl font-extrabold text-white">
+                    {/* Centered Total Score & 1-Touch Presets Control Box */}
+                    <div className="p-4 sm:p-5 rounded-3xl bg-gradient-to-b from-amber-500/15 via-black/80 to-black/95 border border-novera-gold/50 shadow-xl text-center space-y-3.5">
+                      <div className="flex flex-col items-center justify-center gap-1">
+                        <div className="text-[10px] sm:text-[11px] font-mono uppercase tracking-widest text-novera-gold font-bold">
+                          Official Model Scorecard
+                        </div>
+                        <div className="flex items-baseline justify-center gap-2">
+                          <span className="font-serif text-3xl sm:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-white via-amber-100 to-novera-gold">
                             {totalModel}
                           </span>
-                          <span className="text-zinc-400 font-mono text-xs">/ 100 Marks</span>
-                          <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold uppercase tracking-wider border ml-1 ${
-                            totalModel >= 90
-                              ? 'bg-amber-400/20 text-amber-300 border-amber-400/50'
-                              : totalModel >= 80
-                              ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/50'
-                              : totalModel >= 70
-                              ? 'bg-sky-500/20 text-sky-300 border-sky-500/50'
-                              : 'bg-zinc-800 text-zinc-300 border-white/20'
-                          }`}>
-                            <Star className="w-3 h-3 fill-current" />
-                            <span>{totalModel >= 90 ? 'Outstanding' : totalModel >= 80 ? 'Excellent' : totalModel >= 70 ? 'Very Good' : 'Good'}</span>
-                          </span>
+                          <span className="text-zinc-400 font-mono text-xs sm:text-sm">/ 100 Total Marks</span>
                         </div>
-                        <span className="text-[10px] font-mono uppercase tracking-wider text-novera-gold font-bold flex items-center gap-1 shrink-0">
-                          <SlidersHorizontal className="w-3 h-3 text-amber-400" />
-                          <span>Quick Presets</span>
-                        </span>
+                        <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider border shadow-sm mt-0.5 ${
+                          totalModel >= 90
+                            ? 'bg-amber-400/20 text-amber-300 border-amber-400/50'
+                            : totalModel >= 80
+                            ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/50'
+                            : totalModel >= 70
+                            ? 'bg-sky-500/20 text-sky-300 border-sky-500/50'
+                            : 'bg-zinc-800 text-zinc-300 border-white/20'
+                        }`}>
+                          <Star className="w-3.5 h-3.5 fill-current" />
+                          <span>{totalModel >= 90 ? 'Outstanding' : totalModel >= 80 ? 'Excellent' : totalModel >= 70 ? 'Very Good' : 'Fair Standard'}</span>
+                        </div>
                       </div>
 
-                      {/* 4 Touch Presets */}
-                      <div className="grid grid-cols-4 gap-1.5">
+                      {/* Centered Presets Header */}
+                      <div className="flex items-center justify-center gap-2 pt-1 border-t border-white/10">
+                        <SlidersHorizontal className="w-3.5 h-3.5 text-novera-gold" />
+                        <span className="text-[11px] font-mono uppercase tracking-wider text-zinc-300 font-bold">
+                          One-Touch Model Presets
+                        </span>
+                        <span className="text-[10px] text-zinc-500 hidden sm:inline">(fine-tune below)</span>
+                      </div>
+
+                      {/* 4 Touch Preset Cards - Centered & Tactile */}
+                      <div className="grid grid-cols-4 gap-2 max-w-lg mx-auto">
                         <button
                           type="button"
                           onClick={() => applyPresetProfile('outstanding')}
-                          className={`py-1.5 px-1 rounded-xl border text-xs font-bold transition-all text-center flex flex-col items-center cursor-pointer ${
+                          className={`py-2 px-1 rounded-2xl border text-xs font-bold transition-all text-center flex flex-col items-center justify-center cursor-pointer shadow-sm ${
                             totalModel >= 90
-                              ? 'bg-gradient-to-r from-novera-gold to-amber-400 text-black border-amber-300 shadow-sm font-extrabold'
+                              ? 'bg-gradient-to-r from-novera-gold via-amber-300 to-amber-500 text-black border-amber-200 shadow-md font-extrabold scale-[1.02]'
                               : 'bg-white/5 hover:bg-white/15 text-zinc-200 border-white/15'
                           }`}
                         >
-                          <span className="text-[11px] leading-tight font-extrabold">★ 94</span>
-                          <span className="text-[9px] font-normal opacity-80 truncate">Outstanding</span>
+                          <span className="text-xs sm:text-sm font-extrabold leading-tight">★ 94</span>
+                          <span className="text-[9px] sm:text-[10px] font-normal opacity-85 truncate">Outstanding</span>
                         </button>
                         <button
                           type="button"
                           onClick={() => applyPresetProfile('excellent')}
-                          className={`py-1.5 px-1 rounded-xl border text-xs font-bold transition-all text-center flex flex-col items-center cursor-pointer ${
+                          className={`py-2 px-1 rounded-2xl border text-xs font-bold transition-all text-center flex flex-col items-center justify-center cursor-pointer shadow-sm ${
                             totalModel >= 80 && totalModel < 90
-                              ? 'bg-gradient-to-r from-novera-gold to-amber-400 text-black border-amber-300 shadow-sm font-extrabold'
+                              ? 'bg-gradient-to-r from-novera-gold via-amber-300 to-amber-500 text-black border-amber-200 shadow-md font-extrabold scale-[1.02]'
                               : 'bg-white/5 hover:bg-white/15 text-zinc-200 border-white/15'
                           }`}
                         >
-                          <span className="text-[11px] leading-tight font-extrabold">★ 84</span>
-                          <span className="text-[9px] font-normal opacity-80 truncate">Excellent</span>
+                          <span className="text-xs sm:text-sm font-extrabold leading-tight">★ 84</span>
+                          <span className="text-[9px] sm:text-[10px] font-normal opacity-85 truncate">Excellent</span>
                         </button>
                         <button
                           type="button"
                           onClick={() => applyPresetProfile('veryGood')}
-                          className={`py-1.5 px-1 rounded-xl border text-xs font-bold transition-all text-center flex flex-col items-center cursor-pointer ${
+                          className={`py-2 px-1 rounded-2xl border text-xs font-bold transition-all text-center flex flex-col items-center justify-center cursor-pointer shadow-sm ${
                             totalModel >= 70 && totalModel < 80
-                              ? 'bg-gradient-to-r from-novera-gold to-amber-400 text-black border-amber-300 shadow-sm font-extrabold'
+                              ? 'bg-gradient-to-r from-novera-gold via-amber-300 to-amber-500 text-black border-amber-200 shadow-md font-extrabold scale-[1.02]'
                               : 'bg-white/5 hover:bg-white/15 text-zinc-200 border-white/15'
                           }`}
                         >
-                          <span className="text-[11px] leading-tight font-extrabold">★ 74</span>
-                          <span className="text-[9px] font-normal opacity-80 truncate">Very Good</span>
+                          <span className="text-xs sm:text-sm font-extrabold leading-tight">★ 74</span>
+                          <span className="text-[9px] sm:text-[10px] font-normal opacity-85 truncate">Very Good</span>
                         </button>
                         <button
                           type="button"
                           onClick={() => applyPresetProfile('fair')}
-                          className={`py-1.5 px-1 rounded-xl border text-xs font-bold transition-all text-center flex flex-col items-center cursor-pointer ${
+                          className={`py-2 px-1 rounded-2xl border text-xs font-bold transition-all text-center flex flex-col items-center justify-center cursor-pointer shadow-sm ${
                             totalModel < 70
-                              ? 'bg-gradient-to-r from-novera-gold to-amber-400 text-black border-amber-300 shadow-sm font-extrabold'
+                              ? 'bg-gradient-to-r from-novera-gold via-amber-300 to-amber-500 text-black border-amber-200 shadow-md font-extrabold scale-[1.02]'
                               : 'bg-white/5 hover:bg-white/15 text-zinc-200 border-white/15'
                           }`}
                         >
-                          <span className="text-[11px] leading-tight font-extrabold">60</span>
-                          <span className="text-[9px] font-normal opacity-80 truncate">Fair Standard</span>
+                          <span className="text-xs sm:text-sm font-extrabold leading-tight">60</span>
+                          <span className="text-[9px] sm:text-[10px] font-normal opacity-85 truncate">Fair Standard</span>
                         </button>
                       </div>
                     </div>
 
-                    {/* 6 Official Model Criteria Cards */}
-                    <div className="space-y-3 pt-1">
+                    {/* 6 Official Model Criteria Cards - Centered & Ergonomic */}
+                    <div className="space-y-3.5 pt-1">
                       {criteriaList.map((crit) => {
                         const IconComponent = crit.icon;
                         return (
                           <div
                             key={crit.id}
-                            className="p-3 sm:p-3.5 rounded-2xl bg-white/[0.04] border border-white/10 hover:border-novera-gold/40 transition-colors space-y-2.5"
+                            className="p-4 rounded-3xl bg-white/[0.04] border border-white/10 hover:border-novera-gold/40 transition-all shadow-md space-y-3 text-center"
                           >
-                            <div className="flex justify-between items-center text-xs">
-                              <div className="flex items-center gap-2.5 min-w-0">
+                            {/* Centered Title & Subtitle */}
+                            <div className="flex flex-col items-center justify-center text-center gap-1">
+                              <div className="flex items-center justify-center gap-2">
                                 <div className="w-7 h-7 rounded-xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center shrink-0 shadow-sm">
                                   <IconComponent className="w-3.5 h-3.5 text-amber-300" />
                                 </div>
-                                <div className="min-w-0">
-                                  <span className="font-bold text-white text-xs sm:text-sm block truncate">
-                                    {crit.title}
-                                  </span>
-                                  <span className="text-[10px] sm:text-[11px] text-zinc-400 block truncate">
-                                    {crit.subtitle}
-                                  </span>
-                                </div>
+                                <span className="font-bold text-white text-sm sm:text-base">
+                                  {crit.title}
+                                </span>
                               </div>
-                              <div className="font-mono font-bold text-xs sm:text-sm text-novera-gold px-2.5 py-0.5 rounded-full bg-novera-gold/15 border border-novera-gold/40 shrink-0">
-                                {crit.val} <span className="text-zinc-400 text-[10px] sm:text-xs font-normal">/ {crit.max}</span>
-                              </div>
+                              <span className="text-[11px] text-zinc-400">
+                                {crit.subtitle}
+                              </span>
                             </div>
 
-                            {/* Touch Stepper + Range Slider */}
-                            <div className="flex items-center gap-2.5">
+                            {/* Centered Stepper & Score Group [-]  [ 16 / 20 ]  [+] */}
+                            <div className="flex items-center justify-center gap-3">
                               <button
                                 type="button"
                                 onClick={() => crit.set(Math.max(0, crit.val - 1))}
-                                className="w-10 h-10 sm:w-9 sm:h-9 rounded-xl bg-white/10 hover:bg-white/20 active:scale-90 text-white flex items-center justify-center border border-white/20 shrink-0 select-none shadow-sm cursor-pointer transition-transform"
+                                className="w-11 h-11 rounded-2xl bg-white/10 hover:bg-white/20 active:scale-90 text-white flex items-center justify-center border border-white/20 shrink-0 select-none shadow-md cursor-pointer transition-transform"
                                 title="Decrease 1 mark"
                               >
                                 <Minus className="w-4 h-4 text-zinc-200" strokeWidth={2.5} />
                               </button>
-                              <input
-                                type="range"
-                                min="0"
-                                max={crit.max}
-                                value={crit.val}
-                                onChange={(e) => crit.set(Number(e.target.value))}
-                                className="w-full glass-slider cursor-pointer h-2"
-                              />
+
+                              <div className="min-w-[110px] py-1.5 px-4 rounded-2xl bg-black/70 border border-novera-gold/50 shadow-inner flex items-baseline justify-center gap-1.5">
+                                <span className="font-serif text-2xl sm:text-3xl font-extrabold text-novera-gold">
+                                  {crit.val}
+                                </span>
+                                <span className="text-zinc-400 font-mono text-xs">/ {crit.max}</span>
+                              </div>
+
                               <button
                                 type="button"
                                 onClick={() => crit.set(Math.min(crit.max, crit.val + 1))}
-                                className="w-10 h-10 sm:w-9 sm:h-9 rounded-xl bg-white/10 hover:bg-white/20 active:scale-90 text-white flex items-center justify-center border border-white/20 shrink-0 select-none shadow-sm cursor-pointer transition-transform"
+                                className="w-11 h-11 rounded-2xl bg-white/10 hover:bg-white/20 active:scale-90 text-white flex items-center justify-center border border-white/20 shrink-0 select-none shadow-md cursor-pointer transition-transform"
                                 title="Increase 1 mark"
                               >
                                 <Plus className="w-4 h-4 text-zinc-200" strokeWidth={2.5} />
                               </button>
                             </div>
 
-                            {/* 4 Quick Presets */}
-                            <div className="grid grid-cols-4 gap-1.5 pt-0.5">
+                            {/* Centered Range Slider for smooth drag */}
+                            <div className="max-w-md mx-auto w-full px-2">
+                              <input
+                                type="range"
+                                min="0"
+                                max={crit.max}
+                                value={crit.val}
+                                onChange={(e) => crit.set(Number(e.target.value))}
+                                className="w-full glass-slider cursor-pointer h-2.5"
+                              />
+                            </div>
+
+                            {/* Centered 4 Quick Preset Touch Buttons */}
+                            <div className="grid grid-cols-4 gap-2 pt-0.5 max-w-md mx-auto w-full">
                               {crit.presets.map((preset) => (
                                 <button
                                   key={preset.val}
                                   type="button"
                                   onClick={() => crit.set(preset.val)}
-                                  className={`py-1.5 rounded-xl text-xs font-semibold transition-all text-center cursor-pointer ${
+                                  className={`py-2 px-1.5 rounded-xl text-xs font-semibold transition-all text-center cursor-pointer flex flex-col items-center justify-center ${
                                     crit.val === preset.val
-                                      ? 'bg-gradient-to-r from-novera-gold to-amber-400 text-black font-extrabold shadow-md scale-[1.02]'
+                                      ? 'bg-gradient-to-r from-novera-gold to-amber-400 text-black font-extrabold shadow-md scale-[1.02] border border-amber-300'
                                       : 'bg-white/5 hover:bg-white/15 text-zinc-300 border border-white/10'
                                   }`}
                                 >
-                                  {preset.label}
+                                  <span className="font-extrabold text-xs">{preset.val}</span>
+                                  <span className="text-[10px] opacity-80 truncate">{preset.label.split(' ')[0]}</span>
                                 </button>
                               ))}
                             </div>
@@ -1187,7 +1205,7 @@ export default function JudgePortalPage() {
                     </div>
 
                     {/* Sub-award Alignment Footnote */}
-                    <div className="my-2 p-3 rounded-2xl bg-amber-500/10 border border-amber-500/25 flex items-start gap-2.5 text-xs text-zinc-300">
+                    <div className="my-2 p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/25 flex items-start gap-2.5 text-xs text-zinc-300 text-left">
                       <Sparkles className="w-4 h-4 text-novera-gold shrink-0 mt-0.5" />
                       <div>
                         <span className="font-bold text-white block mb-0.5">Automated Special Titles Tracking</span>
@@ -1197,156 +1215,173 @@ export default function JudgePortalPage() {
                   </>
                 ) : (
                   <>
-                    {/* Unified Compact Score & Presets Control Panel (Design) */}
-                    <div className="p-3 sm:p-3.5 rounded-2xl bg-gradient-to-r from-amber-500/15 via-black/80 to-amber-500/10 border border-novera-gold/50 shadow-md space-y-2">
-                      <div className="flex items-center justify-between gap-2">
-                        <div className="flex items-baseline gap-2">
-                          <span className="font-serif text-2xl sm:text-3xl font-extrabold text-white">
+                    {/* Centered Total Score & Presets Control Panel (Student Design) */}
+                    <div className="p-4 sm:p-5 rounded-3xl bg-gradient-to-b from-amber-500/15 via-black/80 to-black/95 border border-novera-gold/50 shadow-xl text-center space-y-3.5">
+                      <div className="flex flex-col items-center justify-center gap-1">
+                        <div className="text-[10px] sm:text-[11px] font-mono uppercase tracking-widest text-novera-gold font-bold">
+                          Official Student Design Scorecard
+                        </div>
+                        <div className="flex items-baseline justify-center gap-2">
+                          <span className="font-serif text-3xl sm:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-white via-amber-100 to-novera-gold">
                             {totalDesign}
                           </span>
-                          <span className="text-zinc-400 font-mono text-xs">/ 100 Marks (Design)</span>
-                          <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold uppercase tracking-wider border ml-1 ${
-                            totalDesign >= 90
-                              ? 'bg-amber-400/20 text-amber-300 border-amber-400/50'
-                              : totalDesign >= 80
-                              ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/50'
-                              : totalDesign >= 70
-                              ? 'bg-sky-500/20 text-sky-300 border-sky-500/50'
-                              : 'bg-zinc-800 text-zinc-300 border-white/20'
-                          }`}>
-                            <Star className="w-3 h-3 fill-current" />
-                            <span>{totalDesign >= 90 ? 'Outstanding' : totalDesign >= 80 ? 'Excellent' : totalDesign >= 70 ? 'Very Good' : 'Good'}</span>
-                          </span>
+                          <span className="text-zinc-400 font-mono text-xs sm:text-sm">/ 100 Marks (Design)</span>
                         </div>
-                        <span className="text-[10px] font-mono uppercase tracking-wider text-novera-gold font-bold flex items-center gap-1 shrink-0">
-                          <SlidersHorizontal className="w-3 h-3 text-amber-400" />
-                          <span>Quick Presets</span>
-                        </span>
+                        <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider border shadow-sm mt-0.5 ${
+                          totalDesign >= 90
+                            ? 'bg-amber-400/20 text-amber-300 border-amber-400/50'
+                            : totalDesign >= 80
+                            ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/50'
+                            : totalDesign >= 70
+                            ? 'bg-sky-500/20 text-sky-300 border-sky-500/50'
+                            : 'bg-zinc-800 text-zinc-300 border-white/20'
+                        }`}>
+                          <Star className="w-3.5 h-3.5 fill-current" />
+                          <span>{totalDesign >= 90 ? 'Outstanding' : totalDesign >= 80 ? 'Excellent' : totalDesign >= 70 ? 'Very Good' : 'Fair Standard'}</span>
+                        </div>
                       </div>
 
-                      {/* 4 Touch Presets */}
-                      <div className="grid grid-cols-4 gap-1.5">
+                      {/* Centered Presets Header */}
+                      <div className="flex items-center justify-center gap-2 pt-1 border-t border-white/10">
+                        <SlidersHorizontal className="w-3.5 h-3.5 text-novera-gold" />
+                        <span className="text-[11px] font-mono uppercase tracking-wider text-zinc-300 font-bold">
+                          One-Touch Design Presets
+                        </span>
+                        <span className="text-[10px] text-zinc-500 hidden sm:inline">(fine-tune below)</span>
+                      </div>
+
+                      {/* 4 Touch Preset Cards - Centered & Tactile */}
+                      <div className="grid grid-cols-4 gap-2 max-w-lg mx-auto">
                         <button
                           type="button"
                           onClick={() => applyDesignPresetProfile('outstanding')}
-                          className={`py-1.5 px-1 rounded-xl border text-xs font-bold transition-all text-center flex flex-col items-center cursor-pointer ${
+                          className={`py-2 px-1 rounded-2xl border text-xs font-bold transition-all text-center flex flex-col items-center justify-center cursor-pointer shadow-sm ${
                             totalDesign >= 90
-                              ? 'bg-gradient-to-r from-novera-gold to-amber-400 text-black border-amber-300 shadow-sm font-extrabold'
+                              ? 'bg-gradient-to-r from-novera-gold via-amber-300 to-amber-500 text-black border-amber-200 shadow-md font-extrabold scale-[1.02]'
                               : 'bg-white/5 hover:bg-white/15 text-zinc-200 border-white/15'
                           }`}
                         >
-                          <span className="text-[11px] leading-tight font-extrabold">★ 92</span>
-                          <span className="text-[9px] font-normal opacity-80 truncate">Outstanding</span>
+                          <span className="text-xs sm:text-sm font-extrabold leading-tight">★ 92</span>
+                          <span className="text-[9px] sm:text-[10px] font-normal opacity-85 truncate">Outstanding</span>
                         </button>
                         <button
                           type="button"
                           onClick={() => applyDesignPresetProfile('excellent')}
-                          className={`py-1.5 px-1 rounded-xl border text-xs font-bold transition-all text-center flex flex-col items-center cursor-pointer ${
+                          className={`py-2 px-1 rounded-2xl border text-xs font-bold transition-all text-center flex flex-col items-center justify-center cursor-pointer shadow-sm ${
                             totalDesign >= 80 && totalDesign < 90
-                              ? 'bg-gradient-to-r from-novera-gold to-amber-400 text-black border-amber-300 shadow-sm font-extrabold'
+                              ? 'bg-gradient-to-r from-novera-gold via-amber-300 to-amber-500 text-black border-amber-200 shadow-md font-extrabold scale-[1.02]'
                               : 'bg-white/5 hover:bg-white/15 text-zinc-200 border-white/15'
                           }`}
                         >
-                          <span className="text-[11px] leading-tight font-extrabold">★ 82</span>
-                          <span className="text-[9px] font-normal opacity-80 truncate">Excellent</span>
+                          <span className="text-xs sm:text-sm font-extrabold leading-tight">★ 82</span>
+                          <span className="text-[9px] sm:text-[10px] font-normal opacity-85 truncate">Excellent</span>
                         </button>
                         <button
                           type="button"
                           onClick={() => applyDesignPresetProfile('veryGood')}
-                          className={`py-1.5 px-1 rounded-xl border text-xs font-bold transition-all text-center flex flex-col items-center cursor-pointer ${
+                          className={`py-2 px-1 rounded-2xl border text-xs font-bold transition-all text-center flex flex-col items-center justify-center cursor-pointer shadow-sm ${
                             totalDesign >= 70 && totalDesign < 80
-                              ? 'bg-gradient-to-r from-novera-gold to-amber-400 text-black border-amber-300 shadow-sm font-extrabold'
+                              ? 'bg-gradient-to-r from-novera-gold via-amber-300 to-amber-500 text-black border-amber-200 shadow-md font-extrabold scale-[1.02]'
                               : 'bg-white/5 hover:bg-white/15 text-zinc-200 border-white/15'
                           }`}
                         >
-                          <span className="text-[11px] leading-tight font-extrabold">★ 72</span>
-                          <span className="text-[9px] font-normal opacity-80 truncate">Very Good</span>
+                          <span className="text-xs sm:text-sm font-extrabold leading-tight">★ 72</span>
+                          <span className="text-[9px] sm:text-[10px] font-normal opacity-85 truncate">Very Good</span>
                         </button>
                         <button
                           type="button"
                           onClick={() => applyDesignPresetProfile('fair')}
-                          className={`py-1.5 px-1 rounded-xl border text-xs font-bold transition-all text-center flex flex-col items-center cursor-pointer ${
+                          className={`py-2 px-1 rounded-2xl border text-xs font-bold transition-all text-center flex flex-col items-center justify-center cursor-pointer shadow-sm ${
                             totalDesign < 70
-                              ? 'bg-gradient-to-r from-novera-gold to-amber-400 text-black border-amber-300 shadow-sm font-extrabold'
+                              ? 'bg-gradient-to-r from-novera-gold via-amber-300 to-amber-500 text-black border-amber-200 shadow-md font-extrabold scale-[1.02]'
                               : 'bg-white/5 hover:bg-white/15 text-zinc-200 border-white/15'
                           }`}
                         >
-                          <span className="text-[11px] leading-tight font-extrabold">60</span>
-                          <span className="text-[9px] font-normal opacity-80 truncate">Fair Standard</span>
+                          <span className="text-xs sm:text-sm font-extrabold leading-tight">60</span>
+                          <span className="text-[9px] sm:text-[10px] font-normal opacity-85 truncate">Fair Standard</span>
                         </button>
                       </div>
                     </div>
 
-                    {/* 5 Official Student Design Criteria Cards */}
-                    <div className="space-y-3 pt-1">
+                    {/* 5 Official Student Design Criteria Cards - Centered & Ergonomic */}
+                    <div className="space-y-3.5 pt-1">
                       {designCriteriaList.map((crit) => {
                         const IconComponent = crit.icon;
                         return (
                           <div
                             key={crit.id}
-                            className="p-3 sm:p-3.5 rounded-2xl bg-white/[0.04] border border-white/10 hover:border-novera-gold/40 transition-colors space-y-2.5"
+                            className="p-4 rounded-3xl bg-white/[0.04] border border-white/10 hover:border-novera-gold/40 transition-all shadow-md space-y-3 text-center"
                           >
-                            <div className="flex justify-between items-center text-xs">
-                              <div className="flex items-center gap-2.5 min-w-0">
+                            {/* Centered Title & Subtitle */}
+                            <div className="flex flex-col items-center justify-center text-center gap-1">
+                              <div className="flex items-center justify-center gap-2">
                                 <div className="w-7 h-7 rounded-xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center shrink-0 shadow-sm">
                                   <IconComponent className="w-3.5 h-3.5 text-amber-300" />
                                 </div>
-                                <div className="min-w-0">
-                                  <span className="font-bold text-white text-xs sm:text-sm block truncate">
-                                    {crit.title}
-                                  </span>
-                                  <span className="text-[10px] sm:text-[11px] text-zinc-400 block truncate">
-                                    {crit.subtitle}
-                                  </span>
-                                </div>
+                                <span className="font-bold text-white text-sm sm:text-base">
+                                  {crit.title}
+                                </span>
                               </div>
-                              <div className="font-mono font-bold text-xs sm:text-sm text-novera-gold px-2.5 py-0.5 rounded-full bg-novera-gold/15 border border-novera-gold/40 shrink-0">
-                                {crit.val} <span className="text-zinc-400 text-[10px] sm:text-xs font-normal">/ {crit.max}</span>
-                              </div>
+                              <span className="text-[11px] text-zinc-400">
+                                {crit.subtitle}
+                              </span>
                             </div>
 
-                            {/* Touch Stepper + Range Slider */}
-                            <div className="flex items-center gap-2.5">
+                            {/* Centered Stepper & Score Group [-]  [ 16 / 20 ]  [+] */}
+                            <div className="flex items-center justify-center gap-3">
                               <button
                                 type="button"
                                 onClick={() => crit.set(Math.max(0, crit.val - 1))}
-                                className="w-10 h-10 sm:w-9 sm:h-9 rounded-xl bg-white/10 hover:bg-white/20 active:scale-90 text-white flex items-center justify-center border border-white/20 shrink-0 select-none shadow-sm cursor-pointer transition-transform"
+                                className="w-11 h-11 rounded-2xl bg-white/10 hover:bg-white/20 active:scale-90 text-white flex items-center justify-center border border-white/20 shrink-0 select-none shadow-md cursor-pointer transition-transform"
                                 title="Decrease 1 mark"
                               >
                                 <Minus className="w-4 h-4 text-zinc-200" strokeWidth={2.5} />
                               </button>
-                              <input
-                                type="range"
-                                min="0"
-                                max={crit.max}
-                                value={crit.val}
-                                onChange={(e) => crit.set(Number(e.target.value))}
-                                className="w-full glass-slider cursor-pointer h-2"
-                              />
+
+                              <div className="min-w-[110px] py-1.5 px-4 rounded-2xl bg-black/70 border border-novera-gold/50 shadow-inner flex items-baseline justify-center gap-1.5">
+                                <span className="font-serif text-2xl sm:text-3xl font-extrabold text-novera-gold">
+                                  {crit.val}
+                                </span>
+                                <span className="text-zinc-400 font-mono text-xs">/ {crit.max}</span>
+                              </div>
+
                               <button
                                 type="button"
                                 onClick={() => crit.set(Math.min(crit.max, crit.val + 1))}
-                                className="w-10 h-10 sm:w-9 sm:h-9 rounded-xl bg-white/10 hover:bg-white/20 active:scale-90 text-white flex items-center justify-center border border-white/20 shrink-0 select-none shadow-sm cursor-pointer transition-transform"
+                                className="w-11 h-11 rounded-2xl bg-white/10 hover:bg-white/20 active:scale-90 text-white flex items-center justify-center border border-white/20 shrink-0 select-none shadow-md cursor-pointer transition-transform"
                                 title="Increase 1 mark"
                               >
                                 <Plus className="w-4 h-4 text-zinc-200" strokeWidth={2.5} />
                               </button>
                             </div>
 
-                            {/* 4 Quick Presets */}
-                            <div className="grid grid-cols-4 gap-1.5 pt-0.5">
+                            {/* Centered Range Slider for smooth drag */}
+                            <div className="max-w-md mx-auto w-full px-2">
+                              <input
+                                type="range"
+                                min="0"
+                                max={crit.max}
+                                value={crit.val}
+                                onChange={(e) => crit.set(Number(e.target.value))}
+                                className="w-full glass-slider cursor-pointer h-2.5"
+                              />
+                            </div>
+
+                            {/* Centered 4 Quick Preset Touch Buttons */}
+                            <div className="grid grid-cols-4 gap-2 pt-0.5 max-w-md mx-auto w-full">
                               {crit.presets.map((preset) => (
                                 <button
                                   key={preset.val}
                                   type="button"
                                   onClick={() => crit.set(preset.val)}
-                                  className={`py-1.5 rounded-xl text-xs font-semibold transition-all text-center cursor-pointer ${
+                                  className={`py-2 px-1.5 rounded-xl text-xs font-semibold transition-all text-center cursor-pointer flex flex-col items-center justify-center ${
                                     crit.val === preset.val
-                                      ? 'bg-gradient-to-r from-novera-gold to-amber-400 text-black font-extrabold shadow-md scale-[1.02]'
+                                      ? 'bg-gradient-to-r from-novera-gold to-amber-400 text-black font-extrabold shadow-md scale-[1.02] border border-amber-300'
                                       : 'bg-white/5 hover:bg-white/15 text-zinc-300 border border-white/10'
                                   }`}
                                 >
-                                  {preset.label}
+                                  <span className="font-extrabold text-xs">{preset.val}</span>
+                                  <span className="text-[10px] opacity-80 truncate">{preset.label.split(' ')[0]}</span>
                                 </button>
                               ))}
                             </div>
@@ -1356,7 +1391,7 @@ export default function JudgePortalPage() {
                     </div>
 
                     {/* Official Award Alignment Footnote */}
-                    <div className="my-2 p-3 rounded-2xl bg-amber-500/10 border border-amber-500/25 flex items-start gap-2.5 text-xs text-zinc-300">
+                    <div className="my-2 p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/25 flex items-start gap-2.5 text-xs text-zinc-300 text-left">
                       <Sparkles className="w-4 h-4 text-novera-gold shrink-0 mt-0.5" />
                       <div>
                         <span className="font-bold text-white block mb-0.5">Official Student Award Tracking</span>
@@ -1367,8 +1402,8 @@ export default function JudgePortalPage() {
                 )}
 
                 {/* Judge Notes */}
-                <div className="pt-1">
-                  <label className="block text-xs font-semibold text-zinc-300 mb-1">
+                <div className="pt-2 text-left">
+                  <label className="block text-xs font-semibold text-zinc-300 mb-1.5">
                     Confidential Judge Notes (Visible to Admin)
                   </label>
                   <textarea
@@ -1376,17 +1411,17 @@ export default function JudgePortalPage() {
                     onChange={(e) => setNotes(e.target.value)}
                     placeholder="e.g. Excellent posture and striking outfit presentation..."
                     rows={2}
-                    className="w-full px-3 py-2 text-xs rounded-2xl bg-white/5 border border-white/15 text-white placeholder-zinc-500 outline-none focus:border-novera-gold resize-none shadow-inner"
+                    className="w-full px-3.5 py-2.5 text-xs rounded-2xl bg-white/5 border border-white/15 text-white placeholder-zinc-500 outline-none focus:border-novera-gold resize-none shadow-inner"
                   />
                 </div>
               </div>
 
-              {/* 📌 PERMANENT FOOTER (ALWAYS VISIBLE SUBMIT) */}
-              <div className="bg-[#120f0c] border-t border-white/15 px-4 sm:px-6 py-3.5 flex items-center gap-3 shrink-0 shadow-[0_-10px_30px_rgba(0,0,0,0.6)] z-20">
+              {/* 📌 PERMANENT FOOTER (CENTERED & PROMINENT SUBMIT) */}
+              <div className="bg-[#120f0c] border-t border-white/15 px-4 sm:px-6 py-3.5 flex items-center justify-center gap-3 shrink-0 shadow-[0_-10px_30px_rgba(0,0,0,0.6)] z-20">
                 <button
                   type="button"
                   onClick={() => setScoringCandidate(null)}
-                  className="px-4 py-3 rounded-2xl bg-white/10 hover:bg-white/20 active:scale-95 text-xs font-bold text-zinc-300 transition-colors shadow-sm shrink-0 cursor-pointer"
+                  className="px-4 sm:px-5 py-3 rounded-2xl bg-white/10 hover:bg-white/20 active:scale-95 text-xs font-bold text-zinc-300 transition-colors shadow-sm shrink-0 cursor-pointer"
                 >
                   Cancel
                 </button>
@@ -1394,11 +1429,11 @@ export default function JudgePortalPage() {
                   type="button"
                   onClick={handleScoreSubmit}
                   disabled={isSaving}
-                  className="flex-1 py-3 rounded-2xl bg-gradient-to-r from-[#d4af37] via-[#f3e5ab] to-[#aa7c11] text-black font-extrabold hover:brightness-110 active:scale-[0.99] text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-xl disabled:opacity-50 group relative overflow-hidden cursor-pointer"
+                  className="flex-1 max-w-lg py-3.5 rounded-2xl bg-gradient-to-r from-[#d4af37] via-[#f3e5ab] to-[#aa7c11] text-black font-extrabold hover:brightness-110 active:scale-[0.99] text-xs sm:text-sm uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-xl disabled:opacity-50 group relative overflow-hidden cursor-pointer"
                 >
                   <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 pointer-events-none" />
                   <CheckCircle2 className="w-4 h-4 text-black" strokeWidth={2.5} />
-                  <span>{isSaving ? 'Submitting...' : `Submit Both Scores (Model: ${totalModel} • Design: ${totalDesign})`}</span>
+                  <span className="truncate">{isSaving ? 'Submitting...' : `Submit Both Scores (Model: ${totalModel} • Design: ${totalDesign})`}</span>
                 </button>
               </div>
             </div>
