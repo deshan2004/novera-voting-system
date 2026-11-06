@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { Candidate, JudgeScore, VotingSettings } from '@/lib/types';
 import {
   fetchCandidates,
+  getLocalCandidates,
   resetAllVotes,
   saveLocalCandidates,
   subscribeToCandidates,
@@ -163,8 +164,9 @@ export default function AdminLeaderboardPage() {
   const [selectedJuryAward, setSelectedJuryAward] = useState<AwardKey>('topModel');
   const [selectedAuditJudge, setSelectedAuditJudge] = useState<typeof OFFICIAL_JUDGE_ROSTER[0] | null>(null);
   const [auditCategoryFilter, setAuditCategoryFilter] = useState<'all' | 'boy' | 'girl'>('all');
+  const [auditStatusFilter, setAuditStatusFilter] = useState<'all' | 'scored' | 'pending'>('all');
 
-  const [candidates, setCandidates] = useState<Candidate[]>([]);
+  const [candidates, setCandidates] = useState<Candidate[]>(() => getLocalCandidates());
   const [judgeScores, setJudgeScores] = useState<JudgeScore[]>([]);
   const [isResetting, setIsResetting] = useState<boolean>(false);
   const [confirmModal, setConfirmModal] = useState<{
@@ -1793,8 +1795,8 @@ export default function AdminLeaderboardPage() {
 
                 {/* Filter & Progress Summary Bar */}
                 <div className="py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shrink-0">
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs font-semibold text-zinc-300">Filter:</span>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="text-xs font-semibold text-zinc-300">Category:</span>
                     <div className="flex p-1 rounded-xl bg-white/10 border border-white/10">
                       <button
                         onClick={() => setAuditCategoryFilter('all')}
@@ -1824,10 +1826,41 @@ export default function AdminLeaderboardPage() {
                         Girls ({candidates.filter((c) => c.category === 'girl').length})
                       </button>
                     </div>
+
+                    <span className="text-xs font-semibold text-zinc-300 ml-1">Status:</span>
+                    <div className="flex p-1 rounded-xl bg-white/10 border border-white/10">
+                      <button
+                        onClick={() => setAuditStatusFilter('all')}
+                        className={`px-2.5 py-1 rounded-lg text-xs font-bold uppercase transition-all ${auditStatusFilter === 'all'
+                            ? 'bg-white/20 text-white font-extrabold shadow-sm'
+                            : 'text-zinc-400 hover:text-white'
+                          }`}
+                      >
+                        All Status
+                      </button>
+                      <button
+                        onClick={() => setAuditStatusFilter('scored')}
+                        className={`px-2.5 py-1 rounded-lg text-xs font-bold uppercase transition-all ${auditStatusFilter === 'scored'
+                            ? 'bg-emerald-500 text-black font-extrabold shadow-sm'
+                            : 'text-zinc-400 hover:text-emerald-400'
+                          }`}
+                      >
+                        Scored ({judgeScores.filter((s) => s.judgeId === selectedAuditJudge.id).length})
+                      </button>
+                      <button
+                        onClick={() => setAuditStatusFilter('pending')}
+                        className={`px-2.5 py-1 rounded-lg text-xs font-bold uppercase transition-all ${auditStatusFilter === 'pending'
+                            ? 'bg-amber-500 text-black font-extrabold shadow-sm'
+                            : 'text-zinc-400 hover:text-amber-400'
+                          }`}
+                      >
+                        Pending ({candidates.length - judgeScores.filter((s) => s.judgeId === selectedAuditJudge.id).length})
+                      </button>
+                    </div>
                   </div>
 
                   {/* Completion Tag */}
-                  <div className="text-xs font-mono font-semibold text-zinc-300 flex items-center gap-2">
+                  <div className="text-xs font-mono font-semibold text-zinc-300 flex items-center gap-2 shrink-0">
                     <span>Completed:</span>
                     <span className="px-2.5 py-0.5 rounded-full bg-emerald-950/60 text-emerald-300 font-bold border border-emerald-500/40">
                       {judgeScores.filter((s) => s.judgeId === selectedAuditJudge.id).length} / {candidates.length} Scored
@@ -1839,21 +1872,34 @@ export default function AdminLeaderboardPage() {
                 <div className="flex-1 min-h-0 overflow-y-auto novera-scrollbar space-y-3.5 pr-1">
                 {candidates
                   .filter((c) => auditCategoryFilter === 'all' || c.category === auditCategoryFilter)
+                  .filter((c) => {
+                    if (auditStatusFilter === 'all') return true;
+                    const isScored = judgeScores.some((s) => s.judgeId === selectedAuditJudge.id && s.candidateId === c.id);
+                    return auditStatusFilter === 'scored' ? isScored : !isScored;
+                  })
                   .map((candidate) => {
                     const score = judgeScores.find(
                       (s) => s.judgeId === selectedAuditJudge.id && s.candidateId === candidate.id
                     );
 
+                    const modelTotal = score
+                      ? (score.totalModel ?? (Number(score.walking || 0) + Number(score.confidence || 0) + Number(score.stage || 0) + Number(score.posture || 0) + Number(score.poses || 0) + Number(score.face || 0)))
+                      : 0;
+
+                    const designTotal = score
+                      ? (score.totalDesign ?? (Number(score.designCreativity || 0) + Number(score.designCraftsmanship || 0) + Number(score.designTheme || 0) + Number(score.designFit || 0) + Number(score.designImpact || 0)))
+                      : 0;
+
                     return (
                       <div
                         key={candidate.id}
                         className={`p-4 rounded-2xl border transition-all ${score
-                            ? 'bg-emerald-950/20 border-emerald-500/40 shadow-sm text-white'
+                            ? 'bg-black/60 border-emerald-500/40 shadow-sm text-white'
                             : 'bg-white/5 border-white/10 opacity-70 text-zinc-300'
                           }`}
                       >
                         {/* Candidate Row Header */}
-                        <div className="flex items-center justify-between gap-3 pb-3 border-b border-white/10">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-white/10">
                           <div className="flex items-center gap-3">
                             <div className="relative w-12 h-12 rounded-xl overflow-hidden shrink-0 shadow-sm border border-white/20">
                               <Image
@@ -1878,15 +1924,25 @@ export default function AdminLeaderboardPage() {
                             </div>
                           </div>
 
-                          {/* Overall Score Badge */}
-                          <div className="text-right shrink-0">
+                          {/* Both Scores Badges: Model Runway & Student Design */}
+                          <div className="shrink-0">
                             {score ? (
-                              <div>
-                                <div className="text-[10px] uppercase tracking-wider text-emerald-400 font-bold">
-                                  Total Score
+                              <div className="flex items-center gap-2">
+                                <div className="px-3 py-1.5 rounded-xl bg-amber-500/15 border border-amber-500/40 text-right">
+                                  <div className="text-[9px] uppercase tracking-wider text-novera-gold font-bold">
+                                    Model Runway
+                                  </div>
+                                  <div className="font-mono text-lg font-bold text-white leading-tight">
+                                    {modelTotal} <span className="text-[10px] text-zinc-400 font-sans">/ 100</span>
+                                  </div>
                                 </div>
-                                <div className="font-mono text-2xl font-bold text-novera-gold">
-                                  {score.totalModel} <span className="text-xs text-zinc-400 font-sans">/ 100</span>
+                                <div className="px-3 py-1.5 rounded-xl bg-purple-500/15 border border-purple-500/40 text-right">
+                                  <div className="text-[9px] uppercase tracking-wider text-purple-300 font-bold">
+                                    Student Design
+                                  </div>
+                                  <div className="font-mono text-lg font-bold text-white leading-tight">
+                                    {designTotal} <span className="text-[10px] text-zinc-400 font-sans">/ 100</span>
+                                  </div>
                                 </div>
                               </div>
                             ) : (
@@ -1897,59 +1953,101 @@ export default function AdminLeaderboardPage() {
                           </div>
                         </div>
 
-                        {/* Criteria Score Breakdown (If Scored) */}
+                        {/* Full Detailed Criteria Markings (If Scored) */}
                         {score && (
-                          <div className="pt-3 space-y-2.5">
-                            {/* 6 Official Runway Criteria Chips */}
-                            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 text-center text-xs">
-                              <div className="p-2 rounded-xl bg-white/5 border border-white/10 shadow-xs">
-                                <span className="text-[10px] text-zinc-400 font-semibold block">Walking</span>
-                                <strong className="font-mono text-sm text-white">{score.walking} / 20</strong>
+                          <div className="pt-3 space-y-3">
+                            {/* 1. Official Model Runway Markings */}
+                            <div className="p-3 rounded-2xl bg-white/[0.03] border border-amber-500/25 space-y-2">
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-1.5 text-xs font-bold text-amber-300">
+                                  <Crown className="w-3.5 h-3.5 text-novera-gold" />
+                                  <span>1. Model Runway Markings ({modelTotal} / 100)</span>
+                                </div>
+                                <span className="text-[10px] font-mono text-zinc-400">Award: Top Model</span>
                               </div>
-                              <div className="p-2 rounded-xl bg-white/5 border border-white/10 shadow-xs">
-                                <span className="text-[10px] text-zinc-400 font-semibold block">Confidence</span>
-                                <strong className="font-mono text-sm text-white">{score.confidence} / 20</strong>
+                              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 text-center text-xs">
+                                <div className="p-2 rounded-xl bg-white/5 border border-white/10 shadow-xs">
+                                  <span className="text-[10px] text-zinc-400 font-semibold block">Walking</span>
+                                  <strong className="font-mono text-sm text-white">{score.walking ?? 0} / 20</strong>
+                                </div>
+                                <div className="p-2 rounded-xl bg-white/5 border border-white/10 shadow-xs">
+                                  <span className="text-[10px] text-zinc-400 font-semibold block">Confidence</span>
+                                  <strong className="font-mono text-sm text-white">{score.confidence ?? 0} / 20</strong>
+                                </div>
+                                <div className="p-2 rounded-xl bg-white/5 border border-white/10 shadow-xs">
+                                  <span className="text-[10px] text-zinc-400 font-semibold block">Stage Pres.</span>
+                                  <strong className="font-mono text-sm text-white">{score.stage ?? 0} / 20</strong>
+                                </div>
+                                <div className="p-2 rounded-xl bg-white/5 border border-white/10 shadow-xs">
+                                  <span className="text-[10px] text-zinc-400 font-semibold block">Posture</span>
+                                  <strong className="font-mono text-sm text-white">{score.posture ?? 0} / 15</strong>
+                                </div>
+                                <div className="p-2 rounded-xl bg-white/5 border border-white/10 shadow-xs">
+                                  <span className="text-[10px] text-zinc-400 font-semibold block">Poses</span>
+                                  <strong className="font-mono text-sm text-white">{score.poses ?? 0} / 15</strong>
+                                </div>
+                                <div className="p-2 rounded-xl bg-white/5 border border-white/10 shadow-xs">
+                                  <span className="text-[10px] text-zinc-400 font-semibold block">Face</span>
+                                  <strong className="font-mono text-sm text-white">{score.face ?? 0} / 10</strong>
+                                </div>
                               </div>
-                              <div className="p-2 rounded-xl bg-white/5 border border-white/10 shadow-xs">
-                                <span className="text-[10px] text-zinc-400 font-semibold block">Stage Pres.</span>
-                                <strong className="font-mono text-sm text-white">{score.stage} / 20</strong>
-                              </div>
-                              <div className="p-2 rounded-xl bg-white/5 border border-white/10 shadow-xs">
-                                <span className="text-[10px] text-zinc-400 font-semibold block">Posture</span>
-                                <strong className="font-mono text-sm text-white">{score.posture} / 15</strong>
-                              </div>
-                              <div className="p-2 rounded-xl bg-white/5 border border-white/10 shadow-xs">
-                                <span className="text-[10px] text-zinc-400 font-semibold block">Poses</span>
-                                <strong className="font-mono text-sm text-white">{score.poses} / 15</strong>
-                              </div>
-                              <div className="p-2 rounded-xl bg-white/5 border border-white/10 shadow-xs">
-                                <span className="text-[10px] text-zinc-400 font-semibold block">Face</span>
-                                <strong className="font-mono text-sm text-white">{score.face} / 10</strong>
+
+                              {/* Sub-award totals summary */}
+                              <div className="flex flex-wrap items-center justify-between gap-2 p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-xs">
+                                <div className="flex items-center gap-1.5">
+                                  <Star className="w-3.5 h-3.5 text-amber-400" />
+                                  <span className="text-zinc-300">Personality:</span>
+                                  <strong className="font-mono text-white">{score.personalityScore ?? ((score.confidence || 0) + (score.stage || 0) + (score.face || 0))}/50</strong>
+                                </div>
+                                <div className="flex items-center gap-1.5">
+                                  <Zap className="w-3.5 h-3.5 text-amber-400" />
+                                  <span className="text-zinc-300">Stage Impact:</span>
+                                  <strong className="font-mono text-white">{score.stagePresenceScore ?? (Math.min(10, Math.round((score.confidence || 0) / 2)) + (score.stage || 0))}/30</strong>
+                                </div>
+                                <div className="flex items-center gap-1.5">
+                                  <Camera className="w-3.5 h-3.5 text-amber-400" />
+                                  <span className="text-zinc-300">Photogenic:</span>
+                                  <strong className="font-mono text-white">{score.photogenicScore ?? ((score.posture || 0) + (score.poses || 0) + (score.face || 0))}/40</strong>
+                                </div>
                               </div>
                             </div>
 
-                            {/* Sub-award totals summary */}
-                            <div className="flex flex-wrap items-center justify-between gap-2 p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-xs">
-                              <div className="flex items-center gap-1.5">
-                                <Star className="w-3.5 h-3.5 text-amber-400" />
-                                <span className="text-zinc-300">Personality:</span>
-                                <strong className="font-mono text-white">{score.personalityScore}/50</strong>
+                            {/* 2. Official Student Design Markings */}
+                            <div className="p-3 rounded-2xl bg-white/[0.03] border border-purple-500/25 space-y-2">
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-1.5 text-xs font-bold text-purple-300">
+                                  <Sparkles className="w-3.5 h-3.5 text-purple-400" />
+                                  <span>2. Student Design Markings ({designTotal} / 100)</span>
+                                </div>
+                                <span className="text-[10px] font-mono text-zinc-400">Award: Best Design (Students)</span>
                               </div>
-                              <div className="flex items-center gap-1.5">
-                                <Zap className="w-3.5 h-3.5 text-amber-400" />
-                                <span className="text-zinc-300">Stage Impact:</span>
-                                <strong className="font-mono text-white">{score.stagePresenceScore}/30</strong>
-                              </div>
-                              <div className="flex items-center gap-1.5">
-                                <Camera className="w-3.5 h-3.5 text-amber-400" />
-                                <span className="text-zinc-300">Photogenic:</span>
-                                <strong className="font-mono text-white">{score.photogenicScore}/40</strong>
+                              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 text-center text-xs">
+                                <div className="p-2 rounded-xl bg-white/5 border border-white/10 shadow-xs">
+                                  <span className="text-[10px] text-zinc-400 font-semibold block">Creativity</span>
+                                  <strong className="font-mono text-sm text-purple-200">{score.designCreativity ?? 0} / 30</strong>
+                                </div>
+                                <div className="p-2 rounded-xl bg-white/5 border border-white/10 shadow-xs">
+                                  <span className="text-[10px] text-zinc-400 font-semibold block">Craftsmanship</span>
+                                  <strong className="font-mono text-sm text-purple-200">{score.designCraftsmanship ?? 0} / 25</strong>
+                                </div>
+                                <div className="p-2 rounded-xl bg-white/5 border border-white/10 shadow-xs">
+                                  <span className="text-[10px] text-zinc-400 font-semibold block">Theme Relevance</span>
+                                  <strong className="font-mono text-sm text-purple-200">{score.designTheme ?? 0} / 20</strong>
+                                </div>
+                                <div className="p-2 rounded-xl bg-white/5 border border-white/10 shadow-xs">
+                                  <span className="text-[10px] text-zinc-400 font-semibold block">Fit &amp; Styling</span>
+                                  <strong className="font-mono text-sm text-purple-200">{score.designFit ?? 0} / 15</strong>
+                                </div>
+                                <div className="p-2 rounded-xl bg-white/5 border border-white/10 shadow-xs">
+                                  <span className="text-[10px] text-zinc-400 font-semibold block">Overall Impact</span>
+                                  <strong className="font-mono text-sm text-purple-200">{score.designImpact ?? 0} / 10</strong>
+                                </div>
                               </div>
                             </div>
 
-                            {/* Confidential Notes */}
+                            {/* 3. Confidential Notes */}
                             {score.notes && (
-                              <div className="p-2.5 rounded-xl bg-white/5 border border-white/10 text-xs text-zinc-300 italic flex items-start gap-2">
+                              <div className="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/25 text-xs text-zinc-300 italic flex items-start gap-2">
                                 <MessageSquare className="w-3.5 h-3.5 text-novera-gold shrink-0 mt-0.5" />
                                 <div>
                                   <span className="font-semibold text-white not-italic">Judge Remark: </span>
