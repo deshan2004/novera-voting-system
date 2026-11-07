@@ -132,44 +132,6 @@ export default function QrDisplayPage() {
     return parts[0] || fullName;
   };
 
-  // Custom Axis Tick with 2-line layout: bold number on top, clear candidate name below
-  const renderCustomAxisTick = ({ x, y, payload }: any) => {
-    const raw = String(payload?.value || '');
-    const parts = raw.split(' ');
-    const number = parts[0] || '';
-    const name = parts.slice(1).join(' ') || '';
-    const isBoy = number.includes('M-');
-
-    return (
-      <g transform={`translate(${x},${y})`}>
-        {/* Candidate Number Badge */}
-        <text
-          x={0}
-          y={14}
-          textAnchor="middle"
-          fill={isBoy ? '#fbbf24' : '#fb923c'}
-          fontSize={12}
-          fontWeight={800}
-          fontFamily="monospace"
-        >
-          {number}
-        </text>
-        {/* Candidate Name in bright bold white */}
-        <text
-          x={0}
-          y={32}
-          textAnchor="middle"
-          fill="#ffffff"
-          fontSize={13}
-          fontWeight={700}
-          fontFamily="serif"
-        >
-          {name}
-        </text>
-      </g>
-    );
-  };
-
   // Combined 6-Contender Data for Stage Bar Chart
   const chartData = useMemo(() => {
     const boysList = topBoys.map((c, idx) => ({
@@ -663,16 +625,17 @@ export default function QrDisplayPage() {
             </div>
 
             {/* Chart Area */}
-            <div className="h-68 sm:h-76 w-full my-2">
+            <div className="h-64 sm:h-72 w-full my-2">
               {isMounted && (
                 <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={chartData} margin={{ top: 28, right: 15, left: -20, bottom: 48 }}>
+                  <BarChart data={chartData} margin={{ top: 25, right: 10, left: -25, bottom: 25 }}>
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255, 255, 255, 0.08)" />
                     <XAxis
                       dataKey="displayName"
+                      tick={{ fontSize: 11, fill: '#e4e4e7', fontWeight: 600 }}
                       interval={0}
-                      tick={renderCustomAxisTick}
-                      height={48}
+                      angle={-25}
+                      textAnchor="end"
                     />
                     <YAxis
                       tick={{ fontSize: 11, fill: '#a1a1aa' }}
@@ -714,9 +677,8 @@ export default function QrDisplayPage() {
                         dataKey="votes"
                         position="top"
                         fill="#fef08a"
-                        fontSize={13}
-                        fontWeight={900}
-                        offset={8}
+                        fontSize={12}
+                        fontWeight={800}
                         formatter={(val: any) => `${val}`}
                       />
                       {chartData.map((entry, index) => (
@@ -729,46 +691,40 @@ export default function QrDisplayPage() {
             </div>
 
             {/* Quick Leader Highlights Footer */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-3 border-t border-white/15">
+            <div className="grid grid-cols-2 gap-3 pt-2 border-t border-white/10">
               {/* Leader Boy */}
-              <div className="p-3 sm:p-3.5 rounded-2xl bg-gradient-to-r from-amber-500/15 via-black/70 to-black/90 border border-amber-400/40 shadow-[0_0_20px_rgba(212,175,55,0.2)] flex items-center gap-3">
-                <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-gradient-to-br from-amber-300 to-amber-500 text-black flex items-center justify-center shrink-0 shadow-md">
-                  <Crown className="w-5 h-5 sm:w-6 sm:h-6 fill-black" />
+              <div className="p-2 sm:p-2.5 rounded-xl bg-white/[0.04] border border-amber-400/20 flex items-center gap-2">
+                <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-amber-400/20 border border-amber-400/40 flex items-center justify-center shrink-0">
+                  <Crown className="w-4 h-4 text-amber-300" />
                 </div>
-                <div className="truncate min-w-0 flex-1">
-                  <div className="text-xs font-mono uppercase text-amber-300 font-extrabold tracking-wider truncate">
-                    #1 Leading Male Model
+                <div className="truncate min-w-0">
+                  <div className="text-[10px] font-mono uppercase text-amber-300/80 font-bold truncate">
+                    #1 Boy Leader
                   </div>
-                  <div className="text-sm sm:text-base md:text-lg font-serif font-black text-white truncate pt-0.5">
+                  <div className="text-xs font-serif font-bold text-white truncate">
                     {topBoys[0]?.name || 'Awaiting Votes'}
                   </div>
                 </div>
-                <div className="text-right shrink-0 pl-2">
-                  <div className="font-mono text-base sm:text-xl font-black text-amber-300">
-                    {topBoys[0]?.votes || 0}
-                    <span className="text-xs font-semibold text-zinc-300 ml-1">votes</span>
-                  </div>
+                <div className="ml-auto font-mono text-xs font-black text-amber-300 shrink-0">
+                  {topBoys[0]?.votes || 0} v
                 </div>
               </div>
 
               {/* Leader Girl */}
-              <div className="p-3 sm:p-3.5 rounded-2xl bg-gradient-to-r from-amber-500/15 via-black/70 to-black/90 border border-amber-400/40 shadow-[0_0_20px_rgba(212,175,55,0.2)] flex items-center gap-3">
-                <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 text-black flex items-center justify-center shrink-0 shadow-md">
-                  <Crown className="w-5 h-5 sm:w-6 sm:h-6 fill-black" />
+              <div className="p-2 sm:p-2.5 rounded-xl bg-white/[0.04] border border-amber-400/20 flex items-center gap-2">
+                <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-amber-400/20 border border-amber-400/40 flex items-center justify-center shrink-0">
+                  <Crown className="w-4 h-4 text-amber-300" />
                 </div>
-                <div className="truncate min-w-0 flex-1">
-                  <div className="text-xs font-mono uppercase text-amber-300 font-extrabold tracking-wider truncate">
-                    #1 Leading Female Model
+                <div className="truncate min-w-0">
+                  <div className="text-[10px] font-mono uppercase text-amber-300/80 font-bold truncate">
+                    #1 Girl Leader
                   </div>
-                  <div className="text-sm sm:text-base md:text-lg font-serif font-black text-white truncate pt-0.5">
+                  <div className="text-xs font-serif font-bold text-white truncate">
                     {topGirls[0]?.name || 'Awaiting Votes'}
                   </div>
                 </div>
-                <div className="text-right shrink-0 pl-2">
-                  <div className="font-mono text-base sm:text-xl font-black text-amber-300">
-                    {topGirls[0]?.votes || 0}
-                    <span className="text-xs font-semibold text-zinc-300 ml-1">votes</span>
-                  </div>
+                <div className="ml-auto font-mono text-xs font-black text-amber-300 shrink-0">
+                  {topGirls[0]?.votes || 0} v
                 </div>
               </div>
             </div>
