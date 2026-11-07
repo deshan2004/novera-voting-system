@@ -33,6 +33,7 @@ import {
 import RunwayStageBackground from '@/app/components/RunwayStageBackground';
 import VotingCountdownOverlay from '@/app/components/VotingCountdownOverlay';
 import VotingClosedCeremonyOverlay from '@/app/components/VotingClosedCeremonyOverlay';
+import SlideToVote from '@/app/components/SlideToVote';
 
 export default function VotePage() {
   const [candidates, setCandidates] = useState<Candidate[]>(() => {
@@ -856,34 +857,20 @@ export default function VotePage() {
                       />
                     </div>
 
-                    <button
-                      type="button"
-                      onClick={handleVoteBoy}
-                      disabled={isSubmitting || !selectedBoyId || !votingSettings.isVotingOpen}
-                      className={`w-full py-4 rounded-2xl font-bold uppercase tracking-wider text-xs sm:text-sm flex items-center justify-center gap-2 transition-all shadow-xl group relative overflow-hidden ${selectedBoyId && votingSettings.isVotingOpen
-                          ? 'bg-gradient-to-r from-[#d4af37] via-[#f3e5ab] to-[#aa7c11] text-[#0a0a0a] hover:brightness-110 font-extrabold shadow-[0_0_25px_rgba(212,175,55,0.4)]'
-                          : 'bg-white/5 text-zinc-500 cursor-not-allowed opacity-50 border border-white/10'
-                        }`}
-                    >
-                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 pointer-events-none" />
-                      {isSubmitting ? (
-                        <>
-                          <RefreshCw className="w-4 h-4 animate-spin" />
-                          <span>Recording Vote...</span>
-                        </>
-                      ) : (
-                        <>
-                          <Send className="w-4 h-4" />
-                          <span>
-                            {!votingSettings.isVotingOpen
-                              ? 'Voting Currently Closed · Locked'
-                              : selectedBoy
-                                ? `Submit Vote for ${selectedBoy.name} (${selectedBoy.candidateNumber})`
-                                : 'Select a Male Model to Vote'}
-                          </span>
-                        </>
-                      )}
-                    </button>
+                    {/* Interactive Slide to Vote Component (Swipe / Drag to vote) */}
+                    <div className="pt-1">
+                      <SlideToVote
+                        candidateName={selectedBoy?.name}
+                        candidateNumber={selectedBoy?.candidateNumber}
+                        disabled={!selectedBoyId || !votingSettings.isVotingOpen || isSubmitting}
+                        isSubmitting={isSubmitting}
+                        votingOpen={votingSettings.isVotingOpen}
+                        onConfirm={handleVoteBoy}
+                        accentColor="#d4af37"
+                        categoryName="Male Model"
+                        voterName={voterName}
+                      />
+                    </div>
                   </div>
                 ) : !hasVotedGirl ? (
                   <div className="pt-2">
@@ -1051,34 +1038,20 @@ export default function VotePage() {
                       />
                     </div>
 
-                    <button
-                      type="button"
-                      onClick={handleVoteGirl}
-                      disabled={isSubmitting || !selectedGirlId || !votingSettings.isVotingOpen}
-                      className={`w-full py-4 rounded-2xl font-bold uppercase tracking-wider text-xs sm:text-sm flex items-center justify-center gap-2 transition-all shadow-xl group relative overflow-hidden ${selectedGirlId && votingSettings.isVotingOpen
-                          ? 'bg-gradient-to-r from-[#d4af37] via-[#f3e5ab] to-[#aa7c11] text-[#0a0a0a] hover:brightness-110 font-extrabold shadow-[0_0_25px_rgba(212,175,55,0.4)]'
-                          : 'bg-white/5 text-zinc-500 cursor-not-allowed opacity-50 border border-white/10'
-                        }`}
-                    >
-                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 pointer-events-none" />
-                      {isSubmitting ? (
-                        <>
-                          <RefreshCw className="w-4 h-4 animate-spin" />
-                          <span>Recording Vote...</span>
-                        </>
-                      ) : (
-                        <>
-                          <Send className="w-4 h-4" />
-                          <span>
-                            {!votingSettings.isVotingOpen
-                              ? 'Voting Currently Closed · Locked'
-                              : selectedGirl
-                                ? `Submit Vote for ${selectedGirl.name} (${selectedGirl.candidateNumber})`
-                                : 'Select a Female Model to Vote'}
-                          </span>
-                        </>
-                      )}
-                    </button>
+                    {/* Interactive Slide to Vote Component (Swipe / Drag to vote) */}
+                    <div className="pt-1">
+                      <SlideToVote
+                        candidateName={selectedGirl?.name}
+                        candidateNumber={selectedGirl?.candidateNumber}
+                        disabled={!selectedGirlId || !votingSettings.isVotingOpen || isSubmitting}
+                        isSubmitting={isSubmitting}
+                        votingOpen={votingSettings.isVotingOpen}
+                        onConfirm={handleVoteGirl}
+                        accentColor="#f59e0b"
+                        categoryName="Female Model"
+                        voterName={voterName}
+                      />
+                    </div>
                   </div>
                 ) : !hasVotedBoy ? (
                   <div className="pt-2">
