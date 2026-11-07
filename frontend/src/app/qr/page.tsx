@@ -73,24 +73,27 @@ export default function QrDisplayPage() {
     playLuxuryChime();
   }, []);
 
-  // Trigger floating circle popup for ~2 seconds when a new vote arrives
+  // Trigger floating circle popup for ~2 seconds when a new vote arrives (Boy OR Girl)
   useEffect(() => {
     if (voters.length > 0) {
       const newest = voters[0];
       if (newest && newest.voterId) {
+        // Unique key captures voter ID, targeted candidate ID, and timestamp so Boy and Girl votes both trigger
+        const voteKey = `${newest.voterId}_${newest.lastVotedCandidateId || ''}_${newest.boyVotedFor || ''}_${newest.girlVotedFor || ''}_${newest.updatedAt}`;
         if (lastProcessedVoterIdRef.current === null) {
-          lastProcessedVoterIdRef.current = newest.voterId;
-        } else if (lastProcessedVoterIdRef.current !== newest.voterId) {
-          lastProcessedVoterIdRef.current = newest.voterId;
-          const boy = candidates.find((c) => c.id === newest.boyVotedFor);
-          const girl = candidates.find((c) => c.id === newest.girlVotedFor);
-          const picked = girl || boy;
-          setActiveVoteBubble({
-            voterName: newest.voterName || 'Audience Guest',
-            candidateNumber: picked?.candidateNumber,
-            candidateName: picked?.name,
-            category: picked?.category,
-          });
+          lastProcessedVoterIdRef.current = voteKey;
+        } else if (lastProcessedVoterIdRef.current !== voteKey) {
+          lastProcessedVoterIdRef.current = voteKey;
+          const targetCandidateId = newest.lastVotedCandidateId || newest.girlVotedFor || newest.boyVotedFor;
+          const picked = candidates.find((c) => c.id === targetCandidateId) || candidates.find((c) => c.id === newest.girlVotedFor) || candidates.find((c) => c.id === newest.boyVotedFor);
+          if (picked) {
+            setActiveVoteBubble({
+              voterName: newest.voterName || 'Audience Guest',
+              candidateNumber: picked.candidateNumber,
+              candidateName: picked.name,
+              category: picked.category,
+            });
+          }
         }
       }
     }

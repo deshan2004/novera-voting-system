@@ -509,6 +509,8 @@ export async function submitVote(submission: VoteSubmission): Promise<{
       if (boyFor) voterDocData.boyVotedFor = boyFor;
       const girlFor = submission.girlCandidateId || currentStatus.girlVotedFor;
       if (girlFor) voterDocData.girlVotedFor = girlFor;
+      const justVotedCandidateId = submission.girlCandidateId || submission.boyCandidateId;
+      if (justVotedCandidateId) voterDocData.lastVotedCandidateId = justVotedCandidateId;
 
       writeOps.push(setDoc(voterRef, voterDocData, { merge: true }));
 
@@ -552,6 +554,7 @@ export async function submitVote(submission: VoteSubmission): Promise<{
   saveLocalVoterStatus(currentStatus);
 
   // Save in local voter registry for real-time live tickers
+  const justVotedCandidateId = submission.girlCandidateId || submission.boyCandidateId;
   saveLocalVoterRecord({
     voterId,
     voterName,
@@ -559,6 +562,7 @@ export async function submitVote(submission: VoteSubmission): Promise<{
     hasVotedGirl: currentStatus.hasVotedGirl,
     boyVotedFor: currentStatus.boyVotedFor,
     girlVotedFor: currentStatus.girlVotedFor,
+    lastVotedCandidateId: justVotedCandidateId,
     updatedAt: Date.now(),
   });
 
@@ -839,6 +843,7 @@ export function subscribeToVoters(callback: (voters: VoterRecord[]) => void): ()
             hasVotedGirl: data.hasVotedGirl,
             boyVotedFor: data.boyVotedFor,
             girlVotedFor: data.girlVotedFor,
+            lastVotedCandidateId: data.lastVotedCandidateId || data.girlVotedFor || data.boyVotedFor,
             updatedAt: data.updatedAt || Date.now(),
           });
         });
@@ -873,6 +878,7 @@ export async function fetchVoters(): Promise<VoterRecord[]> {
           hasVotedGirl: data.hasVotedGirl,
           boyVotedFor: data.boyVotedFor,
           girlVotedFor: data.girlVotedFor,
+          lastVotedCandidateId: data.lastVotedCandidateId || data.girlVotedFor || data.boyVotedFor,
           updatedAt: data.updatedAt || Date.now(),
         });
       });

@@ -46,6 +46,7 @@ export interface VoterRecord {
   hasVotedGirl?: boolean;
   boyVotedFor?: string;
   girlVotedFor?: string;
+  lastVotedCandidateId?: string;
   updatedAt: number;
 }
 
