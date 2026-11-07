@@ -71,6 +71,7 @@ export default function JudgePortalPage() {
 
   // Active scoring candidate
   const [scoringCandidate, setScoringCandidate] = useState<Candidate | null>(null);
+  const [inspectCandidate, setInspectCandidate] = useState<Candidate | null>(null);
   const [scorecardTab, setScorecardTab] = useState<'model' | 'design'>('model');
 
   // 1. Model Official Runway Criteria (Max 100) - Default 0
@@ -820,8 +821,12 @@ export default function JudgePortalPage() {
                 }`}
               >
                 <div>
-                  {/* Image Card with Glass Badges and Hover Zoom */}
-                  <div className="relative aspect-[3/4] w-full rounded-2xl overflow-hidden mb-4 bg-black/40 shadow-inner">
+                  {/* Image Card with Glass Badges and Hover Zoom (Click to inspect full profile & bio) */}
+                  <div
+                    onClick={() => setInspectCandidate(candidate)}
+                    className="relative aspect-[3/4] w-full rounded-2xl overflow-hidden mb-4 bg-black/40 shadow-inner cursor-pointer group/img"
+                    title={`Click to view full photo and profile details for ${candidate.name}`}
+                  >
                     <Image
                       src={candidate.imageUrl}
                       alt={candidate.name}
@@ -838,9 +843,15 @@ export default function JudgePortalPage() {
                       {candidate.candidateNumber}
                     </div>
 
-                    {/* Scored Status Glass Badge */}
+                    {/* View Profile Hover Pill */}
+                    <div className="absolute top-3 right-3 px-2.5 py-1 rounded-xl bg-black/75 border border-novera-gold/50 text-novera-gold text-[10px] font-mono tracking-wider font-semibold opacity-90 group-hover/img:opacity-100 group-hover/img:bg-novera-gold group-hover/img:text-black transition-all flex items-center gap-1 backdrop-blur-md shadow-md">
+                      <Eye className="w-3 h-3" />
+                      <span>Profile</span>
+                    </div>
+
+                    {/* Scored Status Glass Badge (Positioned below top-right pill if scored) */}
                     {isScored && (
-                      <div className="absolute top-3 right-3 px-2.5 py-1 rounded-xl bg-emerald-600/90 text-white text-[10px] font-bold flex items-center gap-1 shadow-lg backdrop-blur-md border border-emerald-300/40 animate-in zoom-in-75 duration-200">
+                      <div className="absolute top-12 right-3 px-2.5 py-1 rounded-xl bg-emerald-600/90 text-white text-[10px] font-bold flex items-center gap-1 shadow-lg backdrop-blur-md border border-emerald-300/40 animate-in zoom-in-75 duration-200">
                         <CheckCheck className="w-3.5 h-3.5 text-emerald-200" />
                         <span>{score.totalModel}/100</span>
                       </div>
@@ -1097,25 +1108,34 @@ export default function JudgePortalPage() {
             >
               {/* 📌 COMPACT 1-LINE HEADER (Candidate + Category Tabs + Close) */}
               <div className="bg-[#14110d] border-b border-white/15 px-2.5 sm:px-5 py-2 sm:py-2.5 flex items-center justify-between gap-1.5 sm:gap-2 shrink-0 z-20">
-                {/* Candidate Info */}
-                <div className="flex items-center gap-2 sm:gap-2.5 min-w-0 flex-1">
-                  <div className="relative w-8 h-8 sm:w-10 sm:h-10 rounded-xl overflow-hidden shadow-md border border-novera-gold/70 shrink-0">
+                {/* Candidate Info (Clickable to view full photo & editorial details) */}
+                <button
+                  type="button"
+                  onClick={() => setInspectCandidate(scoringCandidate)}
+                  className="flex items-center gap-2 sm:gap-2.5 min-w-0 flex-1 text-left group cursor-pointer hover:opacity-95 transition-all"
+                  title="Click on model photo or name to view details & bio"
+                >
+                  <div className="relative w-8 h-8 sm:w-10 sm:h-10 rounded-xl overflow-hidden shadow-md border-2 border-novera-gold/70 shrink-0 group-hover:scale-105 group-hover:border-amber-300 transition-all">
                     <Image
                       src={scoringCandidate.imageUrl}
                       alt={scoringCandidate.name}
                       fill
                       className="object-cover"
                     />
+                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                      <Eye className="w-3.5 h-3.5 text-white drop-shadow" />
+                    </div>
                   </div>
                   <div className="min-w-0 flex-1">
-                    <div className="text-[9px] sm:text-[10px] font-mono uppercase tracking-widest text-novera-gold font-bold truncate leading-tight">
-                      #{scoringCandidate.candidateNumber} &bull; {scoringCandidate.category === 'boy' ? 'Male' : 'Female'}
+                    <div className="text-[9px] sm:text-[10px] font-mono uppercase tracking-widest text-novera-gold font-bold truncate leading-tight flex items-center gap-1">
+                      <span>#{scoringCandidate.candidateNumber} &bull; {scoringCandidate.category === 'boy' ? 'Male' : 'Female'}</span>
+                      <span className="text-[8px] px-1 py-0.2 rounded bg-white/15 text-zinc-300 font-sans normal-case hidden sm:inline-block">View Details &rarr;</span>
                     </div>
-                    <h3 className="font-serif text-xs sm:text-base font-bold text-white truncate leading-tight">
+                    <h3 className="font-serif text-xs sm:text-base font-bold text-white truncate leading-tight group-hover:text-amber-200 transition-colors">
                       {scoringCandidate.name}
                     </h3>
                   </div>
-                </div>
+                </button>
 
                 {/* Centered Category Switcher Tabs */}
                 <div className="flex items-center p-0.5 rounded-xl bg-black/60 border border-white/15 gap-0.5 sm:gap-1 shrink-0">
@@ -1417,6 +1437,115 @@ export default function JudgePortalPage() {
                 </div>
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* ================= MODEL PROFILE DETAILS MODAL (ACCESSIBLE VIA PHOTO CLICK) ================= */}
+      {inspectCandidate && (
+        <div
+          className="fixed inset-0 z-[10000] bg-black/85 backdrop-blur-xl overflow-y-auto p-3 sm:p-6"
+          onClick={() => setInspectCandidate(null)}
+        >
+          <RunwayStageBackground contained className="opacity-80 pointer-events-none" />
+          <div className="min-h-full flex items-center justify-center py-2 sm:py-4">
+            <div
+              className="relative z-10 w-full max-w-md bg-[#0d0b08]/98 border border-novera-gold/50 rounded-2xl sm:rounded-3xl overflow-hidden shadow-[0_0_70px_rgba(0,0,0,0.95),0_0_35px_rgba(203,167,95,0.3)] text-white animate-in zoom-in-95 duration-200 flex flex-col max-h-[92dvh] sm:max-h-[calc(100dvh-2rem)] shrink-0"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Hero Image Container */}
+              <div className="relative w-full h-64 sm:h-80 bg-zinc-950 shrink-0 overflow-hidden">
+                <Image
+                  src={inspectCandidate.imageUrl}
+                  alt={inspectCandidate.name}
+                  fill
+                  priority
+                  className="object-cover object-top"
+                  sizes="(max-width: 768px) 100vw, 450px"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#0d0b08] via-[#0d0b08]/30 to-black/60" />
+
+                {/* Close Button */}
+                <button
+                  type="button"
+                  onClick={() => setInspectCandidate(null)}
+                  className="absolute top-3.5 right-3.5 w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-black/60 backdrop-blur-md border border-white/20 text-white flex items-center justify-center hover:bg-white/20 active:scale-90 transition-all z-10 shadow-lg cursor-pointer"
+                  title="Close Profile View"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+
+                {/* Badges */}
+                <div className="absolute top-3.5 left-3.5 flex items-center gap-1.5 sm:gap-2 z-10">
+                  <span className="px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full bg-novera-gold text-black font-mono font-extrabold text-[11px] sm:text-xs shadow-md">
+                    #{inspectCandidate.candidateNumber}
+                  </span>
+                  <span className="px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full bg-black/70 backdrop-blur-md border border-white/20 text-white font-mono text-[9px] sm:text-[10px] uppercase tracking-wider font-semibold">
+                    {inspectCandidate.category === 'boy' ? 'Male Model' : 'Female Model'}
+                  </span>
+                </div>
+
+                {/* Contender Name Overlay */}
+                <div className="absolute bottom-2.5 sm:bottom-3 left-4 sm:left-5 right-4 sm:right-5 space-y-0.5">
+                  <span className="text-[9px] sm:text-[10px] font-mono uppercase tracking-[0.25em] text-amber-200/80 block font-bold">
+                    Official Contender Profile
+                  </span>
+                  <h3 className="font-serif text-xl sm:text-3xl font-extrabold text-white drop-shadow-md truncate">
+                    {inspectCandidate.name}
+                  </h3>
+                </div>
+              </div>
+
+              {/* Modal Body */}
+              <div className="p-4 sm:p-6 space-y-3.5 sm:space-y-4 overflow-y-auto pb-safe">
+                {/* Bio & Runway Editorial Statement */}
+                <div className="p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md space-y-1.5">
+                  <span className="text-[10px] font-mono uppercase tracking-widest text-novera-gold font-bold block">
+                    Runway Bio &amp; Editorial Profile
+                  </span>
+                  <p className="text-xs sm:text-sm text-zinc-300 leading-relaxed italic font-serif">
+                    &ldquo;{inspectCandidate.bio || 'Official Runway Contender representing elegance, poise, and high fashion.'}&rdquo;
+                  </p>
+                </div>
+
+                {/* Specifications Grid */}
+                <div className="grid grid-cols-2 gap-2.5 text-xs">
+                  <div className="p-3 rounded-xl bg-white/5 border border-white/10 text-center">
+                    <span className="text-[10px] text-zinc-400 font-mono uppercase block">Age / Category</span>
+                    <strong className="text-white font-serif text-sm block pt-0.5">
+                      {inspectCandidate.age || 22} Years &bull; {inspectCandidate.category === 'boy' ? 'Male' : 'Female'}
+                    </strong>
+                  </div>
+                  <div className="p-3 rounded-xl bg-white/5 border border-white/10 text-center">
+                    <span className="text-[10px] text-zinc-400 font-mono uppercase block">Event</span>
+                    <strong className="text-novera-gold font-serif text-sm block pt-0.5">
+                      NOVERA &rsquo;26 Runway
+                    </strong>
+                  </div>
+                </div>
+
+                {/* Action Button: Return to Scorecard or Open Scorecard */}
+                <div className="pt-1">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (!scoringCandidate || scoringCandidate.id !== inspectCandidate.id) {
+                        openScoringModal(inspectCandidate);
+                      }
+                      setInspectCandidate(null);
+                    }}
+                    className="w-full py-3 rounded-xl font-bold uppercase tracking-wider text-xs sm:text-sm bg-gradient-to-r from-novera-gold to-amber-500 text-black shadow-lg hover:brightness-110 active:scale-95 flex items-center justify-center gap-2 font-extrabold transition-all cursor-pointer"
+                  >
+                    <Crown className="w-4 h-4 text-black" />
+                    <span>
+                      {scoringCandidate?.id === inspectCandidate.id
+                        ? 'Return to Scoring Scorecard'
+                        : `Open Scorecard for #${inspectCandidate.candidateNumber}`}
+                    </span>
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       )}
