@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { QRCodeSVG } from 'qrcode.react';
@@ -13,12 +13,30 @@ import {
   RefreshCw,
   Lock,
   Sparkles,
+  Trophy,
+  Crown,
 } from 'lucide-react';
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+  Cell,
+  CartesianGrid,
+  LabelList,
+} from 'recharts';
 import StageQrInteractiveBackground from '@/app/components/StageQrInteractiveBackground';
 import RunwayStageBackground from '@/app/components/RunwayStageBackground';
 import VotingClosedCeremonyOverlay from '@/app/components/VotingClosedCeremonyOverlay';
-import { subscribeToVotingSettings, saveVotingSettings } from '@/lib/api';
-import { VotingSettings } from '@/lib/types';
+import {
+  subscribeToVotingSettings,
+  saveVotingSettings,
+  subscribeToCandidates,
+  fetchCandidates,
+} from '@/lib/api';
+import { VotingSettings, Candidate } from '@/lib/types';
 import { playLuxuryChime } from '@/lib/audio';
 import VotingCountdownOverlay from '@/app/components/VotingCountdownOverlay';
 
@@ -27,19 +45,110 @@ export default function QrDisplayPage() {
   const [votingUrl, setVotingUrl] = useState<string>('');
   const [isFullscreen, setIsFullscreen] = useState<boolean>(false);
   const [tilt, setTilt] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
-  const [qrSize, setQrSize] = useState<number>(230);
+  const [qrSize, setQrSize] = useState<number>(220);
   const [votingSettings, setVotingSettings] = useState<VotingSettings>({ isVotingOpen: true });
   const [remainingTimeText, setRemainingTimeText] = useState<string>('');
   const [remainingSeconds, setRemainingSeconds] = useState<number>(0);
   const [showClosingCeremony, setShowClosingCeremony] = useState<boolean>(false);
   const [showOpeningBroadcast, setShowOpeningBroadcast] = useState<boolean>(false);
   const [stageEntryAnimation, setStageEntryAnimation] = useState<boolean>(false);
+  const [candidates, setCandidates] = useState<Candidate[]>([]);
+  const [isMounted, setIsMounted] = useState<boolean>(false);
   const wasVotingOpenRef = useRef<boolean>(false);
 
   // Play prestigious chime on initial stage screen mount
   useEffect(() => {
+    setIsMounted(true);
     playLuxuryChime();
   }, []);
+
+  // Fetch & Subscribe to live candidates vote count
+  useEffect(() => {
+    fetchCandidates().then((list) => setCandidates(list));
+    const unsubCandidates = subscribeToCandidates((list) => {
+      setCandidates(list);
+    });
+
+    const interval = setInterval(() => {
+      fetchCandidates().then((list) => setCandidates(list));
+    }, 3000);
+
+    const handleStorageSync = (e: StorageEvent) => {
+      if (e.key === 'novera_candidates') {
+        fetchCandidates().then((list) => setCandidates(list));
+      }
+    };
+    const handleVoteSync = () => {
+      fetchCandidates().then((list) => setCandidates(list));
+    };
+
+    window.addEventListener('storage', handleStorageSync);
+    window.addEventListener('novera_vote_updated', handleVoteSync);
+
+    return () => {
+      unsubCandidates();
+      clearInterval(interval);
+      window.removeEventListener('storage', handleStorageSync);
+      window.removeEventListener('novera_vote_updated', handleVoteSync);
+    };
+  }, []);
+
+  // Top 3 Male Models by audience votes
+  const topBoys = useMemo(() => {
+    return [...candidates]
+      .filter((c) => c.category === 'boy')
+      .sort((a, b) => {
+        const diff = (b.votes || 0) - (a.votes || 0);
+        if (diff !== 0) return diff;
+        const numA = parseInt(a.candidateNumber?.replace(/\D/g, '') || '0', 10);
+        const numB = parseInt(b.candidateNumber?.replace(/\D/g, '') || '0', 10);
+        return numA - numB;
+      })
+      .slice(0, 3);
+  }, [candidates]);
+
+  // Top 3 Female Models by audience votes
+  const topGirls = useMemo(() => {
+    return [...candidates]
+      .filter((c) => c.category === 'girl')
+      .sort((a, b) => {
+        const diff = (b.votes || 0) - (a.votes || 0);
+        if (diff !== 0) return diff;
+        const numA = parseInt(a.candidateNumber?.replace(/\D/g, '') || '0', 10);
+        const numB = parseInt(b.candidateNumber?.replace(/\D/g, '') || '0', 10);
+        return numA - numB;
+      })
+      .slice(0, 3);
+  }, [candidates]);
+
+  // Combined 6-Contender Data for Stage Bar Chart
+  const chartData = useMemo(() => {
+    const boysList = topBoys.map((c, idx) => ({
+      id: c.id,
+      number: c.candidateNumber || `M-${idx + 1}`,
+      name: c.name.split(' ')[0],
+      fullName: c.name,
+      category: 'Male',
+      rank: idx + 1,
+      displayName: `#${c.candidateNumber || `M-${idx + 1}`} ${c.name.split(' ')[0]}`,
+      votes: c.votes || 0,
+      color: '#d4af37', // Runway Gold
+    }));
+
+    const girlsList = topGirls.map((c, idx) => ({
+      id: c.id,
+      number: c.candidateNumber || `F-${idx + 1}`,
+      name: c.name.split(' ')[0],
+      fullName: c.name,
+      category: 'Female',
+      rank: idx + 1,
+      displayName: `#${c.candidateNumber || `F-${idx + 1}`} ${c.name.split(' ')[0]}`,
+      votes: c.votes || 0,
+      color: '#f59e0b', // Radiant Amber Gold
+    }));
+
+    return [...boysList, ...girlsList];
+  }, [topBoys, topGirls]);
 
   // Auto-trigger luxury chime when voting unlocks, and closing ceremony when voting concludes
   useEffect(() => {
@@ -332,7 +441,7 @@ export default function QrDisplayPage() {
       <StageQrInteractiveBackground onPointerMoveCoords={handlePointerCoords} />
 
       {/* Main Content (Elevated above interactive canvas) */}
-      <div className="relative z-10 max-w-4xl w-full flex flex-col items-center text-center space-y-3 sm:space-y-4 my-auto">
+      <div className="relative z-10 max-w-6xl xl:max-w-7xl w-full flex flex-col items-center text-center space-y-3 sm:space-y-4 my-auto px-2">
         {/* Title */}
         <div className="space-y-1 px-2">
           <h1 className="font-serif text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight text-white drop-shadow-md">
@@ -342,7 +451,7 @@ export default function QrDisplayPage() {
               <>Official Runway Ballot &bull; <span className="text-novera-foil">NOVERA ’26</span></>
             )}
           </h1>
-          <p className="text-[11px] sm:text-xs md:text-sm text-zinc-300 max-w-xl mx-auto px-2 font-light tracking-wide leading-relaxed">
+          <p className="text-[11px] sm:text-xs md:text-sm text-zinc-300 max-w-2xl mx-auto px-2 font-light tracking-wide leading-relaxed">
             {isVotingLive
               ? 'Point your smartphone camera at the illuminated QR code to cast your votes for Best Male Model and Best Female Model.'
               : 'Audience voting will unlock live on this screen during the runway showcase. Watch the stage for the official opening countdown!'}
@@ -362,94 +471,251 @@ export default function QrDisplayPage() {
           </div>
         )}
 
-        {/* Transparent Frosted Glass Card with Interactive 3D Tilt */}
-        <div
-          style={{
-            transform: `perspective(1000px) rotateX(${tilt.y}deg) rotateY(${tilt.x}deg)`,
-            transition: 'transform 0.15s ease-out',
-          }}
-          className="relative group p-4 sm:p-6 rounded-3xl bg-black/40 backdrop-blur-2xl border-2 border-novera-foil/40 shadow-[0_25px_90px_rgba(0,0,0,0.85),0_0_60px_rgba(179,146,79,0.3)] hover:border-novera-foil transition-all duration-300 flex flex-col items-center max-w-[94vw] sm:max-w-md w-full overflow-hidden"
-        >
-          {/* Subtle Ambient Golden Glow Behind QR */}
-          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-            <div className="w-full max-w-sm h-36 bg-amber-400/10 blur-3xl animate-pulse" />
-          </div>
-
-          {/* Decorative Corner Accents on Glass Card */}
-          <div className="absolute top-3 left-3 w-4 h-4 sm:w-5 sm:h-5 border-t-2 border-l-2 border-novera-foil/70" />
-          <div className="absolute top-3 right-3 w-4 h-4 sm:w-5 sm:h-5 border-t-2 border-r-2 border-novera-foil/70" />
-          <div className="absolute bottom-3 left-3 w-4 h-4 sm:w-5 sm:h-5 border-b-2 border-l-2 border-novera-foil/70" />
-          <div className="absolute bottom-3 right-3 w-4 h-4 sm:w-5 sm:h-5 border-b-2 border-r-2 border-novera-foil/70" />
-
-          {isVotingLive ? (
-            /* High-Contrast Focused QR Code Stage Podium (Unlocked & Active) */
+        {/* 🌟 2-Column Stage Layout: QR on Left, Top 3 Standings Bar Chart on Right */}
+        <div className="w-full grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-6 items-stretch justify-center pt-1">
+          {/* Left Column: QR Code Podium */}
+          <div className="lg:col-span-5 flex flex-col items-center justify-center">
+            {/* Transparent Frosted Glass Card with Interactive 3D Tilt */}
             <div
-              className="p-3 sm:p-5 bg-white rounded-2xl shadow-[0_0_40px_rgba(255,255,255,0.7),0_0_80px_rgba(218,165,32,0.4)] border-2 border-amber-300/80 flex items-center justify-center relative z-10 transition-transform duration-300 group animate-in zoom-in-90 duration-500"
+              style={{
+                transform: `perspective(1000px) rotateX(${tilt.y}deg) rotateY(${tilt.x}deg)`,
+                transition: 'transform 0.15s ease-out',
+              }}
+              className="relative group p-4 sm:p-6 rounded-3xl bg-black/45 backdrop-blur-2xl border-2 border-novera-foil/40 shadow-[0_25px_90px_rgba(0,0,0,0.85),0_0_60px_rgba(179,146,79,0.3)] hover:border-novera-foil transition-all duration-300 flex flex-col items-center w-full max-w-sm sm:max-w-md overflow-hidden h-full justify-between"
             >
-              {/* Gold Target Reticles */}
-              <div className="absolute -top-1.5 -left-1.5 w-3.5 h-3.5 sm:w-4 sm:h-4 border-t-2 border-l-2 border-amber-500" />
-              <div className="absolute -top-1.5 -right-1.5 w-3.5 h-3.5 sm:w-4 sm:h-4 border-t-2 border-r-2 border-amber-500" />
-              <div className="absolute -bottom-1.5 -left-1.5 w-3.5 h-3.5 sm:w-4 sm:h-4 border-b-2 border-l-2 border-amber-500" />
-              <div className="absolute -bottom-1.5 -right-1.5 w-3.5 h-3.5 sm:w-4 sm:h-4 border-b-2 border-r-2 border-amber-500" />
+              {/* Subtle Ambient Golden Glow Behind QR */}
+              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                <div className="w-full max-w-sm h-36 bg-amber-400/10 blur-3xl animate-pulse" />
+              </div>
 
-              {/* Sweeping Laser Scanner Beam */}
-              <div className="absolute left-2 right-2 h-1 bg-gradient-to-r from-transparent via-amber-400 to-transparent shadow-[0_0_18px_rgba(251,191,36,1)] animate-qr-laser z-20 pointer-events-none" />
+              {/* Decorative Corner Accents on Glass Card */}
+              <div className="absolute top-3 left-3 w-4 h-4 sm:w-5 sm:h-5 border-t-2 border-l-2 border-novera-foil/70" />
+              <div className="absolute top-3 right-3 w-4 h-4 sm:w-5 sm:h-5 border-t-2 border-r-2 border-novera-foil/70" />
+              <div className="absolute bottom-3 left-3 w-4 h-4 sm:w-5 sm:h-5 border-b-2 border-l-2 border-novera-foil/70" />
+              <div className="absolute bottom-3 right-3 w-4 h-4 sm:w-5 sm:h-5 border-b-2 border-r-2 border-novera-foil/70" />
 
-              {votingUrl ? (
-                <QRCodeSVG
-                  value={votingUrl}
-                  size={qrSize}
-                  level="H"
-                  includeMargin={false}
-                  fgColor="#0b0b0b"
-                  bgColor="#ffffff"
-                />
-              ) : (
+              {isVotingLive ? (
+                /* High-Contrast Focused QR Code Stage Podium (Unlocked & Active) */
                 <div
-                  style={{ width: `${qrSize}px`, height: `${qrSize}px` }}
-                  className="flex items-center justify-center"
+                  className="p-3 sm:p-5 bg-white rounded-2xl shadow-[0_0_40px_rgba(255,255,255,0.7),0_0_80px_rgba(218,165,32,0.4)] border-2 border-amber-300/80 flex items-center justify-center relative z-10 transition-transform duration-300 group animate-in zoom-in-90 duration-500 my-auto"
                 >
-                  <RefreshCw className="w-8 h-8 animate-spin text-novera-foil" />
+                  {/* Gold Target Reticles */}
+                  <div className="absolute -top-1.5 -left-1.5 w-3.5 h-3.5 sm:w-4 sm:h-4 border-t-2 border-l-2 border-amber-500" />
+                  <div className="absolute -top-1.5 -right-1.5 w-3.5 h-3.5 sm:w-4 sm:h-4 border-t-2 border-r-2 border-amber-500" />
+                  <div className="absolute -bottom-1.5 -left-1.5 w-3.5 h-3.5 sm:w-4 sm:h-4 border-b-2 border-l-2 border-amber-500" />
+                  <div className="absolute -bottom-1.5 -right-1.5 w-3.5 h-3.5 sm:w-4 sm:h-4 border-b-2 border-r-2 border-amber-500" />
+
+                  {/* Sweeping Laser Scanner Beam */}
+                  <div className="absolute left-2 right-2 h-1 bg-gradient-to-r from-transparent via-amber-400 to-transparent shadow-[0_0_18px_rgba(251,191,36,1)] animate-qr-laser z-20 pointer-events-none" />
+
+                  {votingUrl ? (
+                    <QRCodeSVG
+                      value={votingUrl}
+                      size={qrSize}
+                      level="H"
+                      includeMargin={false}
+                      fgColor="#0b0b0b"
+                      bgColor="#ffffff"
+                    />
+                  ) : (
+                    <div
+                      style={{ width: `${qrSize}px`, height: `${qrSize}px` }}
+                      className="flex items-center justify-center"
+                    >
+                      <RefreshCw className="w-8 h-8 animate-spin text-novera-foil" />
+                    </div>
+                  )}
+                </div>
+              ) : (
+                /* Locked Stage Standby Emblem (Until Voting is Opened) */
+                <div
+                  style={{ width: `${qrSize + 40}px`, minHeight: `${qrSize + 40}px` }}
+                  className="p-6 bg-black/60 rounded-2xl shadow-[0_0_40px_rgba(203,167,95,0.2)] border-2 border-novera-gold/40 flex flex-col items-center justify-center text-center relative z-10 space-y-4 animate-in fade-in duration-300 my-auto"
+                >
+                  <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-full border-2 border-novera-gold/60 bg-black/80 flex items-center justify-center shadow-[0_0_25px_rgba(203,167,95,0.4)]">
+                    <div className="absolute inset-0 rounded-full border border-amber-300/30 border-dashed animate-spin-slow" />
+                    <Lock className="w-8 h-8 sm:w-10 sm:h-10 text-novera-gold animate-pulse" />
+                  </div>
+                  <div className="space-y-1">
+                    <span className="text-xs sm:text-sm font-serif font-bold uppercase tracking-wider text-white block">
+                      Voting Ballot Standby
+                    </span>
+                    <span className="text-[10px] font-mono uppercase tracking-[0.2em] text-amber-200/80 block">
+                      Awaiting Opening Signal
+                    </span>
+                  </div>
                 </div>
               )}
-            </div>
-          ) : (
-            /* Locked Stage Standby Emblem (Until Voting is Opened) */
-            <div
-              style={{ width: `${qrSize + 40}px`, minHeight: `${qrSize + 40}px` }}
-              className="p-6 bg-black/60 rounded-2xl shadow-[0_0_40px_rgba(203,167,95,0.2)] border-2 border-novera-gold/40 flex flex-col items-center justify-center text-center relative z-10 space-y-4 animate-in fade-in duration-300"
-            >
-              <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-full border-2 border-novera-gold/60 bg-black/80 flex items-center justify-center shadow-[0_0_25px_rgba(203,167,95,0.4)]">
-                <div className="absolute inset-0 rounded-full border border-amber-300/30 border-dashed animate-spin-slow" />
-                <Lock className="w-8 h-8 sm:w-10 sm:h-10 text-novera-gold animate-pulse" />
-              </div>
-              <div className="space-y-1">
-                <span className="text-xs sm:text-sm font-serif font-bold uppercase tracking-wider text-white block">
-                  Voting Ballot Standby
-                </span>
-                <span className="text-[10px] font-mono uppercase tracking-[0.2em] text-amber-200/80 block">
-                  Awaiting Opening Signal
-                </span>
-              </div>
-            </div>
-          )}
 
-          {/* Subtitle Under QR with Live Pulse */}
-          <div className="mt-3 sm:mt-4 flex flex-col items-center gap-1.5 relative z-10">
-            <div className="flex items-center gap-2 text-[10px] sm:text-xs font-bold tracking-[0.15em] sm:tracking-[0.2em] uppercase text-zinc-100">
-              {isVotingLive ? (
-                <>
-                  <span className="w-2 h-2 rounded-full bg-novera-gold animate-ping shrink-0" />
-                  <Smartphone className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-novera-gold shrink-0" />
-                  <span className="truncate">Open Camera &bull; Scan to Vote</span>
-                </>
-              ) : (
-                <>
-                  <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse shrink-0" />
-                  <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-novera-gold shrink-0" />
-                  <span className="truncate">Standby &bull; Unlocks After Countdown</span>
-                </>
+              {/* Subtitle Under QR with Live Pulse */}
+              <div className="mt-3 sm:mt-4 flex flex-col items-center gap-1.5 relative z-10">
+                <div className="flex items-center gap-2 text-[10px] sm:text-xs font-bold tracking-[0.15em] sm:tracking-[0.2em] uppercase text-zinc-100">
+                  {isVotingLive ? (
+                    <>
+                      <span className="w-2 h-2 rounded-full bg-novera-gold animate-ping shrink-0" />
+                      <Smartphone className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-novera-gold shrink-0" />
+                      <span className="truncate">Open Camera &bull; Scan to Vote</span>
+                    </>
+                  ) : (
+                    <>
+                      <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse shrink-0" />
+                      <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-novera-gold shrink-0" />
+                      <span className="truncate">Standby &bull; Unlocks After Countdown</span>
+                    </>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Right Column: Live Standings Bar Chart (Top 3 Boys & Top 3 Girls) */}
+          <div className="lg:col-span-7 flex flex-col justify-between p-4 sm:p-6 rounded-3xl bg-black/45 backdrop-blur-2xl border-2 border-novera-foil/40 shadow-[0_25px_90px_rgba(0,0,0,0.85),0_0_60px_rgba(179,146,79,0.25)] relative overflow-hidden text-left">
+            {/* Top scanning light accent */}
+            <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-amber-300 to-transparent animate-scan-sweep" />
+
+            {/* Header */}
+            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-white/10 pb-3">
+              <div>
+                <div className="flex items-center gap-2">
+                  <Trophy className="w-4 h-4 sm:w-5 sm:h-5 text-novera-gold" />
+                  <h3 className="font-serif text-lg sm:text-xl font-bold text-white tracking-wide">
+                    Live Vote Standings
+                  </h3>
+                </div>
+                <p className="text-[11px] text-zinc-400">
+                  Top 3 Runway Contenders &bull; Live Audience Telemetry
+                </p>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 shadow-sm">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
+                  Live Sync
+                </span>
+              </div>
+            </div>
+
+            {/* Category Indicator Legend */}
+            <div className="flex flex-wrap items-center justify-between gap-2 pt-3 pb-1 text-xs">
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-1.5">
+                  <span className="w-2.5 h-2.5 rounded-full bg-[#d4af37]" />
+                  <span className="font-semibold text-zinc-200 text-xs">Boys (Top 3)</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <span className="w-2.5 h-2.5 rounded-full bg-[#f59e0b]" />
+                  <span className="font-semibold text-zinc-200 text-xs">Girls (Top 3)</span>
+                </div>
+              </div>
+
+              <span className="text-[10px] text-zinc-400 uppercase tracking-wider font-mono">
+                Updates in Real-Time
+              </span>
+            </div>
+
+            {/* Chart Area */}
+            <div className="h-64 sm:h-72 w-full my-2">
+              {isMounted && (
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={chartData} margin={{ top: 25, right: 10, left: -25, bottom: 25 }}>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255, 255, 255, 0.08)" />
+                    <XAxis
+                      dataKey="displayName"
+                      tick={{ fontSize: 11, fill: '#e4e4e7', fontWeight: 600 }}
+                      interval={0}
+                      angle={-25}
+                      textAnchor="end"
+                    />
+                    <YAxis
+                      tick={{ fontSize: 11, fill: '#a1a1aa' }}
+                      allowDecimals={false}
+                      domain={[0, (dataMax: number) => Math.max(5, Math.ceil(dataMax * 1.2))]}
+                    />
+                    <Tooltip
+                      cursor={{ fill: 'rgba(212, 175, 55, 0.08)', radius: 6 }}
+                      content={({ active, payload }) => {
+                        if (active && payload && payload.length) {
+                          const data = payload[0].payload;
+                          return (
+                            <div className="bg-[#0c0a08]/95 backdrop-blur-xl border border-novera-gold/40 text-white p-2.5 rounded-xl shadow-2xl text-xs space-y-1 min-w-[150px]">
+                              <div className="flex items-center justify-between gap-2 border-b border-white/10 pb-1">
+                                <span className="font-mono font-bold text-novera-gold text-[10px] bg-novera-gold/15 px-1.5 py-0.5 rounded">
+                                  #{data.number}
+                                </span>
+                                <span className="text-[10px] uppercase font-semibold text-zinc-400">
+                                  {data.category} &bull; Rank #{data.rank}
+                                </span>
+                              </div>
+                              <div className="font-serif font-bold text-white text-xs pt-0.5">
+                                {data.fullName}
+                              </div>
+                              <div className="flex items-baseline justify-between pt-1 text-zinc-300">
+                                <span>Votes:</span>
+                                <span className="font-mono text-sm font-extrabold text-amber-300">
+                                  {data.votes} votes
+                                </span>
+                              </div>
+                            </div>
+                          );
+                        }
+                        return null;
+                      }}
+                    />
+                    <Bar dataKey="votes" radius={[6, 6, 0, 0]} maxBarSize={44}>
+                      <LabelList
+                        dataKey="votes"
+                        position="top"
+                        fill="#fef08a"
+                        fontSize={12}
+                        fontWeight={800}
+                        formatter={(val: any) => `${val}`}
+                      />
+                      {chartData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      ))}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
               )}
+            </div>
+
+            {/* Quick Leader Highlights Footer */}
+            <div className="grid grid-cols-2 gap-3 pt-2 border-t border-white/10">
+              {/* Leader Boy */}
+              <div className="p-2 sm:p-2.5 rounded-xl bg-white/[0.04] border border-amber-400/20 flex items-center gap-2">
+                <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-amber-400/20 border border-amber-400/40 flex items-center justify-center shrink-0">
+                  <Crown className="w-4 h-4 text-amber-300" />
+                </div>
+                <div className="truncate min-w-0">
+                  <div className="text-[10px] font-mono uppercase text-amber-300/80 font-bold truncate">
+                    #1 Boy Leader
+                  </div>
+                  <div className="text-xs font-serif font-bold text-white truncate">
+                    {topBoys[0]?.name || 'Awaiting Votes'}
+                  </div>
+                </div>
+                <div className="ml-auto font-mono text-xs font-black text-amber-300 shrink-0">
+                  {topBoys[0]?.votes || 0} v
+                </div>
+              </div>
+
+              {/* Leader Girl */}
+              <div className="p-2 sm:p-2.5 rounded-xl bg-white/[0.04] border border-amber-400/20 flex items-center gap-2">
+                <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-amber-400/20 border border-amber-400/40 flex items-center justify-center shrink-0">
+                  <Crown className="w-4 h-4 text-amber-300" />
+                </div>
+                <div className="truncate min-w-0">
+                  <div className="text-[10px] font-mono uppercase text-amber-300/80 font-bold truncate">
+                    #1 Girl Leader
+                  </div>
+                  <div className="text-xs font-serif font-bold text-white truncate">
+                    {topGirls[0]?.name || 'Awaiting Votes'}
+                  </div>
+                </div>
+                <div className="ml-auto font-mono text-xs font-black text-amber-300 shrink-0">
+                  {topGirls[0]?.votes || 0} v
+                </div>
+              </div>
             </div>
           </div>
         </div>
