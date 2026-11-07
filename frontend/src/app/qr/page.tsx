@@ -217,7 +217,6 @@ export default function QrDisplayPage() {
         <VotingCountdownOverlay
           countdownUntil={votingSettings.countdownUntil}
           onComplete={() => {
-            setShowOpeningBroadcast(true);
             playLuxuryChime();
           }}
         />

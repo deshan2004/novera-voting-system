@@ -294,18 +294,17 @@ export default function AdminLeaderboardPage() {
       openedSessionIdRef.current = sessionId;
       const durationMs = votingDurationMinutes * 60 * 1000;
       const votingClosesAt = Date.now() + durationMs;
+      const countdownTarget = Date.now() + 5200; // 5s opening countdown
       setIsUpdatingVotingStatus(true);
       try {
         await saveVotingSettings({
           isVotingOpen: true,
           votingClosesAt,
           votingDurationSeconds: votingDurationMinutes * 60,
-          countdownUntil: null,
+          countdownUntil: countdownTarget,
           sessionId,
           announcement: `Audience voting is LIVE for ${votingDurationMinutes} minutes!`,
         });
-        // Instantly transition to /qr stage screen
-        router.push('/qr');
       } finally {
         setIsUpdatingVotingStatus(false);
       }
@@ -708,6 +707,7 @@ export default function AdminLeaderboardPage() {
               } catch (e) { }
             }
             setVotingSettings((prev) => ({ ...prev, countdownUntil: null }));
+            router.push('/qr');
           }}
         />
       )}

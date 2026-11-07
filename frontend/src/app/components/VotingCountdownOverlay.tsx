@@ -73,7 +73,7 @@ export default function VotingCountdownOverlay({
       if (onCompleteRef.current) {
         onCompleteRef.current();
       }
-    }, 1300);
+    }, 500);
   };
 
   useEffect(() => {
