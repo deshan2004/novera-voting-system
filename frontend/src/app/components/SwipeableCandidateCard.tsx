@@ -63,7 +63,7 @@ export default function SwipeableCandidateCard({
       setDragOffset(offset);
 
       // Subtle haptic tick when reaching vote confirmation threshold
-      if (offset / maxDrag > 0.65 && typeof navigator !== 'undefined' && navigator.vibrate) {
+      if (offset / maxDrag > 0.6 && typeof navigator !== 'undefined' && navigator.vibrate) {
         try {
           navigator.vibrate(15);
         } catch (e) {}
@@ -133,25 +133,29 @@ export default function SwipeableCandidateCard({
       className="relative rounded-2xl overflow-hidden select-none"
       style={{ touchAction: 'pan-y' }}
     >
-      {/* Background Reveal Track (shows as you drag the model's name) */}
+      {/* Background Reveal Track - ONLY visible when user is dragging (never leaks when static) */}
       <div
-        className={`absolute inset-0 rounded-2xl flex items-center justify-between px-4 transition-colors ${
+        style={{
+          opacity: dragOffset > 0 ? 1 : 0,
+          pointerEvents: 'none',
+        }}
+        className={`absolute inset-0 rounded-2xl flex items-center justify-between px-4 transition-opacity duration-150 border ${
           isPastThreshold
-            ? 'bg-gradient-to-r from-emerald-600 via-emerald-500 to-green-400 text-black shadow-[0_0_35px_rgba(16,185,129,0.7)]'
-            : 'bg-gradient-to-r from-amber-600/70 via-amber-500/80 to-yellow-400/90 text-black shadow-[0_0_25px_rgba(212,175,55,0.4)]'
+            ? 'bg-gradient-to-r from-emerald-950/90 via-black/90 to-emerald-900/80 border-emerald-500/60 text-emerald-300 shadow-[0_0_30px_rgba(16,185,129,0.35)]'
+            : 'bg-gradient-to-r from-amber-950/80 via-black/90 to-amber-900/60 border-amber-500/40 text-amber-300 shadow-[inset_0_0_25px_rgba(212,175,55,0.25)]'
         }`}
       >
-        <div className="flex items-center gap-2 font-black text-xs uppercase tracking-wider pl-2">
-          <Sparkles className="w-4 h-4 animate-bounce" />
-          <span>{isPastThreshold ? 'Release to Vote!' : 'Keep dragging to vote &rarr;'}</span>
+        <div className="flex items-center gap-2 font-mono font-bold text-xs uppercase tracking-wider pl-2">
+          <Sparkles className="w-4 h-4 text-amber-300 animate-pulse" />
+          <span>{isPastThreshold ? 'Release to Vote!' : 'Slide right to confirm &rarr;'}</span>
         </div>
-        <div className="flex items-center gap-1 font-mono font-bold text-xs pr-2">
-          <Crown className="w-4 h-4 fill-current" />
+        <div className="flex items-center gap-1.5 font-mono font-bold text-xs pr-2 text-amber-300/80">
+          <Crown className="w-4 h-4" />
           <span>#{candidate.candidateNumber}</span>
         </div>
       </div>
 
-      {/* Main Foreground Card (The Model's Name & Profile Card that slides) */}
+      {/* Main Foreground Card - Elegant Transparent Dark Glass */}
       <div
         onMouseDown={(e) => handleStart(e.clientX, e.clientY)}
         onTouchStart={(e) => {
@@ -165,12 +169,12 @@ export default function SwipeableCandidateCard({
         }}
         className={`relative z-10 p-3.5 rounded-2xl text-left flex items-center justify-between gap-3 border transition-colors ${
           isVotedForThis
-            ? 'bg-emerald-950/40 border-emerald-500/60 shadow-[0_0_20px_rgba(16,185,129,0.25)]'
+            ? 'bg-emerald-950/30 border-emerald-500/60 shadow-[0_0_20px_rgba(16,185,129,0.2)]'
             : isConfirmed
-            ? 'bg-gradient-to-r from-amber-500/30 to-amber-900/40 border-amber-400'
+            ? 'bg-amber-950/40 border-amber-400/80 text-white shadow-[0_0_25px_rgba(212,175,55,0.3)]'
             : isDragging
-            ? 'bg-black/95 border-amber-400 shadow-[0_10px_30px_rgba(212,175,55,0.4)] cursor-grabbing'
-            : 'bg-white/5 hover:bg-white/10 border-white/10 text-white backdrop-blur-md cursor-grab active:cursor-grabbing'
+            ? 'bg-[#120f0a]/95 border-amber-400 shadow-[0_10px_35px_rgba(0,0,0,0.8),0_0_25px_rgba(212,175,55,0.3)] cursor-grabbing backdrop-blur-xl'
+            : 'bg-black/60 hover:bg-black/80 border-white/10 hover:border-amber-400/40 text-white backdrop-blur-xl cursor-grab active:cursor-grabbing shadow-lg'
         }`}
       >
         <div className="flex items-center gap-3 min-w-0 flex-1">
@@ -213,7 +217,7 @@ export default function SwipeableCandidateCard({
               <span>Voting...</span>
             </div>
           ) : canVote ? (
-            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-amber-500/20 to-yellow-500/10 border border-amber-400/40 text-amber-300 text-[11px] font-mono font-bold tracking-wide hover:bg-amber-500/30 transition-all shadow-sm">
+            <div className="flex items-center gap-1 px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/15 hover:border-amber-400/40 text-zinc-300 hover:text-amber-300 text-[11px] font-mono font-semibold tracking-wide transition-all shadow-sm">
               <span>Swipe</span>
               <ChevronRight className="w-3.5 h-3.5 animate-pulse text-amber-400" />
             </div>
