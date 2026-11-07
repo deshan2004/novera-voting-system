@@ -187,6 +187,7 @@ export default function AdminLeaderboardPage() {
   };
   const [chartCategory, setChartCategory] = useState<'both' | 'boy' | 'girl'>('both');
   const [chartSortMode, setChartSortMode] = useState<'number' | 'votes'>('number');
+  const [leaderboardCategory, setLeaderboardCategory] = useState<'both' | 'boy' | 'girl'>('both');
   const [votingSettings, setVotingSettings] = useState<VotingSettings>({ isVotingOpen: false });
   const [isUpdatingVotingStatus, setIsUpdatingVotingStatus] = useState<boolean>(false);
   const [isPrivacyMasked, setIsPrivacyMasked] = useState<boolean>(false);
@@ -1258,6 +1259,388 @@ export default function AdminLeaderboardPage() {
                       </div>
                     </div>
                   </div>
+                </div>
+
+                {/* Live Ranked Audience Leaderboard (Piliwelata Pahalata) */}
+                <div className="p-6 sm:p-8 rounded-3xl bg-black/40 backdrop-blur-2xl border border-white/15 shadow-2xl text-white space-y-6">
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between pb-4 border-b border-white/10 gap-4">
+                    <div>
+                      <div className="flex items-center gap-2.5">
+                        <Trophy className="w-5 h-5 text-novera-gold" />
+                        <h3 className="font-serif text-xl sm:text-2xl font-bold text-white">
+                          Live Audience Standings Leaderboard
+                        </h3>
+                      </div>
+                      <p className="text-xs text-zinc-400 mt-1">
+                        Full runway model standings ranked in order by total audience votes
+                      </p>
+                    </div>
+
+                    <div className="flex items-center gap-3">
+                      {/* Category Filter */}
+                      <div className="inline-flex p-1 rounded-xl bg-white/10 border border-white/15 text-xs">
+                        <button
+                          type="button"
+                          onClick={() => setLeaderboardCategory('both')}
+                          className={`px-3 py-1.5 rounded-lg font-medium transition-all ${
+                            leaderboardCategory === 'both'
+                              ? 'bg-gradient-to-r from-novera-gold to-amber-500 text-black font-extrabold shadow'
+                              : 'text-zinc-400 hover:text-white'
+                          }`}
+                        >
+                          All Categories
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setLeaderboardCategory('boy')}
+                          className={`px-3 py-1.5 rounded-lg font-medium transition-all ${
+                            leaderboardCategory === 'boy'
+                              ? 'bg-gradient-to-r from-novera-gold to-amber-500 text-black font-extrabold shadow'
+                              : 'text-zinc-400 hover:text-white'
+                          }`}
+                        >
+                          Boys ({boys.length})
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setLeaderboardCategory('girl')}
+                          className={`px-3 py-1.5 rounded-lg font-medium transition-all ${
+                            leaderboardCategory === 'girl'
+                              ? 'bg-gradient-to-r from-novera-gold to-amber-500 text-black font-extrabold shadow'
+                              : 'text-zinc-400 hover:text-white'
+                          }`}
+                        >
+                          Girls ({girls.length})
+                        </button>
+                      </div>
+
+                      <span className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-mono font-bold uppercase tracking-wider bg-emerald-500/15 border border-emerald-500/30 text-emerald-400">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                        Live Standings
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Leaderboard Lists */}
+                  {leaderboardCategory === 'both' ? (
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                      {/* Boys Column */}
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between pb-2 border-b border-amber-400/20">
+                          <div className="flex items-center gap-2">
+                            <span className="w-2.5 h-2.5 rounded-full bg-[#d4af37]" />
+                            <h4 className="font-serif text-base font-bold text-amber-200">
+                              Male Models ({boys.length})
+                            </h4>
+                          </div>
+                          <span className="text-xs font-mono text-zinc-400">
+                            {totalBoyVotes} total votes
+                          </span>
+                        </div>
+                        <div className="space-y-2.5 max-h-[600px] overflow-y-auto pr-1">
+                          {boys.map((c, idx) => {
+                            const isLeader = idx === 0 && (c.votes || 0) > 0;
+                            const pct = totalBoyVotes > 0 ? Math.round(((c.votes || 0) / totalBoyVotes) * 100) : 0;
+                            const barWidth = (boys[0]?.votes || 0) > 0 ? Math.max(3, Math.round(((c.votes || 0) / (boys[0]?.votes || 1)) * 100)) : 0;
+
+                            return (
+                              <div
+                                key={c.id}
+                                className={`p-3 sm:p-3.5 rounded-2xl border transition-all flex items-center gap-3 relative overflow-hidden ${
+                                  isLeader
+                                    ? 'bg-gradient-to-r from-amber-500/15 via-black/70 to-black/90 border-amber-400/60 shadow-[0_0_20px_rgba(212,175,55,0.2)]'
+                                    : idx === 1 && (c.votes || 0) > 0
+                                    ? 'bg-white/[0.05] border-white/20'
+                                    : idx === 2 && (c.votes || 0) > 0
+                                    ? 'bg-amber-950/20 border-amber-600/30'
+                                    : 'bg-black/30 border-white/10 hover:border-white/20'
+                                }`}
+                              >
+                                <div
+                                  className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 font-bold font-mono text-xs ${
+                                    idx === 0
+                                      ? 'bg-gradient-to-br from-amber-300 to-amber-500 text-black shadow-sm font-black'
+                                      : idx === 1
+                                      ? 'bg-zinc-200 text-black font-bold'
+                                      : idx === 2
+                                      ? 'bg-amber-700 text-white font-bold'
+                                      : 'bg-white/5 border border-white/10 text-zinc-400'
+                                  }`}
+                                >
+                                  {idx === 0 ? <Crown className="w-4 h-4 fill-black" /> : `#${idx + 1}`}
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex items-center gap-2 mb-0.5">
+                                    <span className="font-mono text-[11px] font-bold px-1.5 py-0.5 rounded bg-novera-gold/15 text-novera-gold border border-novera-gold/30">
+                                      #{c.candidateNumber || c.id}
+                                    </span>
+                                    {isLeader && (
+                                      <span className="text-[9px] uppercase font-bold text-amber-300 bg-amber-400/20 px-1.5 py-0.5 rounded-full border border-amber-400/40 animate-pulse">
+                                        Leader
+                                      </span>
+                                    )}
+                                  </div>
+                                  <div className="font-serif font-bold text-white text-sm truncate">
+                                    {c.name}
+                                  </div>
+                                  <div className="w-full bg-white/10 h-1.5 rounded-full mt-1.5 overflow-hidden">
+                                    <div
+                                      className="h-full rounded-full bg-gradient-to-r from-amber-400 to-amber-200 transition-all duration-500"
+                                      style={{ width: `${barWidth}%` }}
+                                    />
+                                  </div>
+                                </div>
+                                <div className="text-right shrink-0">
+                                  <div className="font-mono text-base font-black text-amber-300">
+                                    {c.votes || 0}
+                                    <span className="text-[10px] font-normal text-zinc-400 ml-1">v</span>
+                                  </div>
+                                  <div className="text-[10px] text-zinc-400 font-mono">
+                                    {pct}%
+                                  </div>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+
+                      {/* Girls Column */}
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between pb-2 border-b border-amber-400/20">
+                          <div className="flex items-center gap-2">
+                            <span className="w-2.5 h-2.5 rounded-full bg-[#f59e0b]" />
+                            <h4 className="font-serif text-base font-bold text-amber-200">
+                              Female Models ({girls.length})
+                            </h4>
+                          </div>
+                          <span className="text-xs font-mono text-zinc-400">
+                            {totalGirlVotes} total votes
+                          </span>
+                        </div>
+                        <div className="space-y-2.5 max-h-[600px] overflow-y-auto pr-1">
+                          {girls.map((c, idx) => {
+                            const isLeader = idx === 0 && (c.votes || 0) > 0;
+                            const pct = totalGirlVotes > 0 ? Math.round(((c.votes || 0) / totalGirlVotes) * 100) : 0;
+                            const barWidth = (girls[0]?.votes || 0) > 0 ? Math.max(3, Math.round(((c.votes || 0) / (girls[0]?.votes || 1)) * 100)) : 0;
+
+                            return (
+                              <div
+                                key={c.id}
+                                className={`p-3 sm:p-3.5 rounded-2xl border transition-all flex items-center gap-3 relative overflow-hidden ${
+                                  isLeader
+                                    ? 'bg-gradient-to-r from-amber-500/15 via-black/70 to-black/90 border-amber-400/60 shadow-[0_0_20px_rgba(212,175,55,0.2)]'
+                                    : idx === 1 && (c.votes || 0) > 0
+                                    ? 'bg-white/[0.05] border-white/20'
+                                    : idx === 2 && (c.votes || 0) > 0
+                                    ? 'bg-amber-950/20 border-amber-600/30'
+                                    : 'bg-black/30 border-white/10 hover:border-white/20'
+                                }`}
+                              >
+                                <div
+                                  className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 font-bold font-mono text-xs ${
+                                    idx === 0
+                                      ? 'bg-gradient-to-br from-amber-300 to-amber-500 text-black shadow-sm font-black'
+                                      : idx === 1
+                                      ? 'bg-zinc-200 text-black font-bold'
+                                      : idx === 2
+                                      ? 'bg-amber-700 text-white font-bold'
+                                      : 'bg-white/5 border border-white/10 text-zinc-400'
+                                  }`}
+                                >
+                                  {idx === 0 ? <Crown className="w-4 h-4 fill-black" /> : `#${idx + 1}`}
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex items-center gap-2 mb-0.5">
+                                    <span className="font-mono text-[11px] font-bold px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-300 border border-amber-500/30">
+                                      #{c.candidateNumber || c.id}
+                                    </span>
+                                    {isLeader && (
+                                      <span className="text-[9px] uppercase font-bold text-amber-300 bg-amber-400/20 px-1.5 py-0.5 rounded-full border border-amber-400/40 animate-pulse">
+                                        Leader
+                                      </span>
+                                    )}
+                                  </div>
+                                  <div className="font-serif font-bold text-white text-sm truncate">
+                                    {c.name}
+                                  </div>
+                                  <div className="w-full bg-white/10 h-1.5 rounded-full mt-1.5 overflow-hidden">
+                                    <div
+                                      className="h-full rounded-full bg-gradient-to-r from-amber-500 to-yellow-300 transition-all duration-500"
+                                      style={{ width: `${barWidth}%` }}
+                                    />
+                                  </div>
+                                </div>
+                                <div className="text-right shrink-0">
+                                  <div className="font-mono text-base font-black text-amber-300">
+                                    {c.votes || 0}
+                                    <span className="text-[10px] font-normal text-zinc-400 ml-1">v</span>
+                                  </div>
+                                  <div className="text-[10px] text-zinc-400 font-mono">
+                                    {pct}%
+                                  </div>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    </div>
+                  ) : leaderboardCategory === 'boy' ? (
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between pb-2 border-b border-amber-400/20">
+                        <h4 className="font-serif text-base font-bold text-amber-200">
+                          Male Models Leaderboard (Rank 1 to {boys.length})
+                        </h4>
+                        <span className="text-xs font-mono text-zinc-400">
+                          {totalBoyVotes} total votes
+                        </span>
+                      </div>
+                      <div className="space-y-2.5 max-h-[700px] overflow-y-auto pr-1">
+                        {boys.map((c, idx) => {
+                          const isLeader = idx === 0 && (c.votes || 0) > 0;
+                          const pct = totalBoyVotes > 0 ? Math.round(((c.votes || 0) / totalBoyVotes) * 100) : 0;
+                          const barWidth = (boys[0]?.votes || 0) > 0 ? Math.max(3, Math.round(((c.votes || 0) / (boys[0]?.votes || 1)) * 100)) : 0;
+
+                          return (
+                            <div
+                              key={c.id}
+                              className={`p-3.5 sm:p-4 rounded-2xl border transition-all flex items-center gap-3 sm:gap-4 relative overflow-hidden ${
+                                isLeader
+                                  ? 'bg-gradient-to-r from-amber-500/15 via-black/70 to-black/90 border-amber-400/60 shadow-[0_0_20px_rgba(212,175,55,0.2)]'
+                                  : idx === 1 && (c.votes || 0) > 0
+                                  ? 'bg-white/[0.05] border-white/20'
+                                  : idx === 2 && (c.votes || 0) > 0
+                                  ? 'bg-amber-950/20 border-amber-600/30'
+                                  : 'bg-black/30 border-white/10 hover:border-white/20'
+                              }`}
+                            >
+                              <div
+                                className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center shrink-0 font-bold font-mono text-xs sm:text-sm ${
+                                  idx === 0
+                                    ? 'bg-gradient-to-br from-amber-300 to-amber-500 text-black shadow-sm font-black'
+                                    : idx === 1
+                                    ? 'bg-zinc-200 text-black font-bold'
+                                    : idx === 2
+                                    ? 'bg-amber-700 text-white font-bold'
+                                    : 'bg-white/5 border border-white/10 text-zinc-400'
+                                }`}
+                              >
+                                {idx === 0 ? <Crown className="w-5 h-5 fill-black" /> : `#${idx + 1}`}
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-2 mb-1">
+                                  <span className="font-mono text-xs font-bold px-2 py-0.5 rounded-md bg-novera-gold/15 text-novera-gold border border-novera-gold/30">
+                                    #{c.candidateNumber || c.id}
+                                  </span>
+                                  {isLeader && (
+                                    <span className="text-[10px] uppercase font-bold text-amber-300 bg-amber-400/20 px-2 py-0.5 rounded-full border border-amber-400/40 animate-pulse">
+                                      Leader
+                                    </span>
+                                  )}
+                                </div>
+                                <div className="font-serif font-bold text-white text-sm sm:text-base truncate">
+                                  {c.name}
+                                </div>
+                                <div className="w-full bg-white/10 h-2 rounded-full mt-2 overflow-hidden">
+                                  <div
+                                    className="h-full rounded-full bg-gradient-to-r from-amber-400 to-amber-200 transition-all duration-500"
+                                    style={{ width: `${barWidth}%` }}
+                                  />
+                                </div>
+                              </div>
+                              <div className="text-right shrink-0">
+                                <div className="font-mono text-lg sm:text-xl font-black text-amber-300">
+                                  {c.votes || 0}
+                                  <span className="text-xs font-normal text-zinc-400 ml-1">votes</span>
+                                </div>
+                                <div className="text-[11px] text-zinc-400 font-mono">
+                                  {pct}% share
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between pb-2 border-b border-amber-400/20">
+                        <h4 className="font-serif text-base font-bold text-amber-200">
+                          Female Models Leaderboard (Rank 1 to {girls.length})
+                        </h4>
+                        <span className="text-xs font-mono text-zinc-400">
+                          {totalGirlVotes} total votes
+                        </span>
+                      </div>
+                      <div className="space-y-2.5 max-h-[700px] overflow-y-auto pr-1">
+                        {girls.map((c, idx) => {
+                          const isLeader = idx === 0 && (c.votes || 0) > 0;
+                          const pct = totalGirlVotes > 0 ? Math.round(((c.votes || 0) / totalGirlVotes) * 100) : 0;
+                          const barWidth = (girls[0]?.votes || 0) > 0 ? Math.max(3, Math.round(((c.votes || 0) / (girls[0]?.votes || 1)) * 100)) : 0;
+
+                          return (
+                            <div
+                              key={c.id}
+                              className={`p-3.5 sm:p-4 rounded-2xl border transition-all flex items-center gap-3 sm:gap-4 relative overflow-hidden ${
+                                isLeader
+                                  ? 'bg-gradient-to-r from-amber-500/15 via-black/70 to-black/90 border-amber-400/60 shadow-[0_0_20px_rgba(212,175,55,0.2)]'
+                                  : idx === 1 && (c.votes || 0) > 0
+                                  ? 'bg-white/[0.05] border-white/20'
+                                  : idx === 2 && (c.votes || 0) > 0
+                                  ? 'bg-amber-950/20 border-amber-600/30'
+                                  : 'bg-black/30 border-white/10 hover:border-white/20'
+                              }`}
+                            >
+                              <div
+                                className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center shrink-0 font-bold font-mono text-xs sm:text-sm ${
+                                  idx === 0
+                                    ? 'bg-gradient-to-br from-amber-300 to-amber-500 text-black shadow-sm font-black'
+                                    : idx === 1
+                                    ? 'bg-zinc-200 text-black font-bold'
+                                    : idx === 2
+                                    ? 'bg-amber-700 text-white font-bold'
+                                    : 'bg-white/5 border border-white/10 text-zinc-400'
+                                }`}
+                              >
+                                {idx === 0 ? <Crown className="w-5 h-5 fill-black" /> : `#${idx + 1}`}
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-2 mb-1">
+                                  <span className="font-mono text-xs font-bold px-2 py-0.5 rounded-md bg-amber-500/15 text-amber-300 border border-amber-500/30">
+                                    #{c.candidateNumber || c.id}
+                                  </span>
+                                  {isLeader && (
+                                    <span className="text-[10px] uppercase font-bold text-amber-300 bg-amber-400/20 px-2 py-0.5 rounded-full border border-amber-400/40 animate-pulse">
+                                      Leader
+                                    </span>
+                                  )}
+                                </div>
+                                <div className="font-serif font-bold text-white text-sm sm:text-base truncate">
+                                  {c.name}
+                                </div>
+                                <div className="w-full bg-white/10 h-2 rounded-full mt-2 overflow-hidden">
+                                  <div
+                                    className="h-full rounded-full bg-gradient-to-r from-amber-500 to-yellow-300 transition-all duration-500"
+                                    style={{ width: `${barWidth}%` }}
+                                  />
+                                </div>
+                              </div>
+                              <div className="text-right shrink-0">
+                                <div className="font-mono text-lg sm:text-xl font-black text-amber-300">
+                                  {c.votes || 0}
+                                  <span className="text-xs font-normal text-zinc-400 ml-1">votes</span>
+                                </div>
+                                <div className="text-[11px] text-zinc-400 font-mono">
+                                  {pct}% share
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {/* Admin Tools for Audience Votes */}
