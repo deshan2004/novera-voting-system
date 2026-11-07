@@ -56,7 +56,6 @@ import {
   X,
   RefreshCw,
 } from 'lucide-react';
-import Image from 'next/image';
 import RunwayStageBackground from '@/app/components/RunwayStageBackground';
 import VotingCountdownOverlay from '@/app/components/VotingCountdownOverlay';
 import VotingClosedCeremonyOverlay from '@/app/components/VotingClosedCeremonyOverlay';
@@ -1059,10 +1058,8 @@ export default function AdminLeaderboardPage() {
 
                   {/* Leading Boy */}
                   <div className="p-6 rounded-3xl bg-black/40 backdrop-blur-2xl border-2 border-novera-gold/40 shadow-xl flex items-center gap-5 text-white">
-                    <div className="relative w-24 h-24 rounded-2xl overflow-hidden shrink-0 shadow-inner border border-white/15">
-                      {topBoyAudience && (
-                        <Image src={topBoyAudience.imageUrl} alt={topBoyAudience.name} fill className="object-cover" />
-                      )}
+                    <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br from-novera-gold/30 to-amber-900/40 border-2 border-novera-gold text-novera-gold font-mono font-extrabold text-base sm:text-lg flex items-center justify-center shrink-0 shadow-lg">
+                      {topBoyAudience?.candidateNumber || 'Boy'}
                     </div>
                     <div className="flex-grow">
                       <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-novera-gold/20 border border-novera-gold/30 text-[10px] font-bold uppercase tracking-wider text-novera-gold mb-1">
@@ -1079,10 +1076,8 @@ export default function AdminLeaderboardPage() {
 
                   {/* Leading Girl */}
                   <div className="p-6 rounded-3xl bg-black/40 backdrop-blur-2xl border-2 border-novera-gold/40 shadow-xl flex items-center gap-5 text-white">
-                    <div className="relative w-24 h-24 rounded-2xl overflow-hidden shrink-0 shadow-inner border border-white/15">
-                      {topGirlAudience && (
-                        <Image src={topGirlAudience.imageUrl} alt={topGirlAudience.name} fill className="object-cover" />
-                      )}
+                    <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br from-novera-gold/30 to-amber-900/40 border-2 border-novera-gold text-novera-gold font-mono font-extrabold text-base sm:text-lg flex items-center justify-center shrink-0 shadow-lg">
+                      {topGirlAudience?.candidateNumber || 'Girl'}
                     </div>
                     <div className="flex-grow">
                       <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-novera-gold/20 border border-novera-gold/30 text-[10px] font-bold uppercase tracking-wider text-novera-gold mb-1">
@@ -1351,15 +1346,8 @@ export default function AdminLeaderboardPage() {
 
                   {/* Leading Boy */}
                   <div className="p-6 rounded-3xl bg-black/40 backdrop-blur-2xl border-2 border-novera-gold/40 shadow-xl flex items-center gap-5 text-white">
-                    <div className="relative w-24 h-24 rounded-2xl overflow-hidden shrink-0 shadow-inner border border-white/15">
-                      {leadingBoyForAward && (
-                        <Image
-                          src={leadingBoyForAward.candidate.imageUrl}
-                          alt={leadingBoyForAward.candidate.name}
-                          fill
-                          className="object-cover"
-                        />
-                      )}
+                    <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br from-novera-gold/30 to-amber-900/40 border-2 border-novera-gold text-novera-gold font-mono font-extrabold text-base sm:text-lg flex items-center justify-center shrink-0 shadow-lg">
+                      {leadingBoyForAward?.candidate.candidateNumber || 'Boy'}
                     </div>
                     <div className="flex-grow">
                       <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-novera-gold/20 border border-novera-gold/30 text-[10px] font-bold uppercase tracking-wider text-novera-gold mb-1">
@@ -1383,15 +1371,8 @@ export default function AdminLeaderboardPage() {
 
                   {/* Leading Girl */}
                   <div className="p-6 rounded-3xl bg-black/40 backdrop-blur-2xl border-2 border-novera-gold/40 shadow-xl flex items-center gap-5 text-white">
-                    <div className="relative w-24 h-24 rounded-2xl overflow-hidden shrink-0 shadow-inner border border-white/15">
-                      {leadingGirlForAward && (
-                        <Image
-                          src={leadingGirlForAward.candidate.imageUrl}
-                          alt={leadingGirlForAward.candidate.name}
-                          fill
-                          className="object-cover"
-                        />
-                      )}
+                    <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br from-novera-gold/30 to-amber-900/40 border-2 border-novera-gold text-novera-gold font-mono font-extrabold text-base sm:text-lg flex items-center justify-center shrink-0 shadow-lg">
+                      {leadingGirlForAward?.candidate.candidateNumber || 'Girl'}
                     </div>
                     <div className="flex-grow">
                       <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-novera-gold/20 border border-novera-gold/30 text-[10px] font-bold uppercase tracking-wider text-novera-gold mb-1">
@@ -1445,13 +1426,8 @@ export default function AdminLeaderboardPage() {
                               >
                                 #{idx + 1}
                               </div>
-                              <div className="relative w-10 h-10 rounded-xl overflow-hidden shrink-0 border border-white/10">
-                                <Image
-                                  src={stat.candidate.imageUrl}
-                                  alt={stat.candidate.name}
-                                  fill
-                                  className="object-cover"
-                                />
+                              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-novera-gold/20 to-amber-900/30 border border-novera-gold/40 text-novera-gold font-mono font-bold text-xs flex items-center justify-center shrink-0">
+                                {stat.candidate.candidateNumber}
                               </div>
                               <div>
                                 <div className="font-serif font-bold text-sm text-white">
@@ -1509,13 +1485,8 @@ export default function AdminLeaderboardPage() {
                               >
                                 #{idx + 1}
                               </div>
-                              <div className="relative w-10 h-10 rounded-xl overflow-hidden shrink-0 border border-white/10">
-                                <Image
-                                  src={stat.candidate.imageUrl}
-                                  alt={stat.candidate.name}
-                                  fill
-                                  className="object-cover"
-                                />
+                              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-novera-gold/20 to-amber-900/30 border border-novera-gold/40 text-novera-gold font-mono font-bold text-xs flex items-center justify-center shrink-0">
+                                {stat.candidate.candidateNumber}
                               </div>
                               <div>
                                 <div className="font-serif font-bold text-sm text-white">
@@ -1649,15 +1620,8 @@ export default function AdminLeaderboardPage() {
                             {/* Boy Winner */}
                             <div className="p-4 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-between gap-4 text-white">
                               <div className="flex items-center gap-3">
-                                <div className="relative w-14 h-14 rounded-xl overflow-hidden shrink-0 shadow-inner border border-white/10">
-                                  {winnerBoy && (
-                                    <Image
-                                      src={winnerBoy.candidate.imageUrl}
-                                      alt={winnerBoy.candidate.name}
-                                      fill
-                                      className="object-cover"
-                                    />
-                                  )}
+                                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-novera-gold/30 to-amber-900/40 border border-novera-gold text-novera-gold font-mono font-extrabold text-sm flex items-center justify-center shrink-0 shadow-md">
+                                  {winnerBoy?.candidate.candidateNumber || 'Boy'}
                                 </div>
                                 <div>
                                   <span className="text-[10px] uppercase font-bold text-novera-gold tracking-wider flex items-center gap-1">
@@ -1693,15 +1657,8 @@ export default function AdminLeaderboardPage() {
                             {/* Girl Winner */}
                             <div className="p-4 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-between gap-4 text-white">
                               <div className="flex items-center gap-3">
-                                <div className="relative w-14 h-14 rounded-xl overflow-hidden shrink-0 shadow-inner border border-white/10">
-                                  {winnerGirl && (
-                                    <Image
-                                      src={winnerGirl.candidate.imageUrl}
-                                      alt={winnerGirl.candidate.name}
-                                      fill
-                                      className="object-cover"
-                                    />
-                                  )}
+                                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-novera-gold/30 to-amber-900/40 border border-novera-gold text-novera-gold font-mono font-extrabold text-sm flex items-center justify-center shrink-0 shadow-md">
+                                  {winnerGirl?.candidate.candidateNumber || 'Girl'}
                                 </div>
                                 <div>
                                   <span className="text-[10px] uppercase font-bold text-novera-gold tracking-wider flex items-center gap-1">
@@ -1902,13 +1859,8 @@ export default function AdminLeaderboardPage() {
                         {/* Candidate Row Header */}
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-white/10">
                           <div className="flex items-center gap-3">
-                            <div className="relative w-12 h-12 rounded-xl overflow-hidden shrink-0 shadow-sm border border-white/20">
-                              <Image
-                                src={candidate.imageUrl}
-                                alt={candidate.name}
-                                fill
-                                className="object-cover"
-                              />
+                            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-novera-gold/20 to-amber-900/30 border border-novera-gold/40 text-novera-gold font-mono font-bold text-xs flex items-center justify-center shrink-0">
+                              {candidate.candidateNumber}
                             </div>
                             <div>
                               <div className="flex items-center gap-2">

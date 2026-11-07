@@ -3,7 +3,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Candidate, GenderCategory, JudgeScore } from '@/lib/types';
 import { fetchCandidates, saveJudgeScore, getLocalJudgeScores, subscribeToJudgeScores } from '@/lib/api';
-import Image from 'next/image';
 import confetti from 'canvas-confetti';
 import {
   Award,
@@ -821,47 +820,26 @@ export default function JudgePortalPage() {
                 }`}
               >
                 <div>
-                  {/* Image Card with Glass Badges and Hover Zoom (Click to inspect full profile & bio) */}
-                  <div
-                    onClick={() => setInspectCandidate(candidate)}
-                    className="relative aspect-[3/4] w-full rounded-2xl overflow-hidden mb-4 bg-black/40 shadow-inner cursor-pointer group/img"
-                    title={`Click to view full photo and profile details for ${candidate.name}`}
-                  >
-                    <Image
-                      src={candidate.imageUrl}
-                      alt={candidate.name}
-                      fill
-                      className="object-cover group-hover:scale-108 transition-transform duration-700 ease-out"
-                      sizes="(max-width: 768px) 100vw, 25vw"
-                    />
-
-                    {/* Dark Vignette Overlay on Bottom */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/30 pointer-events-none" />
-
-                    {/* Candidate No Glass Badge */}
-                    <div className="absolute top-3 left-3 px-3 py-1.5 rounded-xl bg-black/75 border-2 border-novera-gold/60 backdrop-blur-md text-novera-gold font-mono text-sm font-extrabold tracking-wider shadow-lg">
-                      {candidate.candidateNumber}
+                  {/* Contender Header: Name & Number (No photos) */}
+                  <div className="p-4 rounded-2xl bg-black/60 border border-white/10 mb-3 space-y-2.5">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="px-3 py-1 rounded-xl bg-novera-gold/20 border border-novera-gold/50 text-novera-gold font-mono text-sm font-extrabold tracking-wider shadow-sm">
+                        #{candidate.candidateNumber}
+                      </span>
+                      <span className="text-[10px] font-mono uppercase tracking-widest text-zinc-300 font-semibold px-2.5 py-0.5 rounded-full bg-white/5 border border-white/10">
+                        {candidate.category === 'boy' ? 'Male Model' : 'Female Model'}
+                      </span>
                     </div>
-
-                    {/* View Profile Hover Pill */}
-                    <div className="absolute top-3 right-3 px-2.5 py-1 rounded-xl bg-black/75 border border-novera-gold/50 text-novera-gold text-[10px] font-mono tracking-wider font-semibold opacity-90 group-hover/img:opacity-100 group-hover/img:bg-novera-gold group-hover/img:text-black transition-all flex items-center gap-1 backdrop-blur-md shadow-md">
-                      <Eye className="w-3 h-3" />
-                      <span>Profile</span>
-                    </div>
-
-                    {/* Scored Status Glass Badge (Positioned below top-right pill if scored) */}
-                    {isScored && (
-                      <div className="absolute top-12 right-3 px-2.5 py-1 rounded-xl bg-emerald-600/90 text-white text-[10px] font-bold flex items-center gap-1 shadow-lg backdrop-blur-md border border-emerald-300/40 animate-in zoom-in-75 duration-200">
-                        <CheckCheck className="w-3.5 h-3.5 text-emerald-200" />
-                        <span>{score.totalModel}/100</span>
-                      </div>
-                    )}
-
-                    {/* Name Overlay on Photo */}
-                    <div className="absolute bottom-3 left-3 right-3">
-                      <h3 className="font-serif text-lg font-bold text-white drop-shadow-md truncate">
+                    <div className="flex items-center justify-between gap-2">
+                      <h3 className="font-serif text-lg sm:text-xl font-bold text-white group-hover:text-amber-200 transition-colors truncate">
                         {candidate.name}
                       </h3>
+                      {isScored && (
+                        <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-[10px] font-mono font-bold shrink-0 flex items-center gap-1">
+                          <CheckCheck className="w-3 h-3 text-emerald-300" />
+                          <span>{score.totalModel}/100</span>
+                        </span>
+                      )}
                     </div>
                   </div>
 
@@ -1115,16 +1093,8 @@ export default function JudgePortalPage() {
                   className="flex items-center gap-2 sm:gap-2.5 min-w-0 flex-1 text-left group cursor-pointer hover:opacity-95 transition-all"
                   title="Click on model photo or name to view details & bio"
                 >
-                  <div className="relative w-8 h-8 sm:w-10 sm:h-10 rounded-xl overflow-hidden shadow-md border-2 border-novera-gold/70 shrink-0 group-hover:scale-105 group-hover:border-amber-300 transition-all">
-                    <Image
-                      src={scoringCandidate.imageUrl}
-                      alt={scoringCandidate.name}
-                      fill
-                      className="object-cover"
-                    />
-                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                      <Eye className="w-3.5 h-3.5 text-white drop-shadow" />
-                    </div>
+                  <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-novera-gold/30 to-amber-900/40 border-2 border-novera-gold text-novera-gold font-mono font-extrabold text-xs sm:text-sm flex items-center justify-center shadow-md shrink-0">
+                    {scoringCandidate.candidateNumber}
                   </div>
                   <div className="min-w-0 flex-1">
                     <div className="text-[9px] sm:text-[10px] font-mono uppercase tracking-widest text-novera-gold font-bold truncate leading-tight flex items-center gap-1">
@@ -1453,44 +1423,33 @@ export default function JudgePortalPage() {
               className="relative z-10 w-full max-w-md bg-[#0d0b08]/98 border border-novera-gold/50 rounded-2xl sm:rounded-3xl overflow-hidden shadow-[0_0_70px_rgba(0,0,0,0.95),0_0_35px_rgba(203,167,95,0.3)] text-white animate-in zoom-in-95 duration-200 flex flex-col max-h-[92dvh] sm:max-h-[calc(100dvh-2rem)] shrink-0"
               onClick={(e) => e.stopPropagation()}
             >
-              {/* Hero Image Container */}
-              <div className="relative w-full h-64 sm:h-80 bg-zinc-950 shrink-0 overflow-hidden">
-                <Image
-                  src={inspectCandidate.imageUrl}
-                  alt={inspectCandidate.name}
-                  fill
-                  priority
-                  className="object-cover object-top"
-                  sizes="(max-width: 768px) 100vw, 450px"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#0d0b08] via-[#0d0b08]/30 to-black/60" />
-
+              {/* Header Container (No photo - Name & Number only) */}
+              <div className="relative w-full p-5 sm:p-6 bg-gradient-to-b from-[#1c160c] to-[#0d0b08] border-b border-novera-gold/30 shrink-0">
                 {/* Close Button */}
                 <button
                   type="button"
                   onClick={() => setInspectCandidate(null)}
-                  className="absolute top-3.5 right-3.5 w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-black/60 backdrop-blur-md border border-white/20 text-white flex items-center justify-center hover:bg-white/20 active:scale-90 transition-all z-10 shadow-lg cursor-pointer"
+                  className="absolute top-4 right-4 w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-black/60 backdrop-blur-md border border-white/20 text-white flex items-center justify-center hover:bg-white/20 active:scale-90 transition-all z-10 shadow-lg cursor-pointer"
                   title="Close Profile View"
                 >
                   <X className="w-4 h-4" />
                 </button>
 
                 {/* Badges */}
-                <div className="absolute top-3.5 left-3.5 flex items-center gap-1.5 sm:gap-2 z-10">
-                  <span className="px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full bg-novera-gold text-black font-mono font-extrabold text-[11px] sm:text-xs shadow-md">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="px-3 py-1 rounded-full bg-novera-gold text-black font-mono font-extrabold text-xs shadow-md">
                     #{inspectCandidate.candidateNumber}
                   </span>
-                  <span className="px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full bg-black/70 backdrop-blur-md border border-white/20 text-white font-mono text-[9px] sm:text-[10px] uppercase tracking-wider font-semibold">
+                  <span className="px-3 py-1 rounded-full bg-black/70 backdrop-blur-md border border-white/20 text-white font-mono text-[10px] uppercase tracking-wider font-semibold">
                     {inspectCandidate.category === 'boy' ? 'Male Model' : 'Female Model'}
                   </span>
                 </div>
 
-                {/* Contender Name Overlay */}
-                <div className="absolute bottom-2.5 sm:bottom-3 left-4 sm:left-5 right-4 sm:right-5 space-y-0.5">
-                  <span className="text-[9px] sm:text-[10px] font-mono uppercase tracking-[0.25em] text-amber-200/80 block font-bold">
+                <div className="space-y-0.5">
+                  <span className="text-[10px] font-mono uppercase tracking-[0.25em] text-amber-200/80 block font-bold">
                     Official Contender Profile
                   </span>
-                  <h3 className="font-serif text-xl sm:text-3xl font-extrabold text-white drop-shadow-md truncate">
+                  <h3 className="font-serif text-xl sm:text-2xl font-extrabold text-white drop-shadow-md truncate">
                     {inspectCandidate.name}
                   </h3>
                 </div>

@@ -30,7 +30,6 @@ import {
   Eye,
   User,
 } from 'lucide-react';
-import Image from 'next/image';
 import RunwayStageBackground from '@/app/components/RunwayStageBackground';
 import VotingCountdownOverlay from '@/app/components/VotingCountdownOverlay';
 import VotingClosedCeremonyOverlay from '@/app/components/VotingClosedCeremonyOverlay';
@@ -1067,43 +1066,32 @@ export default function VotePage() {
               className="relative z-10 w-full max-w-md bg-[#0d0b08]/95 border border-novera-gold/40 rounded-2xl sm:rounded-3xl overflow-hidden shadow-[0_0_60px_rgba(0,0,0,0.95),0_0_35px_rgba(203,167,95,0.25)] text-white animate-in zoom-in-95 duration-200 flex flex-col max-h-[92dvh] sm:max-h-[calc(100dvh-2rem)] shrink-0"
               onClick={(e) => e.stopPropagation()}
             >
-            {/* Hero Image Container */}
-            <div className="relative w-full h-56 sm:h-72 bg-zinc-950 shrink-0 overflow-hidden">
-              <Image
-                src={profileCandidate.imageUrl}
-                alt={profileCandidate.name}
-                fill
-                priority
-                className="object-cover object-top"
-                sizes="(max-width: 768px) 100vw, 450px"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#0d0b08] via-[#0d0b08]/30 to-black/60" />
-
+            {/* Header Container (No photo - Name & Number only) */}
+            <div className="relative w-full p-5 sm:p-6 bg-gradient-to-b from-[#1c160c] to-[#0d0b08] border-b border-novera-gold/30 shrink-0">
               {/* Close Button */}
               <button
                 type="button"
                 onClick={() => setProfileCandidate(null)}
-                className="absolute top-3.5 right-3.5 w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-black/60 backdrop-blur-md border border-white/20 text-white flex items-center justify-center hover:bg-white/20 active:scale-90 transition-all z-10 shadow-lg cursor-pointer"
+                className="absolute top-4 right-4 w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-black/60 backdrop-blur-md border border-white/20 text-white flex items-center justify-center hover:bg-white/20 active:scale-90 transition-all z-10 shadow-lg cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>
 
               {/* Badges */}
-              <div className="absolute top-3.5 left-3.5 flex items-center gap-1.5 sm:gap-2 z-10">
-                <span className="px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full bg-novera-gold text-black font-mono font-extrabold text-[11px] sm:text-xs shadow-md">
-                  {profileCandidate.candidateNumber}
+              <div className="flex items-center gap-2 mb-2">
+                <span className="px-3 py-1 rounded-full bg-novera-gold text-black font-mono font-extrabold text-xs shadow-md">
+                  #{profileCandidate.candidateNumber}
                 </span>
-                <span className="px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full bg-black/70 backdrop-blur-md border border-white/20 text-white font-mono text-[9px] sm:text-[10px] uppercase tracking-wider font-semibold">
+                <span className="px-3 py-1 rounded-full bg-black/70 backdrop-blur-md border border-white/20 text-white font-mono text-[10px] uppercase tracking-wider font-semibold">
                   {profileCandidate.category === 'boy' ? 'Male Model' : 'Female Model'}
                 </span>
               </div>
 
-              {/* Contender Name Overlay */}
-              <div className="absolute bottom-2.5 sm:bottom-3 left-4 sm:left-5 right-4 sm:right-5 space-y-0.5">
-                <span className="text-[9px] sm:text-[10px] font-mono uppercase tracking-[0.25em] text-amber-200/80 block font-bold">
+              <div className="space-y-0.5">
+                <span className="text-[10px] font-mono uppercase tracking-[0.25em] text-amber-200/80 block font-bold">
                   Official Contender Profile
                 </span>
-                <h3 className="font-serif text-xl sm:text-3xl font-extrabold text-white drop-shadow-md truncate">
+                <h3 className="font-serif text-xl sm:text-2xl font-extrabold text-white drop-shadow-md truncate">
                   {profileCandidate.name}
                 </h3>
               </div>
