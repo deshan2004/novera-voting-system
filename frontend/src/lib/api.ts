@@ -62,16 +62,10 @@ export function getOrCreateVoterId(): string {
  */
 export function sanitizeVotingSettings(settings: VotingSettings | null | undefined): VotingSettings {
   if (!settings) return { isVotingOpen: false };
-  if (settings.isVotingOpen && settings.votingClosesAt && settings.votingClosesAt <= Date.now()) {
-    return {
-      ...settings,
-      isVotingOpen: false,
-      votingClosesAt: null,
-      countdownUntil: null,
-      announcement: 'Audience voting has concluded for NOVERA ’26.',
-    };
-  }
-  return settings;
+  return {
+    ...settings,
+    isVotingOpen: !!settings.isVotingOpen,
+  };
 }
 
 /**

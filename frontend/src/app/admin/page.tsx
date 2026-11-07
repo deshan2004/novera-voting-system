@@ -286,6 +286,7 @@ export default function AdminLeaderboardPage() {
   }, [votingSettings.isVotingOpen, votingSettings.votingClosesAt, votingSettings.sessionId, adminRole]);
 
   const toggleVotingStatus = async () => {
+    if (isUpdatingVotingStatus) return;
     if (!votingSettings.isVotingOpen) {
       // Opening voting: 10 minutes session (or configured duration)
       const sessionId = `sess_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
@@ -303,7 +304,6 @@ export default function AdminLeaderboardPage() {
           sessionId,
           announcement: `Audience voting is LIVE for ${votingDurationMinutes} minutes!`,
         });
-        // Countdown overlay will play smoothly on this screen, then onComplete will navigate to /qr
       } finally {
         setIsUpdatingVotingStatus(false);
       }
@@ -325,23 +325,6 @@ export default function AdminLeaderboardPage() {
       }
     }
   };
-
-  // ⚡ Spacebar Keyboard Shortcut to Toggle Voting
-  useEffect(() => {
-    if (!isAuthenticated) return;
-    const handleKeyDown = (e: KeyboardEvent) => {
-      const tag = (e.target as HTMLElement)?.tagName?.toLowerCase();
-      if (tag === 'input' || tag === 'textarea' || (e.target as HTMLElement)?.isContentEditable) {
-        return;
-      }
-      if (e.code === 'Space') {
-        e.preventDefault();
-        toggleVotingStatus();
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isAuthenticated, votingSettings.isVotingOpen, votingDurationMinutes]);
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
@@ -723,7 +706,6 @@ export default function AdminLeaderboardPage() {
               } catch (e) { }
             }
             setVotingSettings((prev) => ({ ...prev, countdownUntil: null }));
-            router.push('/qr');
           }}
         />
       )}

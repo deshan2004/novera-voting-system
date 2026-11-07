@@ -484,7 +484,7 @@ export default function JudgePortalPage() {
                       <span>Official Scoring System</span>
                       <span className="text-novera-gold font-bold flex items-center gap-1.5">
                         <span className="w-2 h-2 rounded-full bg-novera-gold animate-pulse inline-block" />
-                        <span>Online &bull; Live Telemetry</span>
+                        <span>Online • Live Telemetry</span>
                       </span>
                     </div>
                   </div>
