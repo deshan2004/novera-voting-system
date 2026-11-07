@@ -621,10 +621,20 @@ export default function AdminLeaderboardPage() {
       return numA - numB;
     });
 
+    const getContenderShortName = (fullName: string) => {
+      const parts = fullName.trim().split(/\s+/);
+      for (const part of parts) {
+        if (!part.includes('.') && part.length > 2) {
+          return part.charAt(0).toUpperCase() + part.slice(1).toLowerCase();
+        }
+      }
+      return parts[0] || fullName;
+    };
+
     return sorted.map((c) => ({
       id: c.id,
       number: c.candidateNumber || c.id,
-      displayName: `${c.candidateNumber || ''} ${c.name.split(' ')[0]}`.trim(),
+      displayName: `${c.candidateNumber || ''} ${getContenderShortName(c.name)}`.trim(),
       fullName: c.name,
       category: c.category === 'boy' ? 'Boy' : 'Girl',
       votes: c.votes || 0,

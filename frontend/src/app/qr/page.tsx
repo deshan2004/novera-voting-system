@@ -121,16 +121,27 @@ export default function QrDisplayPage() {
       .slice(0, 3);
   }, [candidates]);
 
+  // Helper to extract clean first name without initials (e.g., 'R.A Lahasi' -> 'Lahasi')
+  const getContenderShortName = (fullName: string) => {
+    const parts = fullName.trim().split(/\s+/);
+    for (const part of parts) {
+      if (!part.includes('.') && part.length > 2) {
+        return part.charAt(0).toUpperCase() + part.slice(1).toLowerCase();
+      }
+    }
+    return parts[0] || fullName;
+  };
+
   // Combined 6-Contender Data for Stage Bar Chart
   const chartData = useMemo(() => {
     const boysList = topBoys.map((c, idx) => ({
       id: c.id,
       number: c.candidateNumber || `M-${idx + 1}`,
-      name: c.name.split(' ')[0],
+      name: getContenderShortName(c.name),
       fullName: c.name,
       category: 'Male',
       rank: idx + 1,
-      displayName: `#${c.candidateNumber || `M-${idx + 1}`} ${c.name.split(' ')[0]}`,
+      displayName: `#${c.candidateNumber || `M-${idx + 1}`} ${getContenderShortName(c.name)}`,
       votes: c.votes || 0,
       color: '#d4af37', // Runway Gold
     }));
@@ -138,11 +149,11 @@ export default function QrDisplayPage() {
     const girlsList = topGirls.map((c, idx) => ({
       id: c.id,
       number: c.candidateNumber || `F-${idx + 1}`,
-      name: c.name.split(' ')[0],
+      name: getContenderShortName(c.name),
       fullName: c.name,
       category: 'Female',
       rank: idx + 1,
-      displayName: `#${c.candidateNumber || `F-${idx + 1}`} ${c.name.split(' ')[0]}`,
+      displayName: `#${c.candidateNumber || `F-${idx + 1}`} ${getContenderShortName(c.name)}`,
       votes: c.votes || 0,
       color: '#f59e0b', // Radiant Amber Gold
     }));
