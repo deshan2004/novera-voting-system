@@ -24,6 +24,7 @@ import {
   ResponsiveContainer,
   Cell,
   CartesianGrid,
+  LabelList,
 } from 'recharts';
 import {
   Users,
@@ -185,9 +186,10 @@ export default function AdminLeaderboardPage() {
     }, 3500);
   };
   const [chartCategory, setChartCategory] = useState<'both' | 'boy' | 'girl'>('both');
+  const [chartSortMode, setChartSortMode] = useState<'number' | 'votes'>('number');
   const [votingSettings, setVotingSettings] = useState<VotingSettings>({ isVotingOpen: false });
   const [isUpdatingVotingStatus, setIsUpdatingVotingStatus] = useState<boolean>(false);
-  const [isPrivacyMasked, setIsPrivacyMasked] = useState<boolean>(true);
+  const [isPrivacyMasked, setIsPrivacyMasked] = useState<boolean>(false);
   const [votingDurationMinutes, setVotingDurationMinutes] = useState<number>(10);
   const [remainingTimeText, setRemainingTimeText] = useState<string>('');
   const [remainingSeconds, setRemainingSeconds] = useState<number>(0);
@@ -230,7 +232,13 @@ export default function AdminLeaderboardPage() {
 
     const interval = setInterval(loadData, 3000);
     const handleVoteSync = () => loadData();
+    const handleStorageSync = (e: StorageEvent) => {
+      if (e.key === 'novera_candidates') {
+        loadData();
+      }
+    };
     window.addEventListener('novera_vote_updated', handleVoteSync);
+    window.addEventListener('storage', handleStorageSync);
 
     return () => {
       unsubscribeCandidates();
@@ -238,6 +246,7 @@ export default function AdminLeaderboardPage() {
       unsubscribeVotingSettings();
       clearInterval(interval);
       window.removeEventListener('novera_vote_updated', handleVoteSync);
+      window.removeEventListener('storage', handleStorageSync);
     };
   }, []);
 
@@ -591,26 +600,36 @@ export default function AdminLeaderboardPage() {
   };
 
   // Recharts Data Prep
-  const chartData = [
-    ...(chartCategory === 'both' || chartCategory === 'boy'
-      ? boys.map((c) => ({
-        name: c.name.split(' ')[0],
-        fullName: c.name,
-        category: 'Boy',
-        votes: c.votes || 0,
-        color: '#b3924f',
-      }))
-      : []),
-    ...(chartCategory === 'both' || chartCategory === 'girl'
-      ? girls.map((c) => ({
-        name: c.name.split(' ')[0],
-        fullName: c.name,
-        category: 'Girl',
-        votes: c.votes || 0,
-        color: '#0b0b0b',
-      }))
-      : []),
-  ];
+  const chartData = useMemo(() => {
+    let sourceCandidates: Candidate[] = [];
+    if (chartCategory === 'both') {
+      sourceCandidates = [...candidates];
+    } else if (chartCategory === 'boy') {
+      sourceCandidates = candidates.filter((c) => c.category === 'boy');
+    } else {
+      sourceCandidates = candidates.filter((c) => c.category === 'girl');
+    }
+
+    const sorted = [...sourceCandidates].sort((a, b) => {
+      if (chartSortMode === 'votes') {
+        const diff = (b.votes || 0) - (a.votes || 0);
+        if (diff !== 0) return diff;
+      }
+      const numA = parseInt(a.candidateNumber?.replace(/\D/g, '') || '0', 10);
+      const numB = parseInt(b.candidateNumber?.replace(/\D/g, '') || '0', 10);
+      return numA - numB;
+    });
+
+    return sorted.map((c) => ({
+      id: c.id,
+      number: c.candidateNumber || c.id,
+      displayName: `${c.candidateNumber || ''} ${c.name.split(' ')[0]}`.trim(),
+      fullName: c.name,
+      category: c.category === 'boy' ? 'Boy' : 'Girl',
+      votes: c.votes || 0,
+      color: c.category === 'boy' ? '#d4af37' : '#f59e0b',
+    }));
+  }, [candidates, chartCategory, chartSortMode]);
 
   if (!isAuthenticated) {
     return (
@@ -1081,42 +1100,79 @@ export default function AdminLeaderboardPage() {
                   </div>
                 </div>
 
-                {/* Bar Chart Section */}
+                {/* Live Vote Distribution Section */}
                 <div className="p-6 sm:p-8 rounded-3xl bg-black/40 backdrop-blur-2xl border border-white/15 shadow-2xl text-white">
-                  <div className="flex flex-col sm:flex-row items-center justify-between pb-6 border-b border-white/10 gap-4">
+                  <div className="flex flex-col md:flex-row items-start md:items-center justify-between pb-6 border-b border-white/10 gap-4">
                     <div>
-                      <h2 className="font-serif text-xl sm:text-2xl font-bold text-white">
-                        Live Vote Distribution (Bar Chart)
+                      <h2 className="font-serif text-xl sm:text-2xl font-bold text-white flex items-center gap-2.5">
+                        <span>Live Vote Distribution</span>
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-sans font-bold uppercase tracking-wider bg-emerald-500/15 border border-emerald-500/30 text-emerald-400">
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                          Live Standings
+                        </span>
                       </h2>
-                      <p className="text-xs text-zinc-400">Real-time vote comparison across runway models</p>
+                      <p className="text-xs text-zinc-400 mt-1">Real-time vote comparison across runway models &bull; Standings update automatically</p>
                     </div>
 
-                    <div className="inline-flex p-1 rounded-xl bg-white/10 border border-white/15 text-xs">
+                    <div className="flex flex-wrap items-center gap-2.5">
+                      {/* Sort Order Toggle */}
+                      <div className="inline-flex p-1 rounded-xl bg-white/10 border border-white/15 text-xs">
+                        <button
+                          type="button"
+                          onClick={() => setChartSortMode('number')}
+                          className={`px-3 py-1.5 rounded-lg font-medium transition-all ${chartSortMode === 'number' ? 'bg-white/20 text-white font-bold' : 'text-zinc-400 hover:text-white'}`}
+                        >
+                          Contender #
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setChartSortMode('votes')}
+                          className={`px-3 py-1.5 rounded-lg font-medium transition-all ${chartSortMode === 'votes' ? 'bg-gradient-to-r from-novera-gold to-amber-500 text-black font-extrabold shadow' : 'text-zinc-400 hover:text-white'}`}
+                        >
+                          Ranked
+                        </button>
+                      </div>
+
+                      {/* Category Filter */}
+                      <div className="inline-flex p-1 rounded-xl bg-white/10 border border-white/15 text-xs">
+                        <button
+                          type="button"
+                          onClick={() => setChartCategory('both')}
+                          className={`px-3 py-1.5 rounded-lg font-medium transition-all ${chartCategory === 'both' ? 'bg-gradient-to-r from-novera-gold to-amber-500 text-black font-extrabold shadow' : 'text-zinc-400 hover:text-white'}`}
+                        >
+                          All Models
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setChartCategory('boy')}
+                          className={`px-3 py-1.5 rounded-lg font-medium transition-all ${chartCategory === 'boy' ? 'bg-gradient-to-r from-novera-gold to-amber-500 text-black font-extrabold shadow' : 'text-zinc-400 hover:text-white'}`}
+                        >
+                          Boys Only
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setChartCategory('girl')}
+                          className={`px-3 py-1.5 rounded-lg font-medium transition-all ${chartCategory === 'girl' ? 'bg-gradient-to-r from-novera-gold to-amber-500 text-black font-extrabold shadow' : 'text-zinc-400 hover:text-white'}`}
+                        >
+                          Girls Only
+                        </button>
+                      </div>
+
+                      {/* Privacy Toggle */}
                       <button
-                        onClick={() => setChartCategory('both')}
-                        className={`px-3 py-1.5 rounded-lg font-medium transition-all ${chartCategory === 'both' ? 'bg-gradient-to-r from-novera-gold to-amber-500 text-black font-extrabold shadow' : 'text-zinc-400 hover:text-white'
-                          }`}
+                        type="button"
+                        onClick={() => setIsPrivacyMasked(!isPrivacyMasked)}
+                        title={isPrivacyMasked ? 'Reveal Chart' : 'Conceal Chart'}
+                        className={`p-2 rounded-xl border text-xs font-semibold flex items-center gap-1.5 transition-all ${
+                          isPrivacyMasked ? 'bg-amber-500/20 text-amber-300 border-amber-400/40' : 'bg-white/10 text-zinc-300 border-white/15 hover:bg-white/20'
+                        }`}
                       >
-                        All Models
-                      </button>
-                      <button
-                        onClick={() => setChartCategory('boy')}
-                        className={`px-3 py-1.5 rounded-lg font-medium transition-all ${chartCategory === 'boy' ? 'bg-gradient-to-r from-novera-gold to-amber-500 text-black font-extrabold shadow' : 'text-zinc-400 hover:text-white'
-                          }`}
-                      >
-                        Boys Only
-                      </button>
-                      <button
-                        onClick={() => setChartCategory('girl')}
-                        className={`px-3 py-1.5 rounded-lg font-medium transition-all ${chartCategory === 'girl' ? 'bg-gradient-to-r from-novera-gold to-amber-500 text-black font-extrabold shadow' : 'text-zinc-400 hover:text-white'
-                          }`}
-                      >
-                        Girls Only
+                        {isPrivacyMasked ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                       </button>
                     </div>
                   </div>
 
-                  <div className="mt-8 h-80 w-full relative">
+                  <div className="mt-8 w-full relative">
                     {isPrivacyMasked && (
                       <div className="absolute inset-0 z-20 bg-black/85 backdrop-blur-md rounded-2xl flex flex-col items-center justify-center text-center p-4 space-y-3">
                         <EyeOff className="w-8 h-8 text-novera-gold animate-pulse" />
@@ -1124,7 +1180,7 @@ export default function AdminLeaderboardPage() {
                           Vote Distribution Concealed
                         </span>
                         <p className="text-xs text-zinc-400 max-w-sm">
-                          Relative standings are shielded from public view. Unmask to inspect real-time bar graphs.
+                          Relative standings are shielded from view. Click to inspect live real-time bar graphs.
                         </p>
                         <button
                           type="button"
@@ -1135,33 +1191,72 @@ export default function AdminLeaderboardPage() {
                         </button>
                       </div>
                     )}
-                    <ResponsiveContainer width="100%" height="100%">
-                      <BarChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 25 }}>
-                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255, 255, 255, 0.1)" />
-                        <XAxis dataKey="name" tick={{ fontSize: 11, fill: '#d4d4d8' }} interval={0} angle={-25} textAnchor="end" />
-                        <YAxis tick={{ fontSize: 11, fill: '#d4d4d8' }} allowDecimals={false} />
-                        <Tooltip
-                          content={({ active, payload }) => {
-                            if (active && payload && payload.length) {
-                              const data = payload[0].payload;
-                              return (
-                                <div className="bg-[#0c0a08]/95 backdrop-blur-xl border border-white/20 text-white p-3 rounded-xl shadow-xl text-xs space-y-1">
-                                  <div className="font-bold text-novera-gold">{data.fullName}</div>
-                                  <div className="text-zinc-400">Category: {data.category}</div>
-                                  <div className="font-mono text-sm font-bold text-white">{data.votes} votes</div>
-                                </div>
-                              );
-                            }
-                            return null;
-                          }}
-                        />
-                        <Bar dataKey="votes" radius={[8, 8, 0, 0]}>
-                          {chartData.map((entry, index) => (
-                            <Cell key={`cell-${index}`} fill={entry.color} />
-                          ))}
-                        </Bar>
-                      </BarChart>
-                    </ResponsiveContainer>
+
+                    <div className="overflow-x-auto pb-2">
+                      <div className={`h-88 sm:h-96 ${chartCategory === 'both' ? 'min-w-[850px]' : chartCategory === 'girl' ? 'min-w-[650px]' : 'min-w-[480px]'} w-full`}>
+                        <ResponsiveContainer width="100%" height="100%">
+                          <BarChart data={chartData} margin={{ top: 20, right: 15, left: -20, bottom: 40 }}>
+                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255, 255, 255, 0.08)" />
+                            <XAxis
+                              dataKey="displayName"
+                              tick={{ fontSize: 10, fill: '#d4d4d8' }}
+                              interval={0}
+                              angle={-45}
+                              textAnchor="end"
+                              height={60}
+                            />
+                            <YAxis
+                              tick={{ fontSize: 11, fill: '#d4d4d8' }}
+                              allowDecimals={false}
+                              domain={[0, (dataMax: number) => Math.max(5, Math.ceil(dataMax * 1.15))]}
+                            />
+                            <Tooltip
+                              cursor={{ fill: 'rgba(212, 175, 55, 0.08)', radius: 6 }}
+                              content={({ active, payload }) => {
+                                if (active && payload && payload.length) {
+                                  const data = payload[0].payload;
+                                  return (
+                                    <div className="bg-[#0c0a08]/95 backdrop-blur-xl border border-novera-gold/40 text-white p-3 rounded-xl shadow-2xl text-xs space-y-1.5 min-w-[170px]">
+                                      <div className="flex items-center justify-between gap-2 border-b border-white/10 pb-1">
+                                        <span className="font-mono font-bold text-novera-gold text-[11px] bg-novera-gold/15 px-1.5 py-0.5 rounded">
+                                          #{data.number}
+                                        </span>
+                                        <span className="text-[10px] uppercase font-semibold text-zinc-400">
+                                          {data.category} Model
+                                        </span>
+                                      </div>
+                                      <div className="font-serif font-bold text-white text-sm pt-0.5">
+                                        {data.fullName}
+                                      </div>
+                                      <div className="flex items-baseline justify-between pt-1 text-zinc-300">
+                                        <span>Votes:</span>
+                                        <span className="font-mono text-base font-extrabold text-amber-300">
+                                          {data.votes} votes
+                                        </span>
+                                      </div>
+                                    </div>
+                                  );
+                                }
+                                return null;
+                              }}
+                            />
+                            <Bar dataKey="votes" radius={[6, 6, 0, 0]} maxBarSize={44}>
+                              <LabelList
+                                dataKey="votes"
+                                position="top"
+                                fill="#fef08a"
+                                fontSize={11}
+                                fontWeight={700}
+                                formatter={(val: any) => (Number(val) > 0 ? `${val}` : '')}
+                              />
+                              {chartData.map((entry, index) => (
+                                <Cell key={`cell-${index}`} fill={entry.color} />
+                              ))}
+                            </Bar>
+                          </BarChart>
+                        </ResponsiveContainer>
+                      </div>
+                    </div>
                   </div>
                 </div>
 
