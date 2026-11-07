@@ -60,9 +60,8 @@ export default function QrDisplayPage() {
   const [isMounted, setIsMounted] = useState<boolean>(false);
   const [activeVoteBubble, setActiveVoteBubble] = useState<{
     voterName: string;
-    candidateNumber?: string;
-    candidateName?: string;
-    category?: 'boy' | 'girl';
+    boyCandidate?: { number: string; name: string };
+    girlCandidate?: { number: string; name: string };
   } | null>(null);
   const wasVotingOpenRef = useRef<boolean>(false);
   const lastProcessedVoterIdRef = useRef<string | null>(null);
@@ -73,7 +72,7 @@ export default function QrDisplayPage() {
     playLuxuryChime();
   }, []);
 
-  // Trigger floating circle popup for ~2 seconds when a new vote arrives (Boy OR Girl)
+  // Trigger floating circle popup for ~2.8 seconds when a new vote arrives (Boy, Girl, OR Both!)
   useEffect(() => {
     if (voters.length > 0) {
       const newest = voters[0];
@@ -84,27 +83,28 @@ export default function QrDisplayPage() {
           lastProcessedVoterIdRef.current = voteKey;
         } else if (lastProcessedVoterIdRef.current !== voteKey) {
           lastProcessedVoterIdRef.current = voteKey;
-          const targetCandidateId = newest.lastVotedCandidateId || newest.girlVotedFor || newest.boyVotedFor;
-          const picked = candidates.find((c) => c.id === targetCandidateId) || candidates.find((c) => c.id === newest.girlVotedFor) || candidates.find((c) => c.id === newest.boyVotedFor);
-          if (picked) {
+          const boy = candidates.find((c) => c.id === newest.boyVotedFor);
+          const girl = candidates.find((c) => c.id === newest.girlVotedFor);
+
+          if (boy || girl) {
             setActiveVoteBubble({
               voterName: newest.voterName || 'Audience Guest',
-              candidateNumber: picked.candidateNumber,
-              candidateName: picked.name,
-              category: picked.category,
+              boyCandidate: boy ? { number: boy.candidateNumber, name: boy.name } : undefined,
+              girlCandidate: girl ? { number: girl.candidateNumber, name: girl.name } : undefined,
             });
+            playLuxuryChime();
           }
         }
       }
     }
   }, [voters, candidates]);
 
-  // Auto fade out popup bubble after 2.2 seconds
+  // Auto fade out popup bubble after 2.8 seconds
   useEffect(() => {
     if (activeVoteBubble) {
       const timer = setTimeout(() => {
         setActiveVoteBubble(null);
-      }, 2200);
+      }, 2800);
       return () => clearTimeout(timer);
     }
   }, [activeVoteBubble]);
@@ -801,9 +801,9 @@ export default function QrDisplayPage() {
           </div>
         </div>
 
-        {/* 🌟 FLOATING LIVE VOTE CIRCLE/PILL (Appears for ~2 seconds, then smoothly dissolves away!) */}
+        {/* 🌟 FLOATING LIVE VOTE CIRCLE/PILL (Appears for ~2.8 seconds, then smoothly dissolves away!) */}
         {activeVoteBubble && (
-          <div className="fixed bottom-6 sm:bottom-12 left-1/2 -translate-x-1/2 z-50 pointer-events-none animate-in zoom-in-95 fade-in duration-300 w-max max-w-[92vw]">
+          <div className="fixed bottom-6 sm:bottom-12 left-1/2 -translate-x-1/2 z-50 pointer-events-none animate-in zoom-in-95 fade-in duration-300 w-max max-w-[94vw]">
             <div className="flex items-center gap-2.5 sm:gap-3.5 px-4 sm:px-6 py-2.5 sm:py-3.5 rounded-full bg-black/90 backdrop-blur-2xl border-2 border-novera-gold shadow-[0_0_50px_rgba(212,175,55,0.7)] text-white">
               {/* Glowing animated gold circle */}
               <div className="w-8 h-8 sm:w-11 sm:h-11 rounded-full bg-gradient-to-br from-amber-400 via-yellow-400 to-amber-600 flex items-center justify-center shrink-0 shadow-[0_0_20px_rgba(251,191,36,0.9)] animate-pulse">
@@ -816,20 +816,26 @@ export default function QrDisplayPage() {
                     {activeVoteBubble.voterName}
                   </span>
                   <span className="text-[9px] sm:text-[10px] font-mono font-bold uppercase tracking-wider text-emerald-400 bg-emerald-500/20 px-2 py-0.5 rounded-full border border-emerald-500/40 shrink-0">
-                    New Vote!
+                    New Vote Recorded!
                   </span>
                 </div>
-                {activeVoteBubble.candidateName && (
-                  <div className="text-[11px] sm:text-xs font-mono text-zinc-300 flex items-center gap-1.5 mt-0.5">
-                    <span>{activeVoteBubble.category === 'girl' ? '👗' : '👔'}</span>
-                    <span className="text-amber-300 font-bold shrink-0">
-                      #{activeVoteBubble.candidateNumber}
-                    </span>
-                    <span className="truncate max-w-[130px] sm:max-w-[220px] text-zinc-200">
-                      {activeVoteBubble.candidateName}
-                    </span>
-                  </div>
-                )}
+
+                <div className="flex items-center gap-2 flex-wrap mt-1">
+                  {activeVoteBubble.boyCandidate && (
+                    <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-400/20 border border-amber-400/40 text-[11px] sm:text-xs font-mono font-bold text-amber-200 shadow-sm">
+                      <span>👔</span>
+                      <span className="text-amber-300">#{activeVoteBubble.boyCandidate.number}</span>
+                      <span className="font-serif text-white truncate max-w-[110px] sm:max-w-[150px]">{activeVoteBubble.boyCandidate.name}</span>
+                    </div>
+                  )}
+                  {activeVoteBubble.girlCandidate && (
+                    <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-500/20 border border-amber-500/40 text-[11px] sm:text-xs font-mono font-bold text-amber-200 shadow-sm">
+                      <span>👗</span>
+                      <span className="text-amber-300">#{activeVoteBubble.girlCandidate.number}</span>
+                      <span className="font-serif text-white truncate max-w-[110px] sm:max-w-[150px]">{activeVoteBubble.girlCandidate.name}</span>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </div>

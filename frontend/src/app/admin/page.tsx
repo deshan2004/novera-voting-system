@@ -211,6 +211,7 @@ export default function AdminLeaderboardPage() {
   const [voters, setVoters] = useState<VoterRecord[]>([]);
   const [voterSearch, setVoterSearch] = useState<string>('');
   const [voterFilter, setVoterFilter] = useState<'all' | 'named' | 'both' | 'boyOnly' | 'girlOnly'>('all');
+  const [voterViewMode, setVoterViewMode] = useState<'ballots' | 'devices'>('ballots');
   const openedSessionIdRef = useRef<string | null>(null);
 
   const loadData = () => {
@@ -745,6 +746,68 @@ export default function AdminLeaderboardPage() {
       return true;
     });
   }, [voters, voterSearch, voterFilter, candidates]);
+
+  const totalBallots = useMemo(() => {
+    return voters.reduce((acc, v) => acc + (v.hasVotedBoy ? 1 : 0) + (v.hasVotedGirl ? 1 : 0), 0);
+  }, [voters]);
+
+  const individualBallots = useMemo(() => {
+    const list: Array<{
+      id: string;
+      voterName: string;
+      category: 'boy' | 'girl';
+      categoryLabel: string;
+      candidate?: Candidate;
+      updatedAt?: number;
+      voterId: string;
+    }> = [];
+
+    voters.forEach((v) => {
+      if (v.hasVotedBoy && v.boyVotedFor) {
+        const boy = candidates.find((c) => c.id === v.boyVotedFor);
+        list.push({
+          id: `${v.voterId}_boy`,
+          voterName: v.voterName || 'Audience Guest',
+          category: 'boy',
+          categoryLabel: 'Best Male Model (Boy)',
+          candidate: boy,
+          updatedAt: v.updatedAt,
+          voterId: v.voterId,
+        });
+      }
+      if (v.hasVotedGirl && v.girlVotedFor) {
+        const girl = candidates.find((c) => c.id === v.girlVotedFor);
+        list.push({
+          id: `${v.voterId}_girl`,
+          voterName: v.voterName || 'Audience Guest',
+          category: 'girl',
+          categoryLabel: 'Best Female Model (Girl)',
+          candidate: girl,
+          updatedAt: v.updatedAt,
+          voterId: v.voterId,
+        });
+      }
+    });
+
+    return list;
+  }, [voters, candidates]);
+
+  const filteredIndividualBallots = useMemo(() => {
+    return individualBallots.filter((b) => {
+      if (voterFilter === 'named' && (!b.voterName || b.voterName === 'Audience Guest')) return false;
+      if (voterFilter === 'boyOnly' && b.category !== 'boy') return false;
+      if (voterFilter === 'girlOnly' && b.category !== 'girl') return false;
+
+      if (voterSearch.trim()) {
+        const q = voterSearch.toLowerCase();
+        const matchName = b.voterName.toLowerCase().includes(q);
+        const matchDevice = b.voterId.toLowerCase().includes(q);
+        const matchCandidate = b.candidate ? `${b.candidate.candidateNumber} ${b.candidate.name}`.toLowerCase().includes(q) : false;
+        return matchName || matchDevice || matchCandidate;
+      }
+      return true;
+    });
+  }, [individualBallots, voterFilter, voterSearch]);
 
   // Recharts Data Prep
   const chartData = useMemo(() => {
@@ -1833,9 +1896,12 @@ export default function AdminLeaderboardPage() {
 
                   {/* Summary Stat Cards */}
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                    <div className="p-3 rounded-xl bg-white/[0.03] border border-white/10">
-                      <div className="text-[10px] font-mono uppercase text-zinc-400 font-semibold">Total Verified Voters</div>
-                      <div className="font-mono text-xl font-bold text-white mt-1">{voters.length}</div>
+                    <div className="p-3 rounded-xl bg-gradient-to-br from-amber-500/15 via-white/[0.03] to-transparent border border-amber-500/40 shadow-sm">
+                      <div className="text-[10px] font-mono uppercase text-amber-300 font-bold">Total Ballots Cast</div>
+                      <div className="font-mono text-xl sm:text-2xl font-black text-white mt-0.5 flex items-baseline gap-2">
+                        <span>{totalBallots}</span>
+                        <span className="text-[11px] font-sans font-normal text-zinc-400">({voters.length} Devices)</span>
+                      </div>
                     </div>
                     <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/30">
                       <div className="text-[10px] font-mono uppercase text-amber-300/80 font-semibold">Named Audience</div>
@@ -1857,17 +1923,45 @@ export default function AdminLeaderboardPage() {
                     </div>
                   </div>
 
-                  {/* Filter & Search Bar */}
-                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-1">
-                    <div className="relative flex-1 max-w-md">
-                      <Search className="w-4 h-4 text-zinc-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-                      <input
-                        type="text"
-                        value={voterSearch}
-                        onChange={(e) => setVoterSearch(e.target.value)}
-                        placeholder="Search voter name, candidate, device ID..."
-                        className="w-full pl-9 pr-3.5 py-2 rounded-xl bg-black/60 border border-white/15 text-white placeholder-zinc-500 text-xs focus:outline-none focus:border-amber-400/60 transition-all"
-                      />
+                  {/* Filter, Search & View Mode Switcher */}
+                  <div className="flex flex-col gap-3 pt-1">
+                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+                      <div className="relative flex-1 max-w-md">
+                        <Search className="w-4 h-4 text-zinc-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                        <input
+                          type="text"
+                          value={voterSearch}
+                          onChange={(e) => setVoterSearch(e.target.value)}
+                          placeholder="Search voter name, candidate, device ID..."
+                          className="w-full pl-9 pr-3.5 py-2 rounded-xl bg-black/60 border border-white/15 text-white placeholder-zinc-500 text-xs focus:outline-none focus:border-amber-400/60 transition-all"
+                        />
+                      </div>
+
+                      {/* View Mode Toggle: All Individual Ballots vs Grouped by Device */}
+                      <div className="flex items-center gap-1 p-1 rounded-xl bg-black/60 border border-white/15 text-xs font-mono shrink-0 self-start sm:self-center">
+                        <button
+                          type="button"
+                          onClick={() => setVoterViewMode('ballots')}
+                          className={`px-3 py-1.5 rounded-lg font-bold transition-all ${
+                            voterViewMode === 'ballots'
+                              ? 'bg-gradient-to-r from-novera-gold to-amber-500 text-black shadow-sm font-extrabold'
+                              : 'text-zinc-400 hover:text-white'
+                          }`}
+                        >
+                          All Ballots ({totalBallots})
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setVoterViewMode('devices')}
+                          className={`px-3 py-1.5 rounded-lg font-bold transition-all ${
+                            voterViewMode === 'devices'
+                              ? 'bg-gradient-to-r from-novera-gold to-amber-500 text-black shadow-sm font-extrabold'
+                              : 'text-zinc-400 hover:text-white'
+                          }`}
+                        >
+                          Grouped by Device ({voters.length})
+                        </button>
+                      </div>
                     </div>
 
                     <div className="flex flex-wrap items-center gap-1.5 text-xs">
@@ -1879,7 +1973,7 @@ export default function AdminLeaderboardPage() {
                             : 'bg-white/5 text-zinc-400 hover:text-white border border-white/10'
                         }`}
                       >
-                        All ({voters.length})
+                        All ({voterViewMode === 'ballots' ? individualBallots.length : voters.length})
                       </button>
                       <button
                         onClick={() => setVoterFilter('named')}
@@ -1892,16 +1986,6 @@ export default function AdminLeaderboardPage() {
                         Named ({voters.filter((v) => v.voterName && v.voterName !== 'Audience Guest').length})
                       </button>
                       <button
-                        onClick={() => setVoterFilter('both')}
-                        className={`px-3 py-1.5 rounded-lg font-mono text-[11px] transition-all ${
-                          voterFilter === 'both'
-                            ? 'bg-amber-500/20 text-amber-200 border border-amber-500/50 font-bold'
-                            : 'bg-white/5 text-zinc-400 hover:text-white border border-white/10'
-                        }`}
-                      >
-                        Voted Both ({voters.filter((v) => v.hasVotedBoy && v.hasVotedGirl).length})
-                      </button>
-                      <button
                         onClick={() => setVoterFilter('boyOnly')}
                         className={`px-3 py-1.5 rounded-lg font-mono text-[11px] transition-all ${
                           voterFilter === 'boyOnly'
@@ -1909,7 +1993,7 @@ export default function AdminLeaderboardPage() {
                             : 'bg-white/5 text-zinc-400 hover:text-white border border-white/10'
                         }`}
                       >
-                        Boy Only ({voters.filter((v) => v.hasVotedBoy && !v.hasVotedGirl).length})
+                        Male Model Votes ({voters.filter((v) => v.hasVotedBoy).length})
                       </button>
                       <button
                         onClick={() => setVoterFilter('girlOnly')}
@@ -1919,107 +2003,201 @@ export default function AdminLeaderboardPage() {
                             : 'bg-white/5 text-zinc-400 hover:text-white border border-white/10'
                         }`}
                       >
-                        Girl Only ({voters.filter((v) => v.hasVotedGirl && !v.hasVotedBoy).length})
+                        Female Model Votes ({voters.filter((v) => v.hasVotedGirl).length})
                       </button>
                     </div>
                   </div>
 
-                  {/* Voters Table */}
+                  {/* Voters & Ballots Table */}
                   <div className="overflow-x-auto rounded-xl border border-white/10 overscroll-x-contain">
-                    <table className="w-full text-left text-xs min-w-[660px]">
-                      <thead>
-                        <tr className="bg-white/[0.04] border-b border-white/10 text-zinc-400 font-mono text-[11px]">
-                          <th className="py-3 px-3.5 w-12 text-center">#</th>
-                          <th className="py-3 px-3.5">Voter Identification</th>
-                          <th className="py-3 px-3.5">Male Model Choice</th>
-                          <th className="py-3 px-3.5">Female Model Choice</th>
-                          <th className="py-3 px-3.5 whitespace-nowrap">Time Cast</th>
-                          <th className="py-3 px-3.5 whitespace-nowrap">Device Fingerprint</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-white/5">
-                        {filteredVoters.length === 0 ? (
-                          <tr>
-                            <td colSpan={6} className="py-8 text-center text-zinc-400 font-mono">
-                              No matching voter records found. Audience votes appear here in real-time as ballots are cast.
-                            </td>
+                    {voterViewMode === 'ballots' ? (
+                      /* VIEW 1: INDIVIDUAL BALLOTS (Both Boy and Girl votes appear as separate entries!) */
+                      <table className="w-full text-left text-xs min-w-[660px]">
+                        <thead>
+                          <tr className="bg-white/[0.04] border-b border-white/10 text-zinc-400 font-mono text-[11px]">
+                            <th className="py-3 px-3.5 w-12 text-center">#</th>
+                            <th className="py-3 px-3.5">Voter Identification</th>
+                            <th className="py-3 px-3.5">Award Category</th>
+                            <th className="py-3 px-3.5">Selected Contender</th>
+                            <th className="py-3 px-3.5 whitespace-nowrap">Time Cast</th>
+                            <th className="py-3 px-3.5 whitespace-nowrap">Device Fingerprint</th>
                           </tr>
-                        ) : (
-                          filteredVoters.map((voter, idx) => {
-                            const boy = candidates.find((c) => c.id === voter.boyVotedFor);
-                            const girl = candidates.find((c) => c.id === voter.girlVotedFor);
-                            const isNamed = voter.voterName && voter.voterName !== 'Audience Guest';
-
-                            return (
-                              <tr key={voter.voterId || idx} className="hover:bg-white/[0.02] transition-colors">
-                                <td className="py-3 px-3.5 text-center font-mono text-zinc-500 font-bold">
-                                  {idx + 1}
-                                </td>
-                                <td className="py-3 px-3.5">
-                                  <div className="flex items-center gap-2">
-                                    <div
-                                      className={`w-7 h-7 rounded-lg flex items-center justify-center font-bold text-xs shrink-0 ${
-                                        isNamed
-                                          ? 'bg-amber-400/20 text-amber-300 border border-amber-400/40'
-                                          : 'bg-white/5 text-zinc-400 border border-white/10'
-                                      }`}
-                                    >
-                                      <User className="w-3.5 h-3.5" />
-                                    </div>
-                                    <div className="min-w-0">
+                        </thead>
+                        <tbody className="divide-y divide-white/5">
+                          {filteredIndividualBallots.length === 0 ? (
+                            <tr>
+                              <td colSpan={6} className="py-8 text-center text-zinc-400 font-mono">
+                                No matching ballot records found. Audience votes appear here in real-time as cast.
+                              </td>
+                            </tr>
+                          ) : (
+                            filteredIndividualBallots.map((ballot, idx) => {
+                              const isNamed = ballot.voterName && ballot.voterName !== 'Audience Guest';
+                              return (
+                                <tr key={ballot.id} className="hover:bg-white/[0.02] transition-colors">
+                                  <td className="py-3 px-3.5 text-center font-mono text-zinc-500 font-bold">
+                                    {idx + 1}
+                                  </td>
+                                  <td className="py-3 px-3.5">
+                                    <div className="flex items-center gap-2">
                                       <div
-                                        className={`font-semibold truncate ${
-                                          isNamed ? 'text-amber-200 font-serif text-sm' : 'text-zinc-300 font-mono'
+                                        className={`w-7 h-7 rounded-lg flex items-center justify-center font-bold text-xs shrink-0 ${
+                                          isNamed
+                                            ? 'bg-amber-400/20 text-amber-300 border border-amber-400/40'
+                                            : 'bg-white/5 text-zinc-400 border border-white/10'
                                         }`}
                                       >
-                                        {voter.voterName || 'Audience Guest'}
+                                        <User className="w-3.5 h-3.5" />
                                       </div>
-                                      <div className="text-[10px] text-zinc-500 font-mono">
-                                        {isNamed ? 'Audience Member' : 'Anonymous Guest'}
+                                      <div className="min-w-0">
+                                        <div
+                                          className={`font-semibold truncate ${
+                                            isNamed ? 'text-amber-200 font-serif text-sm' : 'text-zinc-300 font-mono'
+                                          }`}
+                                        >
+                                          {ballot.voterName}
+                                        </div>
+                                        <div className="text-[10px] text-zinc-500 font-mono">
+                                          {isNamed ? 'Audience Member' : 'Anonymous Guest'}
+                                        </div>
                                       </div>
                                     </div>
-                                  </div>
-                                </td>
-                                <td className="py-3 px-3.5">
-                                  {boy ? (
-                                    <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-500/10 border border-amber-500/25 text-amber-200">
-                                      <span className="font-mono font-bold text-[10px] text-amber-400">
-                                        #{boy.candidateNumber || ''}
-                                      </span>
-                                      <span className="font-serif font-semibold text-xs truncate max-w-[150px]">
-                                        {boy.name}
-                                      </span>
+                                  </td>
+                                  <td className="py-3 px-3.5">
+                                    <span
+                                      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-mono font-semibold ${
+                                        ballot.category === 'boy'
+                                          ? 'bg-amber-500/15 border border-amber-500/30 text-amber-300'
+                                          : 'bg-yellow-500/15 border border-yellow-500/30 text-yellow-300'
+                                      }`}
+                                    >
+                                      <span>{ballot.category === 'boy' ? '👔' : '👗'}</span>
+                                      <span>{ballot.categoryLabel}</span>
+                                    </span>
+                                  </td>
+                                  <td className="py-3 px-3.5">
+                                    {ballot.candidate ? (
+                                      <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white/5 border border-white/15 text-white">
+                                        <span className="font-mono font-bold text-[10px] text-novera-gold">
+                                          #{ballot.candidate.candidateNumber}
+                                        </span>
+                                        <span className="font-serif font-semibold text-xs truncate max-w-[170px]">
+                                          {ballot.candidate.name}
+                                        </span>
+                                      </div>
+                                    ) : (
+                                      <span className="text-zinc-500 font-mono text-[11px] italic">Not Cast</span>
+                                    )}
+                                  </td>
+                                  <td className="py-3 px-3.5 whitespace-nowrap text-zinc-300 font-mono text-[11px]">
+                                    {ballot.updatedAt ? new Date(ballot.updatedAt).toLocaleTimeString() : 'N/A'}
+                                  </td>
+                                  <td className="py-3 px-3.5 whitespace-nowrap font-mono text-[10px] text-zinc-500">
+                                    {ballot.voterId ? `${ballot.voterId.substring(0, 14)}...` : 'Device-Lock'}
+                                  </td>
+                                </tr>
+                              );
+                            })
+                          )}
+                        </tbody>
+                      </table>
+                    ) : (
+                      /* VIEW 2: GROUPED BY VOTER DEVICE */
+                      <table className="w-full text-left text-xs min-w-[660px]">
+                        <thead>
+                          <tr className="bg-white/[0.04] border-b border-white/10 text-zinc-400 font-mono text-[11px]">
+                            <th className="py-3 px-3.5 w-12 text-center">#</th>
+                            <th className="py-3 px-3.5">Voter Identification</th>
+                            <th className="py-3 px-3.5">Male Model Choice</th>
+                            <th className="py-3 px-3.5">Female Model Choice</th>
+                            <th className="py-3 px-3.5 whitespace-nowrap">Time Cast</th>
+                            <th className="py-3 px-3.5 whitespace-nowrap">Device Fingerprint</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-white/5">
+                          {filteredVoters.length === 0 ? (
+                            <tr>
+                              <td colSpan={6} className="py-8 text-center text-zinc-400 font-mono">
+                                No matching voter records found. Audience votes appear here in real-time as ballots are cast.
+                              </td>
+                            </tr>
+                          ) : (
+                            filteredVoters.map((voter, idx) => {
+                              const boy = candidates.find((c) => c.id === voter.boyVotedFor);
+                              const girl = candidates.find((c) => c.id === voter.girlVotedFor);
+                              const isNamed = voter.voterName && voter.voterName !== 'Audience Guest';
+
+                              return (
+                                <tr key={voter.voterId || idx} className="hover:bg-white/[0.02] transition-colors">
+                                  <td className="py-3 px-3.5 text-center font-mono text-zinc-500 font-bold">
+                                    {idx + 1}
+                                  </td>
+                                  <td className="py-3 px-3.5">
+                                    <div className="flex items-center gap-2">
+                                      <div
+                                        className={`w-7 h-7 rounded-lg flex items-center justify-center font-bold text-xs shrink-0 ${
+                                          isNamed
+                                            ? 'bg-amber-400/20 text-amber-300 border border-amber-400/40'
+                                            : 'bg-white/5 text-zinc-400 border border-white/10'
+                                        }`}
+                                      >
+                                        <User className="w-3.5 h-3.5" />
+                                      </div>
+                                      <div className="min-w-0">
+                                        <div
+                                          className={`font-semibold truncate ${
+                                            isNamed ? 'text-amber-200 font-serif text-sm' : 'text-zinc-300 font-mono'
+                                          }`}
+                                        >
+                                          {voter.voterName || 'Audience Guest'}
+                                        </div>
+                                        <div className="text-[10px] text-zinc-500 font-mono">
+                                          {isNamed ? 'Audience Member' : 'Anonymous Guest'}
+                                        </div>
+                                      </div>
                                     </div>
-                                  ) : (
-                                    <span className="text-zinc-500 font-mono text-[11px] italic">Not Cast</span>
-                                  )}
-                                </td>
-                                <td className="py-3 px-3.5">
-                                  {girl ? (
-                                    <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-yellow-500/10 border border-yellow-500/25 text-yellow-200">
-                                      <span className="font-mono font-bold text-[10px] text-yellow-400">
-                                        #{girl.candidateNumber || ''}
-                                      </span>
-                                      <span className="font-serif font-semibold text-xs truncate max-w-[150px]">
-                                        {girl.name}
-                                      </span>
-                                    </div>
-                                  ) : (
-                                    <span className="text-zinc-500 font-mono text-[11px] italic">Not Cast</span>
-                                  )}
-                                </td>
-                                <td className="py-3 px-3.5 whitespace-nowrap text-zinc-300 font-mono text-[11px]">
-                                  {voter.updatedAt ? new Date(voter.updatedAt).toLocaleTimeString() : 'N/A'}
-                                </td>
-                                <td className="py-3 px-3.5 whitespace-nowrap font-mono text-[10px] text-zinc-500">
-                                  {voter.voterId ? `${voter.voterId.substring(0, 14)}...` : 'Device-Lock'}
-                                </td>
-                              </tr>
-                            );
-                          })
-                        )}
-                      </tbody>
-                    </table>
+                                  </td>
+                                  <td className="py-3 px-3.5">
+                                    {boy ? (
+                                      <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-500/10 border border-amber-500/25 text-amber-200">
+                                        <span className="font-mono font-bold text-[10px] text-amber-400">
+                                          #{boy.candidateNumber || ''}
+                                        </span>
+                                        <span className="font-serif font-semibold text-xs truncate max-w-[150px]">
+                                          {boy.name}
+                                        </span>
+                                      </div>
+                                    ) : (
+                                      <span className="text-zinc-500 font-mono text-[11px] italic">Not Cast</span>
+                                    )}
+                                  </td>
+                                  <td className="py-3 px-3.5">
+                                    {girl ? (
+                                      <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-yellow-500/10 border border-yellow-500/25 text-yellow-200">
+                                        <span className="font-mono font-bold text-[10px] text-yellow-400">
+                                          #{girl.candidateNumber || ''}
+                                        </span>
+                                        <span className="font-serif font-semibold text-xs truncate max-w-[150px]">
+                                          {girl.name}
+                                        </span>
+                                      </div>
+                                    ) : (
+                                      <span className="text-zinc-500 font-mono text-[11px] italic">Not Cast</span>
+                                    )}
+                                  </td>
+                                  <td className="py-3 px-3.5 whitespace-nowrap text-zinc-300 font-mono text-[11px]">
+                                    {voter.updatedAt ? new Date(voter.updatedAt).toLocaleTimeString() : 'N/A'}
+                                  </td>
+                                  <td className="py-3 px-3.5 whitespace-nowrap font-mono text-[10px] text-zinc-500">
+                                    {voter.voterId ? `${voter.voterId.substring(0, 14)}...` : 'Device-Lock'}
+                                  </td>
+                                </tr>
+                              );
+                            })
+                          )}
+                        </tbody>
+                      </table>
+                    )}
                   </div>
                 </div>
 
