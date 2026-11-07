@@ -25,6 +25,7 @@ export interface VotingSettings {
   countdownUntil?: number | null;
   votingClosesAt?: number | null;
   votingDurationSeconds?: number;
+  sessionId?: string | null;
 }
 
 export interface VoterStatus {

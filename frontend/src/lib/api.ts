@@ -57,22 +57,41 @@ export function getOrCreateVoterId(): string {
 }
 
 /**
+ * Validate and sanitize voting settings in real-time.
+ * If a session has an expired votingClosesAt timestamp, gracefully treat isVotingOpen as false.
+ */
+export function sanitizeVotingSettings(settings: VotingSettings | null | undefined): VotingSettings {
+  if (!settings) return { isVotingOpen: false };
+  if (settings.isVotingOpen && settings.votingClosesAt && settings.votingClosesAt <= Date.now()) {
+    return {
+      ...settings,
+      isVotingOpen: false,
+      votingClosesAt: null,
+      countdownUntil: null,
+      announcement: 'Audience voting has concluded for NOVERA ’26.',
+    };
+  }
+  return settings;
+}
+
+/**
  * Get voting open/close configuration
  */
 export function getLocalVotingSettings(): VotingSettings {
-  if (typeof window === 'undefined') return { isVotingOpen: true };
+  if (typeof window === 'undefined') return { isVotingOpen: false };
   const raw = localStorage.getItem(STORAGE_KEY_VOTING_SETTINGS);
   if (raw) {
     try {
-      return JSON.parse(raw);
+      return sanitizeVotingSettings(JSON.parse(raw));
     } catch (e) {}
   }
-  return { isVotingOpen: true };
+  return { isVotingOpen: false };
 }
 
 export function saveLocalVotingSettings(settings: VotingSettings): void {
   if (typeof window === 'undefined') return;
-  localStorage.setItem(STORAGE_KEY_VOTING_SETTINGS, JSON.stringify(settings));
+  const clean = sanitizeVotingSettings(settings);
+  localStorage.setItem(STORAGE_KEY_VOTING_SETTINGS, JSON.stringify(clean));
 }
 
 export async function fetchVotingSettings(): Promise<VotingSettings> {
@@ -81,7 +100,7 @@ export async function fetchVotingSettings(): Promise<VotingSettings> {
       const docRef = doc(db, 'settings', 'voting');
       const snap = await getDoc(docRef);
       if (snap.exists()) {
-        const data = snap.data() as VotingSettings;
+        const data = sanitizeVotingSettings(snap.data() as VotingSettings);
         saveLocalVotingSettings(data);
         return data;
       }
@@ -117,18 +136,18 @@ export async function saveVotingSettings(settings: VotingSettings): Promise<void
 }
 
 export function subscribeToVotingSettings(callback: (settings: VotingSettings) => void): () => void {
-  // 1. Initial local state
+  // 1. Initial sanitized local state
   callback(getLocalVotingSettings());
 
   // Try immediate remote fetch
-  fetchVotingSettings().then((s) => callback(s)).catch(() => {});
+  fetchVotingSettings().then((s) => callback(sanitizeVotingSettings(s))).catch(() => {});
 
   const cleanupFns: (() => void)[] = [];
 
   if (typeof window !== 'undefined') {
     // 2. In-window custom event
     const handleCustom = (e: any) => {
-      if (e.detail) callback(e.detail);
+      if (e.detail) callback(sanitizeVotingSettings(e.detail));
     };
     window.addEventListener('novera_voting_settings_updated', handleCustom);
     cleanupFns.push(() => window.removeEventListener('novera_voting_settings_updated', handleCustom));
@@ -137,7 +156,7 @@ export function subscribeToVotingSettings(callback: (settings: VotingSettings) =
     const handleStorage = (e: StorageEvent) => {
       if (e.key === STORAGE_KEY_VOTING_SETTINGS && e.newValue) {
         try {
-          callback(JSON.parse(e.newValue));
+          callback(sanitizeVotingSettings(JSON.parse(e.newValue)));
         } catch (err) {}
       }
     };
@@ -150,7 +169,7 @@ export function subscribeToVotingSettings(callback: (settings: VotingSettings) =
         const bc = new BroadcastChannel('novera_voting_channel');
         bc.onmessage = (event) => {
           if (event.data?.type === 'VOTING_SETTINGS_UPDATED' && event.data.settings) {
-            callback(event.data.settings);
+            callback(sanitizeVotingSettings(event.data.settings));
           }
         };
         cleanupFns.push(() => {
@@ -161,7 +180,7 @@ export function subscribeToVotingSettings(callback: (settings: VotingSettings) =
 
     // 5. Polling fallback every 1.5 seconds for rock-solid reliability across screens
     const pollInterval = setInterval(() => {
-      fetchVotingSettings().then((s) => callback(s)).catch(() => {});
+      fetchVotingSettings().then((s) => callback(sanitizeVotingSettings(s))).catch(() => {});
     }, 1500);
     cleanupFns.push(() => clearInterval(pollInterval));
   }
@@ -174,7 +193,7 @@ export function subscribeToVotingSettings(callback: (settings: VotingSettings) =
         docRef,
         (snap) => {
           if (snap.exists()) {
-            const data = snap.data() as VotingSettings;
+            const data = sanitizeVotingSettings(snap.data() as VotingSettings);
             saveLocalVotingSettings(data);
             callback(data);
           } else {

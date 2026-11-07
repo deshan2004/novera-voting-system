@@ -77,14 +77,8 @@ export default function QrDisplayPage() {
       setRemainingSeconds(totalSec);
 
       if (totalSec <= 0) {
-        // Automatically close voting when timer reaches 0 & trigger closing ceremony
-        saveVotingSettings({
-          isVotingOpen: false,
-          votingClosesAt: null,
-          countdownUntil: null,
-          announcement: 'Audience voting has concluded for NOVERA ’26.',
-        });
-        setRemainingTimeText('00:00');
+        // Automatically trigger local closing ceremony when timer reaches 0
+        setRemainingTimeText('');
         setShowClosingCeremony(true);
         return;
       }

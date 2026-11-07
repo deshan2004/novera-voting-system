@@ -59,7 +59,7 @@ export default function VotePage() {
   // Category view filter (Boys vs Girls)
   const [categoryFilter, setCategoryFilter] = useState<'boy' | 'girl'>('boy');
 
-  const [votingSettings, setVotingSettings] = useState<VotingSettings>({ isVotingOpen: true });
+  const [votingSettings, setVotingSettings] = useState<VotingSettings>({ isVotingOpen: false });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
   const [remainingTimeText, setRemainingTimeText] = useState<string>('');
@@ -84,7 +84,7 @@ export default function VotePage() {
       const diffMs = (votingSettings.votingClosesAt || 0) - Date.now();
       const totalSec = Math.max(0, Math.ceil(diffMs / 1000));
       if (totalSec <= 0) {
-        setRemainingTimeText('00:00');
+        setRemainingTimeText('');
         return;
       }
       const mins = Math.floor(totalSec / 60);

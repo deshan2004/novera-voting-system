@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Candidate, JudgeScore, VotingSettings } from '@/lib/types';
@@ -194,6 +194,7 @@ export default function AdminLeaderboardPage() {
   const [remainingTimeText, setRemainingTimeText] = useState<string>('');
   const [remainingSeconds, setRemainingSeconds] = useState<number>(0);
   const [showClosingCeremony, setShowClosingCeremony] = useState<boolean>(false);
+  const openedSessionIdRef = useRef<string | null>(null);
 
   const loadData = () => {
     fetchCandidates().then((list) => {
@@ -257,14 +258,19 @@ export default function AdminLeaderboardPage() {
       setRemainingSeconds(totalSec);
 
       if (totalSec <= 0) {
-        // Automatically close voting when timer expires
-        saveVotingSettings({
-          isVotingOpen: false,
-          votingClosesAt: null,
-          countdownUntil: null,
-          announcement: 'Audience voting has concluded for NOVERA ’26.',
-        });
-        setRemainingTimeText('00:00');
+        setRemainingTimeText('');
+        // Automatically close voting ONLY if this device was the one that opened this active session,
+        // and only for the Stage Operator. This prevents multiple admin devices from canceling each other!
+        if (adminRole === 'stage' && openedSessionIdRef.current && openedSessionIdRef.current === votingSettings.sessionId) {
+          openedSessionIdRef.current = null;
+          saveVotingSettings({
+            isVotingOpen: false,
+            votingClosesAt: null,
+            countdownUntil: null,
+            sessionId: null,
+            announcement: 'Audience voting has concluded for NOVERA ’26.',
+          });
+        }
         setShowClosingCeremony(true);
         return;
       }
@@ -277,11 +283,13 @@ export default function AdminLeaderboardPage() {
     updateTimer();
     const interval = setInterval(updateTimer, 500);
     return () => clearInterval(interval);
-  }, [votingSettings.isVotingOpen, votingSettings.votingClosesAt]);
+  }, [votingSettings.isVotingOpen, votingSettings.votingClosesAt, votingSettings.sessionId, adminRole]);
 
   const toggleVotingStatus = async () => {
     if (!votingSettings.isVotingOpen) {
       // Opening voting: 10 minutes session (or configured duration)
+      const sessionId = `sess_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+      openedSessionIdRef.current = sessionId;
       const durationMs = votingDurationMinutes * 60 * 1000;
       const votingClosesAt = Date.now() + durationMs;
       const countdownTarget = Date.now() + 5200; // 5s opening countdown
@@ -292,6 +300,7 @@ export default function AdminLeaderboardPage() {
           votingClosesAt,
           votingDurationSeconds: votingDurationMinutes * 60,
           countdownUntil: countdownTarget,
+          sessionId,
           announcement: `Audience voting is LIVE for ${votingDurationMinutes} minutes!`,
         });
         // Countdown overlay will play smoothly on this screen, then onComplete will navigate to /qr
@@ -300,12 +309,14 @@ export default function AdminLeaderboardPage() {
       }
     } else {
       // Closing voting: immediate lock
+      openedSessionIdRef.current = null;
       setIsUpdatingVotingStatus(true);
       try {
         await saveVotingSettings({
           isVotingOpen: false,
           votingClosesAt: null,
           countdownUntil: null,
+          sessionId: null,
           announcement: 'Audience voting is currently PAUSED / CONCLUDED by the Central Committee.',
         });
         setShowClosingCeremony(true);
@@ -703,12 +714,14 @@ export default function AdminLeaderboardPage() {
         <VotingCountdownOverlay
           countdownUntil={votingSettings.countdownUntil}
           onComplete={async () => {
-            try {
-              await saveVotingSettings({
-                ...votingSettings,
-                countdownUntil: null,
-              });
-            } catch (e) { }
+            if (openedSessionIdRef.current && openedSessionIdRef.current === votingSettings.sessionId) {
+              try {
+                await saveVotingSettings({
+                  ...votingSettings,
+                  countdownUntil: null,
+                });
+              } catch (e) { }
+            }
             setVotingSettings((prev) => ({ ...prev, countdownUntil: null }));
             router.push('/qr');
           }}
