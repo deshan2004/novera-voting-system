@@ -33,29 +33,20 @@ export default function QrDisplayPage() {
   const [remainingSeconds, setRemainingSeconds] = useState<number>(0);
   const [showClosingCeremony, setShowClosingCeremony] = useState<boolean>(false);
   const [showOpeningBroadcast, setShowOpeningBroadcast] = useState<boolean>(false);
-  const [stageEntryAnimation, setStageEntryAnimation] = useState<boolean>(true);
+  const [stageEntryAnimation, setStageEntryAnimation] = useState<boolean>(false);
   const wasVotingOpenRef = useRef<boolean>(false);
 
-  // Play prestigious chime and trigger stage entrance sequence on mount
+  // Play prestigious chime on initial stage screen mount
   useEffect(() => {
     playLuxuryChime();
-    const timer = setTimeout(() => {
-      setStageEntryAnimation(false);
-    }, 2800);
-    return () => clearTimeout(timer);
   }, []);
 
-  // Auto-trigger opening broadcast when voting unlocks, and closing ceremony when voting concludes
+  // Auto-trigger luxury chime when voting unlocks, and closing ceremony when voting concludes
   useEffect(() => {
     if (votingSettings.isVotingOpen) {
       if (!wasVotingOpenRef.current) {
-        setShowOpeningBroadcast(true);
         playLuxuryChime();
-        const timer = setTimeout(() => {
-          setShowOpeningBroadcast(false);
-        }, 6000);
         wasVotingOpenRef.current = true;
-        return () => clearTimeout(timer);
       }
     } else if (wasVotingOpenRef.current && !votingSettings.isVotingOpen) {
       setShowClosingCeremony(true);
@@ -307,14 +298,14 @@ export default function QrDisplayPage() {
       {/* 🌟 Cinematic Fashion Runway Stage Video Background */}
       <RunwayStageBackground />
 
-      {/* 🔒 Quick Return to Master Admin Hub */}
+      {/* 🔒 Quick Return to Master Admin Controller */}
       <Link
         href="/admin"
-        className="fixed top-4 left-4 z-40 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/60 hover:bg-black/90 text-zinc-300 hover:text-white border border-white/20 backdrop-blur-md text-xs font-mono transition-all shadow-md"
-        title="Return to Master Admin Hub"
+        className="fixed top-4 left-4 z-40 inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-black/70 hover:bg-black/95 text-zinc-300 hover:text-amber-300 border border-white/20 hover:border-novera-gold/60 backdrop-blur-md text-xs font-mono transition-all shadow-lg group"
+        title="Return to Master Admin Controller"
       >
-        <Lock className="w-3.5 h-3.5 text-novera-gold" />
-        <span>Admin Hub</span>
+        <Lock className="w-3.5 h-3.5 text-novera-gold group-hover:scale-110 transition-transform" />
+        <span className="font-semibold">&larr; Admin Controller</span>
       </Link>
 
       {/* Interactive Cinematic Stage Canvas Background */}
