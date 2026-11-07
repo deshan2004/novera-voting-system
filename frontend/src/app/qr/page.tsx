@@ -803,29 +803,29 @@ export default function QrDisplayPage() {
 
         {/* 🌟 FLOATING LIVE VOTE CIRCLE/PILL (Appears for ~2 seconds, then smoothly dissolves away!) */}
         {activeVoteBubble && (
-          <div className="fixed bottom-12 left-1/2 -translate-x-1/2 z-50 pointer-events-none animate-in zoom-in-95 fade-in duration-300">
-            <div className="flex items-center gap-3.5 px-6 py-3.5 rounded-full bg-black/90 backdrop-blur-2xl border-2 border-novera-gold shadow-[0_0_60px_rgba(212,175,55,0.7)] text-white">
+          <div className="fixed bottom-6 sm:bottom-12 left-1/2 -translate-x-1/2 z-50 pointer-events-none animate-in zoom-in-95 fade-in duration-300 w-max max-w-[92vw]">
+            <div className="flex items-center gap-2.5 sm:gap-3.5 px-4 sm:px-6 py-2.5 sm:py-3.5 rounded-full bg-black/90 backdrop-blur-2xl border-2 border-novera-gold shadow-[0_0_50px_rgba(212,175,55,0.7)] text-white">
               {/* Glowing animated gold circle */}
-              <div className="w-11 h-11 rounded-full bg-gradient-to-br from-amber-400 via-yellow-400 to-amber-600 flex items-center justify-center shrink-0 shadow-[0_0_20px_rgba(251,191,36,0.9)] animate-pulse">
-                <Sparkles className="w-5 h-5 text-black" />
+              <div className="w-8 h-8 sm:w-11 sm:h-11 rounded-full bg-gradient-to-br from-amber-400 via-yellow-400 to-amber-600 flex items-center justify-center shrink-0 shadow-[0_0_20px_rgba(251,191,36,0.9)] animate-pulse">
+                <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-black" />
               </div>
 
-              <div className="text-left">
+              <div className="text-left min-w-0">
                 <div className="flex items-center gap-2">
-                  <span className="font-serif font-black text-sm sm:text-base text-transparent bg-clip-text bg-gradient-to-r from-white via-amber-100 to-amber-300">
+                  <span className="font-serif font-black text-xs sm:text-base text-transparent bg-clip-text bg-gradient-to-r from-white via-amber-100 to-amber-300 truncate max-w-[130px] sm:max-w-none">
                     {activeVoteBubble.voterName}
                   </span>
-                  <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-emerald-400 bg-emerald-500/20 px-2 py-0.5 rounded-full border border-emerald-500/40">
+                  <span className="text-[9px] sm:text-[10px] font-mono font-bold uppercase tracking-wider text-emerald-400 bg-emerald-500/20 px-2 py-0.5 rounded-full border border-emerald-500/40 shrink-0">
                     New Vote!
                   </span>
                 </div>
                 {activeVoteBubble.candidateName && (
-                  <div className="text-xs font-mono text-zinc-300 flex items-center gap-1.5 mt-0.5">
+                  <div className="text-[11px] sm:text-xs font-mono text-zinc-300 flex items-center gap-1.5 mt-0.5">
                     <span>{activeVoteBubble.category === 'girl' ? '👗' : '👔'}</span>
-                    <span className="text-amber-300 font-bold">
+                    <span className="text-amber-300 font-bold shrink-0">
                       #{activeVoteBubble.candidateNumber}
                     </span>
-                    <span className="truncate max-w-[220px] text-zinc-200">
+                    <span className="truncate max-w-[130px] sm:max-w-[220px] text-zinc-200">
                       {activeVoteBubble.candidateName}
                     </span>
                   </div>

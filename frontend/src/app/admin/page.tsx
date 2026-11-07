@@ -1925,8 +1925,8 @@ export default function AdminLeaderboardPage() {
                   </div>
 
                   {/* Voters Table */}
-                  <div className="overflow-x-auto rounded-xl border border-white/10">
-                    <table className="w-full text-left text-xs">
+                  <div className="overflow-x-auto rounded-xl border border-white/10 overscroll-x-contain">
+                    <table className="w-full text-left text-xs min-w-[660px]">
                       <thead>
                         <tr className="bg-white/[0.04] border-b border-white/10 text-zinc-400 font-mono text-[11px]">
                           <th className="py-3 px-3.5 w-12 text-center">#</th>

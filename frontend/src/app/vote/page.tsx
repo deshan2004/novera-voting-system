@@ -346,7 +346,7 @@ export default function VotePage() {
       {/* Haute Couture Fashion Runway Stage Animation */}
       <RunwayStageBackground />
 
-      <div className="max-w-3xl mx-auto px-3 sm:px-6 py-5 sm:py-10 space-y-5 sm:space-y-6 relative z-10">
+      <div className="max-w-3xl mx-auto px-2.5 sm:px-6 py-4 sm:py-8 space-y-4 sm:space-y-6 relative z-10">
         {/* 👑 HAUTE COUTURE LUXURY RUNWAY ENTRY INTRO */}
         {showScanIntro && (
           <div
@@ -484,12 +484,12 @@ export default function VotePage() {
             <Sparkles className="w-3.5 h-3.5 text-novera-gold animate-spin" style={{ animationDuration: '6s' }} />
             <span>Official Runway Ballot &bull; NOVERA &rsquo;26</span>
           </div>
-          <h1 className="font-serif text-3xl sm:text-4xl font-bold tracking-tight text-white drop-shadow-sm">
+          <h1 className="font-serif text-2xl sm:text-4xl font-bold tracking-tight text-white drop-shadow-sm">
             Cast Your Votes
           </h1>
           <p className="text-xs sm:text-sm text-zinc-300 max-w-md mx-auto">
-            Tap your favorite contender for <strong className="text-white">Best Male Model</strong> and{' '}
-            <strong className="text-white">Best Female Model</strong>, then hit submit below.
+            Swipe right or tap on your favorite contender for <strong className="text-white">Best Male Model</strong> and{' '}
+            <strong className="text-white">Best Female Model</strong>.
           </p>
         </div>
 
@@ -732,11 +732,11 @@ export default function VotePage() {
 
             {/* SECTION 1: BEST MALE MODEL (BOY) */}
             {categoryFilter === 'boy' && (
-              <div className="p-4 sm:p-6 rounded-3xl bg-black/40 backdrop-blur-2xl border border-white/15 shadow-2xl space-y-4">
+              <div className="p-3.5 sm:p-6 rounded-2xl sm:rounded-3xl bg-black/40 backdrop-blur-2xl border border-white/15 shadow-2xl space-y-3.5 sm:space-y-4">
                 <div className="flex items-center justify-between pb-3 border-b border-white/10">
                   <div className="flex items-center gap-2">
                     <Crown className="w-4 h-4 text-novera-gold" />
-                    <h3 className="font-serif text-lg font-bold text-white">
+                    <h3 className="font-serif text-base sm:text-lg font-bold text-white">
                       1. Best Male Model (Boy)
                     </h3>
                   </div>
@@ -746,7 +746,7 @@ export default function VotePage() {
                       <span>Voted: {boyVotedCandidate?.candidateNumber}</span>
                     </span>
                   ) : (
-                    <span className="text-[10px] font-mono text-amber-300 font-bold uppercase tracking-wider flex items-center gap-1 bg-amber-400/10 px-2.5 py-1 rounded-full border border-amber-400/30">
+                    <span className="text-[10px] font-mono text-amber-300 font-bold uppercase tracking-wider flex items-center gap-1 bg-amber-400/10 px-2 sm:px-2.5 py-1 rounded-full border border-amber-400/30">
                       <span>Swipe Model to Vote</span>
                       <ChevronRight className="w-3 h-3 text-amber-400" />
                     </span>
@@ -757,27 +757,27 @@ export default function VotePage() {
                 {hasVotedBoy && boyVotedCandidate && (
                   <div
                     onClick={() => setProfileCandidate(boyVotedCandidate)}
-                    className="p-3.5 rounded-2xl bg-emerald-950/40 border border-emerald-500/40 text-xs flex items-center justify-between cursor-pointer hover:bg-emerald-950/60 transition-all group"
+                    className="p-3 sm:p-3.5 rounded-2xl bg-emerald-950/40 border border-emerald-500/40 text-xs flex items-center justify-between cursor-pointer hover:bg-emerald-950/60 transition-all group"
                   >
-                    <div className="flex items-center gap-3">
-                      <span className="px-2.5 py-1 rounded-lg bg-emerald-600 text-white font-mono font-bold text-xs">
+                    <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
+                      <span className="px-2 sm:px-2.5 py-1 rounded-lg bg-emerald-600 text-white font-mono font-bold text-xs shrink-0">
                         {boyVotedCandidate.candidateNumber}
                       </span>
-                      <div>
-                        <span className="text-[10px] text-emerald-400 font-bold uppercase block">Your Recorded Vote</span>
-                        <span className="font-serif font-bold text-sm text-emerald-200 group-hover:underline">
+                      <div className="min-w-0">
+                        <span className="text-[9px] sm:text-[10px] text-emerald-400 font-bold uppercase block">Your Recorded Vote</span>
+                        <span className="font-serif font-bold text-xs sm:text-sm text-emerald-200 group-hover:underline truncate block">
                           {boyVotedCandidate.name}
                         </span>
                       </div>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 shrink-0 ml-2">
                       <Lock className="w-3.5 h-3.5 text-emerald-400" />
                     </div>
                   </div>
                 )}
 
                 {/* All Male Contenders Grid (Swipe model's name directly to vote!) */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3">
                   {boys.map((candidate) => (
                     <SwipeableCandidateCard
                       key={candidate.id}
@@ -809,11 +809,11 @@ export default function VotePage() {
 
             {/* SECTION 2: BEST FEMALE MODEL (GIRL) */}
             {categoryFilter === 'girl' && (
-              <div className="p-4 sm:p-6 rounded-3xl bg-black/40 backdrop-blur-2xl border border-white/15 shadow-2xl space-y-4">
+              <div className="p-3.5 sm:p-6 rounded-2xl sm:rounded-3xl bg-black/40 backdrop-blur-2xl border border-white/15 shadow-2xl space-y-3.5 sm:space-y-4">
                 <div className="flex items-center justify-between pb-3 border-b border-white/10">
                   <div className="flex items-center gap-2">
                     <Crown className="w-4 h-4 text-novera-gold" />
-                    <h3 className="font-serif text-lg font-bold text-white">
+                    <h3 className="font-serif text-base sm:text-lg font-bold text-white">
                       2. Best Female Model (Girl)
                     </h3>
                   </div>
@@ -823,7 +823,7 @@ export default function VotePage() {
                       <span>Voted: {girlVotedCandidate?.candidateNumber}</span>
                     </span>
                   ) : (
-                    <span className="text-[10px] font-mono text-amber-300 font-bold uppercase tracking-wider flex items-center gap-1 bg-amber-400/10 px-2.5 py-1 rounded-full border border-amber-400/30">
+                    <span className="text-[10px] font-mono text-amber-300 font-bold uppercase tracking-wider flex items-center gap-1 bg-amber-400/10 px-2 sm:px-2.5 py-1 rounded-full border border-amber-400/30">
                       <span>Swipe Model to Vote</span>
                       <ChevronRight className="w-3 h-3 text-amber-400" />
                     </span>
@@ -834,27 +834,27 @@ export default function VotePage() {
                 {hasVotedGirl && girlVotedCandidate && (
                   <div
                     onClick={() => setProfileCandidate(girlVotedCandidate)}
-                    className="p-3.5 rounded-2xl bg-emerald-950/40 border border-emerald-500/40 text-xs flex items-center justify-between cursor-pointer hover:bg-emerald-950/60 transition-all group"
+                    className="p-3 sm:p-3.5 rounded-2xl bg-emerald-950/40 border border-emerald-500/40 text-xs flex items-center justify-between cursor-pointer hover:bg-emerald-950/60 transition-all group"
                   >
-                    <div className="flex items-center gap-3">
-                      <span className="px-2.5 py-1 rounded-lg bg-emerald-600 text-white font-mono font-bold text-xs">
+                    <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
+                      <span className="px-2 sm:px-2.5 py-1 rounded-lg bg-emerald-600 text-white font-mono font-bold text-xs shrink-0">
                         {girlVotedCandidate.candidateNumber}
                       </span>
-                      <div>
-                        <span className="text-[10px] text-emerald-400 font-bold uppercase block">Your Recorded Vote</span>
-                        <span className="font-serif font-bold text-sm text-emerald-200 group-hover:underline">
+                      <div className="min-w-0">
+                        <span className="text-[9px] sm:text-[10px] text-emerald-400 font-bold uppercase block">Your Recorded Vote</span>
+                        <span className="font-serif font-bold text-xs sm:text-sm text-emerald-200 group-hover:underline truncate block">
                           {girlVotedCandidate.name}
                         </span>
                       </div>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 shrink-0 ml-2">
                       <Lock className="w-3.5 h-3.5 text-emerald-400" />
                     </div>
                   </div>
                 )}
 
                 {/* All Female Contenders Grid (Swipe model's name directly to vote!) */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3">
                   {girls.map((candidate) => (
                     <SwipeableCandidateCard
                       key={candidate.id}
@@ -894,32 +894,32 @@ export default function VotePage() {
       {/* ================= CANDIDATE PROFILE DETAILS MODAL (VIEW ANYTIME, EVEN WHEN LOCKED) ================= */}
       {profileCandidate && (
         <div
-          className="fixed inset-0 z-50 bg-black/85 backdrop-blur-xl overflow-y-auto p-3 sm:p-6"
+          className="fixed inset-0 z-50 bg-black/85 backdrop-blur-xl overflow-y-auto p-2.5 sm:p-6 overscroll-contain"
           onClick={() => setProfileCandidate(null)}
         >
           <RunwayStageBackground contained className="opacity-80 pointer-events-none" />
           <div className="min-h-full flex items-center justify-center py-2 sm:py-4">
             <div
-              className="relative z-10 w-full max-w-md bg-[#0d0b08]/95 border border-novera-gold/40 rounded-2xl sm:rounded-3xl overflow-hidden shadow-[0_0_60px_rgba(0,0,0,0.95),0_0_35px_rgba(203,167,95,0.25)] text-white animate-in zoom-in-95 duration-200 flex flex-col max-h-[92dvh] sm:max-h-[calc(100dvh-2rem)] shrink-0"
+              className="relative z-10 w-full max-w-md bg-[#0d0b08]/95 border border-novera-gold/40 rounded-2xl sm:rounded-3xl overflow-hidden shadow-[0_0_60px_rgba(0,0,0,0.95),0_0_35px_rgba(203,167,95,0.25)] text-white animate-in zoom-in-95 duration-200 flex flex-col max-h-[88dvh] sm:max-h-[calc(100dvh-2rem)] shrink-0"
               onClick={(e) => e.stopPropagation()}
             >
             {/* Header Container (No photo - Name & Number only) */}
-            <div className="relative w-full p-5 sm:p-6 bg-gradient-to-b from-[#1c160c] to-[#0d0b08] border-b border-novera-gold/30 shrink-0">
+            <div className="relative w-full p-4 sm:p-6 bg-gradient-to-b from-[#1c160c] to-[#0d0b08] border-b border-novera-gold/30 shrink-0">
               {/* Close Button */}
               <button
                 type="button"
                 onClick={() => setProfileCandidate(null)}
-                className="absolute top-4 right-4 w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-black/60 backdrop-blur-md border border-white/20 text-white flex items-center justify-center hover:bg-white/20 active:scale-90 transition-all z-10 shadow-lg cursor-pointer"
+                className="absolute top-3.5 right-3.5 w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-black/60 backdrop-blur-md border border-white/20 text-white flex items-center justify-center hover:bg-white/20 active:scale-90 transition-all z-10 shadow-lg cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>
 
               {/* Badges */}
               <div className="flex items-center gap-2 mb-2">
-                <span className="px-3 py-1 rounded-full bg-novera-gold text-black font-mono font-extrabold text-xs shadow-md">
+                <span className="px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full bg-novera-gold text-black font-mono font-extrabold text-xs shadow-md">
                   #{profileCandidate.candidateNumber}
                 </span>
-                <span className="px-3 py-1 rounded-full bg-black/70 backdrop-blur-md border border-white/20 text-white font-mono text-[10px] uppercase tracking-wider font-semibold">
+                <span className="px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full bg-black/70 backdrop-blur-md border border-white/20 text-white font-mono text-[10px] uppercase tracking-wider font-semibold">
                   {profileCandidate.category === 'boy' ? 'Male Model' : 'Female Model'}
                 </span>
               </div>
@@ -928,14 +928,14 @@ export default function VotePage() {
                 <span className="text-[10px] font-mono uppercase tracking-[0.25em] text-amber-200/80 block font-bold">
                   Official Contender Profile
                 </span>
-                <h3 className="font-serif text-xl sm:text-2xl font-extrabold text-white drop-shadow-md truncate">
+                <h3 className="font-serif text-lg sm:text-2xl font-extrabold text-white drop-shadow-md truncate">
                   {profileCandidate.name}
                 </h3>
               </div>
             </div>
 
             {/* Modal Body */}
-            <div className="p-4 sm:p-6 space-y-3.5 sm:space-y-4 overflow-y-auto pb-safe">
+            <div className="p-3.5 sm:p-6 space-y-3 sm:space-y-4 overflow-y-auto overscroll-contain pb-safe">
               {/* Bio & Runway Editorial Statement */}
               <div className="p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md space-y-1.5">
                 <span className="text-[10px] font-mono uppercase tracking-widest text-novera-gold font-bold block">

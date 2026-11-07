@@ -45,13 +45,13 @@ export default function SwipeableCandidateCard({
 
     // Detect if user is intentionally scrolling vertically vs dragging horizontally
     if (isHorizontalDragRef.current === null) {
-      if (Math.abs(deltaY) > 8 && Math.abs(deltaY) > Math.abs(deltaX)) {
+      if (Math.abs(deltaY) > 6 && Math.abs(deltaY) > Math.abs(deltaX)) {
         isHorizontalDragRef.current = false;
         setIsDragging(false);
         setDragOffset(0);
         return;
       }
-      if (Math.abs(deltaX) > 8 && Math.abs(deltaX) > Math.abs(deltaY)) {
+      if (Math.abs(deltaX) > 6 && Math.abs(deltaX) > Math.abs(deltaY)) {
         isHorizontalDragRef.current = true;
       }
     }
@@ -167,7 +167,7 @@ export default function SwipeableCandidateCard({
           transform: `translateX(${dragOffset}px)`,
           transition: isDragging ? 'none' : 'transform 0.3s cubic-bezier(0.25, 1, 0.5, 1)',
         }}
-        className={`relative z-10 p-3.5 rounded-2xl text-left flex items-center justify-between gap-3 border transition-colors ${
+        className={`relative z-10 p-2.5 sm:p-3.5 rounded-2xl text-left flex items-center justify-between gap-2.5 sm:gap-3 border transition-colors ${
           isVotedForThis
             ? 'bg-emerald-950/30 border-emerald-500/60 shadow-[0_0_20px_rgba(16,185,129,0.2)]'
             : isConfirmed
@@ -177,10 +177,10 @@ export default function SwipeableCandidateCard({
             : 'bg-black/60 hover:bg-black/80 border-white/10 hover:border-amber-400/40 text-white backdrop-blur-xl cursor-grab active:cursor-grabbing shadow-lg'
         }`}
       >
-        <div className="flex items-center gap-3 min-w-0 flex-1">
+        <div className="flex items-center gap-2.5 sm:gap-3 min-w-0 flex-1">
           {/* Candidate Number Badge */}
           <span
-            className={`w-11 h-11 rounded-xl font-mono text-xs font-black flex items-center justify-center shrink-0 whitespace-nowrap transition-colors ${
+            className={`w-9 h-9 sm:w-11 sm:h-11 rounded-xl font-mono text-[11px] sm:text-xs font-black flex items-center justify-center shrink-0 whitespace-nowrap transition-colors ${
               isVotedForThis
                 ? 'bg-emerald-500 text-black font-extrabold'
                 : 'bg-white/10 text-novera-gold border border-white/15'
@@ -191,11 +191,11 @@ export default function SwipeableCandidateCard({
 
           {/* Model Name & Category */}
           <div className="min-w-0 flex-1">
-            <span className="font-serif font-bold text-sm sm:text-base leading-snug block text-white break-words">
+            <span className="font-serif font-bold text-xs sm:text-base leading-snug block text-white break-words">
               {candidate.name}
             </span>
             <span
-              className={`text-[11px] block mt-0.5 ${
+              className={`text-[10px] sm:text-[11px] block mt-0.5 ${
                 isVotedForThis ? 'text-emerald-300 font-semibold' : 'text-zinc-400'
               }`}
             >
@@ -204,23 +204,39 @@ export default function SwipeableCandidateCard({
           </div>
         </div>
 
-        {/* Swipe / Status Action Badge on the right */}
+        {/* Swipe / Status Action Badge on the right (Dual: Drag Card OR Tap Button directly!) */}
         <div className="shrink-0 flex items-center">
           {isVotedForThis ? (
-            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-[10px] font-mono font-bold uppercase tracking-wider">
-              <Check className="w-3.5 h-3.5 stroke-[3]" />
+            <div className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-[9px] sm:text-[10px] font-mono font-bold uppercase tracking-wider">
+              <Check className="w-3 h-3 sm:w-3.5 sm:h-3.5 stroke-[3]" />
               <span>Voted</span>
             </div>
           ) : isSubmitting && isConfirmed ? (
-            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40 text-[10px] font-mono">
-              <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+            <div className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-1 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40 text-[9px] sm:text-[10px] font-mono">
+              <RefreshCw className="w-3 h-3 sm:w-3.5 sm:h-3.5 animate-spin" />
               <span>Voting...</span>
             </div>
           ) : canVote ? (
-            <div className="flex items-center gap-1 px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/15 hover:border-amber-400/40 text-zinc-300 hover:text-amber-300 text-[11px] font-mono font-semibold tracking-wide transition-all shadow-sm">
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                if (canVote && !isSubmitting && !isVotedForThis && !isConfirmed) {
+                  setIsConfirmed(true);
+                  if (typeof navigator !== 'undefined' && navigator.vibrate) {
+                    try {
+                      navigator.vibrate([30, 40, 60]);
+                    } catch (err) {}
+                  }
+                  onVote(candidate.id);
+                }
+              }}
+              className="flex items-center gap-1 px-2.5 sm:px-3 py-1.5 rounded-xl bg-amber-400/10 hover:bg-amber-400/25 active:bg-amber-400/40 border border-amber-400/30 text-amber-300 text-[10px] sm:text-[11px] font-mono font-semibold tracking-wide transition-all shadow-sm active:scale-95 cursor-pointer touch-manipulation"
+              title="Drag card right or tap to vote"
+            >
               <span>Swipe</span>
-              <ChevronRight className="w-3.5 h-3.5 animate-pulse text-amber-400" />
-            </div>
+              <ChevronRight className="w-3 h-3 sm:w-3.5 sm:h-3.5 animate-pulse text-amber-400" />
+            </button>
           ) : (
             <div className="w-6 h-6 rounded-full border-2 border-white/20 flex items-center justify-center text-zinc-500">
               <Lock className="w-3 h-3" />
