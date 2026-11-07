@@ -46,5 +46,10 @@ public class Candidate {
 
     public int getVotes() { return votes; }
     public void setVotes(int votes) { this.votes = votes; }
+
+    public synchronized int incrementVotes() {
+        this.votes++;
+        return this.votes;
+    }
 }
 

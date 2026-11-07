@@ -450,18 +450,6 @@ export async function submitVote(submission: VoteSubmission): Promise<{
   const voterId = submission.voterId || getOrCreateVoterId();
   let currentStatus = getLocalVoterStatus(voterId);
 
-  // Firestore remote status check if available
-  if (isFirebaseConfigured() && db) {
-    try {
-      const voterDocRef = doc(db, 'voters', voterId);
-      const voterSnap = await getDoc(voterDocRef);
-      if (voterSnap.exists()) {
-        const remoteStatus = voterSnap.data() as VoterStatus;
-        currentStatus = { ...currentStatus, ...remoteStatus };
-      }
-    } catch (e) {}
-  }
-
   // Strict Validation: One boy and one girl vote only
   if (submission.boyCandidateId && currentStatus.hasVotedBoy) {
     return {
@@ -479,63 +467,10 @@ export async function submitVote(submission: VoteSubmission): Promise<{
     };
   }
 
-  // 1. Record in Firebase Firestore (Parallel writes for instant sub-second response)
   const voterName = (submission.voterName && submission.voterName.trim()) || currentStatus.voterName || 'Audience Guest';
   currentStatus.voterName = voterName;
 
-  if (isFirebaseConfigured() && db) {
-    try {
-      const writeOps: Promise<any>[] = [];
-
-      if (submission.boyCandidateId) {
-        const boyRef = doc(db, 'candidates', submission.boyCandidateId);
-        writeOps.push(updateDoc(boyRef, { votes: increment(1) }));
-      }
-      if (submission.girlCandidateId) {
-        const girlRef = doc(db, 'candidates', submission.girlCandidateId);
-        writeOps.push(updateDoc(girlRef, { votes: increment(1) }));
-      }
-
-      // Record voter lock - CRITICAL: Never pass undefined values to Firestore
-      const voterRef = doc(db, 'voters', voterId);
-      const voterDocData: Record<string, any> = {
-        voterId,
-        voterName,
-        hasVotedBoy: currentStatus.hasVotedBoy || !!submission.boyCandidateId,
-        hasVotedGirl: currentStatus.hasVotedGirl || !!submission.girlCandidateId,
-        updatedAt: Date.now(),
-      };
-      const boyFor = submission.boyCandidateId || currentStatus.boyVotedFor;
-      if (boyFor) voterDocData.boyVotedFor = boyFor;
-      const girlFor = submission.girlCandidateId || currentStatus.girlVotedFor;
-      if (girlFor) voterDocData.girlVotedFor = girlFor;
-      const justVotedCandidateId = submission.girlCandidateId || submission.boyCandidateId;
-      if (justVotedCandidateId) voterDocData.lastVotedCandidateId = justVotedCandidateId;
-
-      writeOps.push(setDoc(voterRef, voterDocData, { merge: true }));
-
-      await Promise.all(writeOps);
-    } catch (err) {
-      console.warn('Firebase vote recording note:', err);
-    }
-  }
-
-  // 2. Record in Spring Boot backend (Guarded with timeout to prevent mobile stalls)
-  if (shouldCallSpringBoot()) {
-    try {
-      const controller = new AbortController();
-      const timer = setTimeout(() => controller.abort(), 1500);
-      await fetch(`${SPRING_BOOT_API_URL}/votes/submit`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(submission),
-        signal: controller.signal,
-      });
-      clearTimeout(timer);
-    } catch (e) {}
-  }
-
-  // 3. Update local state
+  // 1. Instant Local Cache Update (Optimistic 0ms UI response)
   const candidates = getLocalCandidates();
   if (submission.boyCandidateId) {
     const candidate = candidates.find((c) => c.id === submission.boyCandidateId);
@@ -570,6 +505,63 @@ export async function submitVote(submission: VoteSubmission): Promise<{
     window.dispatchEvent(new Event('novera_vote_updated'));
     window.dispatchEvent(new Event('novera_voters_updated'));
   }
+
+  // 2. High-Concurrency Asynchronous Remote Writes (Atomic Firestore Increments + Spring Boot)
+  const remoteTasks: Promise<any>[] = [];
+
+  if (isFirebaseConfigured() && db) {
+    try {
+      if (submission.boyCandidateId) {
+        const boyRef = doc(db, 'candidates', submission.boyCandidateId);
+        remoteTasks.push(updateDoc(boyRef, { votes: increment(1) }).catch((err) => console.warn('Boy vote sync note:', err)));
+      }
+      if (submission.girlCandidateId) {
+        const girlRef = doc(db, 'candidates', submission.girlCandidateId);
+        remoteTasks.push(updateDoc(girlRef, { votes: increment(1) }).catch((err) => console.warn('Girl vote sync note:', err)));
+      }
+
+      // Record voter lock - CRITICAL: Never pass undefined values to Firestore
+      const voterRef = doc(db, 'voters', voterId);
+      const voterDocData: Record<string, any> = {
+        voterId,
+        voterName,
+        hasVotedBoy: currentStatus.hasVotedBoy,
+        hasVotedGirl: currentStatus.hasVotedGirl,
+        updatedAt: Date.now(),
+      };
+      if (currentStatus.boyVotedFor) voterDocData.boyVotedFor = currentStatus.boyVotedFor;
+      if (currentStatus.girlVotedFor) voterDocData.girlVotedFor = currentStatus.girlVotedFor;
+      if (justVotedCandidateId) voterDocData.lastVotedCandidateId = justVotedCandidateId;
+
+      remoteTasks.push(setDoc(voterRef, voterDocData, { merge: true }).catch((err) => console.warn('Voter sync note:', err)));
+    } catch (err) {
+      console.warn('Firebase vote recording note:', err);
+    }
+  }
+
+  // Asynchronous Spring Boot background sync
+  if (shouldCallSpringBoot()) {
+    try {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 1800);
+      remoteTasks.push(
+        fetch(`${SPRING_BOOT_API_URL}/votes/submit`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(submission),
+          signal: controller.signal,
+        })
+          .then(() => clearTimeout(timer))
+          .catch(() => {})
+      );
+    } catch (e) {}
+  }
+
+  // Fast await with maximum 350ms budget so user experience is instantaneous even under heavy traffic
+  await Promise.race([
+    Promise.all(remoteTasks),
+    new Promise((resolve) => setTimeout(resolve, 350)),
+  ]);
 
   return {
     success: true,

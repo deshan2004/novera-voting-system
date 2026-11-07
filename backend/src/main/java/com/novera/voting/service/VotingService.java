@@ -7,6 +7,7 @@ import com.novera.voting.model.VoterStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Service
@@ -109,8 +110,9 @@ public class VotingService {
      * Strict Ballot Verification:
      * - Only 1 Boy vote per voter
      * - Only 1 Girl vote per voter
+     * - Fine-grained per-voter synchronization ensures 100+ concurrent users vote without global queue bottlenecks.
      */
-    public synchronized VoteResponse processVote(VoteSubmission submission) {
+    public VoteResponse processVote(VoteSubmission submission) {
         String voterId = submission.getVoterId();
         if (voterId == null || voterId.trim().isEmpty()) {
             return new VoteResponse(false, "Voter identity token is missing.", null);
@@ -118,40 +120,43 @@ public class VotingService {
 
         VoterStatus status = voterRegistry.computeIfAbsent(voterId, VoterStatus::new);
 
-        // Check Boy Vote Constraint
-        if (submission.getBoyCandidateId() != null) {
-            if (status.isHasVotedBoy()) {
-                return new VoteResponse(false, "You have already voted for a Best Male Model (Boy). Only one vote allowed.", status);
+        // Lock only this individual voter's status to prevent double-votes, without blocking other voters
+        synchronized (status) {
+            // Check Boy Vote Constraint
+            if (submission.getBoyCandidateId() != null) {
+                if (status.isHasVotedBoy()) {
+                    return new VoteResponse(false, "You have already voted for a Best Male Model (Boy). Only one vote allowed.", status);
+                }
+                Candidate boy = candidates.get(submission.getBoyCandidateId());
+                if (boy == null || !"boy".equalsIgnoreCase(boy.getCategory())) {
+                    return new VoteResponse(false, "Invalid male candidate selected.", status);
+                }
+                int updatedVotes = boy.incrementVotes();
+                status.setHasVotedBoy(true);
+                status.setBoyVotedFor(boy.getId());
+                CompletableFuture.runAsync(() -> firebaseService.syncCandidateVote(boy.getId(), updatedVotes));
             }
-            Candidate boy = candidates.get(submission.getBoyCandidateId());
-            if (boy == null || !"boy".equalsIgnoreCase(boy.getCategory())) {
-                return new VoteResponse(false, "Invalid male candidate selected.", status);
+
+            // Check Girl Vote Constraint
+            if (submission.getGirlCandidateId() != null) {
+                if (status.isHasVotedGirl()) {
+                    return new VoteResponse(false, "You have already voted for a Best Female Model (Girl). Only one vote allowed.", status);
+                }
+                Candidate girl = candidates.get(submission.getGirlCandidateId());
+                if (girl == null || !"girl".equalsIgnoreCase(girl.getCategory())) {
+                    return new VoteResponse(false, "Invalid female candidate selected.", status);
+                }
+                int updatedVotes = girl.incrementVotes();
+                status.setHasVotedGirl(true);
+                status.setGirlVotedFor(girl.getId());
+                CompletableFuture.runAsync(() -> firebaseService.syncCandidateVote(girl.getId(), updatedVotes));
             }
-            boy.setVotes(boy.getVotes() + 1);
-            status.setHasVotedBoy(true);
-            status.setBoyVotedFor(boy.getId());
-            firebaseService.syncCandidateVote(boy.getId(), boy.getVotes());
+
+            status.setVotedAt(System.currentTimeMillis());
+            CompletableFuture.runAsync(() -> firebaseService.syncVoterStatus(status));
+
+            return new VoteResponse(true, "Your vote has been verified and recorded on the NOVERA '26 ledger.", status);
         }
-
-        // Check Girl Vote Constraint
-        if (submission.getGirlCandidateId() != null) {
-            if (status.isHasVotedGirl()) {
-                return new VoteResponse(false, "You have already voted for a Best Female Model (Girl). Only one vote allowed.", status);
-            }
-            Candidate girl = candidates.get(submission.getGirlCandidateId());
-            if (girl == null || !"girl".equalsIgnoreCase(girl.getCategory())) {
-                return new VoteResponse(false, "Invalid female candidate selected.", status);
-            }
-            girl.setVotes(girl.getVotes() + 1);
-            status.setHasVotedGirl(true);
-            status.setGirlVotedFor(girl.getId());
-            firebaseService.syncCandidateVote(girl.getId(), girl.getVotes());
-        }
-
-        status.setVotedAt(System.currentTimeMillis());
-        firebaseService.syncVoterStatus(status);
-
-        return new VoteResponse(true, "Your vote has been verified and recorded on the NOVERA '26 ledger.", status);
     }
 
     public synchronized void resetAllVotes() {

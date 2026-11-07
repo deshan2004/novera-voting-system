@@ -255,32 +255,48 @@ export default function VotePage() {
       setFeedback({ type: 'error', message: 'Voting is currently closed by the organizing committee.' });
       return;
     }
-    setIsSubmitting(true);
-    setFeedback(null);
-    const result = await submitVote({
-      voterId: voterStatus.voterId,
-      voterName: voterName.trim() || undefined,
-      boyCandidateId: targetId,
+
+    // ⚡ INSTANT OPTIMISTIC UI: Zero perceived latency, instant response!
+    const optimisticStatus: VoterStatus = {
+      ...voterStatus,
+      hasVotedBoy: true,
+      boyVotedFor: targetId,
+      voterName: voterName.trim() || voterStatus.voterName || 'Audience Guest',
+      votedAt: Date.now(),
+    };
+    setVoterStatus(optimisticStatus);
+    setSelectedBoyId(null);
+    setFeedback({ type: 'success', message: 'Male Model vote recorded!' });
+
+    confetti({
+      particleCount: 70,
+      spread: 60,
+      origin: { y: 0.5 },
+      colors: ['#b3924f', '#0b0b0b', '#ecd599', '#10b981'],
     });
-    setIsSubmitting(false);
 
-    if (result.success) {
-      setVoterStatus(result.voterStatus);
-      setSelectedBoyId(null);
-      setFeedback({ type: 'success', message: 'Male Model vote recorded successfully!' });
+    if (!optimisticStatus.hasVotedGirl) {
+      setTimeout(() => setCategoryFilter('girl'), 550);
+    }
 
-      confetti({
-        particleCount: 80,
-        spread: 70,
-        origin: { y: 0.5 },
-        colors: ['#b3924f', '#0b0b0b', '#ecd599', '#10b981'],
+    setIsSubmitting(true);
+    try {
+      const result = await submitVote({
+        voterId: voterStatus.voterId,
+        voterName: voterName.trim() || undefined,
+        boyCandidateId: targetId,
       });
 
-      if (!result.voterStatus.hasVotedGirl) {
-        setTimeout(() => setCategoryFilter('girl'), 700);
+      if (result.success) {
+        setVoterStatus(result.voterStatus);
+      } else {
+        setFeedback({ type: 'error', message: result.message });
+        setVoterStatus(getLocalVoterStatus(voterStatus.voterId));
       }
-    } else {
-      setFeedback({ type: 'error', message: result.message });
+    } catch (err) {
+      console.warn('Background vote sync note:', err);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -292,32 +308,48 @@ export default function VotePage() {
       setFeedback({ type: 'error', message: 'Voting is currently closed by the organizing committee.' });
       return;
     }
-    setIsSubmitting(true);
-    setFeedback(null);
-    const result = await submitVote({
-      voterId: voterStatus.voterId,
-      voterName: voterName.trim() || undefined,
-      girlCandidateId: targetId,
+
+    // ⚡ INSTANT OPTIMISTIC UI: Zero perceived latency, instant response!
+    const optimisticStatus: VoterStatus = {
+      ...voterStatus,
+      hasVotedGirl: true,
+      girlVotedFor: targetId,
+      voterName: voterName.trim() || voterStatus.voterName || 'Audience Guest',
+      votedAt: Date.now(),
+    };
+    setVoterStatus(optimisticStatus);
+    setSelectedGirlId(null);
+    setFeedback({ type: 'success', message: 'Female Model vote recorded!' });
+
+    confetti({
+      particleCount: 70,
+      spread: 60,
+      origin: { y: 0.5 },
+      colors: ['#b3924f', '#0b0b0b', '#ecd599', '#10b981'],
     });
-    setIsSubmitting(false);
 
-    if (result.success) {
-      setVoterStatus(result.voterStatus);
-      setSelectedGirlId(null);
-      setFeedback({ type: 'success', message: 'Female Model vote recorded successfully!' });
+    if (!optimisticStatus.hasVotedBoy) {
+      setTimeout(() => setCategoryFilter('boy'), 550);
+    }
 
-      confetti({
-        particleCount: 80,
-        spread: 70,
-        origin: { y: 0.5 },
-        colors: ['#b3924f', '#0b0b0b', '#ecd599', '#10b981'],
+    setIsSubmitting(true);
+    try {
+      const result = await submitVote({
+        voterId: voterStatus.voterId,
+        voterName: voterName.trim() || undefined,
+        girlCandidateId: targetId,
       });
 
-      if (!result.voterStatus.hasVotedBoy) {
-        setTimeout(() => setCategoryFilter('boy'), 700);
+      if (result.success) {
+        setVoterStatus(result.voterStatus);
+      } else {
+        setFeedback({ type: 'error', message: result.message });
+        setVoterStatus(getLocalVoterStatus(voterStatus.voterId));
       }
-    } else {
-      setFeedback({ type: 'error', message: result.message });
+    } catch (err) {
+      console.warn('Background vote sync note:', err);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
