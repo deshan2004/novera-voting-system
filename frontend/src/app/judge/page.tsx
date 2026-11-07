@@ -819,63 +819,50 @@ export default function JudgePortalPage() {
                     : 'bg-black/40 backdrop-blur-xl border border-white/15 hover:border-novera-gold/60 hover:shadow-2xl text-white'
                 }`}
               >
-                <div>
-                  {/* Contender Header: Name & Number (No photos) */}
-                  <div className="p-4 rounded-2xl bg-black/60 border border-white/10 mb-3 space-y-2.5">
-                    <div className="flex items-center justify-between gap-2">
-                      <span className="px-3 py-1 rounded-xl bg-novera-gold/20 border border-novera-gold/50 text-novera-gold font-mono text-sm font-extrabold tracking-wider shadow-sm">
-                        #{candidate.candidateNumber}
-                      </span>
-                      <span className="text-[10px] font-mono uppercase tracking-widest text-zinc-300 font-semibold px-2.5 py-0.5 rounded-full bg-white/5 border border-white/10">
-                        {candidate.category === 'boy' ? 'Male Model' : 'Female Model'}
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-between gap-2">
-                      <h3 className="font-serif text-lg sm:text-xl font-bold text-white group-hover:text-amber-200 transition-colors truncate">
-                        {candidate.name}
-                      </h3>
-                      {isScored && (
-                        <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-[10px] font-mono font-bold shrink-0 flex items-center gap-1">
-                          <CheckCheck className="w-3 h-3 text-emerald-300" />
-                          <span>{score.totalModel}/100</span>
-                        </span>
-                      )}
-                    </div>
+                <div className="space-y-4">
+                  {/* Top Bar: Number & Category Badge */}
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-novera-gold/25 to-amber-500/20 border-2 border-novera-gold/70 text-novera-gold font-mono text-base font-black tracking-wider whitespace-nowrap shadow-sm">
+                      {candidate.candidateNumber}
+                    </span>
+                    <span className="text-[11px] font-mono uppercase tracking-widest text-zinc-300 font-semibold px-2.5 py-1 rounded-full bg-white/5 border border-white/10 whitespace-nowrap">
+                      {candidate.category === 'boy' ? 'Male Model' : 'Female Model'}
+                    </span>
                   </div>
 
-                  <p className="text-xs text-zinc-300 line-clamp-2 mb-4 font-normal">
-                    {candidate.bio || 'Official Runway Contender representing elegance, poise, and personality.'}
-                  </p>
+                  {/* Model Name - Full, Crystal Clear, NO TRUNCATION */}
+                  <div className="min-h-[4rem] flex flex-col justify-center">
+                    <span className="text-[10px] font-mono uppercase tracking-[0.2em] text-amber-200/60 font-semibold block mb-1">
+                      Official Contender
+                    </span>
+                    <h3 className="font-serif text-xl sm:text-2xl font-black text-white group-hover:text-amber-200 transition-colors leading-tight break-words">
+                      {candidate.name}
+                    </h3>
+                  </div>
 
-                  {/* Score Summary Box with Frosted Emerald Glass */}
-                  {isScored && (
-                    <div className="p-3.5 rounded-2xl bg-emerald-950/40 border border-emerald-500/30 text-[11px] space-y-1.5 mb-4 shadow-sm text-white">
-                      <div className="flex justify-between text-emerald-300 font-bold">
-                        <span className="flex items-center gap-1">
-                          <Crown className="w-3 h-3 text-emerald-400" />
-                          <span>Top Model:</span>
+                  {/* Scored Status / Summary */}
+                  {isScored ? (
+                    <div className="p-3.5 rounded-2xl bg-emerald-950/40 border border-emerald-500/30 text-[11px] space-y-1.5 shadow-sm text-white">
+                      <div className="flex justify-between items-center text-emerald-300 font-bold">
+                        <span className="flex items-center gap-1.5">
+                          <CheckCheck className="w-3.5 h-3.5 text-emerald-400" />
+                          <span>Model Runway Score:</span>
                         </span>
-                        <span className="font-mono text-emerald-200">{score.totalModel}/100</span>
+                        <span className="font-mono text-emerald-200 text-sm font-extrabold">{score.totalModel}/100</span>
                       </div>
-                      <div className="flex justify-between text-zinc-300">
-                        <span>Best Personality:</span>
-                        <span className="font-mono text-white">{score.personalityScore}/50</span>
-                      </div>
-                      <div className="flex justify-between text-zinc-300">
-                        <span>Stage Presence:</span>
-                        <span className="font-mono text-white">{score.stagePresenceScore}/30</span>
-                      </div>
-                      <div className="flex justify-between text-zinc-300">
-                        <span>Most Photogenic:</span>
-                        <span className="font-mono text-white">{score.photogenicScore}/40</span>
-                      </div>
-                      <div className="flex justify-between text-amber-300 font-bold border-t border-white/10 pt-1 mt-1">
-                        <span className="flex items-center gap-1">
-                          <Sparkles className="w-3 h-3 text-amber-400" />
-                          <span>Student Design:</span>
+                      <div className="flex justify-between items-center text-amber-300 font-bold border-t border-white/10 pt-1.5">
+                        <span className="flex items-center gap-1.5">
+                          <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                          <span>Student Design Score:</span>
                         </span>
-                        <span className="font-mono text-amber-200">{score.totalDesign ?? 0}/100</span>
+                        <span className="font-mono text-amber-200 text-sm font-extrabold">{score.totalDesign ?? 0}/100</span>
                       </div>
+                    </div>
+                  ) : (
+                    <div className="py-2.5 px-3 rounded-xl bg-white/5 border border-white/10 text-center">
+                      <span className="text-[11px] font-mono text-zinc-400 uppercase tracking-wider font-semibold">
+                        Awaiting Evaluation
+                      </span>
                     </div>
                   )}
                 </div>

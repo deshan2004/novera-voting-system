@@ -764,9 +764,9 @@ export default function VotePage() {
                               : 'bg-white/5 hover:bg-white/10 border border-white/10 text-white backdrop-blur-md'
                           }`}
                       >
-                        <div className="flex items-center gap-3 truncate">
+                        <div className="flex items-center gap-3 min-w-0 flex-1">
                           <span
-                            className={`w-10 h-10 rounded-xl font-mono text-xs font-bold flex items-center justify-center shrink-0 transition-colors ${isVotedForThis
+                            className={`w-11 h-11 rounded-xl font-mono text-xs font-black flex items-center justify-center shrink-0 whitespace-nowrap transition-colors ${isVotedForThis
                                 ? 'bg-emerald-500 text-black font-extrabold'
                                 : isSelected
                                   ? 'bg-gradient-to-br from-novera-gold to-amber-500 text-black font-extrabold'
@@ -775,27 +775,19 @@ export default function VotePage() {
                           >
                             {candidate.candidateNumber}
                           </span>
-                          <div className="truncate">
-                            <button
-                              type="button"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setProfileCandidate(candidate);
-                              }}
-                              className="font-serif font-bold text-sm truncate block text-white hover:text-novera-gold transition-colors text-left"
-                              title="Click name to view details"
-                            >
+                          <div className="min-w-0 flex-1">
+                            <span className="font-serif font-bold text-sm sm:text-base leading-snug block text-white break-words">
                               {candidate.name}
-                            </button>
+                            </span>
                             <span
-                              className={`text-[11px] block truncate ${isVotedForThis
+                              className={`text-[11px] block mt-0.5 ${isVotedForThis
                                   ? 'text-emerald-300 font-semibold'
                                   : isSelected
                                     ? 'text-amber-200'
                                     : 'text-zinc-400'
                                 }`}
                             >
-                              {isVotedForThis ? 'Voted' : 'Contender'}
+                              {isVotedForThis ? 'Voted' : 'Official Contender'}
                             </span>
                           </div>
                         </div>
@@ -940,9 +932,9 @@ export default function VotePage() {
                               : 'bg-white/5 hover:bg-white/10 border border-white/10 text-white backdrop-blur-md'
                           }`}
                       >
-                        <div className="flex items-center gap-3 truncate">
+                        <div className="flex items-center gap-3 min-w-0 flex-1">
                           <span
-                            className={`w-10 h-10 rounded-xl font-mono text-xs font-bold flex items-center justify-center shrink-0 transition-colors ${isVotedForThis
+                            className={`w-11 h-11 rounded-xl font-mono text-xs font-black flex items-center justify-center shrink-0 whitespace-nowrap transition-colors ${isVotedForThis
                                 ? 'bg-emerald-500 text-black font-extrabold'
                                 : isSelected
                                   ? 'bg-gradient-to-br from-novera-gold to-amber-500 text-black font-extrabold'
@@ -951,27 +943,19 @@ export default function VotePage() {
                           >
                             {candidate.candidateNumber}
                           </span>
-                          <div className="truncate">
-                            <button
-                              type="button"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setProfileCandidate(candidate);
-                              }}
-                              className="font-serif font-bold text-sm truncate block text-white hover:text-novera-gold transition-colors text-left"
-                              title="Click name to view details"
-                            >
+                          <div className="min-w-0 flex-1">
+                            <span className="font-serif font-bold text-sm sm:text-base leading-snug block text-white break-words">
                               {candidate.name}
-                            </button>
+                            </span>
                             <span
-                              className={`text-[11px] block truncate ${isVotedForThis
+                              className={`text-[11px] block mt-0.5 ${isVotedForThis
                                   ? 'text-emerald-300 font-semibold'
                                   : isSelected
                                     ? 'text-amber-200'
                                     : 'text-zinc-400'
                                 }`}
                             >
-                              {isVotedForThis ? 'Voted' : 'Contender'}
+                              {isVotedForThis ? 'Voted' : 'Official Contender'}
                             </span>
                           </div>
                         </div>
