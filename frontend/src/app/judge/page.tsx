@@ -23,6 +23,7 @@ import {
   CheckCheck,
   Compass,
   X,
+  Info,
   Search,
   Minus,
   Plus,
@@ -820,25 +821,41 @@ export default function JudgePortalPage() {
                 }`}
               >
                 <div className="space-y-4">
-                  {/* Top Bar: Number & Category Badge */}
+                  {/* Top Bar: Number & Category Badge (Click number to view details) */}
                   <div className="flex items-center justify-between gap-2">
-                    <span className="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-novera-gold/25 to-amber-500/20 border-2 border-novera-gold/70 text-novera-gold font-mono text-base font-black tracking-wider whitespace-nowrap shadow-sm">
-                      {candidate.candidateNumber}
-                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setInspectCandidate(candidate)}
+                      className="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-novera-gold/25 to-amber-500/20 border-2 border-novera-gold/70 text-novera-gold font-mono text-base font-black tracking-wider whitespace-nowrap shadow-sm hover:scale-105 active:scale-95 transition-all cursor-pointer flex items-center gap-1.5"
+                      title="Click to view full specifications & details"
+                    >
+                      <span>{candidate.candidateNumber}</span>
+                      <Info className="w-3.5 h-3.5 opacity-60" />
+                    </button>
                     <span className="text-[11px] font-mono uppercase tracking-widest text-zinc-300 font-semibold px-2.5 py-1 rounded-full bg-white/5 border border-white/10 whitespace-nowrap">
                       {candidate.category === 'boy' ? 'Male Model' : 'Female Model'}
                     </span>
                   </div>
 
-                  {/* Model Name - Full, Crystal Clear, NO TRUNCATION */}
-                  <div className="min-h-[4rem] flex flex-col justify-center">
-                    <span className="text-[10px] font-mono uppercase tracking-[0.2em] text-amber-200/60 font-semibold block mb-1">
-                      Official Contender
-                    </span>
-                    <h3 className="font-serif text-xl sm:text-2xl font-black text-white group-hover:text-amber-200 transition-colors leading-tight break-words">
+                  {/* Model Name - Full, Crystal Clear, Clickable to view details */}
+                  <button
+                    type="button"
+                    onClick={() => setInspectCandidate(candidate)}
+                    className="w-full text-left min-h-[4rem] flex flex-col justify-center group/name cursor-pointer p-1.5 -m-1.5 rounded-2xl hover:bg-white/5 active:scale-[0.99] transition-all"
+                    title={`Click to view model profile & details for ${candidate.name}`}
+                  >
+                    <div className="flex items-center justify-between gap-2 mb-1">
+                      <span className="text-[10px] font-mono uppercase tracking-[0.2em] text-amber-200/60 font-semibold block">
+                        Official Contender
+                      </span>
+                      <span className="text-[10px] font-mono text-novera-gold opacity-80 group-hover/name:opacity-100 group-hover/name:underline transition-all flex items-center gap-1">
+                        View Details &rarr;
+                      </span>
+                    </div>
+                    <h3 className="font-serif text-xl sm:text-2xl font-black text-white group-hover/name:text-amber-200 transition-colors leading-tight break-words">
                       {candidate.name}
                     </h3>
-                  </div>
+                  </button>
 
                   {/* Scored Status / Summary */}
                   {isScored ? (
@@ -1424,10 +1441,10 @@ export default function JudgePortalPage() {
 
                 {/* Badges */}
                 <div className="flex items-center gap-2 mb-2">
-                  <span className="px-3 py-1 rounded-full bg-novera-gold text-black font-mono font-extrabold text-xs shadow-md">
-                    #{inspectCandidate.candidateNumber}
+                  <span className="px-3 py-1 rounded-full bg-novera-gold text-black font-mono font-extrabold text-xs shadow-md whitespace-nowrap">
+                    {inspectCandidate.candidateNumber}
                   </span>
-                  <span className="px-3 py-1 rounded-full bg-black/70 backdrop-blur-md border border-white/20 text-white font-mono text-[10px] uppercase tracking-wider font-semibold">
+                  <span className="px-3 py-1 rounded-full bg-black/70 backdrop-blur-md border border-white/20 text-white font-mono text-[10px] uppercase tracking-wider font-semibold whitespace-nowrap">
                     {inspectCandidate.category === 'boy' ? 'Male Model' : 'Female Model'}
                   </span>
                 </div>
@@ -1436,7 +1453,7 @@ export default function JudgePortalPage() {
                   <span className="text-[10px] font-mono uppercase tracking-[0.25em] text-amber-200/80 block font-bold">
                     Official Contender Profile
                   </span>
-                  <h3 className="font-serif text-xl sm:text-2xl font-extrabold text-white drop-shadow-md truncate">
+                  <h3 className="font-serif text-xl sm:text-2xl font-black text-white drop-shadow-md break-words">
                     {inspectCandidate.name}
                   </h3>
                 </div>

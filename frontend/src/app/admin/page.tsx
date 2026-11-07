@@ -1735,15 +1735,16 @@ export default function AdminLeaderboardPage() {
                   </button>
                 </div>
 
-                {/* Filter & Progress Summary Bar */}
-                <div className="py-2.5 sm:py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 shrink-0 border-b border-white/10 sm:border-b-0 pb-2.5 sm:pb-0">
-                  <div className="flex flex-col sm:flex-row sm:items-center gap-2 w-full sm:w-auto">
-                    <div className="flex items-center gap-1.5 w-full sm:w-auto">
-                      <span className="text-[10px] sm:text-xs font-semibold text-zinc-300 shrink-0">Cat:</span>
-                      <div className="grid grid-cols-3 sm:flex p-1 rounded-xl bg-white/10 border border-white/10 flex-1 sm:flex-none">
+                {/* Filter & Progress Summary Bar (Clean Flex Wrap without overlapping) */}
+                <div className="py-2.5 sm:py-3 flex flex-wrap items-center justify-between gap-3 shrink-0 border-b border-white/10 pb-3">
+                  <div className="flex flex-wrap items-center gap-3">
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-[10px] sm:text-xs font-semibold text-zinc-300 shrink-0">Category:</span>
+                      <div className="inline-flex items-center p-1 rounded-xl bg-white/10 border border-white/10 gap-0.5">
                         <button
+                          type="button"
                           onClick={() => setAuditCategoryFilter('all')}
-                          className={`px-2 sm:px-3 py-1 rounded-lg text-[10px] sm:text-xs font-bold uppercase transition-all text-center cursor-pointer ${auditCategoryFilter === 'all'
+                          className={`px-2.5 py-1 rounded-lg text-[10px] sm:text-xs font-bold uppercase transition-all whitespace-nowrap cursor-pointer ${auditCategoryFilter === 'all'
                               ? 'bg-gradient-to-r from-novera-gold to-amber-500 text-black font-extrabold shadow-sm'
                               : 'text-zinc-400 hover:text-white'
                             }`}
@@ -1751,8 +1752,9 @@ export default function AdminLeaderboardPage() {
                           All ({candidates.length})
                         </button>
                         <button
+                          type="button"
                           onClick={() => setAuditCategoryFilter('boy')}
-                          className={`px-2 sm:px-3 py-1 rounded-lg text-[10px] sm:text-xs font-bold uppercase transition-all text-center cursor-pointer ${auditCategoryFilter === 'boy'
+                          className={`px-2.5 py-1 rounded-lg text-[10px] sm:text-xs font-bold uppercase transition-all whitespace-nowrap cursor-pointer ${auditCategoryFilter === 'boy'
                               ? 'bg-gradient-to-r from-novera-gold to-amber-500 text-black font-extrabold shadow-sm'
                               : 'text-zinc-400 hover:text-white'
                             }`}
@@ -1760,8 +1762,9 @@ export default function AdminLeaderboardPage() {
                           Boys ({candidates.filter((c) => c.category === 'boy').length})
                         </button>
                         <button
+                          type="button"
                           onClick={() => setAuditCategoryFilter('girl')}
-                          className={`px-2 sm:px-3 py-1 rounded-lg text-[10px] sm:text-xs font-bold uppercase transition-all text-center cursor-pointer ${auditCategoryFilter === 'girl'
+                          className={`px-2.5 py-1 rounded-lg text-[10px] sm:text-xs font-bold uppercase transition-all whitespace-nowrap cursor-pointer ${auditCategoryFilter === 'girl'
                               ? 'bg-gradient-to-r from-novera-gold to-amber-500 text-black font-extrabold shadow-sm'
                               : 'text-zinc-400 hover:text-white'
                             }`}
@@ -1771,12 +1774,13 @@ export default function AdminLeaderboardPage() {
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-1.5 w-full sm:w-auto">
+                    <div className="flex items-center gap-1.5">
                       <span className="text-[10px] sm:text-xs font-semibold text-zinc-300 shrink-0">Status:</span>
-                      <div className="grid grid-cols-3 sm:flex p-1 rounded-xl bg-white/10 border border-white/10 flex-1 sm:flex-none">
+                      <div className="inline-flex items-center p-1 rounded-xl bg-white/10 border border-white/10 gap-0.5">
                         <button
+                          type="button"
                           onClick={() => setAuditStatusFilter('all')}
-                          className={`px-2 sm:px-2.5 py-1 rounded-lg text-[10px] sm:text-xs font-bold uppercase transition-all text-center cursor-pointer ${auditStatusFilter === 'all'
+                          className={`px-2.5 py-1 rounded-lg text-[10px] sm:text-xs font-bold uppercase transition-all whitespace-nowrap cursor-pointer ${auditStatusFilter === 'all'
                               ? 'bg-white/20 text-white font-extrabold shadow-sm'
                               : 'text-zinc-400 hover:text-white'
                             }`}
@@ -1784,8 +1788,9 @@ export default function AdminLeaderboardPage() {
                           All
                         </button>
                         <button
+                          type="button"
                           onClick={() => setAuditStatusFilter('scored')}
-                          className={`px-2 sm:px-2.5 py-1 rounded-lg text-[10px] sm:text-xs font-bold uppercase transition-all text-center cursor-pointer ${auditStatusFilter === 'scored'
+                          className={`px-2.5 py-1 rounded-lg text-[10px] sm:text-xs font-bold uppercase transition-all whitespace-nowrap cursor-pointer ${auditStatusFilter === 'scored'
                               ? 'bg-emerald-500 text-black font-extrabold shadow-sm'
                               : 'text-zinc-400 hover:text-emerald-400'
                             }`}
@@ -1793,8 +1798,9 @@ export default function AdminLeaderboardPage() {
                           Scored ({judgeScores.filter((s) => s.judgeId === selectedAuditJudge.id).length})
                         </button>
                         <button
+                          type="button"
                           onClick={() => setAuditStatusFilter('pending')}
-                          className={`px-2 sm:px-2.5 py-1 rounded-lg text-[10px] sm:text-xs font-bold uppercase transition-all text-center cursor-pointer ${auditStatusFilter === 'pending'
+                          className={`px-2.5 py-1 rounded-lg text-[10px] sm:text-xs font-bold uppercase transition-all whitespace-nowrap cursor-pointer ${auditStatusFilter === 'pending'
                               ? 'bg-amber-500 text-black font-extrabold shadow-sm'
                               : 'text-zinc-400 hover:text-amber-400'
                             }`}
@@ -1806,7 +1812,7 @@ export default function AdminLeaderboardPage() {
                   </div>
 
                   {/* Completion Tag */}
-                  <div className="text-[11px] sm:text-xs font-mono font-semibold text-zinc-300 flex items-center justify-between sm:justify-start gap-2 shrink-0">
+                  <div className="text-[11px] sm:text-xs font-mono font-semibold text-zinc-300 flex items-center gap-2 shrink-0">
                     <span>Progress:</span>
                     <span className="px-2.5 py-0.5 rounded-full bg-emerald-950/60 text-emerald-300 font-bold border border-emerald-500/40">
                       {judgeScores.filter((s) => s.judgeId === selectedAuditJudge.id).length} / {candidates.length} Scored
