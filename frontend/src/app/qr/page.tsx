@@ -118,6 +118,24 @@ export default function QrDisplayPage() {
         calculateSize();
       };
 
+      // Automatic Stage Fullscreen
+      const tryFullscreen = () => {
+        if (!document.fullscreenElement) {
+          document.documentElement.requestFullscreen().catch(() => {});
+        }
+      };
+
+      tryFullscreen();
+
+      // Browsers require a user interaction for fullscreen; enter on first click/tap anywhere
+      const handleUserGesture = () => {
+        tryFullscreen();
+      };
+
+      window.addEventListener('click', handleUserGesture);
+      window.addEventListener('touchstart', handleUserGesture);
+      window.addEventListener('keydown', handleUserGesture);
+
       document.addEventListener('fullscreenchange', handleFullscreenChange);
       document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
 
@@ -128,6 +146,9 @@ export default function QrDisplayPage() {
       return () => {
         unsubVoting();
         window.removeEventListener('resize', calculateSize);
+        window.removeEventListener('click', handleUserGesture);
+        window.removeEventListener('touchstart', handleUserGesture);
+        window.removeEventListener('keydown', handleUserGesture);
         document.removeEventListener('fullscreenchange', handleFullscreenChange);
         document.removeEventListener('webkitfullscreenchange', handleFullscreenChange);
       };
@@ -433,29 +454,6 @@ export default function QrDisplayPage() {
           </div>
         </div>
 
-        {/* Action Controls (Fullscreen stage view for projector & manual announce) */}
-        <div className="flex flex-wrap items-center justify-center gap-2 pt-1 w-full max-w-md px-4">
-          <button
-            type="button"
-            onClick={() => {
-              playLuxuryChime();
-              setShowOpeningBroadcast(true);
-            }}
-            className="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-full bg-novera-gold/20 hover:bg-novera-gold/30 text-amber-300 text-xs font-semibold uppercase tracking-wider transition-all border border-novera-gold/40 shadow-md backdrop-blur-md cursor-pointer"
-            title="Play opening announcement animation on stage screen"
-          >
-            <Sparkles className="w-3.5 h-3.5 text-novera-gold" />
-            <span>Announce Voting</span>
-          </button>
-          <button
-            type="button"
-            onClick={toggleFullscreen}
-            className="inline-flex items-center justify-center gap-2 px-5 py-2 rounded-full bg-white/10 hover:bg-white/20 text-white text-xs font-semibold uppercase tracking-wider transition-all border border-white/20 shadow-md backdrop-blur-md hover:border-novera-gold/50 cursor-pointer"
-          >
-            {isFullscreen ? <Minimize2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> : <Maximize2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />}
-            <span>{isFullscreen ? 'Exit Fullscreen' : 'Stage Fullscreen'}</span>
-          </button>
-        </div>
 
         {/* Rules Reminder */}
         <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-6 text-[10px] sm:text-xs text-zinc-400 pt-2 border-t border-white/10 px-4">
