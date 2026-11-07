@@ -58,13 +58,53 @@ export default function QrDisplayPage() {
   const [candidates, setCandidates] = useState<Candidate[]>([]);
   const [voters, setVoters] = useState<VoterRecord[]>([]);
   const [isMounted, setIsMounted] = useState<boolean>(false);
+  const [activeVoteBubble, setActiveVoteBubble] = useState<{
+    voterName: string;
+    candidateNumber?: string;
+    candidateName?: string;
+    category?: 'boy' | 'girl';
+  } | null>(null);
   const wasVotingOpenRef = useRef<boolean>(false);
+  const lastProcessedVoterIdRef = useRef<string | null>(null);
 
   // Play prestigious chime on initial stage screen mount
   useEffect(() => {
     setIsMounted(true);
     playLuxuryChime();
   }, []);
+
+  // Trigger floating circle popup for ~2 seconds when a new vote arrives
+  useEffect(() => {
+    if (voters.length > 0) {
+      const newest = voters[0];
+      if (newest && newest.voterId) {
+        if (lastProcessedVoterIdRef.current === null) {
+          lastProcessedVoterIdRef.current = newest.voterId;
+        } else if (lastProcessedVoterIdRef.current !== newest.voterId) {
+          lastProcessedVoterIdRef.current = newest.voterId;
+          const boy = candidates.find((c) => c.id === newest.boyVotedFor);
+          const girl = candidates.find((c) => c.id === newest.girlVotedFor);
+          const picked = girl || boy;
+          setActiveVoteBubble({
+            voterName: newest.voterName || 'Audience Guest',
+            candidateNumber: picked?.candidateNumber,
+            candidateName: picked?.name,
+            category: picked?.category,
+          });
+        }
+      }
+    }
+  }, [voters, candidates]);
+
+  // Auto fade out popup bubble after 2.2 seconds
+  useEffect(() => {
+    if (activeVoteBubble) {
+      const timer = setTimeout(() => {
+        setActiveVoteBubble(null);
+      }, 2200);
+      return () => clearTimeout(timer);
+    }
+  }, [activeVoteBubble]);
 
   // Fetch & Subscribe to live candidates vote count & voters registry
   useEffect(() => {
@@ -758,95 +798,39 @@ export default function QrDisplayPage() {
           </div>
         </div>
 
-        {/* 🔴 LIVE AUDIENCE BALLOTS & RECENT VOTERS TELEMETRY FEED */}
-        <div className="w-full p-3 sm:p-4 rounded-3xl bg-black/55 backdrop-blur-2xl border-2 border-novera-foil/40 shadow-[0_20px_70px_rgba(0,0,0,0.8),0_0_40px_rgba(212,175,55,0.2)] relative overflow-hidden text-left">
-          {/* Subtle top scan sweep */}
-          <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-amber-400 to-transparent animate-scan-sweep" />
+        {/* 🌟 FLOATING LIVE VOTE CIRCLE/PILL (Appears for ~2 seconds, then smoothly dissolves away!) */}
+        {activeVoteBubble && (
+          <div className="fixed bottom-12 left-1/2 -translate-x-1/2 z-50 pointer-events-none animate-in zoom-in-95 fade-in duration-300">
+            <div className="flex items-center gap-3.5 px-6 py-3.5 rounded-full bg-black/90 backdrop-blur-2xl border-2 border-novera-gold shadow-[0_0_60px_rgba(212,175,55,0.7)] text-white">
+              {/* Glowing animated gold circle */}
+              <div className="w-11 h-11 rounded-full bg-gradient-to-br from-amber-400 via-yellow-400 to-amber-600 flex items-center justify-center shrink-0 shadow-[0_0_20px_rgba(251,191,36,0.9)] animate-pulse">
+                <Sparkles className="w-5 h-5 text-black" />
+              </div>
 
-          <div className="flex flex-wrap items-center justify-between gap-2 pb-2.5 border-b border-white/10 text-xs">
-            <div className="flex items-center gap-2">
-              <span className="relative flex h-2.5 w-2.5">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
-              </span>
-              <span className="font-serif font-bold text-white tracking-wide flex items-center gap-1.5 text-xs sm:text-sm">
-                <Users className="w-4 h-4 text-novera-gold" />
-                Live Audience Stream
-              </span>
-              <span className="text-[10px] font-mono uppercase tracking-wider text-amber-300/90 bg-amber-400/10 px-2 py-0.5 rounded-full border border-amber-400/30">
-                Recent Ballots
-              </span>
-            </div>
-
-            <div className="flex items-center gap-3 text-xs font-mono text-zinc-300">
-              <span className="text-zinc-400">Total Ballots Cast:</span>
-              <span className="font-bold text-amber-300 text-sm">{voters.length}</span>
+              <div className="text-left">
+                <div className="flex items-center gap-2">
+                  <span className="font-serif font-black text-sm sm:text-base text-transparent bg-clip-text bg-gradient-to-r from-white via-amber-100 to-amber-300">
+                    {activeVoteBubble.voterName}
+                  </span>
+                  <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-emerald-400 bg-emerald-500/20 px-2 py-0.5 rounded-full border border-emerald-500/40">
+                    New Vote!
+                  </span>
+                </div>
+                {activeVoteBubble.candidateName && (
+                  <div className="text-xs font-mono text-zinc-300 flex items-center gap-1.5 mt-0.5">
+                    <span>{activeVoteBubble.category === 'girl' ? '👗' : '👔'}</span>
+                    <span className="text-amber-300 font-bold">
+                      #{activeVoteBubble.candidateNumber}
+                    </span>
+                    <span className="truncate max-w-[220px] text-zinc-200">
+                      {activeVoteBubble.candidateName}
+                    </span>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
-
-          {/* Voter Cards Live Stream */}
-          {voters.length === 0 ? (
-            <div className="py-3.5 text-center text-xs text-zinc-400 font-mono italic">
-              ✨ Waiting for audience ballots... Scan the QR code to vote and see your ballot appear live on screen!
-            </div>
-          ) : (
-            <div className="pt-2.5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
-              {voters.slice(0, 6).map((voter, idx) => {
-                const boy = getCandidate(voter.boyVotedFor);
-                const girl = getCandidate(voter.girlVotedFor);
-                const isNamed = voter.voterName && voter.voterName !== 'Audience Guest';
-
-                return (
-                  <div
-                    key={voter.voterId || idx}
-                    className="p-2 sm:p-2.5 rounded-2xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 hover:border-amber-400/40 transition-all flex items-center justify-between gap-2 shadow-sm"
-                  >
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center gap-1.5 mb-1">
-                        <span
-                          className={`w-2 h-2 rounded-full shrink-0 ${
-                            idx === 0 ? 'bg-emerald-400 animate-ping' : 'bg-amber-400/70'
-                          }`}
-                        />
-                        <span
-                          className={`text-xs font-bold truncate ${
-                            isNamed ? 'text-amber-300 font-serif' : 'text-zinc-300 font-mono text-[11px]'
-                          }`}
-                        >
-                          {voter.voterName || 'Audience Guest'}
-                        </span>
-                        {idx === 0 && (
-                          <span className="text-[9px] uppercase font-bold text-emerald-400 bg-emerald-500/15 px-1.5 py-0.2 rounded font-mono border border-emerald-500/30">
-                            Live
-                          </span>
-                        )}
-                      </div>
-
-                      <div className="flex items-center gap-1.5 text-[10px] text-zinc-300 font-mono truncate">
-                        {boy && (
-                          <span className="truncate text-amber-200/90 font-medium">
-                            👔 #{boy.candidateNumber || ''} {boy.name.split(' ')[0]}
-                          </span>
-                        )}
-                        {boy && girl && <span className="text-zinc-500">&bull;</span>}
-                        {girl && (
-                          <span className="truncate text-yellow-200/90 font-medium">
-                            👗 #{girl.candidateNumber || ''} {girl.name.split(' ')[0]}
-                          </span>
-                        )}
-                        {!boy && !girl && <span className="text-zinc-500">Ballot Cast</span>}
-                      </div>
-                    </div>
-
-                    <div className="text-[10px] font-mono text-zinc-400 whitespace-nowrap pl-1 shrink-0">
-                      {formatTimeAgo(voter.updatedAt)}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </div>
+        )}
 
 
         {/* Rules Reminder */}

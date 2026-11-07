@@ -29,11 +29,12 @@ import {
   X,
   Eye,
   User,
+  ChevronRight,
 } from 'lucide-react';
 import RunwayStageBackground from '@/app/components/RunwayStageBackground';
 import VotingCountdownOverlay from '@/app/components/VotingCountdownOverlay';
 import VotingClosedCeremonyOverlay from '@/app/components/VotingClosedCeremonyOverlay';
-import SlideToVote from '@/app/components/SlideToVote';
+import SwipeableCandidateCard from '@/app/components/SwipeableCandidateCard';
 
 export default function VotePage() {
   const [candidates, setCandidates] = useState<Candidate[]>(() => {
@@ -246,9 +247,10 @@ export default function VotePage() {
   const hasVotedGirl = !!voterStatus?.hasVotedGirl;
   const hasVotedBoth = hasVotedBoy && hasVotedGirl;
 
-  // Vote for Male Model
-  const handleVoteBoy = async () => {
-    if (!voterStatus || !selectedBoyId || voterStatus.hasVotedBoy) return;
+  // Vote for Male Model (Direct Swipe)
+  const handleVoteBoy = async (overrideId?: string) => {
+    const targetId = overrideId || selectedBoyId;
+    if (!voterStatus || !targetId || voterStatus.hasVotedBoy) return;
     if (!votingSettings.isVotingOpen) {
       setFeedback({ type: 'error', message: 'Voting is currently closed by the organizing committee.' });
       return;
@@ -258,7 +260,7 @@ export default function VotePage() {
     const result = await submitVote({
       voterId: voterStatus.voterId,
       voterName: voterName.trim() || undefined,
-      boyCandidateId: selectedBoyId,
+      boyCandidateId: targetId,
     });
     setIsSubmitting(false);
 
@@ -282,9 +284,10 @@ export default function VotePage() {
     }
   };
 
-  // Vote for Female Model
-  const handleVoteGirl = async () => {
-    if (!voterStatus || !selectedGirlId || voterStatus.hasVotedGirl) return;
+  // Vote for Female Model (Direct Swipe)
+  const handleVoteGirl = async (overrideId?: string) => {
+    const targetId = overrideId || selectedGirlId;
+    if (!voterStatus || !targetId || voterStatus.hasVotedGirl) return;
     if (!votingSettings.isVotingOpen) {
       setFeedback({ type: 'error', message: 'Voting is currently closed by the organizing committee.' });
       return;
@@ -294,7 +297,7 @@ export default function VotePage() {
     const result = await submitVote({
       voterId: voterStatus.voterId,
       voterName: voterName.trim() || undefined,
-      girlCandidateId: selectedGirlId,
+      girlCandidateId: targetId,
     });
     setIsSubmitting(false);
 
@@ -670,6 +673,27 @@ export default function VotePage() {
               </div>
             )}
 
+            {/* 👤 Name (Optional) Input at the TOP (English Only, Clean & Minimal) */}
+            <div className="w-full max-w-sm mx-auto">
+              <div className="relative">
+                <User className="w-4 h-4 text-amber-400/80 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                <input
+                  type="text"
+                  maxLength={35}
+                  value={voterName}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setVoterName(val);
+                    if (typeof window !== 'undefined') {
+                      localStorage.setItem('novera_voter_name', val);
+                    }
+                  }}
+                  placeholder="Name (Optional)"
+                  className="w-full pl-10 pr-4 py-2.5 rounded-2xl bg-black/60 border border-white/15 text-white placeholder-zinc-500 text-xs sm:text-sm focus:outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400/40 transition-all font-sans shadow-inner"
+                />
+              </div>
+            </div>
+
             {/* Category Switch Tabs (Boys vs Girls only - NO All tab) */}
             <div className="flex justify-center">
               <div className="grid grid-cols-2 gap-1.5 w-full max-w-xs p-1.5 rounded-2xl bg-black/50 backdrop-blur-xl border border-white/15 shadow-inner">
@@ -722,8 +746,9 @@ export default function VotePage() {
                       <span>Voted: {boyVotedCandidate?.candidateNumber}</span>
                     </span>
                   ) : (
-                    <span className="text-[10px] font-mono text-zinc-400 font-semibold uppercase tracking-wider">
-                      Pick 1 Male Model
+                    <span className="text-[10px] font-mono text-amber-300 font-bold uppercase tracking-wider flex items-center gap-1 bg-amber-400/10 px-2.5 py-1 rounded-full border border-amber-400/30">
+                      <span>Swipe Model to Vote</span>
+                      <ChevronRight className="w-3 h-3 text-amber-400" />
                     </span>
                   )}
                 </div>
@@ -751,128 +776,23 @@ export default function VotePage() {
                   </div>
                 )}
 
-                {/* All Male Contenders Grid (Always visible so users can view profile details!) */}
+                {/* All Male Contenders Grid (Swipe model's name directly to vote!) */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {boys.map((candidate) => {
-                    const isSelected = selectedBoyId === candidate.id;
-                    const isVotedForThis = voterStatus?.boyVotedFor === candidate.id;
-                    const canSelect = votingSettings.isVotingOpen && !hasVotedBoy;
-
-                    return (
-                      <div
-                        key={candidate.id}
-                        onClick={() => {
-                          if (canSelect) {
-                            setSelectedBoyId(candidate.id);
-                          } else {
-                            setProfileCandidate(candidate);
-                          }
-                        }}
-                        className={`p-3.5 rounded-2xl text-left flex items-center justify-between gap-3 transition-all duration-200 cursor-pointer ${isVotedForThis
-                            ? 'bg-emerald-950/30 border-2 border-emerald-500/60 shadow-[0_0_20px_rgba(16,185,129,0.2)]'
-                            : isSelected
-                              ? 'bg-gradient-to-r from-novera-foil/30 to-amber-900/30 text-white shadow-[0_0_25px_rgba(203,167,95,0.35)] border-2 border-novera-foil scale-[1.01]'
-                              : 'bg-white/5 hover:bg-white/10 border border-white/10 text-white backdrop-blur-md'
-                          }`}
-                      >
-                        <div className="flex items-center gap-3 min-w-0 flex-1">
-                          <span
-                            className={`w-11 h-11 rounded-xl font-mono text-xs font-black flex items-center justify-center shrink-0 whitespace-nowrap transition-colors ${isVotedForThis
-                                ? 'bg-emerald-500 text-black font-extrabold'
-                                : isSelected
-                                  ? 'bg-gradient-to-br from-novera-gold to-amber-500 text-black font-extrabold'
-                                  : 'bg-white/10 text-novera-gold border border-white/15'
-                              }`}
-                          >
-                            {candidate.candidateNumber}
-                          </span>
-                          <div className="min-w-0 flex-1">
-                            <span className="font-serif font-bold text-sm sm:text-base leading-snug block text-white break-words">
-                              {candidate.name}
-                            </span>
-                            <span
-                              className={`text-[11px] block mt-0.5 ${isVotedForThis
-                                  ? 'text-emerald-300 font-semibold'
-                                  : isSelected
-                                    ? 'text-amber-200'
-                                    : 'text-zinc-400'
-                                }`}
-                            >
-                              {isVotedForThis ? 'Voted' : 'Official Contender'}
-                            </span>
-                          </div>
-                        </div>
-
-                        {/* Selection Ring / Status */}
-                        <div className="shrink-0 flex items-center">
-                          {canSelect ? (
-                            <div
-                              className={`w-6 h-6 rounded-full flex items-center justify-center border-2 transition-all ${isSelected
-                                  ? 'bg-novera-gold border-novera-gold text-black'
-                                  : 'border-white/20'
-                                }`}
-                            >
-                              {isSelected && <Check className="w-3.5 h-3.5 stroke-[3]" />}
-                            </div>
-                          ) : isVotedForThis ? (
-                            <div className="w-6 h-6 rounded-full bg-emerald-500 text-black flex items-center justify-center shadow-md">
-                              <Check className="w-3.5 h-3.5 stroke-[3]" />
-                            </div>
-                          ) : (
-                            <div className="w-6 h-6 rounded-full border-2 border-white/20" />
-                          )}
-                        </div>
-                      </div>
-                    );
-                  })}
+                  {boys.map((candidate) => (
+                    <SwipeableCandidateCard
+                      key={candidate.id}
+                      candidate={candidate}
+                      isVotedForThis={voterStatus?.boyVotedFor === candidate.id}
+                      canVote={votingSettings.isVotingOpen && !hasVotedBoy}
+                      isSubmitting={isSubmitting}
+                      onVote={(id) => handleVoteBoy(id)}
+                      onViewProfile={() => setProfileCandidate(candidate)}
+                    />
+                  ))}
                 </div>
 
-                {/* IMMEDIATE VOTE BUTTON FOR BEST MALE MODEL */}
-                {!hasVotedBoy ? (
-                  <div className="pt-2 space-y-2.5">
-                    {/* Optional Voter Name Input */}
-                    <div className="p-3 sm:p-3.5 rounded-2xl bg-gradient-to-r from-amber-500/10 via-black/50 to-transparent border border-amber-500/30 backdrop-blur-md">
-                      <div className="flex items-center justify-between mb-1.5">
-                        <label htmlFor="voter-name-boy" className="text-xs font-semibold text-amber-200/95 flex items-center gap-1.5">
-                          <User className="w-3.5 h-3.5 text-amber-400" />
-                          <span>Your Name / ඔබේ නම</span>
-                          <span className="text-[10px] text-zinc-400 font-normal">(Optional / කැමති නම් පමණක්)</span>
-                        </label>
-                        <span className="text-[10px] text-amber-400/80 font-mono">Live Telemetry</span>
-                      </div>
-                      <input
-                        id="voter-name-boy"
-                        type="text"
-                        maxLength={35}
-                        value={voterName}
-                        onChange={(e) => {
-                          const val = e.target.value;
-                          setVoterName(val);
-                          if (typeof window !== 'undefined') {
-                            localStorage.setItem('novera_voter_name', val);
-                          }
-                        }}
-                        placeholder="e.g. Kasun Perera (නම නොදා ද vote කළ හැක)"
-                        className="w-full px-3.5 py-2.5 rounded-xl bg-black/70 border border-white/15 text-white placeholder-zinc-500 text-xs sm:text-sm focus:outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400/40 transition-all"
-                      />
-                    </div>
-
-                    {/* Interactive Slide to Vote Component (Swipe / Drag to vote) */}
-                    <div className="pt-1">
-                      <SlideToVote
-                        candidateName={selectedBoy?.name}
-                        candidateNumber={selectedBoy?.candidateNumber}
-                        disabled={!selectedBoyId || !votingSettings.isVotingOpen || isSubmitting}
-                        isSubmitting={isSubmitting}
-                        votingOpen={votingSettings.isVotingOpen}
-                        onConfirm={handleVoteBoy}
-                        accentColor="#d4af37"
-                        categoryName="Male Model"
-                        voterName={voterName}
-                      />
-                    </div>
-                  </div>
-                ) : !hasVotedGirl ? (
+                {/* Transition to next category */}
+                {hasVotedBoy && !hasVotedGirl && (
                   <div className="pt-2">
                     <button
                       type="button"
@@ -883,7 +803,7 @@ export default function VotePage() {
                       <span>&rarr;</span>
                     </button>
                   </div>
-                ) : null}
+                )}
               </div>
             )}
 
@@ -903,8 +823,9 @@ export default function VotePage() {
                       <span>Voted: {girlVotedCandidate?.candidateNumber}</span>
                     </span>
                   ) : (
-                    <span className="text-[10px] font-mono text-zinc-400 font-semibold uppercase tracking-wider">
-                      Pick 1 Female Model
+                    <span className="text-[10px] font-mono text-amber-300 font-bold uppercase tracking-wider flex items-center gap-1 bg-amber-400/10 px-2.5 py-1 rounded-full border border-amber-400/30">
+                      <span>Swipe Model to Vote</span>
+                      <ChevronRight className="w-3 h-3 text-amber-400" />
                     </span>
                   )}
                 </div>
@@ -932,128 +853,23 @@ export default function VotePage() {
                   </div>
                 )}
 
-                {/* All Female Contenders Grid (Always visible so users can view profile details!) */}
+                {/* All Female Contenders Grid (Swipe model's name directly to vote!) */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {girls.map((candidate) => {
-                    const isSelected = selectedGirlId === candidate.id;
-                    const isVotedForThis = voterStatus?.girlVotedFor === candidate.id;
-                    const canSelect = votingSettings.isVotingOpen && !hasVotedGirl;
-
-                    return (
-                      <div
-                        key={candidate.id}
-                        onClick={() => {
-                          if (canSelect) {
-                            setSelectedGirlId(candidate.id);
-                          } else {
-                            setProfileCandidate(candidate);
-                          }
-                        }}
-                        className={`p-3.5 rounded-2xl text-left flex items-center justify-between gap-3 transition-all duration-200 cursor-pointer ${isVotedForThis
-                            ? 'bg-emerald-950/30 border-2 border-emerald-500/60 shadow-[0_0_20px_rgba(16,185,129,0.2)]'
-                            : isSelected
-                              ? 'bg-gradient-to-r from-novera-foil/30 to-amber-900/30 text-white shadow-[0_0_25px_rgba(203,167,95,0.35)] border-2 border-novera-foil scale-[1.01]'
-                              : 'bg-white/5 hover:bg-white/10 border border-white/10 text-white backdrop-blur-md'
-                          }`}
-                      >
-                        <div className="flex items-center gap-3 min-w-0 flex-1">
-                          <span
-                            className={`w-11 h-11 rounded-xl font-mono text-xs font-black flex items-center justify-center shrink-0 whitespace-nowrap transition-colors ${isVotedForThis
-                                ? 'bg-emerald-500 text-black font-extrabold'
-                                : isSelected
-                                  ? 'bg-gradient-to-br from-novera-gold to-amber-500 text-black font-extrabold'
-                                  : 'bg-white/10 text-novera-gold border border-white/15'
-                              }`}
-                          >
-                            {candidate.candidateNumber}
-                          </span>
-                          <div className="min-w-0 flex-1">
-                            <span className="font-serif font-bold text-sm sm:text-base leading-snug block text-white break-words">
-                              {candidate.name}
-                            </span>
-                            <span
-                              className={`text-[11px] block mt-0.5 ${isVotedForThis
-                                  ? 'text-emerald-300 font-semibold'
-                                  : isSelected
-                                    ? 'text-amber-200'
-                                    : 'text-zinc-400'
-                                }`}
-                            >
-                              {isVotedForThis ? 'Voted' : 'Official Contender'}
-                            </span>
-                          </div>
-                        </div>
-
-                        {/* Selection Ring / Status */}
-                        <div className="shrink-0 flex items-center">
-                          {canSelect ? (
-                            <div
-                              className={`w-6 h-6 rounded-full flex items-center justify-center border-2 transition-all ${isSelected
-                                  ? 'bg-novera-gold border-novera-gold text-black'
-                                  : 'border-white/20'
-                                }`}
-                            >
-                              {isSelected && <Check className="w-3.5 h-3.5 stroke-[3]" />}
-                            </div>
-                          ) : isVotedForThis ? (
-                            <div className="w-6 h-6 rounded-full bg-emerald-500 text-black flex items-center justify-center shadow-md">
-                              <Check className="w-3.5 h-3.5 stroke-[3]" />
-                            </div>
-                          ) : (
-                            <div className="w-6 h-6 rounded-full border-2 border-white/20" />
-                          )}
-                        </div>
-                      </div>
-                    );
-                  })}
+                  {girls.map((candidate) => (
+                    <SwipeableCandidateCard
+                      key={candidate.id}
+                      candidate={candidate}
+                      isVotedForThis={voterStatus?.girlVotedFor === candidate.id}
+                      canVote={votingSettings.isVotingOpen && !hasVotedGirl}
+                      isSubmitting={isSubmitting}
+                      onVote={(id) => handleVoteGirl(id)}
+                      onViewProfile={() => setProfileCandidate(candidate)}
+                    />
+                  ))}
                 </div>
 
-                {/* IMMEDIATE VOTE BUTTON FOR BEST FEMALE MODEL */}
-                {!hasVotedGirl ? (
-                  <div className="pt-2 space-y-2.5">
-                    {/* Optional Voter Name Input */}
-                    <div className="p-3 sm:p-3.5 rounded-2xl bg-gradient-to-r from-amber-500/10 via-black/50 to-transparent border border-amber-500/30 backdrop-blur-md">
-                      <div className="flex items-center justify-between mb-1.5">
-                        <label htmlFor="voter-name-girl" className="text-xs font-semibold text-amber-200/95 flex items-center gap-1.5">
-                          <User className="w-3.5 h-3.5 text-amber-400" />
-                          <span>Your Name / ඔබේ නම</span>
-                          <span className="text-[10px] text-zinc-400 font-normal">(Optional / කැමති නම් පමණක්)</span>
-                        </label>
-                        <span className="text-[10px] text-amber-400/80 font-mono">Live Telemetry</span>
-                      </div>
-                      <input
-                        id="voter-name-girl"
-                        type="text"
-                        maxLength={35}
-                        value={voterName}
-                        onChange={(e) => {
-                          const val = e.target.value;
-                          setVoterName(val);
-                          if (typeof window !== 'undefined') {
-                            localStorage.setItem('novera_voter_name', val);
-                          }
-                        }}
-                        placeholder="e.g. Kasun Perera (නම නොදා ද vote කළ හැක)"
-                        className="w-full px-3.5 py-2.5 rounded-xl bg-black/70 border border-white/15 text-white placeholder-zinc-500 text-xs sm:text-sm focus:outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400/40 transition-all"
-                      />
-                    </div>
-
-                    {/* Interactive Slide to Vote Component (Swipe / Drag to vote) */}
-                    <div className="pt-1">
-                      <SlideToVote
-                        candidateName={selectedGirl?.name}
-                        candidateNumber={selectedGirl?.candidateNumber}
-                        disabled={!selectedGirlId || !votingSettings.isVotingOpen || isSubmitting}
-                        isSubmitting={isSubmitting}
-                        votingOpen={votingSettings.isVotingOpen}
-                        onConfirm={handleVoteGirl}
-                        accentColor="#f59e0b"
-                        categoryName="Female Model"
-                        voterName={voterName}
-                      />
-                    </div>
-                  </div>
-                ) : !hasVotedBoy ? (
+                {/* Transition to next category */}
+                {hasVotedGirl && !hasVotedBoy && (
                   <div className="pt-2">
                     <button
                       type="button"
@@ -1064,7 +880,7 @@ export default function VotePage() {
                       <span>&rarr;</span>
                     </button>
                   </div>
-                ) : null}
+                )}
               </div>
             )}
 
