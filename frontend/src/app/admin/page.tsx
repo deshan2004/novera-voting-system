@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Candidate, JudgeScore, VotingSettings } from '@/lib/types';
+import { Candidate, JudgeScore, VotingSettings, VoterRecord } from '@/lib/types';
 import {
   fetchCandidates,
   getLocalCandidates,
@@ -14,6 +14,8 @@ import {
   resetAllJudgeScores,
   subscribeToVotingSettings,
   saveVotingSettings,
+  subscribeToVoters,
+  fetchVoters,
 } from '@/lib/api';
 import {
   BarChart,
@@ -60,6 +62,8 @@ import {
   AlertTriangle,
   X,
   RefreshCw,
+  Search,
+  User,
 } from 'lucide-react';
 import RunwayStageBackground from '@/app/components/RunwayStageBackground';
 import VotingCountdownOverlay from '@/app/components/VotingCountdownOverlay';
@@ -204,11 +208,17 @@ export default function AdminLeaderboardPage() {
   const [votingDurationMinutes, setVotingDurationMinutes] = useState<number>(10);
   const [remainingTimeText, setRemainingTimeText] = useState<string>('');
   const [remainingSeconds, setRemainingSeconds] = useState<number>(0);
+  const [voters, setVoters] = useState<VoterRecord[]>([]);
+  const [voterSearch, setVoterSearch] = useState<string>('');
+  const [voterFilter, setVoterFilter] = useState<'all' | 'named' | 'both' | 'boyOnly' | 'girlOnly'>('all');
   const openedSessionIdRef = useRef<string | null>(null);
 
   const loadData = () => {
     fetchCandidates().then((list) => {
       setCandidates(list);
+    });
+    fetchVoters().then((list) => {
+      setVoters(list);
     });
   };
 
@@ -241,22 +251,29 @@ export default function AdminLeaderboardPage() {
       setVotingSettings(settings);
     });
 
+    const unsubscribeVoters = subscribeToVoters((voterList) => {
+      setVoters(voterList);
+    });
+
     const interval = setInterval(loadData, 3000);
     const handleVoteSync = () => loadData();
     const handleStorageSync = (e: StorageEvent) => {
-      if (e.key === 'novera_candidates') {
+      if (e.key === 'novera_candidates' || e.key === 'novera_voter_records') {
         loadData();
       }
     };
     window.addEventListener('novera_vote_updated', handleVoteSync);
+    window.addEventListener('novera_voters_updated', handleVoteSync);
     window.addEventListener('storage', handleStorageSync);
 
     return () => {
       unsubscribeCandidates();
       unsubscribeJudgeScores();
       unsubscribeVotingSettings();
+      unsubscribeVoters();
       clearInterval(interval);
       window.removeEventListener('novera_vote_updated', handleVoteSync);
+      window.removeEventListener('novera_voters_updated', handleVoteSync);
       window.removeEventListener('storage', handleStorageSync);
     };
   }, []);
@@ -672,6 +689,62 @@ export default function AdminLeaderboardPage() {
     document.body.removeChild(link);
     showToast('Official CSV Ledger downloaded successfully.', 'success');
   };
+
+  const handleExportVotersCSV = () => {
+    if (!voters.length) {
+      showToast('No audience voter records found to export.', 'info');
+      return;
+    }
+    const headers = ['#', 'Voter Name', 'Voter Classification', 'Male Model Vote', 'Female Model Vote', 'Timestamp', 'Device ID'];
+    const rows = voters.map((v, idx) => {
+      const boy = candidates.find((c) => c.id === v.boyVotedFor);
+      const girl = candidates.find((c) => c.id === v.girlVotedFor);
+      const boyStr = boy ? `#${boy.candidateNumber || ''} ${boy.name}` : 'Not Cast';
+      const girlStr = girl ? `#${girl.candidateNumber || ''} ${girl.name}` : 'Not Cast';
+      const timeStr = v.updatedAt ? new Date(v.updatedAt).toLocaleString() : 'N/A';
+      const typeStr = v.voterName && v.voterName !== 'Audience Guest' ? 'Named Voter' : 'Audience Guest';
+      return [
+        idx + 1,
+        `"${(v.voterName || 'Audience Guest').replace(/"/g, '""')}"`,
+        typeStr,
+        `"${boyStr.replace(/"/g, '""')}"`,
+        `"${girlStr.replace(/"/g, '""')}"`,
+        `"${timeStr}"`,
+        `"${v.voterId}"`,
+      ].join(',');
+    });
+    const csvContent = 'data:text/csv;charset=utf-8,\uFEFF' + [headers.join(','), ...rows].join('\n');
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement('a');
+    link.setAttribute('href', encodedUri);
+    link.setAttribute('download', `NOVERA_26_Audience_Voter_Registry_${new Date().toISOString().slice(0, 10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    showToast('Audience Voter Registry downloaded successfully.', 'success');
+  };
+
+  const filteredVoters = useMemo(() => {
+    return voters.filter((v) => {
+      const boy = candidates.find((c) => c.id === v.boyVotedFor);
+      const girl = candidates.find((c) => c.id === v.girlVotedFor);
+
+      if (voterFilter === 'named' && (!v.voterName || v.voterName === 'Audience Guest')) return false;
+      if (voterFilter === 'both' && (!v.hasVotedBoy || !v.hasVotedGirl)) return false;
+      if (voterFilter === 'boyOnly' && (!v.hasVotedBoy || v.hasVotedGirl)) return false;
+      if (voterFilter === 'girlOnly' && (!v.hasVotedGirl || v.hasVotedBoy)) return false;
+
+      if (voterSearch.trim()) {
+        const q = voterSearch.toLowerCase();
+        const matchName = (v.voterName || '').toLowerCase().includes(q);
+        const matchDevice = (v.voterId || '').toLowerCase().includes(q);
+        const matchBoy = boy ? `${boy.candidateNumber} ${boy.name}`.toLowerCase().includes(q) : false;
+        const matchGirl = girl ? `${girl.candidateNumber} ${girl.name}`.toLowerCase().includes(q) : false;
+        return matchName || matchDevice || matchBoy || matchGirl;
+      }
+      return true;
+    });
+  }, [voters, voterSearch, voterFilter, candidates]);
 
   // Recharts Data Prep
   const chartData = useMemo(() => {
@@ -1727,6 +1800,227 @@ export default function AdminLeaderboardPage() {
                       </div>
                     </div>
                   )}
+                </div>
+
+                {/* ================= LIVE VERIFIED VOTERS & BALLOTS REGISTRY ================= */}
+                <div className="p-5 sm:p-6 rounded-2xl bg-black/40 backdrop-blur-2xl border border-white/15 shadow-xl space-y-5">
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between pb-4 border-b border-white/10 gap-4">
+                    <div>
+                      <div className="flex items-center gap-2.5">
+                        <Users className="w-5 h-5 text-novera-gold" />
+                        <h3 className="font-serif text-xl sm:text-2xl font-bold text-white">
+                          Live Verified Voters &amp; Ballots Registry
+                        </h3>
+                        <span className="text-[10px] font-mono uppercase tracking-wider text-emerald-400 bg-emerald-500/15 border border-emerald-500/30 px-2 py-0.5 rounded-full flex items-center gap-1">
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
+                          Live Sync
+                        </span>
+                      </div>
+                      <p className="text-xs text-zinc-400 mt-1">
+                        Real-time telemetric log of audience voters, names, individual model choices &amp; device verification
+                      </p>
+                    </div>
+
+                    <button
+                      onClick={handleExportVotersCSV}
+                      disabled={voters.length === 0}
+                      className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider bg-gradient-to-r from-amber-500/20 to-yellow-500/10 border border-amber-400/40 text-amber-200 hover:bg-amber-500/30 transition-all disabled:opacity-40 disabled:cursor-not-allowed shadow-md"
+                    >
+                      <Download className="w-3.5 h-3.5 text-amber-300" />
+                      <span>Download Voter List (CSV)</span>
+                    </button>
+                  </div>
+
+                  {/* Summary Stat Cards */}
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    <div className="p-3 rounded-xl bg-white/[0.03] border border-white/10">
+                      <div className="text-[10px] font-mono uppercase text-zinc-400 font-semibold">Total Verified Voters</div>
+                      <div className="font-mono text-xl font-bold text-white mt-1">{voters.length}</div>
+                    </div>
+                    <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/30">
+                      <div className="text-[10px] font-mono uppercase text-amber-300/80 font-semibold">Named Audience</div>
+                      <div className="font-mono text-xl font-bold text-amber-300 mt-1">
+                        {voters.filter((v) => v.voterName && v.voterName !== 'Audience Guest').length}
+                      </div>
+                    </div>
+                    <div className="p-3 rounded-xl bg-white/[0.03] border border-white/10">
+                      <div className="text-[10px] font-mono uppercase text-zinc-400 font-semibold">Male Model Ballots</div>
+                      <div className="font-mono text-xl font-bold text-[#d4af37] mt-1">
+                        {voters.filter((v) => v.hasVotedBoy).length}
+                      </div>
+                    </div>
+                    <div className="p-3 rounded-xl bg-white/[0.03] border border-white/10">
+                      <div className="text-[10px] font-mono uppercase text-zinc-400 font-semibold">Female Model Ballots</div>
+                      <div className="font-mono text-xl font-bold text-[#f59e0b] mt-1">
+                        {voters.filter((v) => v.hasVotedGirl).length}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Filter & Search Bar */}
+                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-1">
+                    <div className="relative flex-1 max-w-md">
+                      <Search className="w-4 h-4 text-zinc-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                      <input
+                        type="text"
+                        value={voterSearch}
+                        onChange={(e) => setVoterSearch(e.target.value)}
+                        placeholder="Search voter name, candidate, device ID..."
+                        className="w-full pl-9 pr-3.5 py-2 rounded-xl bg-black/60 border border-white/15 text-white placeholder-zinc-500 text-xs focus:outline-none focus:border-amber-400/60 transition-all"
+                      />
+                    </div>
+
+                    <div className="flex flex-wrap items-center gap-1.5 text-xs">
+                      <button
+                        onClick={() => setVoterFilter('all')}
+                        className={`px-3 py-1.5 rounded-lg font-mono text-[11px] transition-all ${
+                          voterFilter === 'all'
+                            ? 'bg-amber-500/20 text-amber-200 border border-amber-500/50 font-bold'
+                            : 'bg-white/5 text-zinc-400 hover:text-white border border-white/10'
+                        }`}
+                      >
+                        All ({voters.length})
+                      </button>
+                      <button
+                        onClick={() => setVoterFilter('named')}
+                        className={`px-3 py-1.5 rounded-lg font-mono text-[11px] transition-all ${
+                          voterFilter === 'named'
+                            ? 'bg-amber-500/20 text-amber-200 border border-amber-500/50 font-bold'
+                            : 'bg-white/5 text-zinc-400 hover:text-white border border-white/10'
+                        }`}
+                      >
+                        Named ({voters.filter((v) => v.voterName && v.voterName !== 'Audience Guest').length})
+                      </button>
+                      <button
+                        onClick={() => setVoterFilter('both')}
+                        className={`px-3 py-1.5 rounded-lg font-mono text-[11px] transition-all ${
+                          voterFilter === 'both'
+                            ? 'bg-amber-500/20 text-amber-200 border border-amber-500/50 font-bold'
+                            : 'bg-white/5 text-zinc-400 hover:text-white border border-white/10'
+                        }`}
+                      >
+                        Voted Both ({voters.filter((v) => v.hasVotedBoy && v.hasVotedGirl).length})
+                      </button>
+                      <button
+                        onClick={() => setVoterFilter('boyOnly')}
+                        className={`px-3 py-1.5 rounded-lg font-mono text-[11px] transition-all ${
+                          voterFilter === 'boyOnly'
+                            ? 'bg-amber-500/20 text-amber-200 border border-amber-500/50 font-bold'
+                            : 'bg-white/5 text-zinc-400 hover:text-white border border-white/10'
+                        }`}
+                      >
+                        Boy Only ({voters.filter((v) => v.hasVotedBoy && !v.hasVotedGirl).length})
+                      </button>
+                      <button
+                        onClick={() => setVoterFilter('girlOnly')}
+                        className={`px-3 py-1.5 rounded-lg font-mono text-[11px] transition-all ${
+                          voterFilter === 'girlOnly'
+                            ? 'bg-amber-500/20 text-amber-200 border border-amber-500/50 font-bold'
+                            : 'bg-white/5 text-zinc-400 hover:text-white border border-white/10'
+                        }`}
+                      >
+                        Girl Only ({voters.filter((v) => v.hasVotedGirl && !v.hasVotedBoy).length})
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Voters Table */}
+                  <div className="overflow-x-auto rounded-xl border border-white/10">
+                    <table className="w-full text-left text-xs">
+                      <thead>
+                        <tr className="bg-white/[0.04] border-b border-white/10 text-zinc-400 font-mono text-[11px]">
+                          <th className="py-3 px-3.5 w-12 text-center">#</th>
+                          <th className="py-3 px-3.5">Voter Identification</th>
+                          <th className="py-3 px-3.5">Male Model Choice</th>
+                          <th className="py-3 px-3.5">Female Model Choice</th>
+                          <th className="py-3 px-3.5 whitespace-nowrap">Time Cast</th>
+                          <th className="py-3 px-3.5 whitespace-nowrap">Device Fingerprint</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-white/5">
+                        {filteredVoters.length === 0 ? (
+                          <tr>
+                            <td colSpan={6} className="py-8 text-center text-zinc-400 font-mono">
+                              No matching voter records found. Audience votes appear here in real-time as ballots are cast.
+                            </td>
+                          </tr>
+                        ) : (
+                          filteredVoters.map((voter, idx) => {
+                            const boy = candidates.find((c) => c.id === voter.boyVotedFor);
+                            const girl = candidates.find((c) => c.id === voter.girlVotedFor);
+                            const isNamed = voter.voterName && voter.voterName !== 'Audience Guest';
+
+                            return (
+                              <tr key={voter.voterId || idx} className="hover:bg-white/[0.02] transition-colors">
+                                <td className="py-3 px-3.5 text-center font-mono text-zinc-500 font-bold">
+                                  {idx + 1}
+                                </td>
+                                <td className="py-3 px-3.5">
+                                  <div className="flex items-center gap-2">
+                                    <div
+                                      className={`w-7 h-7 rounded-lg flex items-center justify-center font-bold text-xs shrink-0 ${
+                                        isNamed
+                                          ? 'bg-amber-400/20 text-amber-300 border border-amber-400/40'
+                                          : 'bg-white/5 text-zinc-400 border border-white/10'
+                                      }`}
+                                    >
+                                      <User className="w-3.5 h-3.5" />
+                                    </div>
+                                    <div className="min-w-0">
+                                      <div
+                                        className={`font-semibold truncate ${
+                                          isNamed ? 'text-amber-200 font-serif text-sm' : 'text-zinc-300 font-mono'
+                                        }`}
+                                      >
+                                        {voter.voterName || 'Audience Guest'}
+                                      </div>
+                                      <div className="text-[10px] text-zinc-500 font-mono">
+                                        {isNamed ? 'Audience Member' : 'Anonymous Guest'}
+                                      </div>
+                                    </div>
+                                  </div>
+                                </td>
+                                <td className="py-3 px-3.5">
+                                  {boy ? (
+                                    <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-500/10 border border-amber-500/25 text-amber-200">
+                                      <span className="font-mono font-bold text-[10px] text-amber-400">
+                                        #{boy.candidateNumber || ''}
+                                      </span>
+                                      <span className="font-serif font-semibold text-xs truncate max-w-[150px]">
+                                        {boy.name}
+                                      </span>
+                                    </div>
+                                  ) : (
+                                    <span className="text-zinc-500 font-mono text-[11px] italic">Not Cast</span>
+                                  )}
+                                </td>
+                                <td className="py-3 px-3.5">
+                                  {girl ? (
+                                    <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-yellow-500/10 border border-yellow-500/25 text-yellow-200">
+                                      <span className="font-mono font-bold text-[10px] text-yellow-400">
+                                        #{girl.candidateNumber || ''}
+                                      </span>
+                                      <span className="font-serif font-semibold text-xs truncate max-w-[150px]">
+                                        {girl.name}
+                                      </span>
+                                    </div>
+                                  ) : (
+                                    <span className="text-zinc-500 font-mono text-[11px] italic">Not Cast</span>
+                                  )}
+                                </td>
+                                <td className="py-3 px-3.5 whitespace-nowrap text-zinc-300 font-mono text-[11px]">
+                                  {voter.updatedAt ? new Date(voter.updatedAt).toLocaleTimeString() : 'N/A'}
+                                </td>
+                                <td className="py-3 px-3.5 whitespace-nowrap font-mono text-[10px] text-zinc-500">
+                                  {voter.voterId ? `${voter.voterId.substring(0, 14)}...` : 'Device-Lock'}
+                                </td>
+                              </tr>
+                            );
+                          })
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
 
                 {/* Admin Tools for Audience Votes */}

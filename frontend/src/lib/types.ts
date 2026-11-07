@@ -13,6 +13,7 @@ export interface Candidate {
 
 export interface VoteSubmission {
   voterId: string;
+  voterName?: string;
   boyCandidateId?: string;
   girlCandidateId?: string;
   timestamp?: number;
@@ -30,11 +31,22 @@ export interface VotingSettings {
 
 export interface VoterStatus {
   voterId: string;
+  voterName?: string;
   hasVotedBoy: boolean;
   hasVotedGirl: boolean;
   boyVotedFor?: string;
   girlVotedFor?: string;
   votedAt?: number;
+}
+
+export interface VoterRecord {
+  voterId: string;
+  voterName: string;
+  hasVotedBoy?: boolean;
+  hasVotedGirl?: boolean;
+  boyVotedFor?: string;
+  girlVotedFor?: string;
+  updatedAt: number;
 }
 
 export interface LeaderboardStats {

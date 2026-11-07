@@ -1,4 +1,4 @@
-import { Candidate, VoterStatus, VoteSubmission, JudgeScore, VotingSettings } from './types';
+import { Candidate, VoterStatus, VoteSubmission, JudgeScore, VotingSettings, VoterRecord } from './types';
 import { INITIAL_CANDIDATES } from './candidates-data';
 import { db, isFirebaseConfigured } from './firebase';
 import {
@@ -12,6 +12,9 @@ import {
   onSnapshot,
   writeBatch,
   deleteDoc,
+  query,
+  orderBy,
+  limit,
 } from 'firebase/firestore';
 
 const STORAGE_KEY_VOTER_ID = 'novera_voter_uuid';
@@ -19,6 +22,7 @@ const STORAGE_KEY_CANDIDATES = 'novera_candidates_cache';
 const STORAGE_KEY_VOTER_STATUS = 'novera_voter_status';
 const STORAGE_KEY_JUDGE_SCORES = 'novera_judge_scores';
 const STORAGE_KEY_VOTING_SETTINGS = 'novera_voting_settings';
+const STORAGE_KEY_VOTER_LIST = 'novera_voter_records';
 
 const SPRING_BOOT_API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api';
 
@@ -269,6 +273,9 @@ export function saveLocalVoterStatus(status: VoterStatus): void {
   try {
     localStorage.setItem(`${STORAGE_KEY_VOTER_STATUS}_${status.voterId}`, JSON.stringify(status));
     localStorage.setItem(STORAGE_KEY_VOTER_STATUS, JSON.stringify(status));
+    if (status.voterName) {
+      localStorage.setItem('novera_voter_name', status.voterName);
+    }
 
     // Multi-layer cookie backup (30-day max-age)
     if (status.hasVotedBoy) {
@@ -473,6 +480,9 @@ export async function submitVote(submission: VoteSubmission): Promise<{
   }
 
   // 1. Record in Firebase Firestore (Parallel writes for instant sub-second response)
+  const voterName = (submission.voterName && submission.voterName.trim()) || currentStatus.voterName || 'Audience Guest';
+  currentStatus.voterName = voterName;
+
   if (isFirebaseConfigured() && db) {
     try {
       const writeOps: Promise<any>[] = [];
@@ -490,6 +500,7 @@ export async function submitVote(submission: VoteSubmission): Promise<{
       const voterRef = doc(db, 'voters', voterId);
       const voterDocData: Record<string, any> = {
         voterId,
+        voterName,
         hasVotedBoy: currentStatus.hasVotedBoy || !!submission.boyCandidateId,
         hasVotedGirl: currentStatus.hasVotedGirl || !!submission.girlCandidateId,
         updatedAt: Date.now(),
@@ -540,8 +551,20 @@ export async function submitVote(submission: VoteSubmission): Promise<{
   saveLocalCandidates(candidates);
   saveLocalVoterStatus(currentStatus);
 
+  // Save in local voter registry for real-time live tickers
+  saveLocalVoterRecord({
+    voterId,
+    voterName,
+    hasVotedBoy: currentStatus.hasVotedBoy,
+    hasVotedGirl: currentStatus.hasVotedGirl,
+    boyVotedFor: currentStatus.boyVotedFor,
+    girlVotedFor: currentStatus.girlVotedFor,
+    updatedAt: Date.now(),
+  });
+
   if (typeof window !== 'undefined') {
     window.dispatchEvent(new Event('novera_vote_updated'));
+    window.dispatchEvent(new Event('novera_voters_updated'));
   }
 
   return {
@@ -749,9 +772,117 @@ export async function resetAllVotes(): Promise<void> {
     document.cookie = 'novera_vid=; max-age=0; path=/; SameSite=Lax';
 
     localStorage.setItem('novera_last_reset_seen', resetTimestamp.toString());
+    localStorage.removeItem(STORAGE_KEY_VOTER_LIST);
 
     window.dispatchEvent(new Event('novera_vote_updated'));
+    window.dispatchEvent(new Event('novera_voters_updated'));
   }
+}
+
+/**
+ * Live Voter Stream & Audit Registry Storage & Sync
+ */
+export function getLocalVoterList(): VoterRecord[] {
+  if (typeof window === 'undefined') return [];
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY_VOTER_LIST);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) return parsed;
+    }
+  } catch (e) {}
+  return [];
+}
+
+export function saveLocalVoterList(list: VoterRecord[]): void {
+  if (typeof window === 'undefined') return;
+  try {
+    localStorage.setItem(STORAGE_KEY_VOTER_LIST, JSON.stringify(list));
+  } catch (e) {}
+}
+
+export function saveLocalVoterRecord(record: VoterRecord): void {
+  const list = getLocalVoterList();
+  const existingIndex = list.findIndex((r) => r.voterId === record.voterId);
+  if (existingIndex >= 0) {
+    list[existingIndex] = { ...list[existingIndex], ...record };
+  } else {
+    list.unshift(record);
+  }
+  saveLocalVoterList(list.slice(0, 300));
+}
+
+export function subscribeToVoters(callback: (voters: VoterRecord[]) => void): () => void {
+  if (!isFirebaseConfigured() || !db) {
+    callback(getLocalVoterList());
+    const handler = () => callback(getLocalVoterList());
+    if (typeof window !== 'undefined') {
+      window.addEventListener('novera_voters_updated', handler);
+      return () => window.removeEventListener('novera_voters_updated', handler);
+    }
+    return () => {};
+  }
+
+  try {
+    const votersCol = collection(db, 'voters');
+    const q = query(votersCol, orderBy('updatedAt', 'desc'), limit(150));
+    const unsubscribe = onSnapshot(
+      q,
+      (snapshot) => {
+        const list: VoterRecord[] = [];
+        snapshot.forEach((docSnap) => {
+          const data = docSnap.data();
+          list.push({
+            voterId: docSnap.id,
+            voterName: data.voterName || 'Audience Guest',
+            hasVotedBoy: data.hasVotedBoy,
+            hasVotedGirl: data.hasVotedGirl,
+            boyVotedFor: data.boyVotedFor,
+            girlVotedFor: data.girlVotedFor,
+            updatedAt: data.updatedAt || Date.now(),
+          });
+        });
+        saveLocalVoterList(list);
+        callback(list);
+      },
+      (error) => {
+        console.warn('Firestore voters onSnapshot note:', error);
+        callback(getLocalVoterList());
+      }
+    );
+    return unsubscribe;
+  } catch (e) {
+    callback(getLocalVoterList());
+    return () => {};
+  }
+}
+
+export async function fetchVoters(): Promise<VoterRecord[]> {
+  if (isFirebaseConfigured() && db) {
+    try {
+      const votersCol = collection(db, 'voters');
+      const q = query(votersCol, orderBy('updatedAt', 'desc'), limit(150));
+      const snapshot = await getDocs(q);
+      const list: VoterRecord[] = [];
+      snapshot.forEach((docSnap) => {
+        const data = docSnap.data();
+        list.push({
+          voterId: docSnap.id,
+          voterName: data.voterName || 'Audience Guest',
+          hasVotedBoy: data.hasVotedBoy,
+          hasVotedGirl: data.hasVotedGirl,
+          boyVotedFor: data.boyVotedFor,
+          girlVotedFor: data.girlVotedFor,
+          updatedAt: data.updatedAt || Date.now(),
+        });
+      });
+      saveLocalVoterList(list);
+      return list;
+    } catch (err) {
+      console.warn('Firebase voter list fetch error:', err);
+    }
+  }
+  return getLocalVoterList();
 }
 
 /**

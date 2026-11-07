@@ -15,6 +15,7 @@ import {
   Sparkles,
   Trophy,
   Crown,
+  Users,
 } from 'lucide-react';
 import {
   BarChart,
@@ -35,8 +36,10 @@ import {
   saveVotingSettings,
   subscribeToCandidates,
   fetchCandidates,
+  subscribeToVoters,
+  fetchVoters,
 } from '@/lib/api';
-import { VotingSettings, Candidate } from '@/lib/types';
+import { VotingSettings, Candidate, VoterRecord } from '@/lib/types';
 import { playLuxuryChime } from '@/lib/audio';
 import VotingCountdownOverlay from '@/app/components/VotingCountdownOverlay';
 
@@ -53,6 +56,7 @@ export default function QrDisplayPage() {
   const [showOpeningBroadcast, setShowOpeningBroadcast] = useState<boolean>(false);
   const [stageEntryAnimation, setStageEntryAnimation] = useState<boolean>(false);
   const [candidates, setCandidates] = useState<Candidate[]>([]);
+  const [voters, setVoters] = useState<VoterRecord[]>([]);
   const [isMounted, setIsMounted] = useState<boolean>(false);
   const wasVotingOpenRef = useRef<boolean>(false);
 
@@ -62,34 +66,47 @@ export default function QrDisplayPage() {
     playLuxuryChime();
   }, []);
 
-  // Fetch & Subscribe to live candidates vote count
+  // Fetch & Subscribe to live candidates vote count & voters registry
   useEffect(() => {
     fetchCandidates().then((list) => setCandidates(list));
+    fetchVoters().then((list) => setVoters(list));
+
     const unsubCandidates = subscribeToCandidates((list) => {
       setCandidates(list);
+    });
+    const unsubVoters = subscribeToVoters((list) => {
+      setVoters(list);
     });
 
     const interval = setInterval(() => {
       fetchCandidates().then((list) => setCandidates(list));
+      fetchVoters().then((list) => setVoters(list));
     }, 3000);
 
     const handleStorageSync = (e: StorageEvent) => {
       if (e.key === 'novera_candidates') {
         fetchCandidates().then((list) => setCandidates(list));
       }
+      if (e.key === 'novera_voter_records') {
+        fetchVoters().then((list) => setVoters(list));
+      }
     };
     const handleVoteSync = () => {
       fetchCandidates().then((list) => setCandidates(list));
+      fetchVoters().then((list) => setVoters(list));
     };
 
     window.addEventListener('storage', handleStorageSync);
     window.addEventListener('novera_vote_updated', handleVoteSync);
+    window.addEventListener('novera_voters_updated', handleVoteSync);
 
     return () => {
       unsubCandidates();
+      unsubVoters();
       clearInterval(interval);
       window.removeEventListener('storage', handleStorageSync);
       window.removeEventListener('novera_vote_updated', handleVoteSync);
+      window.removeEventListener('novera_voters_updated', handleVoteSync);
     };
   }, []);
 
@@ -120,6 +137,16 @@ export default function QrDisplayPage() {
       })
       .slice(0, 3);
   }, [candidates]);
+
+  const getCandidate = (id?: string) => candidates.find((c) => c.id === id);
+
+  const formatTimeAgo = (timestamp?: number) => {
+    if (!timestamp) return 'Just now';
+    const diffSec = Math.max(0, Math.floor((Date.now() - timestamp) / 1000));
+    if (diffSec < 45) return 'Just now';
+    if (diffSec < 3600) return `${Math.floor(diffSec / 60)}m ago`;
+    return `${Math.floor(diffSec / 3600)}h ago`;
+  };
 
   // Helper to extract clean first name without initials (e.g., 'R.A Lahasi' -> 'Lahasi')
   const getContenderShortName = (fullName: string) => {
@@ -729,6 +756,96 @@ export default function QrDisplayPage() {
               </div>
             </div>
           </div>
+        </div>
+
+        {/* 🔴 LIVE AUDIENCE BALLOTS & RECENT VOTERS TELEMETRY FEED */}
+        <div className="w-full p-3 sm:p-4 rounded-3xl bg-black/55 backdrop-blur-2xl border-2 border-novera-foil/40 shadow-[0_20px_70px_rgba(0,0,0,0.8),0_0_40px_rgba(212,175,55,0.2)] relative overflow-hidden text-left">
+          {/* Subtle top scan sweep */}
+          <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-amber-400 to-transparent animate-scan-sweep" />
+
+          <div className="flex flex-wrap items-center justify-between gap-2 pb-2.5 border-b border-white/10 text-xs">
+            <div className="flex items-center gap-2">
+              <span className="relative flex h-2.5 w-2.5">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+              </span>
+              <span className="font-serif font-bold text-white tracking-wide flex items-center gap-1.5 text-xs sm:text-sm">
+                <Users className="w-4 h-4 text-novera-gold" />
+                Live Audience Stream
+              </span>
+              <span className="text-[10px] font-mono uppercase tracking-wider text-amber-300/90 bg-amber-400/10 px-2 py-0.5 rounded-full border border-amber-400/30">
+                Recent Ballots
+              </span>
+            </div>
+
+            <div className="flex items-center gap-3 text-xs font-mono text-zinc-300">
+              <span className="text-zinc-400">Total Ballots Cast:</span>
+              <span className="font-bold text-amber-300 text-sm">{voters.length}</span>
+            </div>
+          </div>
+
+          {/* Voter Cards Live Stream */}
+          {voters.length === 0 ? (
+            <div className="py-3.5 text-center text-xs text-zinc-400 font-mono italic">
+              ✨ Waiting for audience ballots... Scan the QR code to vote and see your ballot appear live on screen!
+            </div>
+          ) : (
+            <div className="pt-2.5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
+              {voters.slice(0, 6).map((voter, idx) => {
+                const boy = getCandidate(voter.boyVotedFor);
+                const girl = getCandidate(voter.girlVotedFor);
+                const isNamed = voter.voterName && voter.voterName !== 'Audience Guest';
+
+                return (
+                  <div
+                    key={voter.voterId || idx}
+                    className="p-2 sm:p-2.5 rounded-2xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 hover:border-amber-400/40 transition-all flex items-center justify-between gap-2 shadow-sm"
+                  >
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-1.5 mb-1">
+                        <span
+                          className={`w-2 h-2 rounded-full shrink-0 ${
+                            idx === 0 ? 'bg-emerald-400 animate-ping' : 'bg-amber-400/70'
+                          }`}
+                        />
+                        <span
+                          className={`text-xs font-bold truncate ${
+                            isNamed ? 'text-amber-300 font-serif' : 'text-zinc-300 font-mono text-[11px]'
+                          }`}
+                        >
+                          {voter.voterName || 'Audience Guest'}
+                        </span>
+                        {idx === 0 && (
+                          <span className="text-[9px] uppercase font-bold text-emerald-400 bg-emerald-500/15 px-1.5 py-0.2 rounded font-mono border border-emerald-500/30">
+                            Live
+                          </span>
+                        )}
+                      </div>
+
+                      <div className="flex items-center gap-1.5 text-[10px] text-zinc-300 font-mono truncate">
+                        {boy && (
+                          <span className="truncate text-amber-200/90 font-medium">
+                            👔 #{boy.candidateNumber || ''} {boy.name.split(' ')[0]}
+                          </span>
+                        )}
+                        {boy && girl && <span className="text-zinc-500">&bull;</span>}
+                        {girl && (
+                          <span className="truncate text-yellow-200/90 font-medium">
+                            👗 #{girl.candidateNumber || ''} {girl.name.split(' ')[0]}
+                          </span>
+                        )}
+                        {!boy && !girl && <span className="text-zinc-500">Ballot Cast</span>}
+                      </div>
+                    </div>
+
+                    <div className="text-[10px] font-mono text-zinc-400 whitespace-nowrap pl-1 shrink-0">
+                      {formatTimeAgo(voter.updatedAt)}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
 
 

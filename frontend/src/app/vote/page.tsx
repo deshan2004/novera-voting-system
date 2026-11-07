@@ -54,6 +54,7 @@ export default function VotePage() {
   // Selected candidates for rapid single-screen ballot
   const [selectedBoyId, setSelectedBoyId] = useState<string | null>(null);
   const [selectedGirlId, setSelectedGirlId] = useState<string | null>(null);
+  const [voterName, setVoterName] = useState<string>('');
 
   // Category view filter (Boys vs Girls)
   const [categoryFilter, setCategoryFilter] = useState<'boy' | 'girl'>('boy');
@@ -154,6 +155,10 @@ export default function VotePage() {
     const voterId = getOrCreateVoterId();
     const status = getLocalVoterStatus(voterId);
     setVoterStatus(status);
+    if (typeof window !== 'undefined') {
+      const savedName = localStorage.getItem('novera_voter_name') || status.voterName || '';
+      if (savedName) setVoterName(savedName);
+    }
     if (status.hasVotedBoy && !status.hasVotedGirl) {
       setCategoryFilter('girl');
     } else if (status.hasVotedGirl && !status.hasVotedBoy) {
@@ -163,6 +168,9 @@ export default function VotePage() {
     // Remote voter status verification
     syncVoterStatus(voterId).then((synced) => {
       setVoterStatus(synced);
+      if (synced.voterName) {
+        setVoterName(synced.voterName);
+      }
       if (synced.hasVotedBoy && !synced.hasVotedGirl) {
         setCategoryFilter('girl');
       } else if (synced.hasVotedGirl && !synced.hasVotedBoy) {
@@ -248,6 +256,7 @@ export default function VotePage() {
     setFeedback(null);
     const result = await submitVote({
       voterId: voterStatus.voterId,
+      voterName: voterName.trim() || undefined,
       boyCandidateId: selectedBoyId,
     });
     setIsSubmitting(false);
@@ -283,6 +292,7 @@ export default function VotePage() {
     setFeedback(null);
     const result = await submitVote({
       voterId: voterStatus.voterId,
+      voterName: voterName.trim() || undefined,
       girlCandidateId: selectedGirlId,
     });
     setIsSubmitting(false);
@@ -818,7 +828,34 @@ export default function VotePage() {
 
                 {/* IMMEDIATE VOTE BUTTON FOR BEST MALE MODEL */}
                 {!hasVotedBoy ? (
-                  <div className="pt-2">
+                  <div className="pt-2 space-y-2.5">
+                    {/* Optional Voter Name Input */}
+                    <div className="p-3 sm:p-3.5 rounded-2xl bg-gradient-to-r from-amber-500/10 via-black/50 to-transparent border border-amber-500/30 backdrop-blur-md">
+                      <div className="flex items-center justify-between mb-1.5">
+                        <label htmlFor="voter-name-boy" className="text-xs font-semibold text-amber-200/95 flex items-center gap-1.5">
+                          <User className="w-3.5 h-3.5 text-amber-400" />
+                          <span>Your Name / ඔබේ නම</span>
+                          <span className="text-[10px] text-zinc-400 font-normal">(Optional / කැමති නම් පමණක්)</span>
+                        </label>
+                        <span className="text-[10px] text-amber-400/80 font-mono">Live Telemetry</span>
+                      </div>
+                      <input
+                        id="voter-name-boy"
+                        type="text"
+                        maxLength={35}
+                        value={voterName}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          setVoterName(val);
+                          if (typeof window !== 'undefined') {
+                            localStorage.setItem('novera_voter_name', val);
+                          }
+                        }}
+                        placeholder="e.g. Kasun Perera (නම නොදා ද vote කළ හැක)"
+                        className="w-full px-3.5 py-2.5 rounded-xl bg-black/70 border border-white/15 text-white placeholder-zinc-500 text-xs sm:text-sm focus:outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400/40 transition-all"
+                      />
+                    </div>
+
                     <button
                       type="button"
                       onClick={handleVoteBoy}
@@ -986,7 +1023,34 @@ export default function VotePage() {
 
                 {/* IMMEDIATE VOTE BUTTON FOR BEST FEMALE MODEL */}
                 {!hasVotedGirl ? (
-                  <div className="pt-2">
+                  <div className="pt-2 space-y-2.5">
+                    {/* Optional Voter Name Input */}
+                    <div className="p-3 sm:p-3.5 rounded-2xl bg-gradient-to-r from-amber-500/10 via-black/50 to-transparent border border-amber-500/30 backdrop-blur-md">
+                      <div className="flex items-center justify-between mb-1.5">
+                        <label htmlFor="voter-name-girl" className="text-xs font-semibold text-amber-200/95 flex items-center gap-1.5">
+                          <User className="w-3.5 h-3.5 text-amber-400" />
+                          <span>Your Name / ඔබේ නම</span>
+                          <span className="text-[10px] text-zinc-400 font-normal">(Optional / කැමති නම් පමණක්)</span>
+                        </label>
+                        <span className="text-[10px] text-amber-400/80 font-mono">Live Telemetry</span>
+                      </div>
+                      <input
+                        id="voter-name-girl"
+                        type="text"
+                        maxLength={35}
+                        value={voterName}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          setVoterName(val);
+                          if (typeof window !== 'undefined') {
+                            localStorage.setItem('novera_voter_name', val);
+                          }
+                        }}
+                        placeholder="e.g. Kasun Perera (නම නොදා ද vote කළ හැක)"
+                        className="w-full px-3.5 py-2.5 rounded-xl bg-black/70 border border-white/15 text-white placeholder-zinc-500 text-xs sm:text-sm focus:outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400/40 transition-all"
+                      />
+                    </div>
+
                     <button
                       type="button"
                       onClick={handleVoteGirl}
