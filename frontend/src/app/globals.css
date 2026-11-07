@@ -462,15 +462,31 @@ button, a, input, select {
   -webkit-tap-highlight-color: transparent;
 }
 
-/* ================= PRINT STYLES FOR MC ANNOUNCEMENT SUMMARY ================= */
+/* ================= LUXURY PRINT STYLES FOR OFFICIAL NOVERA '26 PDF ================= */
 @media print {
-  body, html {
-    background: #ffffff !important;
-    color: #000000 !important;
+  @page {
+    size: A4 portrait;
+    margin: 10mm 12mm 10mm 12mm;
   }
 
-  header, footer, nav, canvas, .no-print, button {
+  body, html {
+    background: #ffffff !important;
+    color: #0b0b0b !important;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
+    font-size: 10pt !important;
+    line-height: 1.35 !important;
+  }
+
+  header, footer, nav, canvas, .no-print, button, [role="dialog"] {
     display: none !important;
+  }
+
+  .print\:hidden {
+    display: none !important;
+  }
+
+  .print\:block {
+    display: block !important;
   }
 
   * {
@@ -478,6 +494,11 @@ button, a, input, select {
     -webkit-backdrop-filter: none !important;
     text-shadow: none !important;
     box-shadow: none !important;
+  }
+
+  .break-inside-avoid {
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
   }
 
   .print-clean {

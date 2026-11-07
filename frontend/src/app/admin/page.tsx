@@ -41,6 +41,10 @@ import {
   Zap,
   Heart,
   Printer,
+  FileText,
+  Download,
+  Copy,
+  Check,
   Trophy,
   Sparkles,
   Eye,
@@ -188,6 +192,12 @@ export default function AdminLeaderboardPage() {
   const [chartCategory, setChartCategory] = useState<'both' | 'boy' | 'girl'>('both');
   const [chartSortMode, setChartSortMode] = useState<'number' | 'votes'>('number');
   const [leaderboardCategory, setLeaderboardCategory] = useState<'both' | 'boy' | 'girl'>('both');
+  const [showPdfStudio, setShowPdfStudio] = useState<boolean>(false);
+  const [pdfDocumentTab, setPdfDocumentTab] = useState<'mc_cues' | 'championship' | 'audience' | 'all'>('mc_cues');
+  const [pdfIncludeScripts, setPdfIncludeScripts] = useState<boolean>(true);
+  const [pdfIncludeSignatures, setPdfIncludeSignatures] = useState<boolean>(true);
+  const [pdfIncludeRunnerUps, setPdfIncludeRunnerUps] = useState<boolean>(true);
+  const [isCopiedScript, setIsCopiedScript] = useState<boolean>(false);
   const [votingSettings, setVotingSettings] = useState<VotingSettings>({ isVotingOpen: false });
   const [isUpdatingVotingStatus, setIsUpdatingVotingStatus] = useState<boolean>(false);
   const [isPrivacyMasked, setIsPrivacyMasked] = useState<boolean>(false);
@@ -600,6 +610,69 @@ export default function AdminLeaderboardPage() {
     setCandidates(updated);
   };
 
+  const handleCopyMcScript = () => {
+    let text = `====================================================\n`;
+    text += `NOVERA '26 OFFICIAL MC STAGE ANNOUNCEMENT CUE SHEET\n`;
+    text += `AIESEC in CINEC • Certified Grand Finale Telemetry\n`;
+    text += `Generated: ${new Date().toLocaleString()} (Sri Lanka Standard Time)\n`;
+    text += `====================================================\n\n`;
+
+    AWARD_DEFINITIONS.forEach((award, idx) => {
+      const rankedBoys = getRankedStats('boy', award.key);
+      const rankedGirls = getRankedStats('girl', award.key);
+      const winnerBoy = rankedBoys[0];
+      const winnerGirl = rankedGirls[0];
+      const boyScore = winnerBoy ? getScoreValueForAward(winnerBoy, award.key).score : 0;
+      const girlScore = winnerGirl ? getScoreValueForAward(winnerGirl, award.key).score : 0;
+
+      text += `🏆 TITLE #${idx + 1}: ${award.title.toUpperCase()}\n`;
+      text += `   Criteria: ${award.criteriaText}\n`;
+      text += `   👔 Best Male Model (Boy): #${winnerBoy?.candidate.candidateNumber || 'N/A'} - ${winnerBoy?.candidate.name || 'To Be Announced'} (Score / Votes: ${boyScore})\n`;
+      text += `   👗 Best Female Model (Girl): #${winnerGirl?.candidate.candidateNumber || 'N/A'} - ${winnerGirl?.candidate.name || 'To Be Announced'} (Score / Votes: ${girlScore})\n`;
+      if (pdfIncludeScripts) {
+        text += `   🎙️ MC STAGE CUE:\n`;
+        text += `      "Ladies and Gentlemen, for ${award.title}, the recipient of the Male Award is Candidate #${winnerBoy?.candidate.candidateNumber || 'N/A'}, ${winnerBoy?.candidate.name || 'TBA'}! And the winner for Female Model is Candidate #${winnerGirl?.candidate.candidateNumber || 'N/A'}, ${winnerGirl?.candidate.name || 'TBA'}!"\n`;
+      }
+      text += `----------------------------------------------------\n\n`;
+    });
+
+    navigator.clipboard.writeText(text).then(() => {
+      setIsCopiedScript(true);
+      showToast('MC Announcement Cue Sheet copied to clipboard!', 'success');
+      setTimeout(() => setIsCopiedScript(false), 3000);
+    }).catch(() => {
+      showToast('Unable to copy to clipboard automatically.', 'info');
+    });
+  };
+
+  const handleExportCSV = () => {
+    const rows = [
+      ['Category', 'Candidate Number', 'Candidate Name', 'Audience Votes', 'Top Model Score (Max 100)', 'Personality (Max 50)', 'Stage Presence (Max 30)', 'Photogenic (Max 40)'],
+      ...candidates.map((c) => {
+        const stat = candidateStats.find((s) => s.candidate.id === c.id);
+        return [
+          c.category === 'boy' ? 'Male Model' : 'Female Model',
+          c.candidateNumber || c.id,
+          `"${c.name}"`,
+          c.votes || 0,
+          stat?.topModelAvg || 0,
+          stat?.personalityAvg || 0,
+          stat?.stagePresenceAvg || 0,
+          stat?.photogenicAvg || 0,
+        ];
+      }),
+    ];
+    const csvContent = 'data:text/csv;charset=utf-8,' + rows.map((e) => e.join(',')).join('\n');
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement('a');
+    link.setAttribute('href', encodedUri);
+    link.setAttribute('download', `NOVERA_26_Official_Ledger_${new Date().toISOString().slice(0, 10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    showToast('Official CSV Ledger downloaded successfully.', 'success');
+  };
+
   // Recharts Data Prep
   const chartData = useMemo(() => {
     let sourceCandidates: Candidate[] = [];
@@ -938,12 +1011,15 @@ export default function AdminLeaderboardPage() {
                 </button>
 
                 <button
-                  onClick={() => window.print()}
-                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-2xl text-xs font-semibold bg-white/10 hover:bg-white/20 text-white border border-white/15 backdrop-blur-md transition-all shadow-sm"
-                  title="Print MC Summary"
+                  onClick={() => setShowPdfStudio(true)}
+                  className="inline-flex items-center gap-2 px-3.5 py-2 rounded-2xl text-xs font-bold bg-gradient-to-r from-amber-500/20 via-amber-400/25 to-novera-gold/20 hover:from-amber-500/35 hover:to-novera-gold/35 text-amber-200 border border-amber-400/50 backdrop-blur-md transition-all shadow-[0_0_15px_rgba(212,175,55,0.2)] group"
+                  title="Open Interactive PDF Studio & Official Cue Sheet"
                 >
-                  <Printer className="w-3.5 h-3.5" />
-                  <span className="hidden sm:inline">Print MC</span>
+                  <FileText className="w-3.5 h-3.5 text-amber-300 group-hover:scale-110 transition-transform" />
+                  <span>Official PDF Studio</span>
+                  <span className="hidden sm:inline-block px-1.5 py-0.2 rounded bg-amber-400/30 text-[9px] font-mono font-bold text-amber-200 uppercase">
+                    MC &amp; Audit
+                  </span>
                 </button>
                 <button
                   onClick={handleLogout}
@@ -2607,19 +2683,395 @@ export default function AdminLeaderboardPage() {
             </div>
           </div>
         )}
+        {/* ================= 🌟 INTERACTIVE LUXURY PDF & MC CUE SHEET STUDIO MODAL ================= */}
+        {showPdfStudio && (
+          <div
+            className="fixed inset-0 z-50 bg-black/90 backdrop-blur-2xl overflow-y-auto p-3 sm:p-6 animate-in fade-in duration-200"
+            onClick={() => setShowPdfStudio(false)}
+          >
+            <RunwayStageBackground contained className="opacity-80 pointer-events-none" />
+            <div className="min-h-full flex items-center justify-center py-4">
+              <div
+                className="relative z-10 w-full max-w-5xl bg-[#0e0c0a]/98 border border-amber-500/40 rounded-3xl p-5 sm:p-8 shadow-[0_0_90px_rgba(0,0,0,0.95),0_0_50px_rgba(203,167,95,0.2)] text-white space-y-6 animate-in zoom-in-95 duration-200 overflow-hidden"
+                onClick={(e) => e.stopPropagation()}
+              >
+                {/* Gold Top Light Sweep */}
+                <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-amber-300 to-transparent animate-scan-sweep" />
+
+                {/* Modal Header */}
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-white/10 gap-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-400/20 to-amber-600/30 border border-amber-400/50 flex items-center justify-center text-amber-300 shadow-[0_0_20px_rgba(212,175,55,0.3)] shrink-0">
+                      <FileText className="w-6 h-6" />
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <h3 className="font-serif text-xl sm:text-2xl font-bold text-white tracking-wide">
+                          Official PDF &amp; Document Studio
+                        </h3>
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider bg-emerald-500/15 border border-emerald-500/30 text-emerald-400">
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
+                          Live Ledger
+                        </span>
+                      </div>
+                      <p className="text-xs text-zinc-400 mt-0.5">
+                        Interactive Grand Finale Awards Dossier &bull; MC Announcement Cues &bull; Certified Telemetry
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2.5 self-end sm:self-center">
+                    <button
+                      type="button"
+                      onClick={() => setShowPdfStudio(false)}
+                      className="p-2 rounded-xl text-zinc-400 hover:text-white bg-white/5 hover:bg-white/10 border border-white/10 transition-colors"
+                      title="Close Studio"
+                    >
+                      <X className="w-5 h-5" />
+                    </button>
+                  </div>
+                </div>
+
+                {/* Control Panel: Tabs, Toggles, and Quick Actions */}
+                <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/10 space-y-4">
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    {/* Document Selector Tabs */}
+                    <div className="inline-flex p-1 rounded-xl bg-black/50 border border-white/15 text-xs">
+                      <button
+                        type="button"
+                        onClick={() => setPdfDocumentTab('mc_cues')}
+                        className={`px-3 py-1.5 rounded-lg font-medium transition-all ${
+                          pdfDocumentTab === 'mc_cues'
+                            ? 'bg-gradient-to-r from-novera-gold to-amber-500 text-black font-extrabold shadow'
+                            : 'text-zinc-400 hover:text-white'
+                        }`}
+                      >
+                        🎙️ MC Stage Cue Sheet
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setPdfDocumentTab('championship')}
+                        className={`px-3 py-1.5 rounded-lg font-medium transition-all ${
+                          pdfDocumentTab === 'championship'
+                            ? 'bg-gradient-to-r from-novera-gold to-amber-500 text-black font-extrabold shadow'
+                            : 'text-zinc-400 hover:text-white'
+                        }`}
+                      >
+                        👑 Championship Dossier
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setPdfDocumentTab('audience')}
+                        className={`px-3 py-1.5 rounded-lg font-medium transition-all ${
+                          pdfDocumentTab === 'audience'
+                            ? 'bg-gradient-to-r from-novera-gold to-amber-500 text-black font-extrabold shadow'
+                            : 'text-zinc-400 hover:text-white'
+                        }`}
+                      >
+                        👥 Audience Voting Ledger
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setPdfDocumentTab('all')}
+                        className={`px-3 py-1.5 rounded-lg font-medium transition-all ${
+                          pdfDocumentTab === 'all'
+                            ? 'bg-gradient-to-r from-novera-gold to-amber-500 text-black font-extrabold shadow'
+                            : 'text-zinc-400 hover:text-white'
+                        }`}
+                      >
+                        📜 Complete Official Report
+                      </button>
+                    </div>
+
+                    {/* Action Buttons */}
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={handleCopyMcScript}
+                        className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-white/10 hover:bg-white/20 text-zinc-200 border border-white/15 transition-all shadow-sm cursor-pointer"
+                        title="Copy formatted text script for MCs / WhatsApp"
+                      >
+                        {isCopiedScript ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5 text-amber-300" />}
+                        <span>{isCopiedScript ? 'Copied!' : 'Copy Script'}</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={handleExportCSV}
+                        className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-white/10 hover:bg-white/20 text-zinc-200 border border-white/15 transition-all shadow-sm cursor-pointer"
+                        title="Download verified spreadsheet"
+                      >
+                        <Download className="w-3.5 h-3.5 text-amber-300" />
+                        <span>Export CSV</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => window.print()}
+                        className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-xl text-xs font-bold bg-gradient-to-r from-novera-gold via-amber-300 to-amber-500 text-black hover:brightness-110 transition-all shadow-[0_0_20px_rgba(212,175,55,0.4)] cursor-pointer"
+                        title="Print or Save as PDF"
+                      >
+                        <Printer className="w-3.5 h-3.5" />
+                        <span>Print / Save as PDF</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Interactive Options Toggles */}
+                  <div className="flex flex-wrap items-center gap-4 pt-2 border-t border-white/10 text-xs text-zinc-300">
+                    <label className="inline-flex items-center gap-2 cursor-pointer select-none">
+                      <input
+                        type="checkbox"
+                        checked={pdfIncludeScripts}
+                        onChange={(e) => setPdfIncludeScripts(e.target.checked)}
+                        className="rounded border-zinc-600 text-amber-500 focus:ring-0 w-4 h-4 cursor-pointer"
+                      />
+                      <span>Include MC Host Announcement Dialogue</span>
+                    </label>
+
+                    <label className="inline-flex items-center gap-2 cursor-pointer select-none">
+                      <input
+                        type="checkbox"
+                        checked={pdfIncludeRunnerUps}
+                        onChange={(e) => setPdfIncludeRunnerUps(e.target.checked)}
+                        className="rounded border-zinc-600 text-amber-500 focus:ring-0 w-4 h-4 cursor-pointer"
+                      />
+                      <span>Include 1st &amp; 2nd Runner-Ups</span>
+                    </label>
+
+                    <label className="inline-flex items-center gap-2 cursor-pointer select-none">
+                      <input
+                        type="checkbox"
+                        checked={pdfIncludeSignatures}
+                        onChange={(e) => setPdfIncludeSignatures(e.target.checked)}
+                        className="rounded border-zinc-600 text-amber-500 focus:ring-0 w-4 h-4 cursor-pointer"
+                      />
+                      <span>Include Official Sign-off &amp; Seals</span>
+                    </label>
+                  </div>
+                </div>
+
+                {/* 📄 LIVE INTERACTIVE A4 DOCUMENT PREVIEW CANVAS */}
+                <div className="p-2 sm:p-6 bg-zinc-950/90 rounded-2xl border border-white/10 max-h-[60vh] overflow-y-auto">
+                  <div className="max-w-3xl mx-auto bg-white text-zinc-900 p-6 sm:p-10 rounded-xl shadow-2xl border-4 border-[#b3924f]/40 font-sans space-y-6 relative">
+                    {/* Luxury Watermark */}
+                    <div className="absolute top-6 right-6 pointer-events-none opacity-5">
+                      <Crown className="w-48 h-48 text-amber-900" />
+                    </div>
+
+                    {/* Official Document Letterhead */}
+                    <div className="border-b-2 border-zinc-900 pb-4 text-center space-y-1 relative">
+                      <div className="text-[10px] uppercase tracking-[0.25em] font-extrabold text-amber-800">
+                        AIESEC IN CINEC &bull; CENTRAL TABULATION BUREAU
+                      </div>
+                      <h1 className="text-2xl sm:text-3xl font-serif font-black uppercase tracking-tight text-zinc-900">
+                        NOVERA &rsquo;26 &bull; OFFICIAL AWARDS DOSSIER
+                      </h1>
+                      <div className="flex flex-wrap items-center justify-center gap-2 text-[11px] text-zinc-600 font-mono pt-1">
+                        <span>Doc Ref: <strong className="text-zinc-900">NOV26-AUDIT-{new Date().getFullYear()}</strong></span>
+                        <span>&bull;</span>
+                        <span>Certified: {new Date().toLocaleDateString()}</span>
+                        <span>&bull;</span>
+                        <span className="text-emerald-700 font-bold uppercase">&bull; Sealed Official</span>
+                      </div>
+                    </div>
+
+                    {/* DOCUMENT BODY ACCORDING TO TAB */}
+                    {(pdfDocumentTab === 'mc_cues' || pdfDocumentTab === 'all') && (
+                      <div className="space-y-4">
+                        <div className="flex items-center justify-between border-b border-zinc-300 pb-1">
+                          <h2 className="text-xs font-bold uppercase tracking-widest text-zinc-700 font-mono">
+                            Part 1: Official Award Titles &amp; Stage Cues
+                          </h2>
+                          <span className="text-[10px] text-zinc-500 font-mono">6 Official Titles</span>
+                        </div>
+
+                        <div className="space-y-3.5">
+                          {AWARD_DEFINITIONS.map((award, idx) => {
+                            const rankedBoys = getRankedStats('boy', award.key);
+                            const rankedGirls = getRankedStats('girl', award.key);
+                            const winnerBoy = rankedBoys[0];
+                            const winnerGirl = rankedGirls[0];
+                            const runnerBoy = rankedBoys[1];
+                            const runnerGirl = rankedGirls[1];
+                            const boyScore = winnerBoy ? getScoreValueForAward(winnerBoy, award.key).score : 0;
+                            const girlScore = winnerGirl ? getScoreValueForAward(winnerGirl, award.key).score : 0;
+
+                            return (
+                              <div key={award.key} className="border border-zinc-300 rounded-xl p-4 bg-zinc-50/70 space-y-3">
+                                <div className="flex items-center justify-between border-b border-zinc-200 pb-2">
+                                  <div className="flex items-center gap-2">
+                                    <span className="w-5 h-5 rounded-full bg-amber-400/30 text-amber-900 font-black text-[11px] flex items-center justify-center font-mono">
+                                      {idx + 1}
+                                    </span>
+                                    <div>
+                                      <h3 className="font-serif text-base font-black uppercase text-zinc-900">
+                                        {award.title}
+                                      </h3>
+                                      <span className="text-[10px] text-zinc-500 font-mono">
+                                        Criteria: {award.criteriaText}
+                                      </span>
+                                    </div>
+                                  </div>
+                                  <span className="text-[11px] font-mono font-bold bg-white px-2.5 py-0.5 rounded border border-zinc-300 shadow-sm text-zinc-800">
+                                    {award.source === 'jury' ? `Max Score: ${award.maxScore}` : 'Public Votes'}
+                                  </span>
+                                </div>
+
+                                {/* Winner Podiums */}
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                  {/* Male Winner */}
+                                  <div className="p-3 bg-white rounded-lg border-2 border-amber-500/30 shadow-sm space-y-1">
+                                    <div className="flex items-center justify-between">
+                                      <span className="text-[10px] font-bold uppercase tracking-wider text-amber-700">
+                                        👔 Male Winner (Boy)
+                                      </span>
+                                      <span className="text-xs font-mono font-black text-amber-600">
+                                        {boyScore} {award.source === 'jury' ? 'pts' : 'votes'}
+                                      </span>
+                                    </div>
+                                    <div className="font-serif text-base font-bold text-zinc-900">
+                                      {winnerBoy?.candidate.name || 'To Be Announced'}
+                                    </div>
+                                    <div className="text-[11px] text-zinc-600 font-mono">
+                                      Contender #{winnerBoy?.candidate.candidateNumber || 'N/A'}
+                                    </div>
+                                    {pdfIncludeRunnerUps && runnerBoy && (
+                                      <div className="text-[10px] text-zinc-500 pt-1 border-t border-zinc-100 font-mono">
+                                        Runner-Up: #{runnerBoy.candidate.candidateNumber} {runnerBoy.candidate.name} ({getScoreValueForAward(runnerBoy, award.key).score})
+                                      </div>
+                                    )}
+                                  </div>
+
+                                  {/* Female Winner */}
+                                  <div className="p-3 bg-white rounded-lg border-2 border-amber-500/30 shadow-sm space-y-1">
+                                    <div className="flex items-center justify-between">
+                                      <span className="text-[10px] font-bold uppercase tracking-wider text-amber-700">
+                                        👗 Female Winner (Girl)
+                                      </span>
+                                      <span className="text-xs font-mono font-black text-amber-600">
+                                        {girlScore} {award.source === 'jury' ? 'pts' : 'votes'}
+                                      </span>
+                                    </div>
+                                    <div className="font-serif text-base font-bold text-zinc-900">
+                                      {winnerGirl?.candidate.name || 'To Be Announced'}
+                                    </div>
+                                    <div className="text-[11px] text-zinc-600 font-mono">
+                                      Contender #{winnerGirl?.candidate.candidateNumber || 'N/A'}
+                                    </div>
+                                    {pdfIncludeRunnerUps && runnerGirl && (
+                                      <div className="text-[10px] text-zinc-500 pt-1 border-t border-zinc-100 font-mono">
+                                        Runner-Up: #{runnerGirl.candidate.candidateNumber} {runnerGirl.candidate.name} ({getScoreValueForAward(runnerGirl, award.key).score})
+                                      </div>
+                                    )}
+                                  </div>
+                                </div>
+
+                                {/* Host Cue Box */}
+                                {pdfIncludeScripts && (
+                                  <div className="p-2.5 bg-amber-50 rounded-lg border border-amber-300 text-xs text-amber-950 font-serif italic leading-relaxed">
+                                    &ldquo;Ladies and Gentlemen, for the title of <strong>{award.title}</strong>, the winner for Male Model is Candidate <strong>#{winnerBoy?.candidate.candidateNumber} - {winnerBoy?.candidate.name}</strong>, and for Female Model is Candidate <strong>#{winnerGirl?.candidate.candidateNumber} - {winnerGirl?.candidate.name}</strong>!&rdquo;
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* AUDIENCE LEDGER TAB CONTENT */}
+                    {(pdfDocumentTab === 'audience' || pdfDocumentTab === 'all') && (
+                      <div className="space-y-4 pt-2">
+                        <div className="flex items-center justify-between border-b border-zinc-300 pb-1">
+                          <h2 className="text-xs font-bold uppercase tracking-widest text-zinc-700 font-mono">
+                            Part 2: Certified Audience Popular Vote Standings
+                          </h2>
+                          <span className="text-[10px] text-zinc-500 font-mono">
+                            {totalOverallVotes} Total Verified Ballots
+                          </span>
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          {/* Boys Standings */}
+                          <div className="space-y-2 border border-zinc-300 rounded-lg p-3 bg-zinc-50">
+                            <h3 className="text-xs font-bold uppercase text-amber-800 font-mono">
+                              Male Models ({totalBoyVotes} votes)
+                            </h3>
+                            <div className="space-y-1.5 text-xs">
+                              {boys.slice(0, 7).map((c, idx) => (
+                                <div key={c.id} className="flex items-center justify-between border-b border-zinc-200 pb-1">
+                                  <span className="font-mono text-zinc-600 font-bold">#{idx + 1} {c.candidateNumber}</span>
+                                  <span className="truncate max-w-[140px] font-medium">{c.name}</span>
+                                  <span className="font-mono font-bold text-zinc-900">{c.votes || 0} v</span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+
+                          {/* Girls Standings */}
+                          <div className="space-y-2 border border-zinc-300 rounded-lg p-3 bg-zinc-50">
+                            <h3 className="text-xs font-bold uppercase text-amber-800 font-mono">
+                              Female Models ({totalGirlVotes} votes)
+                            </h3>
+                            <div className="space-y-1.5 text-xs">
+                              {girls.slice(0, 7).map((c, idx) => (
+                                <div key={c.id} className="flex items-center justify-between border-b border-zinc-200 pb-1">
+                                  <span className="font-mono text-zinc-600 font-bold">#{idx + 1} {c.candidateNumber}</span>
+                                  <span className="truncate max-w-[140px] font-medium">{c.name}</span>
+                                  <span className="font-mono font-bold text-zinc-900">{c.votes || 0} v</span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* OFFICIAL CERTIFICATION SEAL & SIGN-OFFS */}
+                    {pdfIncludeSignatures && (
+                      <div className="border-t-2 border-zinc-900 pt-6 mt-8 space-y-4">
+                        <div className="grid grid-cols-3 gap-4 text-center text-xs font-mono">
+                          <div className="border-t border-zinc-400 pt-2 space-y-1">
+                            <div className="font-bold uppercase text-zinc-800">President, AIESEC in CINEC</div>
+                            <div className="text-[10px] text-zinc-500">Official Executive Signature</div>
+                          </div>
+                          <div className="flex flex-col items-center justify-center -mt-3">
+                            <div className="w-14 h-14 rounded-full border-2 border-amber-600 border-dashed flex flex-col items-center justify-center text-[8px] font-mono font-black uppercase text-amber-800 p-1">
+                              <span>AIESEC</span>
+                              <span className="text-[10px]">★ SEAL ★</span>
+                              <span>CINEC</span>
+                            </div>
+                          </div>
+                          <div className="border-t border-zinc-400 pt-2 space-y-1">
+                            <div className="font-bold uppercase text-zinc-800">Chief Runway Judge</div>
+                            <div className="text-[10px] text-zinc-500">Jury Tabulation Certification</div>
+                          </div>
+                        </div>
+                        <div className="text-center text-[10px] text-zinc-400 font-mono">
+                          NOVERA &rsquo;26 Haute Couture Fashion Showcase &bull; Official Digital Ledger &bull; All Rights Reserved
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
-      {/* ================= DEDICATED PRINT-ONLY MC ANNOUNCEMENT CUE SHEET ================= */}
-      <div className="hidden print:block p-8 bg-white text-black font-sans space-y-6">
-        <div className="border-b-2 border-black pb-4 text-center space-y-1">
-          <div className="text-xs uppercase tracking-widest font-bold text-gray-600">
-            AIESEC in CINEC Presents
+      {/* ================= 🌟 DEDICATED PRINT-ONLY LUXURY MC & AWARDS DOSSIER ================= */}
+      <div className="hidden print:block p-8 bg-white text-zinc-900 font-sans space-y-6">
+        <div className="border-b-2 border-zinc-900 pb-4 text-center space-y-1">
+          <div className="text-[10px] uppercase tracking-[0.25em] font-extrabold text-amber-800">
+            AIESEC IN CINEC &bull; OFFICIAL CENTRAL TABULATION
           </div>
-          <h1 className="text-3xl font-serif font-extrabold uppercase tracking-tight">
-            NOVERA &rsquo;26 &bull; OFFICIAL AWARDS CUE SHEET
+          <h1 className="text-3xl font-serif font-black uppercase tracking-tight text-zinc-900">
+            NOVERA &rsquo;26 &bull; OFFICIAL AWARDS CUE SHEET &amp; DOSSIER
           </h1>
-          <p className="text-xs text-gray-500 font-mono">
-            Certified by Central Tabulation &bull; Live Telemetry Ledger &bull; {new Date().toLocaleDateString()}
+          <p className="text-xs text-zinc-500 font-mono">
+            Certified by Central Committee &bull; Telemetry Ledger &bull; {new Date().toLocaleDateString()}
           </p>
         </div>
 
@@ -2633,44 +3085,54 @@ export default function AdminLeaderboardPage() {
             const girlScore = winnerGirl ? getScoreValueForAward(winnerGirl, award.key).score : 0;
 
             return (
-              <div key={award.key} className="border border-gray-400 rounded-lg p-4 space-y-2 break-inside-avoid">
-                <div className="flex justify-between items-center border-b border-gray-300 pb-2">
+              <div key={award.key} className="border border-zinc-400 rounded-xl p-4 bg-zinc-50 space-y-3 break-inside-avoid">
+                <div className="flex justify-between items-center border-b border-zinc-300 pb-2">
                   <div>
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-gray-600">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-amber-800">
                       Title #{idx + 1}
                     </span>
-                    <h2 className="text-lg font-bold uppercase">{award.title}</h2>
+                    <h2 className="text-lg font-bold uppercase text-zinc-900">{award.title}</h2>
+                    <span className="text-[10px] text-zinc-500 font-mono block">
+                      Criteria: {award.criteriaText}
+                    </span>
                   </div>
-                  <span className="text-xs font-mono font-bold bg-gray-100 px-2.5 py-1 rounded border border-gray-300">
+                  <span className="text-xs font-mono font-bold bg-white px-2.5 py-1 rounded border border-zinc-300 shadow-sm">
                     {award.source === 'jury' ? `Max Score: ${award.maxScore}` : 'Public Votes'}
                   </span>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4 pt-1">
-                  <div className="p-3 bg-gray-50 rounded border border-gray-200">
-                    <span className="text-[10px] font-bold uppercase text-gray-600 block">Male Winner (Boy)</span>
-                    <div className="text-base font-bold">{winnerBoy?.candidate.name || 'To Be Announced'}</div>
-                    <div className="text-xs text-gray-600 font-mono">
-                      Candidate No: {winnerBoy?.candidate.candidateNumber || 'N/A'} &bull; Final Score: {boyScore}
+                  <div className="p-3 bg-white rounded-lg border border-amber-500/30">
+                    <span className="text-[10px] font-bold uppercase text-amber-700 block">Male Winner (Boy)</span>
+                    <div className="text-base font-bold text-zinc-900">{winnerBoy?.candidate.name || 'To Be Announced'}</div>
+                    <div className="text-xs text-zinc-600 font-mono">
+                      Candidate No: {winnerBoy?.candidate.candidateNumber || 'N/A'} &bull; Final Score / Votes: {boyScore}
                     </div>
                   </div>
 
-                  <div className="p-3 bg-gray-50 rounded border border-gray-200">
-                    <span className="text-[10px] font-bold uppercase text-gray-600 block">Female Winner (Girl)</span>
-                    <div className="text-base font-bold">{winnerGirl?.candidate.name || 'To Be Announced'}</div>
-                    <div className="text-xs text-gray-600 font-mono">
-                      Candidate No: {winnerGirl?.candidate.candidateNumber || 'N/A'} &bull; Final Score: {girlScore}
+                  <div className="p-3 bg-white rounded-lg border border-amber-500/30">
+                    <span className="text-[10px] font-bold uppercase text-amber-700 block">Female Winner (Girl)</span>
+                    <div className="text-base font-bold text-zinc-900">{winnerGirl?.candidate.name || 'To Be Announced'}</div>
+                    <div className="text-xs text-zinc-600 font-mono">
+                      Candidate No: {winnerGirl?.candidate.candidateNumber || 'N/A'} &bull; Final Score / Votes: {girlScore}
                     </div>
                   </div>
                 </div>
+
+                {pdfIncludeScripts && (
+                  <div className="p-2.5 bg-amber-50 rounded-lg border border-amber-300 text-xs text-amber-950 font-serif italic leading-relaxed">
+                    &ldquo;Ladies and Gentlemen, for the title of <strong>{award.title}</strong>, the winner for Male Model is Candidate <strong>#{winnerBoy?.candidate.candidateNumber} - {winnerBoy?.candidate.name}</strong>, and for Female Model is Candidate <strong>#{winnerGirl?.candidate.candidateNumber} - {winnerGirl?.candidate.name}</strong>!&rdquo;
+                  </div>
+                )}
               </div>
             );
           })}
         </div>
 
-        <div className="border-t-2 border-black pt-6 flex justify-between text-xs text-gray-700 font-mono">
+        <div className="border-t-2 border-zinc-900 pt-6 flex justify-between text-xs text-zinc-700 font-mono">
           <div>Official Seal: AIESEC in CINEC</div>
           <div>Organizing Committee Sign-off: _______________________</div>
+          <div>Chief Judge Sign-off: _______________________</div>
         </div>
       </div>
     </div>
