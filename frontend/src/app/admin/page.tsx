@@ -58,7 +58,6 @@ import {
 } from 'lucide-react';
 import RunwayStageBackground from '@/app/components/RunwayStageBackground';
 import VotingCountdownOverlay from '@/app/components/VotingCountdownOverlay';
-import VotingClosedCeremonyOverlay from '@/app/components/VotingClosedCeremonyOverlay';
 
 export type AdminRole = 'master' | 'stage';
 
@@ -192,7 +191,6 @@ export default function AdminLeaderboardPage() {
   const [votingDurationMinutes, setVotingDurationMinutes] = useState<number>(10);
   const [remainingTimeText, setRemainingTimeText] = useState<string>('');
   const [remainingSeconds, setRemainingSeconds] = useState<number>(0);
-  const [showClosingCeremony, setShowClosingCeremony] = useState<boolean>(false);
   const openedSessionIdRef = useRef<string | null>(null);
 
   const loadData = () => {
@@ -259,10 +257,7 @@ export default function AdminLeaderboardPage() {
 
       if (totalSec <= 0) {
         setRemainingTimeText('');
-        // Automatically close voting ONLY if this device was the one that opened this active session,
-        // and only for the Stage Operator. This prevents multiple admin devices from canceling each other!
-        if (adminRole === 'stage' && openedSessionIdRef.current && openedSessionIdRef.current === votingSettings.sessionId) {
-          openedSessionIdRef.current = null;
+        if (votingSettings.isVotingOpen) {
           saveVotingSettings({
             isVotingOpen: false,
             votingClosesAt: null,
@@ -270,8 +265,8 @@ export default function AdminLeaderboardPage() {
             sessionId: null,
             announcement: 'Audience voting has concluded for NOVERA ’26.',
           });
+          showToast('Audience voting session has concluded.', 'info');
         }
-        setShowClosingCeremony(true);
         return;
       }
 
@@ -319,7 +314,7 @@ export default function AdminLeaderboardPage() {
           sessionId: null,
           announcement: 'Audience voting is currently PAUSED / CONCLUDED by the Central Committee.',
         });
-        setShowClosingCeremony(true);
+        showToast('Audience voting paused by Central Committee.', 'info');
       } finally {
         setIsUpdatingVotingStatus(false);
       }
@@ -711,13 +706,6 @@ export default function AdminLeaderboardPage() {
         />
       )}
 
-      {/* 👑 GRAND HAUTE COUTURE VOTING CONCLUDED CEREMONY OVERLAY (Stage Controller only) */}
-      {adminRole === 'stage' && showClosingCeremony && (
-        <VotingClosedCeremonyOverlay
-          autoRedirectSeconds={6}
-          onComplete={() => setShowClosingCeremony(false)}
-        />
-      )}
 
       {/* Haute Couture Fashion Runway Stage Animation */}
       <div className="print:hidden">
