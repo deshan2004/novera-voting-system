@@ -206,24 +206,24 @@ export default function QrDisplayPage() {
   const chartData = useMemo(() => {
     const boysList = topBoys.map((c, idx) => ({
       id: c.id,
-      number: c.candidateNumber || `M-${idx + 1}`,
+      number: c.candidateNumber || `${idx + 1}`,
       name: getContenderShortName(c.name),
       fullName: c.name,
       category: 'Male',
       rank: idx + 1,
-      displayName: `#${c.candidateNumber || `M-${idx + 1}`} ${getContenderShortName(c.name)}`,
+      displayName: `#${c.candidateNumber || `${idx + 1}`} ${getContenderShortName(c.name)}`,
       votes: c.votes || 0,
       color: '#d4af37', // Runway Gold
     }));
 
     const girlsList = topGirls.map((c, idx) => ({
       id: c.id,
-      number: c.candidateNumber || `F-${idx + 1}`,
+      number: c.candidateNumber || `${idx + 1}`,
       name: getContenderShortName(c.name),
       fullName: c.name,
       category: 'Female',
       rank: idx + 1,
-      displayName: `#${c.candidateNumber || `F-${idx + 1}`} ${getContenderShortName(c.name)}`,
+      displayName: `#${c.candidateNumber || `${idx + 1}`} ${getContenderShortName(c.name)}`,
       votes: c.votes || 0,
       color: '#f59e0b', // Radiant Amber Gold
     }));

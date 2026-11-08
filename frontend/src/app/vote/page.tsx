@@ -571,7 +571,7 @@ export default function VotePage() {
               >
                 <div className="flex items-center gap-3 truncate">
                   <div className="w-10 h-10 rounded-xl bg-novera-gold/20 border border-novera-gold/40 text-novera-gold text-xs font-mono font-bold flex items-center justify-center shrink-0">
-                    {boyVotedCandidate?.candidateNumber || 'M-XX'}
+                    {boyVotedCandidate?.candidateNumber ? `#${boyVotedCandidate.candidateNumber}` : '#--'}
                   </div>
                   <div className="truncate">
                     <span className="text-[10px] uppercase font-bold text-novera-gold block">Best Male Model</span>
@@ -591,7 +591,7 @@ export default function VotePage() {
               >
                 <div className="flex items-center gap-3 truncate">
                   <div className="w-10 h-10 rounded-xl bg-novera-gold/20 border border-novera-gold/40 text-novera-gold text-xs font-mono font-bold flex items-center justify-center shrink-0">
-                    {girlVotedCandidate?.candidateNumber || 'F-XX'}
+                    {girlVotedCandidate?.candidateNumber ? `#${girlVotedCandidate.candidateNumber}` : '#--'}
                   </div>
                   <div className="truncate">
                     <span className="text-[10px] uppercase font-bold text-novera-gold block">Best Female Model</span>
