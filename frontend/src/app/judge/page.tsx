@@ -65,7 +65,8 @@ export default function JudgePortalPage() {
 
   type JudgeCategoryView = 'all' | 'girl' | 'boy' | 'design';
   const [candidates, setCandidates] = useState<Candidate[]>([]);
-  const [selectedCategory, setSelectedCategory] = useState<JudgeCategoryView>('all');
+  const [selectedCategory, setSelectedCategory] = useState<JudgeCategoryView>('girl');
+  const [designGenderFilter, setDesignGenderFilter] = useState<'all' | 'girl' | 'boy'>('all');
   const [judgeScores, setJudgeScores] = useState<JudgeScore[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [scoreFilter, setScoreFilter] = useState<'all' | 'unscored' | 'scored'>('all');
@@ -312,9 +313,16 @@ export default function JudgePortalPage() {
     if (selectedCategory === 'all') return candidates;
     if (selectedCategory === 'girl') return candidates.filter((c) => c.category === 'girl');
     if (selectedCategory === 'boy') return candidates.filter((c) => c.category === 'boy');
-    if (selectedCategory === 'design') return candidates.filter((c) => c.hasBestDesignEntry);
+    if (selectedCategory === 'design') {
+      return candidates.filter((c) => {
+        if (!c.hasBestDesignEntry) return false;
+        if (designGenderFilter === 'girl') return c.category === 'girl';
+        if (designGenderFilter === 'boy') return c.category === 'boy';
+        return true;
+      });
+    }
     return candidates;
-  }, [candidates, selectedCategory]);
+  }, [candidates, selectedCategory, designGenderFilter]);
 
   const getScoreForCandidate = (candidateId: string) => {
     return judgeScores.find((s) => s.judgeId === selectedJudgeId && s.candidateId === candidateId);
@@ -695,7 +703,7 @@ export default function JudgePortalPage() {
         </div>
       </div>
 
-      {/* 🔘 CATEGORY TOGGLE (MODERN FROSTED GLASS PILL WITH BEST DESIGN FILTER) */}
+      {/* 🔘 CATEGORY TOGGLE (MODERN FROSTED GLASS PILL WITH NOVERA LUXURY THEME) */}
       <div className="flex justify-center px-2 my-2">
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 sm:gap-2 w-full max-w-3xl p-1.5 rounded-2xl sm:rounded-full bg-black/50 backdrop-blur-xl border border-white/15 shadow-inner">
           <button
@@ -729,11 +737,11 @@ export default function JudgePortalPage() {
             onClick={() => setSelectedCategory('design')}
             className={`flex items-center justify-center gap-1.5 py-2.5 sm:py-3 px-3 rounded-xl sm:rounded-full text-xs sm:text-sm font-bold tracking-wider uppercase transition-all duration-200 cursor-pointer ${
               selectedCategory === 'design'
-                ? 'bg-gradient-to-r from-purple-500 via-pink-500 to-amber-400 text-black shadow-lg font-black'
-                : 'text-purple-300 hover:text-white hover:bg-purple-950/40 border border-purple-500/30'
+                ? 'bg-gradient-to-r from-novera-gold to-amber-500 text-black shadow-lg font-extrabold'
+                : 'text-zinc-400 hover:text-white hover:bg-white/10'
             }`}
           >
-            <Sparkles className={`w-3.5 h-3.5 shrink-0 ${selectedCategory === 'design' ? 'text-black' : 'text-purple-400 animate-pulse'}`} />
+            <Sparkles className={`w-3.5 h-3.5 shrink-0 ${selectedCategory === 'design' ? 'text-black' : 'text-novera-gold animate-pulse'}`} />
             <span>Best Design ({candidates.filter((c) => c.hasBestDesignEntry).length || 17})</span>
           </button>
 
@@ -751,6 +759,50 @@ export default function JudgePortalPage() {
           </button>
         </div>
       </div>
+
+      {/* 👗👔 SUB-FILTER FOR BEST DESIGN TAB (BOYS & GIRLS SEPARATE) */}
+      {selectedCategory === 'design' && (
+        <div className="flex justify-center px-2 mb-2 animate-in fade-in slide-in-from-top-1 duration-200">
+          <div className="inline-flex items-center p-1 rounded-2xl bg-black/60 border border-novera-gold/30 backdrop-blur-xl gap-1 shadow-md">
+            <span className="text-[10px] font-mono text-novera-gold uppercase tracking-wider font-bold px-2.5 hidden sm:inline-block">
+              Best Design Filter:
+            </span>
+            <button
+              type="button"
+              onClick={() => setDesignGenderFilter('all')}
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                designGenderFilter === 'all'
+                  ? 'bg-novera-gold text-black shadow-sm font-extrabold'
+                  : 'text-zinc-400 hover:text-white'
+              }`}
+            >
+              All Designs ({candidates.filter((c) => c.hasBestDesignEntry).length})
+            </button>
+            <button
+              type="button"
+              onClick={() => setDesignGenderFilter('girl')}
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                designGenderFilter === 'girl'
+                  ? 'bg-novera-gold text-black shadow-sm font-extrabold'
+                  : 'text-zinc-400 hover:text-white'
+              }`}
+            >
+              👗 Girls ({candidates.filter((c) => c.hasBestDesignEntry && c.category === 'girl').length})
+            </button>
+            <button
+              type="button"
+              onClick={() => setDesignGenderFilter('boy')}
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                designGenderFilter === 'boy'
+                  ? 'bg-novera-gold text-black shadow-sm font-extrabold'
+                  : 'text-zinc-400 hover:text-white'
+              }`}
+            >
+              👔 Boys ({candidates.filter((c) => c.hasBestDesignEntry && c.category === 'boy').length})
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* 🔍 QUICK SEARCH & RUNWAY CANDIDATE QUICK-JUMP BAR */}
       <div className="bg-black/40 backdrop-blur-xl border border-white/15 rounded-3xl p-3 sm:p-4 space-y-3">
@@ -906,42 +958,46 @@ export default function JudgePortalPage() {
                     </h3>
                   </button>
 
-                  {/* 🎨 Student Designer Registration Tag */}
-                  {candidate.hasBestDesignEntry && candidate.designerName ? (
-                    <div className="p-2.5 rounded-2xl bg-gradient-to-r from-purple-950/70 to-pink-950/50 border border-purple-500/40 text-purple-200 shadow-sm flex items-center justify-between gap-2">
-                      <div className="flex items-center gap-1.5 min-w-0">
-                        <Sparkles className="w-3.5 h-3.5 text-purple-400 shrink-0 animate-pulse" />
-                        <span className="text-[10px] font-mono uppercase tracking-wider text-purple-300/80">Designer:</span>
-                        <strong className="text-xs font-bold text-white truncate">{candidate.designerName}</strong>
+                  {/* 🎨 Student Designer Registration Tag - ONLY in Best Design tab */}
+                  {selectedCategory === 'design' && candidate.hasBestDesignEntry && candidate.designerName && (
+                    <div className="p-3 rounded-2xl bg-amber-950/40 border border-novera-gold/40 text-amber-200 shadow-sm flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <Sparkles className="w-4 h-4 text-novera-gold shrink-0" />
+                        <div className="min-w-0">
+                          <span className="text-[10px] font-mono uppercase tracking-wider text-amber-300/70 block leading-none">
+                            Student Designer
+                          </span>
+                          <strong className="text-sm font-bold text-white block pt-1">
+                            {candidate.designerName}
+                          </strong>
+                        </div>
                       </div>
-                      <span className="text-[9px] font-mono px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 uppercase tracking-wider shrink-0 border border-purple-500/40 font-bold">
+                      <span className="text-[9px] font-mono px-2 py-0.5 rounded-full bg-novera-gold/20 text-novera-gold uppercase tracking-wider shrink-0 border border-novera-gold/40 font-bold">
                         Best Design
                       </span>
-                    </div>
-                  ) : (
-                    <div className="px-2.5 py-1.5 rounded-xl bg-white/[0.03] border border-white/10 text-zinc-500 text-[10px] font-mono flex items-center justify-between">
-                      <span>Runway Model Only</span>
-                      <span className="text-zinc-600">No Student Design</span>
                     </div>
                   )}
 
                   {/* Scored Status / Summary */}
                   {isScored ? (
                     <div className="p-3.5 rounded-2xl bg-emerald-950/40 border border-emerald-500/30 text-[11px] space-y-1.5 shadow-sm text-white">
-                      <div className="flex justify-between items-center text-emerald-300 font-bold">
-                        <span className="flex items-center gap-1.5">
-                          <CheckCheck className="w-3.5 h-3.5 text-emerald-400" />
-                          <span>Model Runway Score:</span>
-                        </span>
-                        <span className="font-mono text-emerald-200 text-sm font-extrabold">{score.totalModel}/100</span>
-                      </div>
-                      <div className="flex justify-between items-center text-amber-300 font-bold border-t border-white/10 pt-1.5">
-                        <span className="flex items-center gap-1.5">
-                          <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-                          <span>Student Design Score:</span>
-                        </span>
-                        <span className="font-mono text-amber-200 text-sm font-extrabold">{score.totalDesign ?? 0}/100</span>
-                      </div>
+                      {selectedCategory === 'design' ? (
+                        <div className="flex justify-between items-center text-amber-300 font-bold">
+                          <span className="flex items-center gap-1.5">
+                            <Sparkles className="w-3.5 h-3.5 text-novera-gold" />
+                            <span>Student Design Score:</span>
+                          </span>
+                          <span className="font-mono text-amber-200 text-sm font-extrabold">{score.totalDesign ?? 0}/100</span>
+                        </div>
+                      ) : (
+                        <div className="flex justify-between items-center text-emerald-300 font-bold">
+                          <span className="flex items-center gap-1.5">
+                            <CheckCheck className="w-3.5 h-3.5 text-emerald-400" />
+                            <span>Model Runway Score:</span>
+                          </span>
+                          <span className="font-mono text-emerald-200 text-sm font-extrabold">{score.totalModel}/100</span>
+                        </div>
+                      )}
                     </div>
                   ) : (
                     <div className="py-2.5 px-3 rounded-xl bg-white/5 border border-white/10 text-center">
@@ -956,10 +1012,10 @@ export default function JudgePortalPage() {
                 {selectedCategory === 'design' ? (
                   <button
                     onClick={() => openScoringModal(candidate, 'design')}
-                    className={`w-full py-3 rounded-2xl text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-all relative overflow-hidden group/btn shadow-md ${
+                    className={`w-full py-3 rounded-2xl text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-all relative overflow-hidden group/btn shadow-md cursor-pointer ${
                       score && (score.totalDesign ?? 0) > 0
-                        ? 'bg-purple-900/40 hover:bg-purple-900/60 text-purple-200 border border-purple-400/50 backdrop-blur-md'
-                        : 'bg-gradient-to-r from-purple-500 via-pink-500 to-amber-400 text-black font-black hover:brightness-110 shadow-lg'
+                        ? 'bg-amber-950/60 hover:bg-amber-950/80 text-amber-200 border border-novera-gold/50 backdrop-blur-md'
+                        : 'bg-gradient-to-r from-[#d4af37] via-[#f3e5ab] to-[#aa7c11] text-black font-extrabold hover:brightness-110 shadow-lg'
                     }`}
                   >
                     <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover/btn:translate-x-full transition-transform duration-700 pointer-events-none" />
@@ -967,34 +1023,18 @@ export default function JudgePortalPage() {
                     <span>{score && (score.totalDesign ?? 0) > 0 ? `Update Design (${score.totalDesign}/100)` : 'Evaluate Student Design'}</span>
                   </button>
                 ) : (
-                  <div className="flex items-center gap-2">
-                    <button
-                      onClick={() => openScoringModal(candidate, 'model')}
-                      className={`flex-1 py-3 rounded-2xl text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-all relative overflow-hidden group/btn shadow-md ${
-                        isScored
-                          ? 'bg-white/10 hover:bg-white/20 text-white border border-white/20 backdrop-blur-md'
-                          : 'bg-gradient-to-r from-[#d4af37] via-[#f3e5ab] to-[#aa7c11] text-black font-extrabold hover:brightness-110 shadow-lg'
-                      }`}
-                    >
-                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover/btn:translate-x-full transition-transform duration-700 pointer-events-none" />
-                      <Sliders className="w-3.5 h-3.5 group-hover/btn:rotate-45 transition-transform" />
-                      <span>{isScored ? 'Update Model' : 'Score Model'}</span>
-                    </button>
-                    {candidate.hasBestDesignEntry && (
-                      <button
-                        onClick={() => openScoringModal(candidate, 'design')}
-                        className={`px-3 py-3 rounded-2xl text-xs font-bold transition-all border shrink-0 flex items-center gap-1.5 cursor-pointer ${
-                          score && (score.totalDesign ?? 0) > 0
-                            ? 'bg-purple-950/60 border-purple-500/50 text-purple-300 hover:border-purple-400 shadow-sm'
-                            : 'bg-purple-600/25 hover:bg-purple-600/40 border-purple-500/50 text-purple-200'
-                        }`}
-                        title={`Score Student Design for Designer ${candidate.designerName}`}
-                      >
-                        <Sparkles className="w-3.5 h-3.5 text-purple-400" />
-                        <span className="hidden sm:inline">Design</span>
-                      </button>
-                    )}
-                  </div>
+                  <button
+                    onClick={() => openScoringModal(candidate, 'model')}
+                    className={`w-full py-3 rounded-2xl text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-all relative overflow-hidden group/btn shadow-md cursor-pointer ${
+                      isScored
+                        ? 'bg-white/10 hover:bg-white/20 text-white border border-white/20 backdrop-blur-md'
+                        : 'bg-gradient-to-r from-[#d4af37] via-[#f3e5ab] to-[#aa7c11] text-black font-extrabold hover:brightness-110 shadow-lg'
+                    }`}
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover/btn:translate-x-full transition-transform duration-700 pointer-events-none" />
+                    <Sliders className="w-3.5 h-3.5 group-hover/btn:rotate-45 transition-transform" />
+                    <span>{isScored ? 'Update Marks' : 'Evaluate & Score'}</span>
+                  </button>
                 )}
               </div>
             );
@@ -1203,7 +1243,7 @@ export default function JudgePortalPage() {
                     <div className="text-[9px] sm:text-[10px] font-mono uppercase tracking-widest text-novera-gold font-bold truncate leading-tight flex items-center gap-1.5 flex-wrap">
                       <span>#{scoringCandidate.candidateNumber} &bull; {scoringCandidate.category === 'boy' ? 'Male' : 'Female'}</span>
                       {scoringCandidate.hasBestDesignEntry && scoringCandidate.designerName && (
-                        <span className="text-[9px] px-1.5 py-0.2 rounded-md bg-purple-500/30 text-purple-200 font-mono font-bold border border-purple-400/40">
+                        <span className="text-[9px] px-2 py-0.5 rounded-md bg-amber-950/60 text-amber-200 font-mono font-bold border border-novera-gold/40">
                           🎨 Designer: {scoringCandidate.designerName}
                         </span>
                       )}
@@ -1245,8 +1285,8 @@ export default function JudgePortalPage() {
                       !scoringCandidate.hasBestDesignEntry
                         ? 'opacity-40 cursor-not-allowed text-zinc-500'
                         : scorecardTab === 'design'
-                        ? 'bg-gradient-to-r from-purple-500 via-pink-500 to-amber-400 text-black font-extrabold shadow-sm'
-                        : 'text-purple-300 hover:text-white'
+                        ? 'bg-gradient-to-r from-novera-gold to-amber-400 text-black font-extrabold shadow-sm'
+                        : 'text-zinc-300 hover:text-white'
                     }`}
                     title={
                       scoringCandidate.hasBestDesignEntry
@@ -1258,7 +1298,7 @@ export default function JudgePortalPage() {
                     <span>Design</span>
                     {scoringCandidate.hasBestDesignEntry ? (
                       <span className={`px-1 sm:px-1.5 py-0.2 rounded-full text-[9px] sm:text-[10px] font-mono font-bold ${
-                        scorecardTab === 'design' ? 'bg-black/30 text-black' : 'bg-purple-950/80 text-purple-200 border border-purple-500/30'
+                        scorecardTab === 'design' ? 'bg-black/30 text-black' : 'bg-white/10 text-amber-300'
                       }`}>
                         {totalDesign}
                       </span>
@@ -1591,9 +1631,9 @@ export default function JudgePortalPage() {
 
                 {/* 🎨 Student Designer Registration */}
                 {inspectCandidate.hasBestDesignEntry && inspectCandidate.designerName ? (
-                  <div className="p-3.5 rounded-2xl bg-gradient-to-r from-purple-950/60 to-pink-950/40 border border-purple-500/40 space-y-1">
-                    <div className="flex items-center gap-1.5 text-purple-300 text-[10px] font-mono uppercase tracking-wider font-bold">
-                      <Sparkles className="w-3.5 h-3.5 text-purple-400 animate-pulse" />
+                  <div className="p-3.5 rounded-2xl bg-amber-950/40 border border-novera-gold/40 text-amber-200 space-y-1 shadow-sm">
+                    <div className="flex items-center gap-1.5 text-amber-300 text-[10px] font-mono uppercase tracking-wider font-bold">
+                      <Sparkles className="w-3.5 h-3.5 text-novera-gold animate-pulse" />
                       <span>Best Design (Students) Entry</span>
                     </div>
                     <div className="flex items-center justify-between text-xs sm:text-sm pt-0.5">

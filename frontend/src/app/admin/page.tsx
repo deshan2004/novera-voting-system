@@ -2665,7 +2665,7 @@ export default function AdminLeaderboardPage() {
                                       Candidate No: {winnerBoy?.candidate.candidateNumber || 'N/A'}
                                     </span>
                                     {award.key === 'design' && winnerBoy?.candidate.designerName && (
-                                      <span className="text-[10px] font-bold text-purple-300 font-mono px-1.5 py-0.2 rounded bg-purple-950/60 border border-purple-500/40">
+                                      <span className="text-[10px] font-bold text-amber-200 font-mono px-1.5 py-0.2 rounded bg-amber-950/60 border border-novera-gold/40">
                                         🎨 Designer: {winnerBoy.candidate.designerName}
                                       </span>
                                     )}
@@ -2709,7 +2709,7 @@ export default function AdminLeaderboardPage() {
                                       Candidate No: {winnerGirl?.candidate.candidateNumber || 'N/A'}
                                     </span>
                                     {award.key === 'design' && winnerGirl?.candidate.designerName && (
-                                      <span className="text-[10px] font-bold text-purple-300 font-mono px-1.5 py-0.2 rounded bg-purple-950/60 border border-purple-500/40">
+                                      <span className="text-[10px] font-bold text-amber-200 font-mono px-1.5 py-0.2 rounded bg-amber-950/60 border border-novera-gold/40">
                                         🎨 Designer: {winnerGirl.candidate.designerName}
                                       </span>
                                     )}
