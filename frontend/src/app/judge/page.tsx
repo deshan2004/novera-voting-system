@@ -708,7 +708,7 @@ export default function JudgePortalPage() {
             }`}
           >
             <Crown className={`w-3.5 h-3.5 shrink-0 ${selectedCategory === 'girl' ? 'text-black' : 'text-novera-gold'}`} />
-            <span>Girls (16)</span>
+            <span>Girls ({candidates.filter((c) => c.category === 'girl').length || 16})</span>
           </button>
 
           <button
@@ -721,7 +721,7 @@ export default function JudgePortalPage() {
             }`}
           >
             <Crown className={`w-3.5 h-3.5 shrink-0 ${selectedCategory === 'boy' ? 'text-black' : 'text-novera-gold'}`} />
-            <span>Boys (8)</span>
+            <span>Boys ({candidates.filter((c) => c.category === 'boy').length || 8})</span>
           </button>
 
           <button
@@ -734,7 +734,7 @@ export default function JudgePortalPage() {
             }`}
           >
             <Sparkles className={`w-3.5 h-3.5 shrink-0 ${selectedCategory === 'design' ? 'text-black' : 'text-purple-400 animate-pulse'}`} />
-            <span>Best Design (18)</span>
+            <span>Best Design ({candidates.filter((c) => c.hasBestDesignEntry).length || 17})</span>
           </button>
 
           <button
@@ -747,7 +747,7 @@ export default function JudgePortalPage() {
             }`}
           >
             <Crown className={`w-3.5 h-3.5 shrink-0 ${selectedCategory === 'all' ? 'text-black' : 'text-novera-gold'}`} />
-            <span>All (24)</span>
+            <span>All ({candidates.length || 24})</span>
           </button>
         </div>
       </div>

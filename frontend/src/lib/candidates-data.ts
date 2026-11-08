@@ -4,7 +4,7 @@ import { Candidate } from './types';
  * Official Contenders Roster for NOVERA ’26 Haute Couture Fashion Runway
  * Synchronized with the Official Model Registration Database & Student Designers Registry
  * Total: 8 Male Models (M-01 to M-08) & 16 Female Models (F-01 to F-16)
- * Best Design (Students) Contenders: 18 total (16 Girls + 2 Boys)
+ * Best Design (Students) Contenders: 17 total (16 Girls + 1 Boy)
  */
 export const INITIAL_CANDIDATES: Candidate[] = [
   // ==========================================
@@ -31,13 +31,12 @@ export const INITIAL_CANDIDATES: Candidate[] = [
     bio: "Classic formal posture with sharp cinematic presence and refined catwalk stride.",
     imageUrl: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=800&q=80',
     votes: 0,
-    designerName: "Manurie",
-    hasBestDesignEntry: true,
+    hasBestDesignEntry: false,
   },
   {
     id: 'boy-3',
     candidateNumber: 'M-03',
-    name: "Dineth Sewmira",
+    name: "Dineth Sewmina",
     category: 'boy',
     age: 23,
     bio: "Passionate about the fashion industry and expressing contemporary style with commanding confidence.",
@@ -59,7 +58,7 @@ export const INITIAL_CANDIDATES: Candidate[] = [
   {
     id: 'boy-5',
     candidateNumber: 'M-05',
-    name: "Thashi Jajakodi",
+    name: "Tashin Jayakodi",
     category: 'boy',
     age: 21,
     bio: "Clean contemporary aesthetics with energetic runway pace and bold modern silhouette.",
@@ -70,7 +69,7 @@ export const INITIAL_CANDIDATES: Candidate[] = [
   {
     id: 'boy-6',
     candidateNumber: 'M-06',
-    name: "Chanula Wijerathna",
+    name: "Chanula Wijayarathne",
     category: 'boy',
     age: 23,
     bio: "Expressive catwalk style, fusing modern luxury tailoring with confident runway turns.",
@@ -81,7 +80,7 @@ export const INITIAL_CANDIDATES: Candidate[] = [
   {
     id: 'boy-7',
     candidateNumber: 'M-07',
-    name: "Chenuth Perera",
+    name: "Chanuth Perera",
     category: 'boy',
     age: 22,
     bio: "Charismatic runway contender with sculpted posture and effortless stage presence.",
@@ -252,7 +251,7 @@ export const INITIAL_CANDIDATES: Candidate[] = [
   {
     id: 'girl-13',
     candidateNumber: 'F-13',
-    name: "Januliy Randula",
+    name: "Januly Randula",
     category: 'girl',
     age: 24,
     bio: "Genuine passion towards fashion, elegant silhouettes, and runway expression.",

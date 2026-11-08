@@ -23,26 +23,26 @@ public class VotingService {
     }
 
     private void initSeedCandidates() {
-        // Boys (M-01 to M-08) - 2 with Student Designer entry (Sandesh & Sudarshan)
+        // Boys (M-01 to M-08) - Only M-01 (Sandesh Kawya) has Student Designer entry
         addCandidate(new Candidate("boy-1", "M-01", "Sandesh Kawya", "boy", 21,
                 "Ambitious and confident runway contender with great potential and dedication to high fashion.",
                 "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=800&q=80", 0, "Sithmi", true));
         addCandidate(new Candidate("boy-2", "M-02", "Shanthakumar Sudarshan", "boy", 22,
                 "Classic formal posture with sharp cinematic presence and refined catwalk stride.",
-                "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=800&q=80", 0, "Manurie", true));
-        addCandidate(new Candidate("boy-3", "M-03", "Dineth Sewmira", "boy", 23,
+                "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=800&q=80", 0, null, false));
+        addCandidate(new Candidate("boy-3", "M-03", "Dineth Sewmina", "boy", 23,
                 "Passionate about the fashion industry and expressing contemporary style with commanding confidence.",
                 "https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?auto=format&fit=crop&w=800&q=80", 0, null, false));
         addCandidate(new Candidate("boy-4", "M-04", "Kaveesha Dahanaka", "boy", 22,
                 "Dynamic runway presence showcasing elegance, poise, and high-fashion aura.",
                 "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=800&q=80", 0, null, false));
-        addCandidate(new Candidate("boy-5", "M-05", "Thashi Jajakodi", "boy", 21,
+        addCandidate(new Candidate("boy-5", "M-05", "Tashin Jayakodi", "boy", 21,
                 "Clean contemporary aesthetics with energetic runway pace and bold modern silhouette.",
                 "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=800&q=80", 0, null, false));
-        addCandidate(new Candidate("boy-6", "M-06", "Chanula Wijerathna", "boy", 23,
+        addCandidate(new Candidate("boy-6", "M-06", "Chanula Wijayarathne", "boy", 23,
                 "Expressive catwalk style, fusing modern luxury tailoring with confident runway turns.",
                 "https://images.unsplash.com/photo-1499996860823-5214fcc65f8f?auto=format&fit=crop&w=800&q=80", 0, null, false));
-        addCandidate(new Candidate("boy-7", "M-07", "Chenuth Perera", "boy", 22,
+        addCandidate(new Candidate("boy-7", "M-07", "Chanuth Perera", "boy", 22,
                 "Charismatic runway contender with sculpted posture and effortless stage presence.",
                 "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=800&q=80", 0, null, false));
         addCandidate(new Candidate("boy-8", "M-08", "Dulaj Thashentha", "boy", 21,
@@ -86,7 +86,7 @@ public class VotingService {
         addCandidate(new Candidate("girl-12", "F-12", "Chathurya Jayani", "girl", 22,
                 "Dynamic catwalk walker showcasing high-contrast styling and confident elegance.",
                 "https://images.unsplash.com/photo-1492106087820-71aa1df4a77b?auto=format&fit=crop&w=800&q=80", 0, "Chathurya", true));
-        addCandidate(new Candidate("girl-13", "F-13", "Januliy Randula", "girl", 24,
+        addCandidate(new Candidate("girl-13", "F-13", "Januly Randula", "girl", 24,
                 "Genuine passion towards fashion, elegant silhouettes, and runway expression.",
                 "https://images.unsplash.com/photo-1516726817505-f5ed825624d8?auto=format&fit=crop&w=800&q=80", 0, "Nayomi", true));
         addCandidate(new Candidate("girl-14", "F-14", "Lahasi Rasoda", "girl", 20,
