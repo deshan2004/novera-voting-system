@@ -2,14 +2,15 @@ import { Candidate } from './types';
 
 /**
  * Official Contenders Roster for NOVERA ’26 Haute Couture Fashion Runway
- * Synchronized with the Official Model Registration Database & Student Designers Registry
- * Total: 27 Runway Models (16 Girls + 11 Boys)
- * Numbering: 01 to 15 (Girls), 16 to 24 (Boys), 25 (Girl), 26 to 27 (Boys)
- * Best Design (Students) Contenders: 13 total (12 Girls + 1 Boy)
+ * Synchronized with the Official Model Registration Database & Handwritten Final Sheet
+ * Total: 29 Runway Models (17 Females [F] + 12 Males [M])
+ * Female Models (F): 01 to 16, and 18 (Navini)
+ * Male Models (M): 17 (Sandesh), 19 (Surin), 20 (Avishka), 21 (Shaluka), 22 (Dulaj), 23 (Sadhurshan), 24 (Vivishka), 25 (Dushen), 26 (Dineth), 27 (Kaveesha), 28 (Tashin), 29 (Chanuth)
+ * Best Design (Students) Contenders: 13 total (12 Females + 1 Male: #17 Sandesh)
  */
 export const INITIAL_CANDIDATES: Candidate[] = [
   // ==========================================
-  // 👗 GIRLS (01 to 15)
+  // 👗 FEMALE MODELS [F] (01 to 16)
   // ==========================================
   {
     id: 'c-01',
@@ -26,7 +27,7 @@ export const INITIAL_CANDIDATES: Candidate[] = [
   {
     id: 'c-02',
     candidateNumber: '02',
-    name: "Ravini Thisandara",
+    name: "Ruvini Thisandara",
     category: 'girl',
     age: 22,
     bio: "Runway enthusiast combining poise, fluid motion, and bespoke haute couture style.",
@@ -38,17 +39,6 @@ export const INITIAL_CANDIDATES: Candidate[] = [
   {
     id: 'c-03',
     candidateNumber: '03',
-    name: "Kalpani",
-    category: 'girl',
-    age: 21,
-    bio: "Poised runway contender bringing refined grace, modern confidence, and runway elegance.",
-    imageUrl: 'https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?auto=format&fit=crop&w=800&q=80',
-    votes: 0,
-    hasBestDesignEntry: false,
-  },
-  {
-    id: 'c-04',
-    candidateNumber: '04',
     name: "Githmi Wickramarathne",
     category: 'girl',
     age: 20,
@@ -59,8 +49,8 @@ export const INITIAL_CANDIDATES: Candidate[] = [
     hasBestDesignEntry: true,
   },
   {
-    id: 'c-05',
-    candidateNumber: '05',
+    id: 'c-04',
+    candidateNumber: '04',
     name: "Tashini Nimnadi",
     category: 'girl',
     age: 21,
@@ -71,8 +61,8 @@ export const INITIAL_CANDIDATES: Candidate[] = [
     hasBestDesignEntry: true,
   },
   {
-    id: 'c-06',
-    candidateNumber: '06',
+    id: 'c-05',
+    candidateNumber: '05',
     name: "Sethuli Jayasekara",
     category: 'girl',
     age: 21,
@@ -83,19 +73,8 @@ export const INITIAL_CANDIDATES: Candidate[] = [
     hasBestDesignEntry: true,
   },
   {
-    id: 'c-07',
-    candidateNumber: '07',
-    name: "Chathurya Jayani",
-    category: 'girl',
-    age: 22,
-    bio: "Dynamic catwalk walker showcasing high-contrast styling and confident elegance.",
-    imageUrl: 'https://images.unsplash.com/photo-1492106087820-71aa1df4a77b?auto=format&fit=crop&w=800&q=80',
-    votes: 0,
-    hasBestDesignEntry: false,
-  },
-  {
-    id: 'c-08',
-    candidateNumber: '08',
+    id: 'c-06',
+    candidateNumber: '06',
     name: "Mandrie Bhawana",
     category: 'girl',
     age: 20,
@@ -106,8 +85,8 @@ export const INITIAL_CANDIDATES: Candidate[] = [
     hasBestDesignEntry: true,
   },
   {
-    id: 'c-09',
-    candidateNumber: '09',
+    id: 'c-07',
+    candidateNumber: '07',
     name: "Ovindi Akarsha",
     category: 'girl',
     age: 23,
@@ -118,8 +97,8 @@ export const INITIAL_CANDIDATES: Candidate[] = [
     hasBestDesignEntry: true,
   },
   {
-    id: 'c-10',
-    candidateNumber: '10',
+    id: 'c-08',
+    candidateNumber: '08',
     name: "Lumbini Vihara",
     category: 'girl',
     age: 21,
@@ -130,8 +109,8 @@ export const INITIAL_CANDIDATES: Candidate[] = [
     hasBestDesignEntry: true,
   },
   {
-    id: 'c-11',
-    candidateNumber: '11',
+    id: 'c-09',
+    candidateNumber: '09',
     name: "Januly Randula",
     category: 'girl',
     age: 24,
@@ -142,8 +121,8 @@ export const INITIAL_CANDIDATES: Candidate[] = [
     hasBestDesignEntry: true,
   },
   {
-    id: 'c-12',
-    candidateNumber: '12',
+    id: 'c-10',
+    candidateNumber: '10',
     name: "Lahasi Rasoda",
     category: 'girl',
     age: 20,
@@ -154,8 +133,8 @@ export const INITIAL_CANDIDATES: Candidate[] = [
     hasBestDesignEntry: true,
   },
   {
-    id: 'c-13',
-    candidateNumber: '13',
+    id: 'c-11',
+    candidateNumber: '11',
     name: "Dinithi",
     category: 'girl',
     age: 21,
@@ -166,8 +145,8 @@ export const INITIAL_CANDIDATES: Candidate[] = [
     hasBestDesignEntry: true,
   },
   {
-    id: 'c-14',
-    candidateNumber: '14',
+    id: 'c-12',
+    candidateNumber: '12',
     name: "Sineli",
     category: 'girl',
     age: 22,
@@ -178,8 +157,8 @@ export const INITIAL_CANDIDATES: Candidate[] = [
     hasBestDesignEntry: true,
   },
   {
-    id: 'c-15',
-    candidateNumber: '15',
+    id: 'c-13',
+    candidateNumber: '13',
     name: "Minuthi",
     category: 'girl',
     age: 21,
@@ -188,13 +167,46 @@ export const INITIAL_CANDIDATES: Candidate[] = [
     votes: 0,
     hasBestDesignEntry: false,
   },
-
-  // ==========================================
-  // 👔 BOYS (16 to 24)
-  // ==========================================
+  {
+    id: 'c-14',
+    candidateNumber: '14',
+    name: "Kalpani",
+    category: 'girl',
+    age: 21,
+    bio: "Poised runway contender bringing refined grace, modern confidence, and runway elegance.",
+    imageUrl: 'https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?auto=format&fit=crop&w=800&q=80',
+    votes: 0,
+    hasBestDesignEntry: false,
+  },
+  {
+    id: 'c-15',
+    candidateNumber: '15',
+    name: "Chathurya Jayani",
+    category: 'girl',
+    age: 22,
+    bio: "Dynamic catwalk walker showcasing high-contrast styling and confident elegance.",
+    imageUrl: 'https://images.unsplash.com/photo-1492106087820-71aa1df4a77b?auto=format&fit=crop&w=800&q=80',
+    votes: 0,
+    hasBestDesignEntry: false,
+  },
   {
     id: 'c-16',
     candidateNumber: '16',
+    name: "Sashi",
+    category: 'girl',
+    age: 21,
+    bio: "Charming runway contender displaying expressive catwalk poise and elegant style.",
+    imageUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=800&q=80',
+    votes: 0,
+    hasBestDesignEntry: false,
+  },
+
+  // ==========================================
+  // 👔 MALE MODEL [M] (17 - Sandesh Kawya, Best Design Entry)
+  // ==========================================
+  {
+    id: 'c-17',
+    candidateNumber: '17',
     name: "Sandesh Kawya",
     category: 'boy',
     age: 21,
@@ -204,101 +216,13 @@ export const INITIAL_CANDIDATES: Candidate[] = [
     designerName: "Sithmi",
     hasBestDesignEntry: true,
   },
-  {
-    id: 'c-17',
-    candidateNumber: '17',
-    name: "Shaluka",
-    category: 'boy',
-    age: 22,
-    bio: "Casual & Alankari runway style contender bringing vibrant energy, charisma, and effortless poise.",
-    imageUrl: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=800&q=80',
-    votes: 0,
-    hasBestDesignEntry: false,
-  },
+
+  // ==========================================
+  // 👑 KANDYAN SEGMENT (18 [F], 19 [M], 20 [M])
+  // ==========================================
   {
     id: 'c-18',
     candidateNumber: '18',
-    name: "Dulaj Thashentha",
-    category: 'boy',
-    age: 21,
-    bio: "Dedicated to representing NOVERA with confidence, style, and professional runway technique.",
-    imageUrl: 'https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?auto=format&fit=crop&w=800&q=80',
-    votes: 0,
-    hasBestDesignEntry: false,
-  },
-  {
-    id: 'c-19',
-    candidateNumber: '19',
-    name: "Shanthakumar Sudarshan",
-    category: 'boy',
-    age: 22,
-    bio: "Classic formal posture with sharp cinematic presence and refined catwalk stride.",
-    imageUrl: 'https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?auto=format&fit=crop&w=800&q=80',
-    votes: 0,
-    hasBestDesignEntry: false,
-  },
-  {
-    id: 'c-20',
-    candidateNumber: '20',
-    name: "Dineth Sewmina",
-    category: 'boy',
-    age: 23,
-    bio: "Passionate about the fashion industry and expressing contemporary style with commanding confidence.",
-    imageUrl: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=800&q=80',
-    votes: 0,
-    hasBestDesignEntry: false,
-  },
-  {
-    id: 'c-21',
-    candidateNumber: '21',
-    name: "Kaveesha Dahanaka",
-    category: 'boy',
-    age: 22,
-    bio: "Dynamic runway presence showcasing elegance, poise, and high-fashion aura.",
-    imageUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=800&q=80',
-    votes: 0,
-    hasBestDesignEntry: false,
-  },
-  {
-    id: 'c-22',
-    candidateNumber: '22',
-    name: "Tashin Jayakodi",
-    category: 'boy',
-    age: 21,
-    bio: "Clean contemporary aesthetics with energetic runway pace and bold modern silhouette.",
-    imageUrl: 'https://images.unsplash.com/photo-1499996860823-5214fcc65f8f?auto=format&fit=crop&w=800&q=80',
-    votes: 0,
-    hasBestDesignEntry: false,
-  },
-  {
-    id: 'c-23',
-    candidateNumber: '23',
-    name: "Chanuth Perera",
-    category: 'boy',
-    age: 22,
-    bio: "Charismatic runway contender with sculpted posture and effortless stage presence.",
-    imageUrl: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=800&q=80',
-    votes: 0,
-    hasBestDesignEntry: false,
-  },
-  {
-    id: 'c-24',
-    candidateNumber: '24',
-    name: "Chanula Wijayarathne",
-    category: 'boy',
-    age: 23,
-    bio: "Expressive catwalk style, fusing modern luxury tailoring with confident runway turns.",
-    imageUrl: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=800&q=80',
-    votes: 0,
-    hasBestDesignEntry: false,
-  },
-
-  // ==========================================
-  // 👗 GIRL (25 - Special Entry from Kandyan Segment)
-  // ==========================================
-  {
-    id: 'c-25',
-    candidateNumber: '25',
     name: "Navini",
     category: 'girl',
     age: 22,
@@ -307,13 +231,9 @@ export const INITIAL_CANDIDATES: Candidate[] = [
     votes: 0,
     hasBestDesignEntry: false,
   },
-
-  // ==========================================
-  // 👔 BOYS (26 to 27 - Kandyan Segment)
-  // ==========================================
   {
-    id: 'c-26',
-    candidateNumber: '26',
+    id: 'c-19',
+    candidateNumber: '19',
     name: "Surin",
     category: 'boy',
     age: 23,
@@ -323,13 +243,120 @@ export const INITIAL_CANDIDATES: Candidate[] = [
     hasBestDesignEntry: false,
   },
   {
-    id: 'c-27',
-    candidateNumber: '27',
+    id: 'c-20',
+    candidateNumber: '20',
     name: "Avishka",
     category: 'boy',
     age: 22,
     bio: "Distinguished stage presence blending traditional stature with contemporary high-fashion elegance.",
-    imageUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=800&q=80',
+    imageUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=800&q=80',
+    votes: 0,
+    hasBestDesignEntry: false,
+  },
+
+  // ==========================================
+  // 👔 CASUAL / ALANKARI SEGMENT [M] (21 to 25)
+  // ==========================================
+  {
+    id: 'c-21',
+    candidateNumber: '21',
+    name: "Shaluka",
+    category: 'boy',
+    age: 22,
+    bio: "Casual & Alankari runway style contender bringing vibrant energy, charisma, and effortless poise.",
+    imageUrl: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=800&q=80',
+    votes: 0,
+    hasBestDesignEntry: false,
+  },
+  {
+    id: 'c-22',
+    candidateNumber: '22',
+    name: "Dulaj Thashentha",
+    category: 'boy',
+    age: 21,
+    bio: "Dedicated to representing NOVERA with confidence, style, and professional runway technique.",
+    imageUrl: 'https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?auto=format&fit=crop&w=800&q=80',
+    votes: 0,
+    hasBestDesignEntry: false,
+  },
+  {
+    id: 'c-23',
+    candidateNumber: '23',
+    name: "Shanthakumar Sudarshan",
+    category: 'boy',
+    age: 22,
+    bio: "Classic formal posture with sharp cinematic presence and refined catwalk stride.",
+    imageUrl: 'https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?auto=format&fit=crop&w=800&q=80',
+    votes: 0,
+    hasBestDesignEntry: false,
+  },
+  {
+    id: 'c-24',
+    candidateNumber: '24',
+    name: "Vivishka",
+    category: 'boy',
+    age: 21,
+    bio: "Fresh casual contemporary look with vibrant cadence and strong stage personality.",
+    imageUrl: 'https://images.unsplash.com/photo-1499996860823-5214fcc65f8f?auto=format&fit=crop&w=800&q=80',
+    votes: 0,
+    hasBestDesignEntry: false,
+  },
+  {
+    id: 'c-25',
+    candidateNumber: '25',
+    name: "Dushen",
+    category: 'boy',
+    age: 22,
+    bio: "Dynamic Alankari collection contender with confident stage aura and poised runway presentation.",
+    imageUrl: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=800&q=80',
+    votes: 0,
+    hasBestDesignEntry: false,
+  },
+
+  // ==========================================
+  // 👔 BLAZER SEGMENT - RANJITH [M] (26 to 29)
+  // ==========================================
+  {
+    id: 'c-26',
+    candidateNumber: '26',
+    name: "Dineth Sewmina",
+    category: 'boy',
+    age: 23,
+    bio: "Passionate about the fashion industry and expressing contemporary style with commanding confidence.",
+    imageUrl: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=800&q=80',
+    votes: 0,
+    hasBestDesignEntry: false,
+  },
+  {
+    id: 'c-27',
+    candidateNumber: '27',
+    name: "Kaveesha Dahanaka",
+    category: 'boy',
+    age: 22,
+    bio: "Dynamic runway presence showcasing elegance, poise, and high-fashion aura.",
+    imageUrl: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=800&q=80',
+    votes: 0,
+    hasBestDesignEntry: false,
+  },
+  {
+    id: 'c-28',
+    candidateNumber: '28',
+    name: "Tashin Jayakodi",
+    category: 'boy',
+    age: 21,
+    bio: "Clean contemporary aesthetics with energetic runway pace and bold modern silhouette.",
+    imageUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=800&q=80',
+    votes: 0,
+    hasBestDesignEntry: false,
+  },
+  {
+    id: 'c-29',
+    candidateNumber: '29',
+    name: "Chanuth Perera",
+    category: 'boy',
+    age: 22,
+    bio: "Charismatic runway contender with sculpted posture and effortless stage presence.",
+    imageUrl: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=800&q=80',
     votes: 0,
     hasBestDesignEntry: false,
   },

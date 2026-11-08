@@ -720,7 +720,7 @@ export default function JudgePortalPage() {
             }`}>
               <Crown className="w-3.5 h-3.5" />
             </div>
-            <span>Girls ({candidates.filter((c) => c.category === 'girl').length || 16})</span>
+            <span>Girls ({candidates.filter((c) => c.category === 'girl').length || 17})</span>
           </button>
 
           <button
@@ -737,7 +737,7 @@ export default function JudgePortalPage() {
             }`}>
               <Shirt className="w-3.5 h-3.5" />
             </div>
-            <span>Boys ({candidates.filter((c) => c.category === 'boy').length || 11})</span>
+            <span>Boys ({candidates.filter((c) => c.category === 'boy').length || 12})</span>
           </button>
 
           <button
@@ -771,7 +771,7 @@ export default function JudgePortalPage() {
             }`}>
               <Layers className="w-3.5 h-3.5" />
             </div>
-            <span>All ({candidates.length || 27})</span>
+            <span>All ({candidates.length || 29})</span>
           </button>
         </div>
       </div>
