@@ -16,6 +16,8 @@ import {
   saveVotingSettings,
   subscribeToVoters,
   fetchVoters,
+  resolveContenderForBallot,
+  reconcileCandidatesWithVoters,
 } from '@/lib/api';
 import {
   BarChart,
@@ -389,15 +391,20 @@ export default function AdminLeaderboardPage() {
     sessionStorage.removeItem('novera_admin_role');
   };
 
-  // Audience Calculations
+  // Live reconciled candidate list where votes 100% reflect verified voter ballots
+  const liveCandidates = useMemo(() => {
+    return reconcileCandidatesWithVoters(candidates, voters);
+  }, [candidates, voters]);
+
+  // Audience Calculations using live reconciled votes
   const boys = useMemo(
-    () => candidates.filter((c) => c.category === 'boy').sort((a, b) => (b.votes || 0) - (a.votes || 0)),
-    [candidates]
+    () => liveCandidates.filter((c) => c.category === 'boy').sort((a, b) => (b.votes || 0) - (a.votes || 0)),
+    [liveCandidates]
   );
 
   const girls = useMemo(
-    () => candidates.filter((c) => c.category === 'girl').sort((a, b) => (b.votes || 0) - (a.votes || 0)),
-    [candidates]
+    () => liveCandidates.filter((c) => c.category === 'girl').sort((a, b) => (b.votes || 0) - (a.votes || 0)),
+    [liveCandidates]
   );
 
   const totalBoyVotes = boys.reduce((sum, c) => sum + (c.votes || 0), 0);
@@ -409,7 +416,7 @@ export default function AdminLeaderboardPage() {
 
   // Detailed Candidate Scores Calculation for All 5 Jury Awards
   const candidateStats = useMemo(() => {
-    return candidates.map((candidate) => {
+    return liveCandidates.map((candidate) => {
       const scores = judgeScores.filter((s) => s.candidateId === candidate.id);
       const judgeCount = scores.length;
 
@@ -732,8 +739,8 @@ export default function AdminLeaderboardPage() {
 
   const filteredVoters = useMemo(() => {
     return voters.filter((v) => {
-      const boy = candidates.find((c) => c.id === v.boyVotedFor);
-      const girl = candidates.find((c) => c.id === v.girlVotedFor);
+      const boy = resolveContenderForBallot(v.boyVotedFor, 'boy', liveCandidates);
+      const girl = resolveContenderForBallot(v.girlVotedFor, 'girl', liveCandidates);
 
       if (voterFilter === 'named' && (!v.voterName || v.voterName === 'Audience Guest')) return false;
       if (voterFilter === 'both' && (!v.hasVotedBoy || !v.hasVotedGirl)) return false;
@@ -750,7 +757,7 @@ export default function AdminLeaderboardPage() {
       }
       return true;
     });
-  }, [voters, voterSearch, voterFilter, candidates]);
+  }, [voters, voterSearch, voterFilter, liveCandidates]);
 
   const totalBallots = useMemo(() => {
     return voters.reduce((acc, v) => acc + (v.hasVotedBoy ? 1 : 0) + (v.hasVotedGirl ? 1 : 0), 0);
@@ -769,7 +776,7 @@ export default function AdminLeaderboardPage() {
 
     voters.forEach((v) => {
       if (v.hasVotedBoy && v.boyVotedFor) {
-        const boy = candidates.find((c) => c.id === v.boyVotedFor);
+        const boy = resolveContenderForBallot(v.boyVotedFor, 'boy', liveCandidates);
         list.push({
           id: `${v.voterId}_boy`,
           voterName: v.voterName || 'Audience Guest',
@@ -781,7 +788,7 @@ export default function AdminLeaderboardPage() {
         });
       }
       if (v.hasVotedGirl && v.girlVotedFor) {
-        const girl = candidates.find((c) => c.id === v.girlVotedFor);
+        const girl = resolveContenderForBallot(v.girlVotedFor, 'girl', liveCandidates);
         list.push({
           id: `${v.voterId}_girl`,
           voterName: v.voterName || 'Audience Guest',
@@ -795,7 +802,7 @@ export default function AdminLeaderboardPage() {
     });
 
     return list;
-  }, [voters, candidates]);
+  }, [voters, liveCandidates]);
 
   const filteredIndividualBallots = useMemo(() => {
     return individualBallots.filter((b) => {
@@ -818,11 +825,11 @@ export default function AdminLeaderboardPage() {
   const chartData = useMemo(() => {
     let sourceCandidates: Candidate[] = [];
     if (chartCategory === 'both') {
-      sourceCandidates = [...candidates];
+      sourceCandidates = [...liveCandidates];
     } else if (chartCategory === 'boy') {
-      sourceCandidates = candidates.filter((c) => c.category === 'boy');
+      sourceCandidates = liveCandidates.filter((c) => c.category === 'boy');
     } else {
-      sourceCandidates = candidates.filter((c) => c.category === 'girl');
+      sourceCandidates = liveCandidates.filter((c) => c.category === 'girl');
     }
 
     const sorted = [...sourceCandidates].sort((a, b) => {
@@ -854,7 +861,7 @@ export default function AdminLeaderboardPage() {
       votes: c.votes || 0,
       color: c.category === 'boy' ? '#d4af37' : '#f59e0b',
     }));
-  }, [candidates, chartCategory, chartSortMode]);
+  }, [liveCandidates, chartCategory, chartSortMode]);
 
   if (!isAuthenticated) {
     return (

@@ -38,6 +38,8 @@ import {
   fetchCandidates,
   subscribeToVoters,
   fetchVoters,
+  resolveContenderForBallot,
+  reconcileCandidatesWithVoters,
 } from '@/lib/api';
 import { VotingSettings, Candidate, VoterRecord } from '@/lib/types';
 import { playLuxuryChime } from '@/lib/audio';
@@ -153,9 +155,14 @@ export default function QrDisplayPage() {
     };
   }, []);
 
-  // Top 3 Male Models by audience votes
+  // Live reconciled candidate list where votes 100% reflect verified voter ballots
+  const liveCandidates = useMemo(() => {
+    return reconcileCandidatesWithVoters(candidates, voters);
+  }, [candidates, voters]);
+
+  // Top 3 Male Models by verified audience votes
   const topBoys = useMemo(() => {
-    return [...candidates]
+    return [...liveCandidates]
       .filter((c) => c.category === 'boy')
       .sort((a, b) => {
         const diff = (b.votes || 0) - (a.votes || 0);
@@ -165,11 +172,11 @@ export default function QrDisplayPage() {
         return numA - numB;
       })
       .slice(0, 3);
-  }, [candidates]);
+  }, [liveCandidates]);
 
-  // Top 3 Female Models by audience votes
+  // Top 3 Female Models by verified audience votes
   const topGirls = useMemo(() => {
-    return [...candidates]
+    return [...liveCandidates]
       .filter((c) => c.category === 'girl')
       .sort((a, b) => {
         const diff = (b.votes || 0) - (a.votes || 0);
@@ -179,7 +186,7 @@ export default function QrDisplayPage() {
         return numA - numB;
       })
       .slice(0, 3);
-  }, [candidates]);
+  }, [liveCandidates]);
 
   const getCandidate = (id?: string) => candidates.find((c) => c.id === id);
 

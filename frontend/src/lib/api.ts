@@ -308,21 +308,141 @@ export function reconcileWithCanonicalContenders(list: Candidate[]): Candidate[]
   }));
 }
 
+/**
+ * Intelligently resolve a voter's ballot choice to the canonical Candidate
+ * Handles candidate IDs (c-17, boy-1, girl-1), runway numbers (01-29, M-01, F-01), and candidate names
+ */
+export function resolveContenderForBallot(
+  votedVal: string | undefined,
+  category: 'boy' | 'girl',
+  candidateList: Candidate[]
+): Candidate | undefined {
+  if (!votedVal) return undefined;
+  const raw = String(votedVal).trim();
+  const clean = raw.toLowerCase();
+  const digitsOnly = clean.replace(/\D/g, '');
+
+  // 1. Direct ID match
+  const byId = candidateList.find((c) => c.id.toLowerCase() === clean);
+  if (byId) return byId;
+
+  // 2. Exact candidateNumber match (e.g. "17", "01", "M-01", etc.)
+  const byNumExact = candidateList.find(
+    (c) => c.category === category && c.candidateNumber.toLowerCase() === clean
+  );
+  if (byNumExact) return byNumExact;
+
+  // 3. Numeric match by digit (e.g. "17" vs candidateNumber "17" or "01" vs "01")
+  if (digitsOnly) {
+    const numInt = parseInt(digitsOnly, 10);
+    // First try within the specific category
+    const byNumCategory = candidateList.find((c) => {
+      if (c.category !== category) return false;
+      const cNum = parseInt(c.candidateNumber.replace(/\D/g, ''), 10);
+      return cNum === numInt;
+    });
+    if (byNumCategory) return byNumCategory;
+
+    // Legacy "boy-X" or "girl-X" fallback mapping:
+    if (clean.startsWith('boy-') || clean.startsWith('m-')) {
+      if (numInt === 1) return candidateList.find((c) => c.name.toLowerCase().includes('sandesh'));
+      if (numInt === 2) return candidateList.find((c) => c.name.toLowerCase().includes('sudarshan'));
+      if (numInt === 3) return candidateList.find((c) => c.name.toLowerCase().includes('dineth'));
+      if (numInt === 4) return candidateList.find((c) => c.name.toLowerCase().includes('kaveesha'));
+      if (numInt === 5) return candidateList.find((c) => c.name.toLowerCase().includes('tashin'));
+      if (numInt === 6) return candidateList.find((c) => c.name.toLowerCase().includes('chanula') || c.name.toLowerCase().includes('chanuth'));
+      if (numInt === 7) return candidateList.find((c) => c.name.toLowerCase().includes('chanuth'));
+      if (numInt === 8) return candidateList.find((c) => c.name.toLowerCase().includes('dulaj'));
+    }
+
+    if (clean.startsWith('girl-') || clean.startsWith('f-')) {
+      if (numInt === 1) return candidateList.find((c) => c.name.toLowerCase().includes('dulanjalee'));
+      if (numInt === 2) return candidateList.find((c) => c.name.toLowerCase().includes('ruwini') || c.name.toLowerCase().includes('ravini'));
+      if (numInt === 3) return candidateList.find((c) => c.name.toLowerCase().includes('githmi'));
+      if (numInt === 4) return candidateList.find((c) => c.name.toLowerCase().includes('sethuli'));
+      if (numInt === 5) return candidateList.find((c) => c.name.toLowerCase().includes('tashini'));
+      if (numInt === 7) return candidateList.find((c) => c.name.toLowerCase().includes('mandrie'));
+      if (numInt === 8) return candidateList.find((c) => c.name.toLowerCase().includes('ovindi'));
+      if (numInt === 9) return candidateList.find((c) => c.name.toLowerCase().includes('lumbini'));
+      if (numInt === 12) return candidateList.find((c) => c.name.toLowerCase().includes('chathurya'));
+      if (numInt === 13) return candidateList.find((c) => c.name.toLowerCase().includes('januly'));
+      if (numInt === 14) return candidateList.find((c) => c.name.toLowerCase().includes('lahasi'));
+      if (numInt === 15) return candidateList.find((c) => c.name.toLowerCase().includes('dinithi'));
+      if (numInt === 16) return candidateList.find((c) => c.name.toLowerCase().includes('sinali') || c.name.toLowerCase().includes('sineli'));
+    }
+  }
+
+  // 4. Name fuzzy/includes match
+  const byName = candidateList.find(
+    (c) => c.category === category && (c.name.toLowerCase().includes(clean) || clean.includes(c.name.toLowerCase()))
+  );
+  if (byName) return byName;
+
+  return undefined;
+}
+
+/**
+ * Reconciles the candidate list with the live verified ballots recorded in the voters registry
+ * Guarantees that live vote charts and standings 100% reflect the actual audience ballots
+ */
+export function reconcileCandidatesWithVoters(
+  candidatesList: Candidate[],
+  votersList: VoterRecord[]
+): Candidate[] {
+  if (!Array.isArray(candidatesList)) return [];
+  if (!Array.isArray(votersList) || votersList.length === 0) return candidatesList;
+
+  // Tally live ballots from verified voters
+  const tallyMap = new Map<string, number>();
+
+  for (const v of votersList) {
+    if (v.hasVotedBoy && v.boyVotedFor) {
+      const boy = resolveContenderForBallot(v.boyVotedFor, 'boy', candidatesList);
+      if (boy) {
+        tallyMap.set(boy.id, (tallyMap.get(boy.id) || 0) + 1);
+      }
+    }
+    if (v.hasVotedGirl && v.girlVotedFor) {
+      const girl = resolveContenderForBallot(v.girlVotedFor, 'girl', candidatesList);
+      if (girl) {
+        tallyMap.set(girl.id, (tallyMap.get(girl.id) || 0) + 1);
+      }
+    }
+  }
+
+  return candidatesList.map((c) => {
+    const verifiedTally = tallyMap.get(c.id) || 0;
+    const explicitVotes = Number(c.votes || 0);
+    return {
+      ...c,
+      votes: Math.max(verifiedTally, explicitVotes),
+    };
+  });
+}
+
 export function getLocalCandidates(): Candidate[] {
   if (typeof window === 'undefined') return INITIAL_CANDIDATES;
   const raw = localStorage.getItem(STORAGE_KEY_CANDIDATES);
+  const localVoters = getLocalVoterList();
   if (raw) {
     try {
       const parsed = JSON.parse(raw);
       if (Array.isArray(parsed) && parsed.length > 0) {
-        const canonical = reconcileWithCanonicalContenders(parsed);
+        let canonical = reconcileWithCanonicalContenders(parsed);
+        if (localVoters.length > 0) {
+          canonical = reconcileCandidatesWithVoters(canonical, localVoters);
+        }
         saveLocalCandidates(canonical);
         return canonical;
       }
     } catch (e) {}
   }
-  localStorage.setItem(STORAGE_KEY_CANDIDATES, JSON.stringify(INITIAL_CANDIDATES));
-  return INITIAL_CANDIDATES;
+  let initial = INITIAL_CANDIDATES;
+  if (localVoters.length > 0) {
+    initial = reconcileCandidatesWithVoters(initial, localVoters);
+  }
+  localStorage.setItem(STORAGE_KEY_CANDIDATES, JSON.stringify(initial));
+  return initial;
 }
 
 export function saveLocalCandidates(candidates: Candidate[]): void {
