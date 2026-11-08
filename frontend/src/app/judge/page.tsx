@@ -703,102 +703,121 @@ export default function JudgePortalPage() {
         </div>
       </div>
 
-      {/* 🔘 CATEGORY TOGGLE (MODERN FROSTED GLASS PILL WITH NOVERA LUXURY THEME) */}
+      {/* 🔘 CATEGORY TOGGLE (MODERN FROSTED GLASS PILL WITH NOVERA LUXURY THEME & INTERACTIVE ICONS) */}
       <div className="flex justify-center px-2 my-2">
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 sm:gap-2 w-full max-w-3xl p-1.5 rounded-2xl sm:rounded-full bg-black/50 backdrop-blur-xl border border-white/15 shadow-inner">
           <button
             type="button"
             onClick={() => setSelectedCategory('girl')}
-            className={`flex items-center justify-center gap-1.5 py-2.5 sm:py-3 px-3 rounded-xl sm:rounded-full text-xs sm:text-sm font-bold tracking-wider uppercase transition-all duration-200 cursor-pointer ${
+            className={`group flex items-center justify-center gap-2 py-2.5 sm:py-3 px-3 rounded-xl sm:rounded-full text-xs sm:text-sm font-bold tracking-wider uppercase transition-all duration-300 cursor-pointer ${
               selectedCategory === 'girl'
-                ? 'bg-gradient-to-r from-novera-gold to-amber-500 text-black shadow-lg font-extrabold'
+                ? 'bg-gradient-to-r from-novera-gold via-amber-400 to-amber-500 text-black shadow-[0_0_20px_rgba(212,175,55,0.4)] font-extrabold'
                 : 'text-zinc-400 hover:text-white hover:bg-white/10'
             }`}
           >
-            <Crown className={`w-3.5 h-3.5 shrink-0 ${selectedCategory === 'girl' ? 'text-black' : 'text-novera-gold'}`} />
+            <div className={`w-5 h-5 rounded-lg flex items-center justify-center transition-transform duration-300 group-hover:scale-110 group-hover:rotate-6 ${
+              selectedCategory === 'girl' ? 'bg-black/20 text-black' : 'bg-white/5 text-amber-400'
+            }`}>
+              <Crown className="w-3.5 h-3.5" />
+            </div>
             <span>Girls ({candidates.filter((c) => c.category === 'girl').length || 16})</span>
           </button>
 
           <button
             type="button"
             onClick={() => setSelectedCategory('boy')}
-            className={`flex items-center justify-center gap-1.5 py-2.5 sm:py-3 px-3 rounded-xl sm:rounded-full text-xs sm:text-sm font-bold tracking-wider uppercase transition-all duration-200 cursor-pointer ${
+            className={`group flex items-center justify-center gap-2 py-2.5 sm:py-3 px-3 rounded-xl sm:rounded-full text-xs sm:text-sm font-bold tracking-wider uppercase transition-all duration-300 cursor-pointer ${
               selectedCategory === 'boy'
-                ? 'bg-gradient-to-r from-novera-gold to-amber-500 text-black shadow-lg font-extrabold'
+                ? 'bg-gradient-to-r from-novera-gold via-amber-400 to-amber-500 text-black shadow-[0_0_20px_rgba(212,175,55,0.4)] font-extrabold'
                 : 'text-zinc-400 hover:text-white hover:bg-white/10'
             }`}
           >
-            <Crown className={`w-3.5 h-3.5 shrink-0 ${selectedCategory === 'boy' ? 'text-black' : 'text-novera-gold'}`} />
+            <div className={`w-5 h-5 rounded-lg flex items-center justify-center transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-6 ${
+              selectedCategory === 'boy' ? 'bg-black/20 text-black' : 'bg-white/5 text-amber-400'
+            }`}>
+              <Shirt className="w-3.5 h-3.5" />
+            </div>
             <span>Boys ({candidates.filter((c) => c.category === 'boy').length || 8})</span>
           </button>
 
           <button
             type="button"
             onClick={() => setSelectedCategory('design')}
-            className={`flex items-center justify-center gap-1.5 py-2.5 sm:py-3 px-3 rounded-xl sm:rounded-full text-xs sm:text-sm font-bold tracking-wider uppercase transition-all duration-200 cursor-pointer ${
+            className={`group flex items-center justify-center gap-2 py-2.5 sm:py-3 px-3 rounded-xl sm:rounded-full text-xs sm:text-sm font-bold tracking-wider uppercase transition-all duration-300 cursor-pointer ${
               selectedCategory === 'design'
-                ? 'bg-gradient-to-r from-novera-gold to-amber-500 text-black shadow-lg font-extrabold'
+                ? 'bg-gradient-to-r from-novera-gold via-amber-400 to-amber-500 text-black shadow-[0_0_20px_rgba(212,175,55,0.4)] font-extrabold'
                 : 'text-zinc-400 hover:text-white hover:bg-white/10'
             }`}
           >
-            <Sparkles className={`w-3.5 h-3.5 shrink-0 ${selectedCategory === 'design' ? 'text-black' : 'text-novera-gold animate-pulse'}`} />
+            <div className={`w-5 h-5 rounded-lg flex items-center justify-center transition-transform duration-300 group-hover:scale-110 group-hover:rotate-12 ${
+              selectedCategory === 'design' ? 'bg-black/20 text-black' : 'bg-white/5 text-amber-400'
+            }`}>
+              <Palette className="w-3.5 h-3.5" />
+            </div>
             <span>Best Design ({candidates.filter((c) => c.hasBestDesignEntry).length || 17})</span>
           </button>
 
           <button
             type="button"
             onClick={() => setSelectedCategory('all')}
-            className={`flex items-center justify-center gap-1.5 py-2.5 sm:py-3 px-3 rounded-xl sm:rounded-full text-xs sm:text-sm font-bold tracking-wider uppercase transition-all duration-200 cursor-pointer ${
+            className={`group flex items-center justify-center gap-2 py-2.5 sm:py-3 px-3 rounded-xl sm:rounded-full text-xs sm:text-sm font-bold tracking-wider uppercase transition-all duration-300 cursor-pointer ${
               selectedCategory === 'all'
-                ? 'bg-gradient-to-r from-novera-gold to-amber-500 text-black shadow-lg font-extrabold'
+                ? 'bg-gradient-to-r from-novera-gold via-amber-400 to-amber-500 text-black shadow-[0_0_20px_rgba(212,175,55,0.4)] font-extrabold'
                 : 'text-zinc-400 hover:text-white hover:bg-white/10'
             }`}
           >
-            <Crown className={`w-3.5 h-3.5 shrink-0 ${selectedCategory === 'all' ? 'text-black' : 'text-novera-gold'}`} />
+            <div className={`w-5 h-5 rounded-lg flex items-center justify-center transition-transform duration-300 group-hover:scale-110 ${
+              selectedCategory === 'all' ? 'bg-black/20 text-black' : 'bg-white/5 text-amber-400'
+            }`}>
+              <Layers className="w-3.5 h-3.5" />
+            </div>
             <span>All ({candidates.length || 24})</span>
           </button>
         </div>
       </div>
 
-      {/* 👗👔 SUB-FILTER FOR BEST DESIGN TAB (BOYS & GIRLS SEPARATE) */}
+      {/* 👗👔 SUB-FILTER FOR BEST DESIGN TAB (BOYS & GIRLS SEPARATE WITH MODERN ICONS) */}
       {selectedCategory === 'design' && (
         <div className="flex justify-center px-2 mb-2 animate-in fade-in slide-in-from-top-1 duration-200">
           <div className="inline-flex items-center p-1 rounded-2xl bg-black/60 border border-novera-gold/30 backdrop-blur-xl gap-1 shadow-md">
             <span className="text-[10px] font-mono text-novera-gold uppercase tracking-wider font-bold px-2.5 hidden sm:inline-block">
-              Best Design Filter:
+              Filter Runway:
             </span>
             <button
               type="button"
               onClick={() => setDesignGenderFilter('all')}
-              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+              className={`group/sub flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                 designGenderFilter === 'all'
                   ? 'bg-novera-gold text-black shadow-sm font-extrabold'
                   : 'text-zinc-400 hover:text-white'
               }`}
             >
-              All Designs ({candidates.filter((c) => c.hasBestDesignEntry).length})
+              <Layers className="w-3.5 h-3.5 transition-transform group-hover/sub:scale-110" />
+              <span>All Designs ({candidates.filter((c) => c.hasBestDesignEntry).length})</span>
             </button>
             <button
               type="button"
               onClick={() => setDesignGenderFilter('girl')}
-              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+              className={`group/sub flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                 designGenderFilter === 'girl'
                   ? 'bg-novera-gold text-black shadow-sm font-extrabold'
                   : 'text-zinc-400 hover:text-white'
               }`}
             >
-              👗 Girls ({candidates.filter((c) => c.hasBestDesignEntry && c.category === 'girl').length})
+              <Crown className="w-3.5 h-3.5 transition-transform group-hover/sub:scale-110 group-hover/sub:rotate-6 text-amber-300" />
+              <span>Girls ({candidates.filter((c) => c.hasBestDesignEntry && c.category === 'girl').length})</span>
             </button>
             <button
               type="button"
               onClick={() => setDesignGenderFilter('boy')}
-              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+              className={`group/sub flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                 designGenderFilter === 'boy'
                   ? 'bg-novera-gold text-black shadow-sm font-extrabold'
                   : 'text-zinc-400 hover:text-white'
               }`}
             >
-              👔 Boys ({candidates.filter((c) => c.hasBestDesignEntry && c.category === 'boy').length})
+              <Shirt className="w-3.5 h-3.5 transition-transform group-hover/sub:scale-110 group-hover/sub:-rotate-6 text-amber-300" />
+              <span>Boys ({candidates.filter((c) => c.hasBestDesignEntry && c.category === 'boy').length})</span>
             </button>
           </div>
         </div>
@@ -927,14 +946,18 @@ export default function JudgePortalPage() {
                     <button
                       type="button"
                       onClick={() => setInspectCandidate(candidate)}
-                      className="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-novera-gold/25 to-amber-500/20 border-2 border-novera-gold/70 text-novera-gold font-mono text-base font-black tracking-wider whitespace-nowrap shadow-sm hover:scale-105 active:scale-95 transition-all cursor-pointer flex items-center gap-1.5"
+                      className="group/num px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-novera-gold/20 via-amber-500/15 to-transparent border-2 border-novera-gold/70 text-novera-gold font-mono text-base font-black tracking-wider whitespace-nowrap shadow-sm hover:border-novera-gold hover:shadow-[0_0_15px_rgba(212,175,55,0.4)] hover:scale-105 active:scale-95 transition-all cursor-pointer flex items-center gap-1.5"
                       title="Click to view full specifications & details"
                     >
                       <span>{candidate.candidateNumber}</span>
-                      <Info className="w-3.5 h-3.5 opacity-60" />
+                      <Eye className="w-3.5 h-3.5 opacity-70 group-hover/num:opacity-100 group-hover/num:scale-110 transition-all text-amber-300" />
                     </button>
-                    <span className="text-[11px] font-mono uppercase tracking-widest text-zinc-300 font-semibold px-2.5 py-1 rounded-full bg-white/5 border border-white/10 whitespace-nowrap">
-                      {candidate.category === 'boy' ? 'Male Model' : 'Female Model'}
+                    <span className="text-[11px] font-mono uppercase tracking-widest text-zinc-300 font-semibold px-2.5 py-1 rounded-full bg-white/5 border border-white/10 whitespace-nowrap flex items-center gap-1.5">
+                      <span className="relative flex h-1.5 w-1.5">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-amber-400"></span>
+                      </span>
+                      <span>{candidate.category === 'boy' ? 'Male Model' : 'Female Model'}</span>
                     </span>
                   </div>
 
@@ -960,20 +983,23 @@ export default function JudgePortalPage() {
 
                   {/* 🎨 Student Designer Registration Tag - ONLY in Best Design tab */}
                   {selectedCategory === 'design' && candidate.hasBestDesignEntry && candidate.designerName && (
-                    <div className="p-3 rounded-2xl bg-amber-950/40 border border-novera-gold/40 text-amber-200 shadow-sm flex items-center justify-between gap-2">
-                      <div className="flex items-center gap-2 min-w-0">
-                        <Sparkles className="w-4 h-4 text-novera-gold shrink-0" />
+                    <div className="p-3 rounded-2xl bg-gradient-to-r from-amber-950/50 via-black/40 to-amber-900/30 border border-novera-gold/40 text-amber-200 shadow-md flex items-center justify-between gap-2.5 transition-all group-hover:border-novera-gold/80">
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-amber-400/25 to-amber-950/60 border border-amber-400/50 flex items-center justify-center shrink-0 shadow-[0_0_12px_rgba(212,175,55,0.3)] group-hover:scale-110 transition-transform duration-300">
+                          <Scissors className="w-4 h-4 text-amber-300 group-hover:rotate-45 transition-transform duration-300" />
+                        </div>
                         <div className="min-w-0">
-                          <span className="text-[10px] font-mono uppercase tracking-wider text-amber-300/70 block leading-none">
+                          <span className="text-[9px] font-mono uppercase tracking-widest text-amber-300/70 block leading-tight">
                             Student Designer
                           </span>
-                          <strong className="text-sm font-bold text-white block pt-1">
+                          <strong className="text-sm font-bold text-white block pt-0.5 truncate">
                             {candidate.designerName}
                           </strong>
                         </div>
                       </div>
-                      <span className="text-[9px] font-mono px-2 py-0.5 rounded-full bg-novera-gold/20 text-novera-gold uppercase tracking-wider shrink-0 border border-novera-gold/40 font-bold">
-                        Best Design
+                      <span className="text-[9px] font-mono px-2 py-0.5 rounded-full bg-novera-gold/20 text-amber-300 uppercase tracking-wider shrink-0 border border-novera-gold/40 font-bold flex items-center gap-1 shadow-xs">
+                        <Sparkles className="w-2.5 h-2.5 text-amber-300 animate-spin" style={{ animationDuration: '4s' }} />
+                        <span>Best Design</span>
                       </span>
                     </div>
                   )}
@@ -1012,27 +1038,27 @@ export default function JudgePortalPage() {
                 {selectedCategory === 'design' ? (
                   <button
                     onClick={() => openScoringModal(candidate, 'design')}
-                    className={`w-full py-3 rounded-2xl text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-all relative overflow-hidden group/btn shadow-md cursor-pointer ${
+                    className={`w-full py-3 rounded-2xl text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-all relative overflow-hidden group/btn shadow-md active:scale-[0.98] cursor-pointer ${
                       score && (score.totalDesign ?? 0) > 0
-                        ? 'bg-amber-950/60 hover:bg-amber-950/80 text-amber-200 border border-novera-gold/50 backdrop-blur-md'
+                        ? 'bg-amber-950/60 hover:bg-amber-950/80 text-amber-200 border border-novera-gold/50 backdrop-blur-md shadow-[0_0_20px_rgba(212,175,55,0.2)]'
                         : 'bg-gradient-to-r from-[#d4af37] via-[#f3e5ab] to-[#aa7c11] text-black font-extrabold hover:brightness-110 shadow-lg'
                     }`}
                   >
-                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover/btn:translate-x-full transition-transform duration-700 pointer-events-none" />
-                    <Sparkles className="w-3.5 h-3.5 group-hover/btn:rotate-45 transition-transform" />
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/25 to-transparent -translate-x-full group-hover/btn:translate-x-full transition-transform duration-700 pointer-events-none" />
+                    <Palette className="w-4 h-4 group-hover/btn:rotate-12 group-hover/btn:scale-125 transition-all duration-300 shrink-0" />
                     <span>{score && (score.totalDesign ?? 0) > 0 ? `Update Design (${score.totalDesign}/100)` : 'Evaluate Student Design'}</span>
                   </button>
                 ) : (
                   <button
                     onClick={() => openScoringModal(candidate, 'model')}
-                    className={`w-full py-3 rounded-2xl text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-all relative overflow-hidden group/btn shadow-md cursor-pointer ${
+                    className={`w-full py-3 rounded-2xl text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-all relative overflow-hidden group/btn shadow-md active:scale-[0.98] cursor-pointer ${
                       isScored
-                        ? 'bg-white/10 hover:bg-white/20 text-white border border-white/20 backdrop-blur-md'
+                        ? 'bg-white/10 hover:bg-white/20 text-white border border-white/20 backdrop-blur-md shadow-[0_0_15px_rgba(255,255,255,0.08)]'
                         : 'bg-gradient-to-r from-[#d4af37] via-[#f3e5ab] to-[#aa7c11] text-black font-extrabold hover:brightness-110 shadow-lg'
                     }`}
                   >
-                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover/btn:translate-x-full transition-transform duration-700 pointer-events-none" />
-                    <Sliders className="w-3.5 h-3.5 group-hover/btn:rotate-45 transition-transform" />
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/25 to-transparent -translate-x-full group-hover/btn:translate-x-full transition-transform duration-700 pointer-events-none" />
+                    <Sliders className="w-4 h-4 group-hover/btn:rotate-90 group-hover/btn:scale-125 transition-all duration-300 shrink-0" />
                     <span>{isScored ? 'Update Marks' : 'Evaluate & Score'}</span>
                   </button>
                 )}
@@ -1394,15 +1420,24 @@ export default function JudgePortalPage() {
               <div className="flex-1 min-h-0 overflow-y-auto novera-scrollbar p-2 sm:p-4 space-y-2 overscroll-contain">
                 {(scorecardTab === 'model' ? criteriaList : designCriteriaList).map((crit) => {
                   const IconComponent = crit.icon;
+                  const hasPoints = (crit.val ?? 0) > 0;
                   return (
                     <div
                       key={crit.id}
-                      className="p-2 sm:p-2.5 rounded-xl sm:rounded-2xl bg-white/[0.04] border border-white/10 hover:border-novera-gold/40 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 sm:gap-3"
+                      className={`p-2 sm:p-2.5 rounded-xl sm:rounded-2xl transition-all duration-300 flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 sm:gap-3 group/crit ${
+                        hasPoints
+                          ? 'bg-amber-500/[0.07] border border-novera-gold/40 shadow-[0_0_15px_rgba(212,175,55,0.06)]'
+                          : 'bg-white/[0.04] border border-white/10 hover:border-novera-gold/30'
+                      }`}
                     >
                       {/* Title & Max */}
                       <div className="flex items-center gap-2 min-w-0">
-                        <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-lg bg-amber-500/15 border border-amber-500/30 flex items-center justify-center shrink-0">
-                          <IconComponent className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-amber-300" />
+                        <div className={`w-7 h-7 sm:w-8 sm:h-8 rounded-xl flex items-center justify-center shrink-0 transition-transform duration-300 group-hover/crit:scale-110 group-hover/crit:rotate-6 ${
+                          hasPoints
+                            ? 'bg-gradient-to-br from-novera-gold/30 to-amber-600/30 border border-novera-gold/60 text-amber-300 shadow-[0_0_10px_rgba(212,175,55,0.25)]'
+                            : 'bg-white/5 border border-white/10 text-zinc-400 group-hover/crit:text-amber-300'
+                        }`}>
+                          <IconComponent className="w-3.5 h-3.5 sm:w-4 sm:h-4 transition-transform" />
                         </div>
                         <div className="min-w-0 flex-1">
                           <div className="flex items-baseline justify-between sm:justify-start gap-1.5">
