@@ -976,31 +976,29 @@ export default function JudgePortalPage() {
                         View Details &rarr;
                       </span>
                     </div>
-                    <h3 className="font-serif text-xl sm:text-2xl font-black text-white group-hover/name:text-amber-200 transition-colors leading-tight break-words">
+                    <h3 className="font-serif text-lg sm:text-xl font-black text-white group-hover/name:text-amber-200 transition-colors leading-snug break-words">
                       {candidate.name}
                     </h3>
                   </button>
 
                   {/* 🎨 Student Designer Registration Tag - ONLY in Best Design tab */}
                   {selectedCategory === 'design' && candidate.hasBestDesignEntry && candidate.designerName && (
-                    <div className="p-3 rounded-2xl bg-gradient-to-r from-amber-950/50 via-black/40 to-amber-900/30 border border-novera-gold/40 text-amber-200 shadow-md flex items-center justify-between gap-2.5 transition-all group-hover:border-novera-gold/80">
-                      <div className="flex items-center gap-2.5 min-w-0">
-                        <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-amber-400/25 to-amber-950/60 border border-amber-400/50 flex items-center justify-center shrink-0 shadow-[0_0_12px_rgba(212,175,55,0.3)] group-hover:scale-110 transition-transform duration-300">
-                          <Scissors className="w-4 h-4 text-amber-300 group-hover:rotate-45 transition-transform duration-300" />
-                        </div>
-                        <div className="min-w-0">
-                          <span className="text-[9px] font-mono uppercase tracking-widest text-amber-300/70 block leading-tight">
-                            Student Designer
-                          </span>
-                          <strong className="text-sm font-bold text-white block pt-0.5 truncate">
-                            {candidate.designerName}
-                          </strong>
-                        </div>
+                    <div className="p-3 rounded-2xl bg-gradient-to-br from-amber-950/70 via-black/80 to-amber-900/50 border border-novera-gold/60 text-amber-200 shadow-lg space-y-1.5 transition-all group-hover:border-novera-gold group-hover:shadow-[0_0_15px_rgba(212,175,55,0.25)]">
+                      <div className="flex items-center justify-between gap-1.5 pb-1 border-b border-novera-gold/20">
+                        <span className="text-[10px] font-mono uppercase tracking-widest text-amber-300/90 font-bold flex items-center gap-1.5">
+                          <Scissors className="w-3.5 h-3.5 text-amber-300" />
+                          <span>Student Designer</span>
+                        </span>
+                        <span className="text-[9px] font-mono px-2 py-0.5 rounded-full bg-novera-gold/20 text-amber-300 uppercase tracking-wider border border-novera-gold/40 font-bold flex items-center gap-1 shrink-0">
+                          <Sparkles className="w-2.5 h-2.5 text-amber-300 animate-spin" style={{ animationDuration: '4s' }} />
+                          <span>Design</span>
+                        </span>
                       </div>
-                      <span className="text-[9px] font-mono px-2 py-0.5 rounded-full bg-novera-gold/20 text-amber-300 uppercase tracking-wider shrink-0 border border-novera-gold/40 font-bold flex items-center gap-1 shadow-xs">
-                        <Sparkles className="w-2.5 h-2.5 text-amber-300 animate-spin" style={{ animationDuration: '4s' }} />
-                        <span>Best Design</span>
-                      </span>
+                      <div className="pt-0.5">
+                        <strong className="font-serif text-base sm:text-lg font-bold text-amber-100 block leading-tight break-words">
+                          {candidate.designerName}
+                        </strong>
+                      </div>
                     </div>
                   )}
 
