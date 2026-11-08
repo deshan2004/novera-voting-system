@@ -721,7 +721,7 @@ export default function VotePage() {
                     }
                   }}
                   placeholder="Name (Optional)"
-                  className="w-full pl-10 pr-4 py-2.5 rounded-2xl bg-black/60 border border-white/15 text-white placeholder-zinc-500 text-xs sm:text-sm focus:outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400/40 transition-all font-sans shadow-inner"
+                  className="w-full pl-10 pr-4 py-2.5 rounded-2xl bg-black/60 border border-white/15 text-white placeholder-zinc-500 text-base focus:outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400/40 transition-all font-sans shadow-inner"
                 />
               </div>
             </div>
