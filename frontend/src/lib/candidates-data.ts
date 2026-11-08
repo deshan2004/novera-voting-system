@@ -2,8 +2,9 @@ import { Candidate } from './types';
 
 /**
  * Official Contenders Roster for NOVERA ’26 Haute Couture Fashion Runway
- * Synchronized with the Official Model Registration Database
+ * Synchronized with the Official Model Registration Database & Student Designers Registry
  * Total: 8 Male Models (M-01 to M-08) & 16 Female Models (F-01 to F-16)
+ * Best Design (Students) Contenders: 18 total (16 Girls + 2 Boys)
  */
 export const INITIAL_CANDIDATES: Candidate[] = [
   // ==========================================
@@ -18,6 +19,8 @@ export const INITIAL_CANDIDATES: Candidate[] = [
     bio: "Ambitious and confident runway contender with great potential and dedication to high fashion.",
     imageUrl: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=800&q=80',
     votes: 0,
+    designerName: "Sithmi",
+    hasBestDesignEntry: true,
   },
   {
     id: 'boy-2',
@@ -28,6 +31,8 @@ export const INITIAL_CANDIDATES: Candidate[] = [
     bio: "Classic formal posture with sharp cinematic presence and refined catwalk stride.",
     imageUrl: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=800&q=80',
     votes: 0,
+    designerName: "Manurie",
+    hasBestDesignEntry: true,
   },
   {
     id: 'boy-3',
@@ -38,6 +43,7 @@ export const INITIAL_CANDIDATES: Candidate[] = [
     bio: "Passionate about the fashion industry and expressing contemporary style with commanding confidence.",
     imageUrl: 'https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?auto=format&fit=crop&w=800&q=80',
     votes: 0,
+    hasBestDesignEntry: false,
   },
   {
     id: 'boy-4',
@@ -48,6 +54,7 @@ export const INITIAL_CANDIDATES: Candidate[] = [
     bio: "Dynamic runway presence showcasing elegance, poise, and high-fashion aura.",
     imageUrl: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=800&q=80',
     votes: 0,
+    hasBestDesignEntry: false,
   },
   {
     id: 'boy-5',
@@ -58,6 +65,7 @@ export const INITIAL_CANDIDATES: Candidate[] = [
     bio: "Clean contemporary aesthetics with energetic runway pace and bold modern silhouette.",
     imageUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=800&q=80',
     votes: 0,
+    hasBestDesignEntry: false,
   },
   {
     id: 'boy-6',
@@ -68,6 +76,7 @@ export const INITIAL_CANDIDATES: Candidate[] = [
     bio: "Expressive catwalk style, fusing modern luxury tailoring with confident runway turns.",
     imageUrl: 'https://images.unsplash.com/photo-1499996860823-5214fcc65f8f?auto=format&fit=crop&w=800&q=80',
     votes: 0,
+    hasBestDesignEntry: false,
   },
   {
     id: 'boy-7',
@@ -78,6 +87,7 @@ export const INITIAL_CANDIDATES: Candidate[] = [
     bio: "Charismatic runway contender with sculpted posture and effortless stage presence.",
     imageUrl: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=800&q=80',
     votes: 0,
+    hasBestDesignEntry: false,
   },
   {
     id: 'boy-8',
@@ -88,10 +98,12 @@ export const INITIAL_CANDIDATES: Candidate[] = [
     bio: "Dedicated to representing NOVERA with confidence, style, and professional runway technique.",
     imageUrl: 'https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?auto=format&fit=crop&w=800&q=80',
     votes: 0,
+    hasBestDesignEntry: false,
   },
 
   // ==========================================
   // 👗 FEMALE CANDIDATES (GIRLS: F-01 to F-16)
+  // All 16 participate in Best Design (Students)
   // ==========================================
   {
     id: 'girl-1',
@@ -102,6 +114,8 @@ export const INITIAL_CANDIDATES: Candidate[] = [
     bio: "Passionate about high fashion and expressing individuality with elegance on the runway.",
     imageUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=800&q=80',
     votes: 0,
+    designerName: "Banura Maneesha",
+    hasBestDesignEntry: true,
   },
   {
     id: 'girl-2',
@@ -112,6 +126,8 @@ export const INITIAL_CANDIDATES: Candidate[] = [
     bio: "Runway enthusiast combining poise, fluid motion, and bespoke haute couture style.",
     imageUrl: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=800&q=80',
     votes: 0,
+    designerName: "Pramudi",
+    hasBestDesignEntry: true,
   },
   {
     id: 'girl-3',
@@ -122,6 +138,8 @@ export const INITIAL_CANDIDATES: Candidate[] = [
     bio: "Graceful pacing and vibrant stage energy bringing modern luxury to life.",
     imageUrl: 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=800&q=80',
     votes: 0,
+    designerName: "Elisa",
+    hasBestDesignEntry: true,
   },
   {
     id: 'girl-4',
@@ -132,6 +150,8 @@ export const INITIAL_CANDIDATES: Candidate[] = [
     bio: "Striking runway presence, high-concept fashion silhouette, and effortless charm.",
     imageUrl: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=800&q=80',
     votes: 0,
+    designerName: "Sethuli",
+    hasBestDesignEntry: true,
   },
   {
     id: 'girl-5',
@@ -142,6 +162,8 @@ export const INITIAL_CANDIDATES: Candidate[] = [
     bio: "Dedicated to runway excellence, confidence, and capturing audience attention.",
     imageUrl: 'https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?auto=format&fit=crop&w=800&q=80',
     votes: 0,
+    designerName: "Disandi",
+    hasBestDesignEntry: true,
   },
   {
     id: 'girl-6',
@@ -152,6 +174,8 @@ export const INITIAL_CANDIDATES: Candidate[] = [
     bio: "Passionate about expressing style, gaining experience, and commanding the catwalk with grace.",
     imageUrl: 'https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?auto=format&fit=crop&w=800&q=80',
     votes: 0,
+    designerName: "Lufira",
+    hasBestDesignEntry: true,
   },
   {
     id: 'girl-7',
@@ -162,6 +186,8 @@ export const INITIAL_CANDIDATES: Candidate[] = [
     bio: "Showcasing bold artistic talent, radiant stage aura, and sophisticated presence.",
     imageUrl: 'https://images.unsplash.com/photo-1514315384763-ba401779410f?auto=format&fit=crop&w=800&q=80',
     votes: 0,
+    designerName: "Sithmi",
+    hasBestDesignEntry: true,
   },
   {
     id: 'girl-8',
@@ -172,6 +198,8 @@ export const INITIAL_CANDIDATES: Candidate[] = [
     bio: "Aspiring high fashion model with refined posture, elegant turns, and camera-ready poise.",
     imageUrl: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=800&q=80',
     votes: 0,
+    designerName: "Ovindi",
+    hasBestDesignEntry: true,
   },
   {
     id: 'girl-9',
@@ -182,6 +210,8 @@ export const INITIAL_CANDIDATES: Candidate[] = [
     bio: "Admiring haute couture aesthetics and embodying timeless runway grace.",
     imageUrl: 'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=800&q=80',
     votes: 0,
+    designerName: "Lumbini",
+    hasBestDesignEntry: true,
   },
   {
     id: 'girl-10',
@@ -192,6 +222,8 @@ export const INITIAL_CANDIDATES: Candidate[] = [
     bio: "Contemporary resort couture and editorial elegance with balanced cadence.",
     imageUrl: 'https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?auto=format&fit=crop&w=800&q=80',
     votes: 0,
+    designerName: "Manuri",
+    hasBestDesignEntry: true,
   },
   {
     id: 'girl-11',
@@ -202,6 +234,8 @@ export const INITIAL_CANDIDATES: Candidate[] = [
     bio: "Fresh runway perspective blending modern attitude with effortless grace.",
     imageUrl: 'https://images.unsplash.com/photo-1509967419530-da38b4704bc6?auto=format&fit=crop&w=800&q=80',
     votes: 0,
+    designerName: "Minthi",
+    hasBestDesignEntry: true,
   },
   {
     id: 'girl-12',
@@ -212,6 +246,8 @@ export const INITIAL_CANDIDATES: Candidate[] = [
     bio: "Dynamic catwalk walker showcasing high-contrast styling and confident elegance.",
     imageUrl: 'https://images.unsplash.com/photo-1492106087820-71aa1df4a77b?auto=format&fit=crop&w=800&q=80',
     votes: 0,
+    designerName: "Chathurya",
+    hasBestDesignEntry: true,
   },
   {
     id: 'girl-13',
@@ -222,6 +258,8 @@ export const INITIAL_CANDIDATES: Candidate[] = [
     bio: "Genuine passion towards fashion, elegant silhouettes, and runway expression.",
     imageUrl: 'https://images.unsplash.com/photo-1516726817505-f5ed825624d8?auto=format&fit=crop&w=800&q=80',
     votes: 0,
+    designerName: "Nayomi",
+    hasBestDesignEntry: true,
   },
   {
     id: 'girl-14',
@@ -232,6 +270,8 @@ export const INITIAL_CANDIDATES: Candidate[] = [
     bio: "Vibrant and versatile contender with natural rhythm and radiant poise.",
     imageUrl: 'https://images.unsplash.com/photo-1520813792240-56fc4a3765a7?auto=format&fit=crop&w=800&q=80',
     votes: 0,
+    designerName: "Lahasi",
+    hasBestDesignEntry: true,
   },
   {
     id: 'girl-15',
@@ -242,6 +282,8 @@ export const INITIAL_CANDIDATES: Candidate[] = [
     bio: "Editorial print and catwalk perfection with immaculate poise and expressive facial emotion.",
     imageUrl: 'https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?auto=format&fit=crop&w=800&q=80',
     votes: 0,
+    designerName: "Dinithi",
+    hasBestDesignEntry: true,
   },
   {
     id: 'girl-16',
@@ -252,5 +294,7 @@ export const INITIAL_CANDIDATES: Candidate[] = [
     bio: "Sophisticated runway walker with clean lines, striking confidence, and captivating stage presence.",
     imageUrl: 'https://images.unsplash.com/photo-1526510706041-07ee4b85c2c7?auto=format&fit=crop&w=800&q=80',
     votes: 0,
+    designerName: "Sinali",
+    hasBestDesignEntry: true,
   },
 ];

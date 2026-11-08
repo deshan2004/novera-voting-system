@@ -9,10 +9,16 @@ public class Candidate {
     private String bio;
     private String imageUrl;
     private int votes;
+    private String designerName;
+    private Boolean hasBestDesignEntry;
 
     public Candidate() {}
 
     public Candidate(String id, String candidateNumber, String name, String category, Integer age, String bio, String imageUrl, int votes) {
+        this(id, candidateNumber, name, category, age, bio, imageUrl, votes, null, false);
+    }
+
+    public Candidate(String id, String candidateNumber, String name, String category, Integer age, String bio, String imageUrl, int votes, String designerName, Boolean hasBestDesignEntry) {
         this.id = id;
         this.candidateNumber = candidateNumber;
         this.name = name;
@@ -21,6 +27,8 @@ public class Candidate {
         this.bio = bio;
         this.imageUrl = imageUrl;
         this.votes = votes;
+        this.designerName = designerName;
+        this.hasBestDesignEntry = hasBestDesignEntry;
     }
 
     public String getId() { return id; }
@@ -46,6 +54,12 @@ public class Candidate {
 
     public int getVotes() { return votes; }
     public void setVotes(int votes) { this.votes = votes; }
+
+    public String getDesignerName() { return designerName; }
+    public void setDesignerName(String designerName) { this.designerName = designerName; }
+
+    public Boolean getHasBestDesignEntry() { return hasBestDesignEntry; }
+    public void setHasBestDesignEntry(Boolean hasBestDesignEntry) { this.hasBestDesignEntry = hasBestDesignEntry; }
 
     public synchronized int incrementVotes() {
         this.votes++;

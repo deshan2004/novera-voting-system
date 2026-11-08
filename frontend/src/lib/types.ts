@@ -9,6 +9,8 @@ export interface Candidate {
   bio?: string;
   imageUrl: string;
   votes: number;
+  designerName?: string;
+  hasBestDesignEntry?: boolean;
 }
 
 export interface VoteSubmission {

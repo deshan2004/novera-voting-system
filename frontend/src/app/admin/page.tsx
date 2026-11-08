@@ -529,7 +529,10 @@ export default function AdminLeaderboardPage() {
 
   // Ranking helper by award
   const getRankedStats = (category: 'boy' | 'girl', award: AwardKey) => {
-    const list = candidateStats.filter((c) => c.candidate.category === category);
+    let list = candidateStats.filter((c) => c.candidate.category === category);
+    if (award === 'design') {
+      list = list.filter((c) => c.candidate.hasBestDesignEntry);
+    }
     return list.sort((a, b) => {
       switch (award) {
         case 'topModel':
@@ -645,8 +648,10 @@ export default function AdminLeaderboardPage() {
 
       text += `🏆 TITLE #${idx + 1}: ${award.title.toUpperCase()}\n`;
       text += `   Criteria: ${award.criteriaText}\n`;
-      text += `   👔 Best Male Model (Boy): #${winnerBoy?.candidate.candidateNumber || 'N/A'} - ${winnerBoy?.candidate.name || 'To Be Announced'} (Score / Votes: ${boyScore})\n`;
-      text += `   👗 Best Female Model (Girl): #${winnerGirl?.candidate.candidateNumber || 'N/A'} - ${winnerGirl?.candidate.name || 'To Be Announced'} (Score / Votes: ${girlScore})\n`;
+      const boyDes = award.key === 'design' && winnerBoy?.candidate.designerName ? ` [Designer: ${winnerBoy.candidate.designerName}]` : '';
+      const girlDes = award.key === 'design' && winnerGirl?.candidate.designerName ? ` [Designer: ${winnerGirl.candidate.designerName}]` : '';
+      text += `   👔 Best Male Model (Boy): #${winnerBoy?.candidate.candidateNumber || 'N/A'} - ${winnerBoy?.candidate.name || 'To Be Announced'}${boyDes} (Score / Votes: ${boyScore})\n`;
+      text += `   👗 Best Female Model (Girl): #${winnerGirl?.candidate.candidateNumber || 'N/A'} - ${winnerGirl?.candidate.name || 'To Be Announced'}${girlDes} (Score / Votes: ${girlScore})\n`;
       if (pdfIncludeScripts) {
         text += `   🎙️ MC STAGE CUE:\n`;
         text += `      "Ladies and Gentlemen, for ${award.title}, the recipient of the Male Award is Candidate #${winnerBoy?.candidate.candidateNumber || 'N/A'}, ${winnerBoy?.candidate.name || 'TBA'}! And the winner for Female Model is Candidate #${winnerGirl?.candidate.candidateNumber || 'N/A'}, ${winnerGirl?.candidate.name || 'TBA'}!"\n`;
@@ -2655,9 +2660,16 @@ export default function AdminLeaderboardPage() {
                                   <h4 className="font-serif text-base font-bold text-white">
                                     {winnerBoy?.candidate.name || 'To Be Announced'}
                                   </h4>
-                                  <span className="text-[11px] text-zinc-400">
-                                    Candidate No: {winnerBoy?.candidate.candidateNumber || 'N/A'}
-                                  </span>
+                                  <div className="flex items-center gap-2 flex-wrap">
+                                    <span className="text-[11px] text-zinc-400">
+                                      Candidate No: {winnerBoy?.candidate.candidateNumber || 'N/A'}
+                                    </span>
+                                    {award.key === 'design' && winnerBoy?.candidate.designerName && (
+                                      <span className="text-[10px] font-bold text-purple-300 font-mono px-1.5 py-0.2 rounded bg-purple-950/60 border border-purple-500/40">
+                                        🎨 Designer: {winnerBoy.candidate.designerName}
+                                      </span>
+                                    )}
+                                  </div>
                                 </div>
                               </div>
 
@@ -2692,9 +2704,16 @@ export default function AdminLeaderboardPage() {
                                   <h4 className="font-serif text-base font-bold text-white">
                                     {winnerGirl?.candidate.name || 'To Be Announced'}
                                   </h4>
-                                  <span className="text-[11px] text-zinc-400">
-                                    Candidate No: {winnerGirl?.candidate.candidateNumber || 'N/A'}
-                                  </span>
+                                  <div className="flex items-center gap-2 flex-wrap">
+                                    <span className="text-[11px] text-zinc-400">
+                                      Candidate No: {winnerGirl?.candidate.candidateNumber || 'N/A'}
+                                    </span>
+                                    {award.key === 'design' && winnerGirl?.candidate.designerName && (
+                                      <span className="text-[10px] font-bold text-purple-300 font-mono px-1.5 py-0.2 rounded bg-purple-950/60 border border-purple-500/40">
+                                        🎨 Designer: {winnerGirl.candidate.designerName}
+                                      </span>
+                                    )}
+                                  </div>
                                 </div>
                               </div>
 
